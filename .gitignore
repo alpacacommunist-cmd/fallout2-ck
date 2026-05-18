@@ -1,0 +1,10 @@
+/build/
+
+*.o
+*.a
+*.so
+
+/fallout2-ck
+
+.swp
+.netrwhist
