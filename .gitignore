@@ -1,5 +1,7 @@
 /build/
-/gamedir/
+
+/gamedir/**
+!/gamedir/README
 
 *.o
 *.a
