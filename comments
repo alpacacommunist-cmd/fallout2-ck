@@ -1,0 +1,16 @@
+такс, это чтобы у тебя перед глазами было (чтобы не путаться):
+
+1.  lua_State* gLuaState = nullptr;
+    gLuaState = luaL_newstate();
+
+2.
+    // try execute sample lua script
+    int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
+
+3. Наш test.lua делает require("events") и регистрирует наши очереди коллбэков.
+4. Игра загружается, и после инициализации интерфейса дергает наш void ckHookOnGameStart(); (добавляли в src/interface.cc вроде)
+5. void ckHookOnGameStart() ищет в нашем lua state "ckOnGameStart" и кладет его в стэк (на стол);  
+6. Запускает ckOnGameStart если такая функция нашлась!
+
+Т.к. мы пока не добавляли вызовы onCheckTimeLimit - здесь пока без изменений.
+

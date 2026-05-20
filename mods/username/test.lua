@@ -13,3 +13,9 @@ events.on('onGameStart', function()
     log.print("You see: A Giant Ant! Oh wait, actually it's LuaJit!")
 end)
 
+-- our new hook filter, work in progress
+-- mod tells engine: yes, extend!
+events.on('onCheckTimeLimit', function()
+    print("[Mod Arroyo Expanded] Removing time limits so player can chill in Arroyo!")
+    return true
+end)

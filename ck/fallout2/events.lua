@@ -3,7 +3,8 @@
 local events = {
     -- listeners stack
     listeners = {
-        onGameStart = {}
+        onGameStart = {},
+        onCheckTimeLimit = {} -- let's try extend game time limit to 50+ years (aka sfall)
     }
 }
 
@@ -16,7 +17,10 @@ function events.on(eventName, callback)
     end
 end
 
+-- 
 -- Single C entry point
+--
+
 -- ckHookOnGameStart (C) calls it on game start
 function ckOnGameStart()
     print("[CK Events] Engine signaled: Game Start! Firing listeners...")
@@ -24,5 +28,26 @@ function ckOnGameStart()
         pcall(callback)
     end
 end
+
+-- Hook filter entry point, we use checkTimeLimit as example, work in progress
+function ckOnCheckTimeLimit()
+    print("[CK Events] Engine asks: Should we extend game time limit?")
+    
+    -- Runs through listeners. If at least one says true - we return true back
+    for _, callback in ipairs(events.listeners.onCheckTimeLimit) do
+        local success, result = pcall(callback)
+        if success and result == true then
+            print("[CK Events] A mod requested to extend the time limit! Sending TRUE to engine.")
+            return true -- yes please
+        end
+    end
+    
+    return false -- no thanks
+end
+
+-- 
+-- Single C entry point END
+--
+
 
 return events
