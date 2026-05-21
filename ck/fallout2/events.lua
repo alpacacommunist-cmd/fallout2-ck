@@ -3,7 +3,8 @@
 local events = {
     -- listeners stack
     listeners = {
-        onGameStart = {}
+        onGameStart = {},
+        onDayPassed = {}
     }
 }
 
@@ -17,6 +18,19 @@ function events.on(eventName, callback)
     end
 end
 
+function events.emit(eventName)
+    local listeners = events.listeners[eventName]
+
+    if not listeners then
+        print("[CK Warning] Attempted to emit unknown event: " .. tostring(eventName))
+        return
+    end
+
+    for _, callback in ipairs(listeners) do
+        pcall(callback)
+    end
+end
+
 
 -- 
 -- Single C entry point
@@ -25,9 +39,7 @@ end
 -- ckHookOnGameStart (C) calls it when game started (interface initiated)
 function ckOnGameStart()
     print("[CK Events] Engine signaled: Game Start! Firing listeners...")
-    for _, callback in ipairs(events.listeners.onGameStart) do
-        pcall(callback)
-    end
+    events.emit('onGameStart')
 end
 
 -- 

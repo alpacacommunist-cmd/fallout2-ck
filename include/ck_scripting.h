@@ -5,6 +5,7 @@ void ckScriptingInit();
 void ckScriptingExit();
 
 void ckHookOnGameStart();
+void ckHookOnDayPassed();
 
 int ckGetConfigInt(const char* key, int default_value);
 
