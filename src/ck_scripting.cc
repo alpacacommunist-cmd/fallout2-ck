@@ -33,6 +33,10 @@ int l_ck_log_print(lua_State* L) {
     return 0; // nothing to return
 }
 
+//
+// void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr)
+// 
+
 // l_ck_get_year -> ckGetYear -> fallout2.game_time.getYear
 int l_ck_get_year(lua_State* L) {
 	int year = 0;
@@ -42,6 +46,33 @@ int l_ck_get_year(lua_State* L) {
     return 1; // one return value for lua
 }
 
+// l_ck_get_day -> ckGetDay -> fallout2.game_time.getDay
+int l_ck_get_day(lua_State* L) {
+    int day = 0;
+
+    fallout::gameTimeGetDate(nullptr, &day, nullptr);
+
+    lua_pushinteger(L, day);
+    return 1; // one return value for lua
+}
+
+// l_ck_get_month -> ckGetMonth -> fallout2.game_time.getMonth
+int l_ck_get_month(lua_State* L) {
+    int month = 0;
+
+    fallout::gameTimeGetDate(&month, nullptr, nullptr);
+
+    lua_pushinteger(L, month);
+    return 1; // one return value for lua
+}
+
+// l_ck_get_hour -> ckGetHour -> fallout2.game_time.getHour
+int l_ck_get_hour(lua_State* L) {
+    int hour = fallout::gameTimeGetHour();
+
+    lua_pushinteger(L, hour);
+    return 1; // one return value for lua
+}
 
 // Init
 //
@@ -60,6 +91,9 @@ void ckScriptingInit() {
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
 		lua_register(gLuaState, "ckGetYear", l_ck_get_year);
+		lua_register(gLuaState, "ckGetDay", l_ck_get_day);
+		lua_register(gLuaState, "ckGetMonth", l_ck_get_month);
+		lua_register(gLuaState, "ckGetHour", l_ck_get_hour);
 
         // try execute sample lua script
         int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
