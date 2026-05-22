@@ -31,12 +31,6 @@ function gameTime.getTotalDays()
   return ckGetTotalDays()
 end
 
-function gameTime.isNight()
-  local hour = gameTime.getHour()
-
-  return hour >= 20 or hour < 6
-end
-
 function gameTime.getTimeOfDay()
   local hour = gameTime.getHour()
 
@@ -52,7 +46,24 @@ function gameTime.getTimeOfDay()
     return 'evening'
   end
 
+  -- everything after evening is night
   return 'night'
+end
+
+function gameTime.isMorning()
+  return gameTime.getTimeOfDay() == 'morning'
+end
+
+function gameTime.isDay()
+  return gameTime.getTimeOfDay() == 'day'
+end
+
+function gameTime.isEvening()
+  return gameTime.getTimeOfDay() == 'evening'
+end
+
+function gameTime.isNight()
+  return gameTime.getTimeOfDay() == 'night'
 end
 
 function gameTime.hasDaysPassed(days, sinceDay)
