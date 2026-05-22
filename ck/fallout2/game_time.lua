@@ -37,4 +37,22 @@ function gameTime.isNight()
   return hour >= 20 or hour < 6
 end
 
+function gameTime.getTimeOfDay()
+  local hour = gameTime.getHour()
+
+  if hour >= 6 and hour < 12 then
+    return 'morning'
+  end
+
+  if hour >= 12 and hour < 18 then
+    return 'day'
+  end
+
+  if hour >= 18 and hour < 20 then
+    return 'evening'
+  end
+
+  return 'night'
+end
+
 return gameTime

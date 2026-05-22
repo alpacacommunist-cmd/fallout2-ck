@@ -28,16 +28,6 @@ events.on('onDayPassed', function()
     )
   )
 
-  log.print(
-    "Total days: " .. gameTime.getTotalDays()
-  )
-
-  local isNight
-  if gameTime.isNight() then
-    isNight = true
-  else
-    isNight = false
-  end
-
-  log.print(isNight)
+  log.print("Total days: " .. gameTime.getTotalDays())
+  log.print("Time of day: " .. gameTime.getTimeOfDay())
 end)
