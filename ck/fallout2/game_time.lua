@@ -31,4 +31,10 @@ function gameTime.getTotalDays()
   return ckGetTotalDays()
 end
 
+function gameTime.isNight()
+  local hour = gameTime.getHour()
+
+  return hour >= 20 or hour < 6
+end
+
 return gameTime
