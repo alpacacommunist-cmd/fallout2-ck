@@ -4,7 +4,8 @@ local events = {
     -- listeners stack
     listeners = {
         onGameStart = {},
-        onDayPassed = {}
+        onDayPassed = {},
+        onGameLoaded = {}
     }
 }
 
@@ -42,6 +43,16 @@ function ckOnGameStart()
     events.emit('onGameStart')
 end
 
+function ckOnGameLoaded()
+    print("[CK Events] Engine signaled: Game Loaded!")
+    events.emit('onGameLoaded')
+end
+
+-- ckHookOnDayPassed (C) calls it when day passes
+function ckOnDayPassed()
+    print("[CK Events] Engine signaled: Day Passed!")
+    events.emit('onDayPassed')
+end
 -- 
 -- Single C entry point END
 --
