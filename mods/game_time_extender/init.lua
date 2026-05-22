@@ -12,5 +12,5 @@ config.set('max_game_time_years', 100)
 
 -- Check if monitor still works. this actually works
 events.on('onGameStart', function()
-    log.print("You see: A Giant Ant! Oh wait, actually it's LuaJit!")
+  log.print("You see: A Giant Ant! Oh wait, actually it's LuaJit!")
 end)

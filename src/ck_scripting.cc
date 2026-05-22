@@ -21,16 +21,16 @@ lua_State* gLuaState = nullptr;
 //
 // l_ck_log_print -> ckLogPrint -> fallout2.log.print
 int l_ck_log_print(lua_State* L) {
-    // Safely extract a string we got from Lua
-    // example: fallout2.log.print(123), LuaJIT makes it '123'
-    const char* message = luaL_checkstring(L, 1);
+	// Safely extract a string we got from Lua
+	// example: fallout2.log.print(123), LuaJIT makes it '123'
+	const char* message = luaL_checkstring(L, 1);
 
-    if (message != nullptr) {
-        // try send message to monitor
-        fallout::displayMonitorAddMessage(message);
+	if (message != nullptr) {
+		// try send message to monitor
+		fallout::displayMonitorAddMessage(message);
 	}
 
-    return 0; // nothing to return
+	return 0; // nothing to return
 }
 
 //
@@ -74,6 +74,18 @@ int l_ck_get_hour(lua_State* L) {
     return 1; // one return value for lua
 }
 
+// l_ck_get_total_days -> ckGetTotalDays -> fallout2.game_time.getTotalDays
+int l_ck_get_total_days(lua_State* L) {
+    unsigned int gameTime = fallout::gameTimeGetTime();
+    // 10 ticks = 1 second
+    // 60 sec * 60 min * 24 hours = seconds/day
+    int totalDays = gameTime / (10 * 60 * 60 * 24);
+
+    lua_pushinteger(L, totalDays);
+
+    return 1; // one value returned to Lua
+}
+
 // Init
 //
 void ckScriptingInit() {
@@ -94,6 +106,7 @@ void ckScriptingInit() {
 		lua_register(gLuaState, "ckGetDay", l_ck_get_day);
 		lua_register(gLuaState, "ckGetMonth", l_ck_get_month);
 		lua_register(gLuaState, "ckGetHour", l_ck_get_hour);
+		lua_register(gLuaState, "ckGetTotalDays", l_ck_get_total_days);
 
         // try execute sample lua script
         int status = luaL_dofile(gLuaState, "../mods/username/test.lua");

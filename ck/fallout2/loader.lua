@@ -7,26 +7,26 @@ print("[CK Loader] Initializing Mod Loader...")
 
 -- Mod list
 local active_mods = {
-    "game_time_extender",
-    "username"
+  "game_time_extender",
+  "username"
 }
 
 -- Loads mods
 function ckInitializeMods()
-    print("[CK Loader] Loading active modules...")
+  print("[CK Loader] Loading active modules...")
 
-    for _, mod_folder in ipairs(active_mods) do
-        print("[CK Loader] Booting: " .. mod_folder)
+  for _, mod_folder in ipairs(active_mods) do
+    print("[CK Loader] Booting: " .. mod_folder)
 
-        local success, err = pcall(function()
-            -- requires each mod to use single entry point as init.lua
-            require(mod_folder .. ".init")
-        end)
+    local success, err = pcall(function()
+      -- requires each mod to use single entry point as init.lua
+      require(mod_folder .. ".init")
+    end)
 
-        if not success then
-            print("[CK Loader] CRITICAL ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
-        end
+    if not success then
+      print("[CK Loader] CRITICAL ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
     end
+  end
 
-    print("[CK Loader] All mods processed successfully!")
+  print("[CK Loader] All mods processed successfully!")
 end

@@ -27,4 +27,8 @@ events.on('onDayPassed', function()
       date.day, date.month, date.year, date.hour
     )
   )
+
+  log.print(
+    "Total days: " .. gameTime.getTotalDays()
+  )
 end)
