@@ -19,5 +19,12 @@ local gameTime = require('fallout2.game_time')
 local log = require('fallout2.log')
 
 events.on('onDayPassed', function()
-  log.print(string.format("Date: %d/%d Hour: %d", gameTime.getDay(), gameTime.getMonth(), gameTime.getHour()))
+  local date = gameTime.getDate()
+
+  log.print(
+    string.format(
+      "Date: %d/%d/%d Hour: %d",
+      date.day, date.month, date.year, date.hour
+    )
+  )
 end)

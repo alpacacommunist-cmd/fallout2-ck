@@ -18,4 +18,11 @@ function gameTime.getHour()
     return ckGetHour()
 end
 
+function gameTime.getDate()
+    return {
+        day = gameTime.getDay(), month = gameTime.getMonth(),
+        year = gameTime.getYear(), hour = gameTime.getHour()
+    }
+end
+
 return gameTime
