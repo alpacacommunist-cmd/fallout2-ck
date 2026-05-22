@@ -31,8 +31,6 @@ function events.emit(eventName)
         pcall(callback)
     end
 end
-
-
 -- 
 -- Single C entry point
 --

@@ -4,6 +4,7 @@
 
 // bindings (requirements)
 #include "display_monitor.h"
+#include "scripts.h"
 
 extern "C" {
 #include "../../src/vendor/luajit/src/lua.h"
@@ -27,9 +28,18 @@ int l_ck_log_print(lua_State* L) {
     if (message != nullptr) {
         // try send message to monitor
         fallout::displayMonitorAddMessage(message);
-    }
+	}
 
     return 0; // nothing to return
+}
+
+// l_ck_get_year -> ckGetYear -> fallout2.game_time.getYear
+int l_ck_get_year(lua_State* L) {
+	int year = 0;
+	fallout::gameTimeGetDate(nullptr, nullptr, &year);
+
+	lua_pushinteger(L, year);
+    return 1; // one return value for lua
 }
 
 
@@ -48,7 +58,8 @@ void ckScriptingInit() {
         luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?.lua'");
 
         // bindings. registers c <-> lua functions
-        lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
+		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
+		lua_register(gLuaState, "ckGetYear", l_ck_get_year);
 
         // try execute sample lua script
         int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
@@ -69,7 +80,6 @@ void ckScriptingExit() {
         gLuaState = nullptr;
     }
 }
-
 
 // this is called from fallout2-ce once interface is ready
 // work in progress chill
