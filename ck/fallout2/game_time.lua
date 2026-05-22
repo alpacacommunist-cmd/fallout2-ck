@@ -55,4 +55,46 @@ function gameTime.getTimeOfDay()
   return 'night'
 end
 
+function gameTime.hasDaysPassed(days, sinceDay)
+  return gameTime.getTotalDays() - sinceDay >= days
+end
+
+function gameTime.getSeason()
+  local month = gameTime.getMonth()
+
+  if month >= 3 and month <= 5 then
+    return 'spring'
+  end
+
+  if month >= 6 and month <= 8 then
+    return 'summer'
+  end
+
+  if month >= 9 and month <= 11 then
+    return 'autumn'
+  end
+
+  return 'winter'
+end
+
+function gameTime.isSeason(season)
+  return gameTime.getSeason() == season
+end
+
+function gameTime.getDayOfWeek()
+  local totalDays = gameTime.getTotalDays()
+
+  local days = {
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday'
+  }
+
+  return days[(totalDays % 7) + 1]
+end
+
 return gameTime

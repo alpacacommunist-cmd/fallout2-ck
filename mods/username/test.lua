@@ -30,4 +30,8 @@ events.on('onDayPassed', function()
 
   log.print("Total days: " .. gameTime.getTotalDays())
   log.print("Time of day: " .. gameTime.getTimeOfDay())
+  log.print("3 days passed since day 0: " .. tostring(gameTime.hasDaysPassed(3, 0)))
+  log.print("Season: " .. gameTime.getSeason())
+  log.print("Is it summer yet: " .. tostring(gameTime.isSeason("summer")))
+  log.print("Day of week: " .. gameTime.getDayOfWeek())
 end)
