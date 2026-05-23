@@ -17,6 +17,12 @@ ckInitializeMods()
 local events = require('fallout2.events')
 local gameTime = require('fallout2.game_time')
 local log = require('fallout2.log')
+local respawn = require('fallout2.respawn')
+
+local huntingGrounds = {
+  lastRespawnDay = 0,
+  respawnDays = 3
+}
 
 events.on('onDayPassed', function()
   local date = gameTime.getDate()
@@ -39,4 +45,12 @@ events.on('onDayPassed', function()
   log.print("Is it morning time: " .. tostring(gameTime.isMorning()))
   log.print("Is it day time: " .. tostring(gameTime.isDay()))
   log.print("Is it evening time: " .. tostring(gameTime.isEvening()))
+
+  log.print("Respawn ready after 3 days since day 0: " .. tostring(respawn.isReady(0, 3)))
+end)
+
+events.on('onGameLoaded', function()
+  respawn.try(huntingGrounds, function()
+    log.print("The hunting grounds feel alive again.")
+  end)
 end)
