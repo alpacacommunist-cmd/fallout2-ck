@@ -5,6 +5,7 @@
 // bindings (requirements)
 #include "display_monitor.h"
 #include "proto_instance.h"
+#include "map.h"
 #include "scripts.h"
 
 extern "C" {
@@ -37,6 +38,12 @@ int l_ck_log_print(lua_State* L) {
 //
 // void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr)
 // 
+
+// l_ck_get_map_id -> ckGetYear -> fallout2.game_time.getYear
+int l_ck_get_map_id(lua_State* L) {
+    lua_pushinteger(L, fallout::mapGetCurrentMap());
+    return 1;
+}
 
 // l_ck_get_year -> ckGetYear -> fallout2.game_time.getYear
 int l_ck_get_year(lua_State* L) {
@@ -126,6 +133,7 @@ void ckScriptingInit() {
 		lua_register(gLuaState, "ckGetMonth", l_ck_get_month);
 		lua_register(gLuaState, "ckGetHour", l_ck_get_hour);
 		lua_register(gLuaState, "ckGetTotalDays", l_ck_get_total_days);
+		lua_register(gLuaState, "ckGetMapId", l_ck_get_map_id);
 
 		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
 
