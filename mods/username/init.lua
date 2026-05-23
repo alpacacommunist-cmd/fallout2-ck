@@ -6,6 +6,7 @@ local gameTime = require('fallout2.game_time')
 local log = require('fallout2.log')
 local respawn = require('fallout2.respawn')
 local map = require('fallout2.map')
+local world = require('fallout2.world')
 
 local huntingGrounds = {
   lastRespawnDay = 0,
@@ -56,6 +57,6 @@ events.on('onMapEnter', function()
   end
 
   log.print("The hunting grounds feel alive...")
-  ckSpawnCritter(0x100017E)
+  world.spawnCritter(0x100017E)
 end)
 
