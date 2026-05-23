@@ -7,6 +7,7 @@ local log = require('fallout2.log')
 local respawn = require('fallout2.respawn')
 local map = require('fallout2.map')
 local world = require('fallout2.world')
+local constants = require('fallout2.constants')
 
 local huntingGrounds = {
   lastRespawnDay = 0,
@@ -44,19 +45,33 @@ events.on('onGameLoaded', function()
   end)
 end)
 
-local HUNTING_GROUNDS_MAP_ID = 35
+local function spawnHuntingGroundsAnt()
+  log.print("The hunting grounds feel alive...")
+  world.spawnCritter(constants.pids.GIANT_ANT)
+end
+
+local function spawnHuntingGroundsCreatures()
+  spawnHuntingGroundsAnt()
+end
+
+local function isHuntingGrounds(mapId)
+  return mapId == constants.maps.HUNTING_GROUNDS
+end
+
+local function logMapEnter(mapId)
+  log.print("Map id: " .. tostring(mapId))
+  log.print("Entered map!")
+end
 
 events.on('onMapEnter', function()
   local mapId = map.getId()
 
-  log.print("Map id: " .. tostring(mapId))
-  log.print("Entered map!")
+  logMapEnter(mapId)
 
-  if mapId ~= HUNTING_GROUNDS_MAP_ID then
+  if not isHuntingGrounds(mapId) then
     return
   end
 
-  log.print("The hunting grounds feel alive...")
-  world.spawnCritter(0x100017E)
+  spawnHuntingGroundsCreatures()
 end)
 
