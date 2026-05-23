@@ -3,7 +3,7 @@
 local world = {}
 
 function world.spawnCritter(pid)
-  ckSpawnCritter(pid)
+  return ckSpawnCritter(pid)
 end
 
 return world

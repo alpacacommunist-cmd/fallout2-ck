@@ -109,7 +109,8 @@ int l_ck_spawn_critter(lua_State* L) {
         );
     }
 
-    return 0; // no return values to Lua
+	lua_pushboolean(L, true);
+    return 1;
 }
 
 // Init
