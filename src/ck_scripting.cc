@@ -4,6 +4,7 @@
 
 // bindings (requirements)
 #include "display_monitor.h"
+#include "proto_instance.h"
 #include "scripts.h"
 
 extern "C" {
@@ -86,6 +87,24 @@ int l_ck_get_total_days(lua_State* L) {
     return 1; // one value returned to Lua
 }
 
+int l_ck_spawn_critter(lua_State* L) {
+    // argument #1 from Lua
+    int pid = luaL_checkinteger(L, 1);
+
+    fallout::Object* critter;
+
+    if (fallout::objectCreateWithPid(&critter, pid) == 0) {
+        fallout::objectAttemptPlacement(
+            critter,
+            fallout::gDude->tile,
+            fallout::gDude->elevation, // originally fallout::gElevation
+            3
+        );
+    }
+
+    return 0; // no return values to Lua
+}
+
 // Init
 //
 void ckScriptingInit() {
@@ -107,6 +126,8 @@ void ckScriptingInit() {
 		lua_register(gLuaState, "ckGetMonth", l_ck_get_month);
 		lua_register(gLuaState, "ckGetHour", l_ck_get_hour);
 		lua_register(gLuaState, "ckGetTotalDays", l_ck_get_total_days);
+
+		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
 
         // try execute sample lua script
         int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
@@ -193,6 +214,24 @@ void ckHookOnGameLoaded() {
         }
     } else {
         // no such function, remove it from stack
+        lua_pop(gLuaState, 1);
+    }
+}
+
+void ckHookOnMapEnter() {
+    if (gLuaState == nullptr) return;
+
+    // search global lua table for function "ckOnMapEnter"
+    lua_getglobal(gLuaState, "ckOnMapEnter");
+
+    if (lua_isfunction(gLuaState, -1)) {
+        int status = lua_pcall(gLuaState, 0, 0, 0);
+
+        if (status != LUA_OK) {
+            std::cerr << "[CK] Hook Error " << "(onMapEnter): " << lua_tostring(gLuaState, -1) << std::endl;
+            lua_pop(gLuaState, 1);
+        }
+    } else {
         lua_pop(gLuaState, 1);
     }
 }

@@ -54,3 +54,12 @@ events.on('onGameLoaded', function()
     log.print("The hunting grounds feel alive again.")
   end)
 end)
+
+events.on('onMapEnter', function()
+  log.print("Entered map!")
+end)
+
+events.on('onMapEnter', function()
+  log.print("Entered map! Trying to spawn A Giant Ant!")
+  ckSpawnCritter(0x100017E)
+end)

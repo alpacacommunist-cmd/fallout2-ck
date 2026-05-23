@@ -5,7 +5,8 @@ local events = {
   listeners = {
     onGameStart = {},
     onDayPassed = {},
-    onGameLoaded = {}
+    onGameLoaded = {},
+    onMapEnter = {}
   }
 }
 
@@ -31,8 +32,9 @@ function events.emit(eventName)
     pcall(callback)
   end
 end
--- 
--- Single C entry point
+
+--
+-- C -> Lua entry points
 --
 
 -- ckHookOnGameStart (C) calls it when game started (interface initiated)
@@ -51,9 +53,14 @@ function ckOnDayPassed()
   print("[CK Events] Engine signaled: Day Passed!")
   events.emit('onDayPassed')
 end
+
+function ckOnMapEnter()
+  print("[CK Events] Engine signaled: Map Enter!")
+  events.emit('onMapEnter')
+end
+
 -- 
 -- Single C entry point END
 --
-
 
 return events
