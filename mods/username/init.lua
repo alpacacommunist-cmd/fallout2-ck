@@ -2,22 +2,60 @@
 print("[Mod] Loading Username Test Mod...")
 
 local events = require('fallout2.events')
-local log    = require('fallout2.log')
+local gameTime = require('fallout2.game_time')
+local log = require('fallout2.log')
+local respawn = require('fallout2.respawn')
+local map = require('fallout2.map')
 
--- events.on('onGameStart', function()
---   print("You see: A Giant Ant! Nope! Still LuaJit!") -- linux terminal
---   log.print("You see: A Giant Ant! Nope! Still LuaJit!") -- game
--- end)
---
--- function ckOnGameLoaded()
---   print("[CK Events] Engine signaled: Game Loaded!") -- linux terminal
---   log.print("[CK Events] Save loaded! LuaJIT survived!") -- game
---
---   events.emit('onGameLoaded')
--- end
+local huntingGrounds = {
+  lastRespawnDay = 0,
+  respawnDays = 3
+}
 
 events.on('onDayPassed', function()
-  print("Another day passed.") -- linux terminal
-  log.print("Another day passed.") -- game
+  local date = gameTime.getDate()
+
+  log.print(
+    string.format(
+      "Date: %d/%d/%d Hour: %d",
+      date.day, date.month, date.year, date.hour
+    )
+  )
+
+  log.print("Total days: " .. gameTime.getTotalDays())
+  log.print("Time of day: " .. gameTime.getTimeOfDay())
+  log.print("3 days passed since day 0: " .. tostring(gameTime.hasDaysPassed(3, 0)))
+  log.print("Season: " .. gameTime.getSeason())
+  log.print("Is it summer yet: " .. tostring(gameTime.isSeason("summer")))
+  log.print("Day of week: " .. gameTime.getDayOfWeek())
+
+  log.print("Is it night time: " .. tostring(gameTime.isNight()))
+  log.print("Is it morning time: " .. tostring(gameTime.isMorning()))
+  log.print("Is it day time: " .. tostring(gameTime.isDay()))
+  log.print("Is it evening time: " .. tostring(gameTime.isEvening()))
+
+  log.print("Respawn ready after 3 days since day 0: " .. tostring(respawn.isReady(0, 3)))
+end)
+
+events.on('onGameLoaded', function()
+  respawn.try(huntingGrounds, function()
+    log.print("The hunting grounds feel alive again.")
+  end)
+end)
+
+local HUNTING_GROUNDS_MAP_ID = 35
+
+events.on('onMapEnter', function()
+  local mapId = map.getId()
+
+  log.print("Map id: " .. tostring(mapId))
+  log.print("Entered map!")
+
+  if mapId ~= HUNTING_GROUNDS_MAP_ID then
+    return
+  end
+
+  log.print("The hunting grounds feel alive...")
+  ckSpawnCritter(0x100017E)
 end)
 

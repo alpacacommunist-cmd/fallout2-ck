@@ -137,8 +137,8 @@ void ckScriptingInit() {
 
 		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
 
-        // try execute sample lua script
-        int status = luaL_dofile(gLuaState, "../mods/username/test.lua");
+        // bootstrap
+        int status = luaL_dofile(gLuaState, "../ck/fallout2/bootstrap.lua");
         if (status != 0) {
             std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
         }
