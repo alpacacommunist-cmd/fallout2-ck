@@ -205,7 +205,12 @@ void ckHookOnDayPassed() {
     }
 }
 
+// just in case
 void ckHookOnAfterRest(int hours, int minutes) {
+	ckHookOnTimeAdvance(hours, minutes);
+}
+
+void ckHookOnTimeAdvance(int hours, int minutes) {
     if (gLuaState == nullptr) return;
 
     lua_getglobal(gLuaState, "ckOnTimeAdvance");
