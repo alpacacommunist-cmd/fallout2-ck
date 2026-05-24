@@ -39,7 +39,7 @@ int l_ck_log_print(lua_State* L) {
 // void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr)
 // 
 
-// l_ck_get_map_id -> ckGetYear -> fallout2.game_time.getYear
+// l_ck_get_map_id -> ckGetMapId -> fallout2.map.getMapID
 int l_ck_get_map_id(lua_State* L) {
     lua_pushinteger(L, fallout::mapGetCurrentMap());
     return 1;
@@ -197,6 +197,27 @@ void ckHookOnDayPassed() {
 
         if (status != LUA_OK) {
             std::cerr << "[CK] Hook Error " << "(onDayPassed): " << lua_tostring(gLuaState, -1) << std::endl;
+            lua_pop(gLuaState, 1); // clears error out of stack
+        }
+    } else {
+        // no such function, remove it from stack
+        lua_pop(gLuaState, 1);
+    }
+}
+
+void ckHookOnAfterRest(int hours, int minutes) {
+    if (gLuaState == nullptr) return;
+
+    lua_getglobal(gLuaState, "ckOnTimeAdvance");
+
+    if (lua_isfunction(gLuaState, -1)) {
+        lua_pushinteger(gLuaState, hours);
+        lua_pushinteger(gLuaState, minutes);
+
+        int status = lua_pcall(gLuaState, 2, 0, 0);
+
+        if (status != LUA_OK) {
+            std::cerr << "[CK] Hook Error " << "(onTimeAdvance): " << lua_tostring(gLuaState, -1) << std::endl;
             lua_pop(gLuaState, 1); // clears error out of stack
         }
     } else {

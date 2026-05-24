@@ -5,7 +5,9 @@ local events = {
   listeners = {
     onGameStart = {},
     onDayPassed = {},
+    onHourPassed = {},
     onGameLoaded = {},
+    onTimeAdvance = {},
     onMapEnter = {}
   }
 }
@@ -20,7 +22,7 @@ function events.on(eventName, callback)
   end
 end
 
-function events.emit(eventName)
+function events.emit(eventName, ...)
   local listeners = events.listeners[eventName]
 
   if not listeners then
@@ -29,7 +31,7 @@ function events.emit(eventName)
   end
 
   for _, callback in ipairs(listeners) do
-    pcall(callback)
+    pcall(callback, ...)
   end
 end
 
@@ -48,10 +50,14 @@ function ckOnGameLoaded()
   events.emit('onGameLoaded')
 end
 
--- ckHookOnDayPassed (C) calls it when day passes
 function ckOnDayPassed()
   print("[CK Events] Engine signaled: Day Passed!")
   events.emit('onDayPassed')
+end
+
+function ckOnHourPassed()
+  print("[CK Events] Engine signaled: Hour Passed!")
+  events.emit('onHourPassed')
 end
 
 function ckOnMapEnter()
@@ -59,8 +65,13 @@ function ckOnMapEnter()
   events.emit('onMapEnter')
 end
 
+function ckOnTimeAdvance(hours, minutes)
+  print("[CK Events] Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
+  events.emit('onTimeAdvance', hours, minutes)
+end
+
 -- 
--- Single C entry point END
+-- C <-> lua entry points END
 --
 
 return events
