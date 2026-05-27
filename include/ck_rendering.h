@@ -1,5 +1,5 @@
-#ifndef FALLOUT2_CK_RENDERING_H
-#define FALLOUT2_CK_RENDERING_H
+#ifndef CK_RENDERING_H
+#define CK_RENDERING_H
 
 namespace fallout
 {

@@ -12,7 +12,7 @@
 
 using namespace fallout;
 
-static void drawSceneryArt(int fid, int x, int y, Rect* rect)
+static void draw_scenery_art(int fid, int x, int y, Rect* rect)
 {
     CacheEntry* cacheEntry;
     Art* art = artLock(fid, &cacheEntry);
@@ -58,7 +58,7 @@ static void drawSceneryArt(int fid, int x, int y, Rect* rect)
     artUnlock(cacheEntry);
 }
 
-static void drawMountainPatch(int anchorScreenX, int anchorScreenY, Rect* rect) {
+static void draw_mountain_patch(int anchorScreenX, int anchorScreenY, Rect* rect) {
     struct BrushTile {
         int fidIndex;
         int dx;
@@ -110,7 +110,7 @@ static void drawMountainPatch(int anchorScreenX, int anchorScreenY, Rect* rect) 
     }
 }
 
-void drawTestOutskirts(Rect* rect)
+void draw_test_outskirts(Rect* rect)
 {
     if (mapGetCurrentMap() != 126) {
         return;
@@ -165,25 +165,25 @@ void drawTestOutskirts(Rect* rect)
     int fid8 = buildFid(OBJ_TYPE_SCENERY, 706, 0, 0, 0);
     // int fid9 = buildFid(OBJ_TYPE_SCENERY, 701, 0, 0, 0);
 
-    drawSceneryArt(fid1, screenX - 500, screenY - 360, rect);
-    drawSceneryArt(fid2, screenX - 725, screenY - 360, rect);
-    drawSceneryArt(fid3, screenX - 725, screenY - 230, rect);
-    drawSceneryArt(fid4, screenX - 492, screenY - 250, rect);
-    drawSceneryArt(fid5, screenX - 693, screenY - 55, rect);
-    drawSceneryArt(fid6, screenX - 465, screenY - 155, rect);
-    drawSceneryArt(fid7, screenX - 690, screenY - 160, rect);
-    drawSceneryArt(fid8, screenX - 500, screenY - 80, rect);
+    draw_scenery_art(fid1, screenX - 500, screenY - 360, rect);
+    draw_scenery_art(fid2, screenX - 725, screenY - 360, rect);
+    draw_scenery_art(fid3, screenX - 725, screenY - 230, rect);
+    draw_scenery_art(fid4, screenX - 492, screenY - 250, rect);
+    draw_scenery_art(fid5, screenX - 693, screenY - 55, rect);
+    draw_scenery_art(fid6, screenX - 465, screenY - 155, rect);
+    draw_scenery_art(fid7, screenX - 690, screenY - 160, rect);
+    draw_scenery_art(fid8, screenX - 500, screenY - 80, rect);
     // drawSceneryArt(fid9, screenX - 670, screenY - 60, rect);
 
-    drawMountainPatch(screenX, screenY, rect);
+    draw_mountain_patch(screenX, screenY, rect);
     // right cliff
     int fid9 = buildFid(OBJ_TYPE_SCENERY, 702, 0, 0, 0);
-    drawSceneryArt(fid9, screenX + 430, screenY - 390, rect);
-    drawSceneryArt(fid8, screenX + 630, screenY - 415, rect);
+    draw_scenery_art(fid9, screenX + 430, screenY - 390, rect);
+    draw_scenery_art(fid8, screenX + 630, screenY - 415, rect);
 }
 
 
 void ck_rendering_draw(fallout::Rect* rect)
 {
-	drawTestOutskirts(rect);
+	draw_test_outskirts(rect);
 }

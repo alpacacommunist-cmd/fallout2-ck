@@ -115,7 +115,7 @@ int l_ck_spawn_critter(lua_State* L) {
 
 // Init
 //
-void ckScriptingInit() {
+void ck_scripting_init() {
     std::cout << "[CK] Initializing LuaJIT backend..." << std::endl;
 
     gLuaState = luaL_newstate();
@@ -150,7 +150,7 @@ void ckScriptingInit() {
 
 // Exit
 //
-void ckScriptingExit() {
+void ck_scripting_exit() {
     if (gLuaState != nullptr) {
         std::cout << "[CK] Shutting down LuaJIT backend..." << std::endl;
         lua_close(gLuaState);
@@ -160,7 +160,7 @@ void ckScriptingExit() {
 
 // this is called from fallout2-ce once interface is ready
 // work in progress chill
-void ckHookOnGameStart() {
+void ck_scripting_on_game_start() {
     if (gLuaState == nullptr) return;
 
     // search global lua table for function "ckOnGameStart"
@@ -183,7 +183,7 @@ void ckHookOnGameStart() {
     }
 }
 
-void ckHookOnDayPassed() {
+void ck_scripting_on_day_passed() {
     if (gLuaState == nullptr) return;
 
     // search global lua table for function "ckOnDayPassed"
@@ -206,11 +206,11 @@ void ckHookOnDayPassed() {
 }
 
 // just in case
-void ckHookOnAfterRest(int hours, int minutes) {
-	ckHookOnTimeAdvance(hours, minutes);
+void ck_scripting_on_after_rest(int hours, int minutes) {
+	ck_scripting_on_time_advance(hours, minutes);
 }
 
-void ckHookOnTimeAdvance(int hours, int minutes) {
+void ck_scripting_on_time_advance(int hours, int minutes) {
     if (gLuaState == nullptr) return;
 
     lua_getglobal(gLuaState, "ckOnTimeAdvance");
@@ -231,7 +231,7 @@ void ckHookOnTimeAdvance(int hours, int minutes) {
     }
 }
 
-void ckHookOnGameLoaded() {
+void ck_scripting_on_game_loaded() {
     if (gLuaState == nullptr) return;
 
     // search global lua table for function "ckOnGameLoaded"
@@ -253,7 +253,7 @@ void ckHookOnGameLoaded() {
     }
 }
 
-void ckHookOnMapEnter() {
+void ck_scripting_on_map_enter() {
     if (gLuaState == nullptr) return;
 
     // search global lua table for function "ckOnMapEnter"
@@ -272,7 +272,7 @@ void ckHookOnMapEnter() {
 }
 
 
-int ckGetConfigInt(const char* key, int default_value) {
+int ck_get_config_int(const char* key, int default_value) {
     if (gLuaState == nullptr) return default_value;
 
     // Search our global LUA function for managing configs
