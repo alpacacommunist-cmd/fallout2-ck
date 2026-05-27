@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "geometry.h"
 #include "map.h"
+#include "light.h"
 #include "mouse.h"
 #include "object.h"
 #include "draw.h"
@@ -45,15 +46,10 @@ static void draw_scenery_art(int fid, int x, int y, Rect* rect)
         width * (intersection.top - y)
         + (intersection.left - x);
 
-    blitBufferToBufferTrans(
-        src,
-        rectGetWidth(&intersection),
-        rectGetHeight(&intersection),
-        width,
-        tileGetWindowBuffer()
-            + tileGetWindowPitch() * intersection.top
-            + intersection.left,
-        tileGetWindowPitch());
+	int light = lightGetAmbientIntensity();
+	_dark_trans_buf_to_buf(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
+			width, tileGetWindowBuffer(), intersection.left, intersection.top,
+			tileGetWindowPitch(), light);
 
     artUnlock(cacheEntry);
 }
