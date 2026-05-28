@@ -78,6 +78,19 @@ static void ck_rendering_tiles(fallout::Rect* rect) {
     }
 }
 
+static void ck_rendering_add(fallout::Rect* rect) {
+    for (const auto& scenery : gPersistentScenery) {
+        int screenX;
+        int screenY;
+
+        tileToScreenXY(scenery.tile, &screenX, &screenY);
+
+        int fid = build_scenery_fid(scenery.fid);
+
+        draw_scenery_art(fid, screenX + scenery.offsetX, screenY + scenery.offsetY, rect);
+    }
+}
+
 
 
 // refactor zone
@@ -269,15 +282,4 @@ static void ck_rendering_draw(fallout::Rect* rect) {
 	// draw_test_outskirts(rect);
 }
 
-static void ck_rendering_add(fallout::Rect* rect) {
-    for (const auto& scenery : gPersistentScenery) {
-        int screenX;
-        int screenY;
 
-        tileToScreenXY(scenery.tile, &screenX, &screenY);
-
-        int fid = build_scenery_fid(scenery.fid);
-
-        draw_scenery_art(fid, screenX + scenery.offsetX, screenY + scenery.offsetY, rect);
-    }
-}
