@@ -13,7 +13,3 @@ require('fallout2.loader')
 ckInitializeMods()
 
 print("[CK] Bootstrap complete!")
-
-print(ck)
-print(ck.rendering)
-print(ck.rendering.draw_scenery)

@@ -12,4 +12,8 @@ function rendering.add_scenery(fid, tile, offsetX, offsetY)
   ck.rendering.add_scenery(fid, tile, offsetX, offsetY)
 end
 
+function rendering.add_tile(fid, tile, offsetX, offsetY)
+  ck.rendering.add_tile(fid, tile, offsetX, offsetY)
+end
+
 return rendering

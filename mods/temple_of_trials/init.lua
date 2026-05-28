@@ -15,7 +15,13 @@ events.on('onMapEnter', function()
         return
     end
 
-    rendering.add_scenery(704, 17290, -500, -360)
+    for _, scenery in ipairs(outskirts.scenery) do
+      rendering.add_scenery(scenery.fid, outskirts.anchorTile, scenery.x, scenery.y)
+    end
+
+    for _, tile in ipairs(outskirts.tiles) do
+      -- rendering.add_tile(tile.fid, outskirts.anchorTile, tile.x, tile.y)
+    end
 
     print("[Temple] Temple of Trials loaded.")
     print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
