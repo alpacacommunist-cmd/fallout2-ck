@@ -8,6 +8,7 @@
 #include "proto_instance.h"
 #include "map.h"
 #include "scripts.h"
+#include "tile.h"
 
 extern "C" {
 #include "../../src/vendor/luajit/src/lua.h"
@@ -144,10 +145,16 @@ static int l_add_tile(lua_State* L) {
     return 0;
 }
 
+static int l_clear_rendering(lua_State* L) {
+    ck_rendering_clear();
+    return 0;
+}
+
 static const luaL_Reg rendering_lib[] = {
     { "draw_scenery", l_draw_scenery },
 	{ "add_scenery", l_add_scenery },
 	{ "add_tile", l_add_tile },
+	{ "clear", l_clear_rendering },
     { nullptr, nullptr }
 };
 
@@ -155,6 +162,31 @@ static int luaopen_ck_rendering(lua_State* L) {
     luaL_newlib(L, rendering_lib);
 
     return 1;
+}
+
+// ck scripting reload mods
+void ck_reload_mods() {
+    if (gLuaState == nullptr) {
+		std::cout << "[CK] Cannot reload mods: Lua state is null" << std::endl;
+        return;
+    }
+
+    lua_getglobal(gLuaState, "ckReloadMods");
+
+    if (!lua_isfunction(gLuaState, -1)) {
+		std::cout << "[CK] ckReloadMods() is not defined" << std::endl;
+        lua_pop(gLuaState, 1);
+        return;
+    }
+
+    if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
+		std::cout << "[CK] Reload Error: " << lua_tostring(gLuaState, -1) << std::endl;
+
+        lua_pop(gLuaState, 1);
+		return;
+    }
+
+	fallout::tileWindowRefresh();
 }
 
 // Init

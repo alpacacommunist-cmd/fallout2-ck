@@ -16,4 +16,9 @@ function rendering.add_tile(fid, tile, offsetX, offsetY)
   ck.rendering.add_tile(fid, tile, offsetX, offsetY)
 end
 
+-- clear all
+function rendering.clear()
+  ck.rendering.clear()
+end
+
 return rendering

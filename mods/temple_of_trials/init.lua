@@ -20,7 +20,7 @@ events.on('onMapEnter', function()
     end
 
     for _, tile in ipairs(outskirts.tiles) do
-      -- rendering.add_tile(tile.fid, outskirts.anchorTile, tile.x, tile.y)
+      rendering.add_tile(tile.fid, outskirts.anchorTile, tile.x, tile.y)
     end
 
     print("[Temple] Temple of Trials loaded.")

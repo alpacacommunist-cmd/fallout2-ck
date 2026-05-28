@@ -44,6 +44,14 @@ function events.emit(eventName, ...)
   end
 end
 
+function events.clear()
+  for eventName in pairs(events.listeners) do
+    events.listeners[eventName] = {}
+  end
+
+  print("[CK Events] Cleared all listeners.")
+end
+
 --
 -- C -> Lua entry points
 --
