@@ -30,9 +30,22 @@ function events.emit(eventName, ...)
     return
   end
 
-  for _, callback in ipairs(listeners) do
-    pcall(callback, ...)
+  for index, callback in ipairs(listeners) do
+    local args = { ... }
+
+    local success, err = xpcall(
+        function() callback(table.unpack(args)) end,
+        debug.traceback
+    )
+
+    if not success then
+        print(
+            "[CK Events] ERROR in event '" .. tostring(eventName) ..
+            "' callback #" .. tostring(index) .. ":\n" .. tostring(err)
+        )
+    end
   end
+
 end
 
 --

@@ -8,7 +8,8 @@ print("[CK Loader] Initializing Mod Loader...")
 -- Mod list
 local active_mods = {
   "game_time_extender",
-  "username"
+  "username",
+  "temple_of_trials"
 }
 
 -- Loads mods
