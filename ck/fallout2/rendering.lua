@@ -2,8 +2,14 @@
 
 local rendering = {}
 
+-- one frame draw
 function rendering.draw_scenery(fid, x, y)
-    ck.rendering.draw_scenery(fid, x, y)
+  ck.rendering.draw_scenery(fid, x, y)
+end
+
+-- persistent draw
+function rendering.add_scenery(fid, tile, offsetX, offsetY)
+  ck.rendering.add_scenery(fid, tile, offsetX, offsetY)
 end
 
 return rendering

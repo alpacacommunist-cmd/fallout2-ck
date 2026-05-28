@@ -13,14 +13,43 @@
 
 #include "ck_rendering.h"
 
-struct CkSceneryDrawRequest { int fid; int x; int y; };
-static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests;
+struct CkSceneryDrawRequest { int fid; int x; int y; }; // frame
+struct CkSceneryInstance {int fid; int tile; int offsetX; int offsetY;}; // persistent
 
+static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests; // frame
+static std::vector<CkSceneryInstance> gPersistentScenery; // persistent
+
+// frame
 void ck_rendering_draw_scenery(int fid, int x, int y) {
     gSceneryDrawRequests.push_back({ fid, x, y });
 }
 
+
+// persistent
+void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY) {
+    gPersistentScenery.push_back({ fid, tile, offsetX, offsetY });
+}
+
+void ck_rendering_clear() {
+    gPersistentScenery.clear();
+}
+
 using namespace fallout;
+
+static void ck_rendering_draw(fallout::Rect* rect);
+static void ck_rendering_add(fallout::Rect* rect);
+
+void ck_rendering_render(fallout::Rect* rect) {
+	ck_rendering_add(rect);
+	ck_rendering_draw(rect);
+}
+
+
+
+// refactor zone
+
+
+
 
 static void draw_scenery_art(int fid, int x, int y, Rect* rect)
 {
@@ -185,7 +214,7 @@ void draw_test_outskirts(Rect* rect)
 }
 
 
-void ck_rendering_draw(fallout::Rect* rect) {
+static void ck_rendering_draw(fallout::Rect* rect) {
 	int anchor_tile = 17290;
 
 	int screen_x;
@@ -193,7 +222,7 @@ void ck_rendering_draw(fallout::Rect* rect) {
 
 	tileToScreenXY(anchor_tile, &screen_x, &screen_y);
 
-	debugPrint("scenery requests: %d\n", gSceneryDrawRequests.size());
+	// debugPrint("scenery requests: %d\n", gSceneryDrawRequests.size());
 
 	for (const auto& scenery : gSceneryDrawRequests) {
 		int fid = buildFid(OBJ_TYPE_SCENERY, scenery.fid, 0, 0, 0);
@@ -201,7 +230,20 @@ void ck_rendering_draw(fallout::Rect* rect) {
 		draw_scenery_art(fid, screen_x + scenery.x, screen_y + scenery.y, rect);
 	}
 
-	// gSceneryDrawRequests.clear();
+	gSceneryDrawRequests.clear();
 
 	// draw_test_outskirts(rect);
+}
+
+static void ck_rendering_add(fallout::Rect* rect) {
+    for (const auto& scenery : gPersistentScenery) {
+        int screenX;
+        int screenY;
+
+        tileToScreenXY(scenery.tile, &screenX, &screenY);
+
+        int fid = buildFid(OBJ_TYPE_SCENERY, scenery.fid, 0, 0, 0);
+
+        draw_scenery_art(fid, screenX + scenery.offsetX, screenY + scenery.offsetY, rect);
+    }
 }

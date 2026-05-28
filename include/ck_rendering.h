@@ -5,8 +5,12 @@ namespace fallout {
 	struct Rect;
 }
 
-void ck_rendering_draw(fallout::Rect* rect);
+// engine entrypoint
+void ck_rendering_render(fallout::Rect* rect);
 
-void ck_rendering_draw_scenery(int fid, int x, int y);
+// lua api
+void ck_rendering_draw_scenery(int fid, int x, int y); // frame
+void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY); // persistent
+void ck_rendering_clear(); // persistent
 
 #endif
