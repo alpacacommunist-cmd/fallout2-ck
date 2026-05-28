@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ck_scripting.h"
+#include "ck_rendering.h"
 
 // bindings (requirements)
 #include "display_monitor.h"
@@ -113,15 +114,53 @@ int l_ck_spawn_critter(lua_State* L) {
     return 1;
 }
 
+// rendering
+static int l_draw_scenery(lua_State* L) {
+    int fid = luaL_checkinteger(L, 1);
+    int x = luaL_checkinteger(L, 2);
+    int y = luaL_checkinteger(L, 3);
+
+    ck_rendering_draw_scenery(fid, x, y);
+    return 0;
+}
+
+static const luaL_Reg rendering_lib[] = {
+    { "draw_scenery", l_draw_scenery },
+    { nullptr, nullptr }
+};
+
+static int luaopen_ck_rendering(lua_State* L) {
+    luaL_newlib(L, rendering_lib);
+
+    return 1;
+}
+
 // Init
 //
 void ck_scripting_init() {
     std::cout << "[CK] Initializing LuaJIT backend..." << std::endl;
 
-    gLuaState = luaL_newstate();
-    if (gLuaState != nullptr) {
-        // Init global lua state
-        luaL_openlibs(gLuaState);
+	gLuaState = luaL_newstate();
+	if (gLuaState != nullptr) {
+		// Init global lua state
+		luaL_openlibs(gLuaState);
+
+		// create global ck module
+		lua_newtable(gLuaState);               // stack: [ck]
+		lua_setglobal(gLuaState, "ck");        // stack: []
+
+		// create rendering module
+		lua_pushcfunction(gLuaState, luaopen_ck_rendering); // stack: [ck, rendering_module]
+		lua_call(gLuaState, 0, 1);
+
+		// assign rendering_module into ck.rendering
+		lua_getglobal(gLuaState, "ck");           // stack: [rendering_module, ck]
+		lua_pushvalue(gLuaState, -2);             // stack: [rendering_module, ck, rendering_module]
+		lua_setfield(gLuaState, -2, "rendering"); // ck.rendering = rendering_module
+
+		// cleanup stack: pop rendering_module and ck
+		lua_pop(gLuaState, 2);
+
 
         // expand path to include fallout2-ck/ck/fallout2
         // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)

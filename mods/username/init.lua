@@ -18,6 +18,7 @@ events.on('onGameLoaded', function()
   respawn.try(huntingGroundsState, function()
     log.print("The hunting grounds feel alive again.")
   end)
+
 end)
 
 local function logMapEnter(mapId)

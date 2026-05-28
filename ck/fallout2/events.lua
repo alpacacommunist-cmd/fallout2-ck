@@ -1,4 +1,5 @@
 -- ck/fallout2/events.lua
+local unpack = table.unpack or unpack
 
 local events = {
   -- listeners stack
@@ -30,22 +31,17 @@ function events.emit(eventName, ...)
     return
   end
 
+  local args = { ... }
+
   for index, callback in ipairs(listeners) do
-    local args = { ... }
+    local ok, err = xpcall(function()
+      callback(unpack(args))
+    end, debug.traceback)
 
-    local success, err = xpcall(
-        function() callback(table.unpack(args)) end,
-        debug.traceback
-    )
-
-    if not success then
-        print(
-            "[CK Events] ERROR in event '" .. tostring(eventName) ..
-            "' callback #" .. tostring(index) .. ":\n" .. tostring(err)
-        )
+    if not ok then
+      print(string.format("[CK Events] ERROR in event '%s' callback #%d:\n%s", eventName, index, err))
     end
   end
-
 end
 
 --

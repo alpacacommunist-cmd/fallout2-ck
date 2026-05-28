@@ -14,6 +14,8 @@ events.on('onMapEnter', function()
         return
     end
 
+    ck.rendering.draw_scenery(704, -500, -360)
+
     print("[Temple] Temple of Trials loaded.")
     print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)

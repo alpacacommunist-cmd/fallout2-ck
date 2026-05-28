@@ -1,4 +1,4 @@
-#include "ck_rendering.h"
+#include <vector>
 
 #include "art.h"
 #include "cache.h"
@@ -10,6 +10,15 @@
 #include "object.h"
 #include "draw.h"
 #include "tile.h"
+
+#include "ck_rendering.h"
+
+struct CkSceneryDrawRequest { int fid; int x; int y; };
+static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests;
+
+void ck_rendering_draw_scenery(int fid, int x, int y) {
+    gSceneryDrawRequests.push_back({ fid, x, y });
+}
 
 using namespace fallout;
 
@@ -116,10 +125,7 @@ void draw_test_outskirts(Rect* rect)
     int screenX;
     int screenY;
 
-    tileToScreenXY(
-        anchorTile,
-        &screenX,
-        &screenY);
+    tileToScreenXY(anchorTile, &screenX, &screenY);
 
 
     static int lastMouseX = -9999;
@@ -179,7 +185,23 @@ void draw_test_outskirts(Rect* rect)
 }
 
 
-void ck_rendering_draw(fallout::Rect* rect)
-{
-	draw_test_outskirts(rect);
+void ck_rendering_draw(fallout::Rect* rect) {
+	int anchor_tile = 17290;
+
+	int screen_x;
+	int screen_y;
+
+	tileToScreenXY(anchor_tile, &screen_x, &screen_y);
+
+	debugPrint("scenery requests: %d\n", gSceneryDrawRequests.size());
+
+	for (const auto& scenery : gSceneryDrawRequests) {
+		int fid = buildFid(OBJ_TYPE_SCENERY, scenery.fid, 0, 0, 0);
+
+		draw_scenery_art(fid, screen_x + scenery.x, screen_y + scenery.y, rect);
+	}
+
+	// gSceneryDrawRequests.clear();
+
+	// draw_test_outskirts(rect);
 }
