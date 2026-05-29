@@ -145,6 +145,16 @@ static int l_add_tile(lua_State* L) {
     return 0;
 }
 
+static int l_set_camera_borders(lua_State* L) {
+    int left = luaL_checkinteger(L, 1);
+    int right = luaL_checkinteger(L, 2);
+    int top = luaL_checkinteger(L, 3);
+    int bottom = luaL_checkinteger(L, 4);
+
+	ck_rendering_set_camera_borders(left, right, top, bottom);
+	return 0;
+}
+
 static int l_clear_rendering(lua_State* L) {
     ck_rendering_clear();
     return 0;
@@ -155,6 +165,7 @@ static const luaL_Reg rendering_lib[] = {
 	{ "add_scenery", l_add_scenery },
 	{ "add_tile", l_add_tile },
 	{ "clear", l_clear_rendering },
+	{ "set_camera_borders", l_set_camera_borders },
     { nullptr, nullptr }
 };
 
@@ -348,6 +359,8 @@ void ck_scripting_on_game_loaded() {
 
 void ck_scripting_on_map_enter() {
     if (gLuaState == nullptr) return;
+
+	ck_rendering_clear();
 
     // search global lua table for function "ckOnMapEnter"
     lua_getglobal(gLuaState, "ckOnMapEnter");

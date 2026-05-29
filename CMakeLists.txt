@@ -6,6 +6,7 @@ project(fallout2-ck CXX)
 add_library(fallout2-ck STATIC
     src/ck_scripting.cc
     src/ck_rendering.cc
+    src/ck_debug_rendering.cc
 )
 
 # includes relative to fallout2-ck

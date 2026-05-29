@@ -15,4 +15,18 @@ void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY);
 void ck_rendering_add_tile(int fid, int tile, int offsetX, int offsetY);
 void ck_rendering_clear();
 
+struct CkCameraBorders {
+    bool enabled = false;
+
+    int left = 0;
+    int right = 0;
+    int top = 0;
+    int bottom = 0;
+};
+
+void ck_rendering_set_camera_borders(int left, int right, int top, int bottom);
+void ck_rendering_clear_camera_borders();
+bool ck_rendering_is_camera_position_allowed(int tile);
+bool ck_rendering_has_camera_borders();
+
 #endif

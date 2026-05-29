@@ -64,14 +64,11 @@ function ckReloadMods()
     end)
 
     if not success then
-      print("[CK Loader] ERROR reloading mod '" ..
-      mod_folder .. "': " ..
-      tostring(err))
+      print("[CK Loader] ERROR reloading mod '" .. mod_folder .. "': " .. tostring(err))
     end
   end
 
   -- re-fire map enter event
-  local events = require("fallout2.events")
   events.emit("onMapEnter")
 
   print("[CK Loader] Reload complete!")
