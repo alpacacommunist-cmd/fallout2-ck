@@ -194,39 +194,28 @@ static void draw_misc_art(int fid, int x, int y, Rect* rect) {
     int artId = fid & 0xFFFF;
 
 	   
-    // Дефолтные цвета (Зеленый)
-    unsigned char edgeColor = 0xFE; 
-    unsigned char innerColor = 0x9E;
+    // defalut red
+    unsigned char edgeColor = 135;
+    unsigned char innerColor = 135;
     
-	// Мапим ID (996 - 999) на пары цветов палитры Fallout 2
 	if (artId == 998) { 
-		edgeColor = 0xFD; // Ярко-красный
-		innerColor = 0x89; // Темно-красный
+		edgeColor = 198; // green
+		innerColor = 198;
 	} 
 	else if (artId == 997) { 
-		edgeColor = 0xE4; // Ярко-синий
-		innerColor = 0xCD; // Темно-синий
+		edgeColor = 57; // yellow
+		innerColor = 57;
 	} 
 	else if (artId == 996) { 
-		edgeColor = 0xBC; // Ярко-желтый
-		innerColor = 0xB3; // Темно-желтый
+		edgeColor = 105; //
+		innerColor = 105; // blue
 	}
 
-	// Вызываем блиттер с палитрой цветов
-	blit_debug_hex_colored(
-			src, 
-			rectGetWidth(&intersection), 
-			rectGetHeight(&intersection),
-			width, 
-			tileGetWindowBuffer(), 
-			intersection.left, 
-			intersection.top,
-			tileGetWindowPitch(), 
-			edgeColor,
-			innerColor
+	blit_debug_hex_colored(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
+			width, tileGetWindowBuffer(), intersection.left, intersection.top,
+			tileGetWindowPitch(), edgeColor, innerColor
 	);
 
-    // Разблокируем только ПОСЛЕ отрисовки, так как мы читали напрямую из src!
     artUnlock(cacheEntry);
 }
 

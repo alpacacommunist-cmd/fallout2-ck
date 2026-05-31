@@ -6,12 +6,16 @@ project(fallout2-ck CXX)
 add_library(fallout2-ck STATIC
     src/ck_scripting.cc
     src/ck_rendering.cc
-    src/ck_debug_overlay.cc
+
+    src/ck_debug_overlay/ck_debug_overlay.cc
+    src/ck_debug_overlay/ck_debug_overlay_render.cc
+    src/ck_debug_overlay/ck_debug_overlay_colors.cc
 )
 
 # includes relative to fallout2-ck
 target_include_directories(fallout2-ck PUBLIC 
     include
+    include/ck_debug_overlay
     src/vendor/luajit/src
     "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src"
 )
