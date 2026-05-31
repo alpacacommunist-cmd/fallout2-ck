@@ -16,6 +16,10 @@ function rendering.addTile(fid, tile, offsetX, offsetY)
   ck.rendering.add_tile(fid, tile, offsetX, offsetY)
 end
 
+function rendering.addMisc(fid, tile, offsetX, offsetY)
+  ck.rendering.add_misc(fid, tile, offsetX, offsetY)
+end
+
 -- clear all
 function rendering.clear()
   ck.rendering.clear()

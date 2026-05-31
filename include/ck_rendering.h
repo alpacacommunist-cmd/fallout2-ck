@@ -11,8 +11,14 @@ void ck_rendering_render(fallout::Rect* rect);
 // lua api
 void ck_rendering_draw_scenery(int fid, int x, int y);
 
+
+int build_scenery_fid(int fid);
+int build_tile_fid(int fid);
+int build_interface_fid(int fid);
+
 void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY);
 void ck_rendering_add_tile(int fid, int tile, int offsetX, int offsetY);
+void ck_rendering_add_misc(int fid, int tile, int offsetX, int offsetY);
 void ck_rendering_clear();
 
 struct CkCameraBorders {
@@ -28,5 +34,9 @@ void ck_rendering_set_camera_borders(int left, int right, int top, int bottom);
 void ck_rendering_clear_camera_borders();
 bool ck_rendering_is_camera_position_allowed(int tile);
 bool ck_rendering_has_camera_borders();
+
+int ck_rendering_build_interface_fid(int fid);
+int ck_rendering_build_tile_fid(int fid);
+int ck_rendering_build_scenery_fid(int fid);
 
 #endif

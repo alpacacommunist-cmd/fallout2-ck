@@ -23,6 +23,10 @@ events.on('onMapEnter', function()
     rendering.addTile(tile.fid, outskirts.anchorTile, tile.x, tile.y)
   end
 
+  for _, tile in ipairs(outskirts.walkableTiles) do
+    rendering.addMisc(tile.fid, outskirts.anchorTile, tile.x, tile.y)
+  end
+
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)
