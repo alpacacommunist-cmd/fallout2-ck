@@ -1,1 +1,1 @@
-void ck_debug_overlay_palette_hex_test(fallout::Rect* rect);
+void palette_paint_hover(int anchorTile);

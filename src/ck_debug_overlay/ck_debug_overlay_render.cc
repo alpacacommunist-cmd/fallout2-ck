@@ -7,7 +7,8 @@
 #include "art.h"
 #include "draw.h"
 
-static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect) {
+static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
+		unsigned char edgeColor, unsigned char innerColor) {
 	fallout::CacheEntry* cacheEntry;
 	fallout::Art* art = artLock(fid, &cacheEntry);
 
@@ -29,27 +30,27 @@ static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect) {
 
 	src += width * (intersection.top - y) + (intersection.left - x);
 
-	int artId = fid & 0xFFFF;
+	// int artId = artId & 0xFFFF;
 
-	// default red af
-    unsigned char edgeColor = 135;
-    unsigned char innerColor = 135;
-
-	// maps reserved (996 - 999) to debug colors
-	// interface fids 996-999 are reserved for debug purposes
-	// check art.cc 
-	if (artId == 998) { 
-		edgeColor = 198; // green
-		innerColor = 198;
-	} 
-	else if (artId == 997) { 
-		edgeColor = 57; // yellow
-		innerColor = 57;
-	} 
-	else if (artId == 996) { 
-		edgeColor = 105; //
-		innerColor = 105; // blue
-	}
+	// // default red af
+	//    unsigned char edgeColor = 135;
+	//    unsigned char innerColor = 135;
+	//
+	// // maps reserved (996 - 999) to debug colors
+	// // interface fids 996-999 are reserved for debug purposes
+	// // check art.cc 
+	// if (artId == 998) { 
+	// 	edgeColor = 198; // green
+	// 	innerColor = 198;
+	// } 
+	// else if (artId == 997) { 
+	// 	edgeColor = 57; // yellow
+	// 	innerColor = 57;
+	// } 
+	// else if (artId == 996) { 
+	// 	edgeColor = 105; //
+	// 	innerColor = 105; // blue
+	// }
 
 	blit_debug_hex_colored(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
 			width, fallout::tileGetWindowBuffer(), intersection.left, intersection.top,
@@ -94,12 +95,12 @@ void ck_debug_overlay_clear() {
 	fallout::tileWindowRefresh();
 }
 
-void ck_debug_overlay_add_hex(int fid, int anchorTile, int offsetX, int offsetY) {
-    gPersistentHexes.push_back({ fid, anchorTile, offsetX, offsetY });
+void ck_debug_overlay_add_hex(int artId, int anchorTile, int offsetX, int offsetY, DebugHexColor color) {
+    gPersistentHexes.push_back({ artId, anchorTile, offsetX, offsetY, color });
 }
 
-int ck_debug_overlay_build_interface_fid(int fid) {
-	return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, fid, 0, 0, 0);
+int ck_debug_overlay_build_interface_fid(int artId) {
+	return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
 }
 
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
@@ -107,9 +108,10 @@ void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
 		int screenX, screenY;
 		fallout::tileToScreenXY(hex.anchorTile, &screenX, &screenY);
 
-		int fid = ck_debug_overlay_build_interface_fid(hex.fid);
+		int fid = ck_debug_overlay_build_interface_fid(hex.artId);
 
-		draw_misc_art(fid, screenX + hex.offsetX, screenY + hex.offsetY, rect);
+		draw_misc_art(fid, screenX + hex.offsetX, screenY + hex.offsetY, rect,
+				hex.color.edge, hex.color.inner);
 	}
 }
 

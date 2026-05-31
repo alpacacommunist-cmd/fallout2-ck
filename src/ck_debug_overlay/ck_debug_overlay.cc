@@ -12,11 +12,9 @@
 
 static bool gDebugOverlayEnabled = false;
 
-
 bool ck_debug_overlay_enabled() {
     return gDebugOverlayEnabled;
 }
-
 
 void ck_debug_overlay_toggle() {
     gDebugOverlayEnabled = !gDebugOverlayEnabled;
@@ -62,19 +60,16 @@ void working_hover(int anchorTile) {
 			screenX - anchorScreenX, screenY - anchorScreenY,
 			blocked ? "true" : "false");
 
-	ck_debug_overlay_add_hex(997, anchorTile, screenX - anchorScreenX, screenY - anchorScreenY);
+	ck_debug_overlay_add_hex(999, anchorTile, screenX - anchorScreenX, screenY - anchorScreenY, YELLOW);
 }
-
-
-
 
 void ck_debug_overlay_render(fallout::Rect* rect) {
     if (!gDebugOverlayEnabled) return;
 
-	// ck_debug_overlay_persistent_hexes(rect);
-	// if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-	// 	working_hover(17290);
-	// }
-	ck_debug_overlay_palette_hex_test(rect);
+	ck_debug_overlay_persistent_hexes(rect);
+	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
+		// working_hover(17290);
+		palette_paint_hover(17290);
+	}
 }
 
