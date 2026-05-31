@@ -2,8 +2,6 @@
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 #include "ck_debug_overlay/ck_debug_overlay_colors.h"
 
-#include <cstdlib>
-
 #include "mouse.h"
 #include "display_monitor.h"
 #include "debug.h"
@@ -24,7 +22,7 @@ void ck_debug_overlay_toggle() {
 	} else {
 		fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
 		ck_debug_overlay_clear();
-
+		ck_debug_overlay_shutdown();
 	}
 }
 

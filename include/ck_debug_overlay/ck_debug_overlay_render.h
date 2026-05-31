@@ -15,6 +15,7 @@ void blit_debug_hex_colored(
 );
 
 void ck_debug_overlay_clear();
+void ck_debug_overlay_shutdown(); // clears cached art
 void ck_debug_overlay_add_hex(int fid, int anchorTile, int offsetX, int offsetY, DebugHexColor color);
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect);
 

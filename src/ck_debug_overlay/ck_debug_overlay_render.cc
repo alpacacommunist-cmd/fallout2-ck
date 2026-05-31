@@ -1,66 +1,77 @@
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 
+#include <cstdlib>
+#include <cstring>
+
 #include "color.h"
 #include "tile.h"
 #include "object.h"
 #include "art.h"
 #include "draw.h"
 
+static std::vector<CkDebugHexInstance> gPersistentHexes;
+
+struct CachedHexArt {
+    unsigned char* data = nullptr;
+    int width = 0;
+    int height = 0;
+};
+
+static CachedHexArt gCachedHex;
+
+static void ck_debug_overlay_init_hex_cache() {
+    if (gCachedHex.data != nullptr) return;
+
+    int fid = ck_debug_overlay_build_interface_fid(999);
+
+    fallout::CacheEntry* cacheEntry;
+    fallout::Art* art = artLock(fid, &cacheEntry);
+
+    if (art == nullptr) return;
+
+    gCachedHex.width = artGetWidth(art, 0, 0);
+    gCachedHex.height = artGetHeight(art, 0, 0);
+
+    int size = gCachedHex.width * gCachedHex.height;
+
+    gCachedHex.data = (unsigned char*)malloc(size);
+
+    if (gCachedHex.data != nullptr)
+        memcpy(gCachedHex.data, artGetFrameData(art, 0, 0), size);
+
+    artUnlock(cacheEntry);
+}
+
 static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
 		unsigned char edgeColor, unsigned char innerColor) {
-	fallout::CacheEntry* cacheEntry;
-	fallout::Art* art = artLock(fid, &cacheEntry);
+	ck_debug_overlay_init_hex_cache();
+	if (gCachedHex.data == nullptr) return;
 
-	if (art == nullptr) return;
-
-	int width = artGetWidth(art, 0, 0);
-	int height = artGetHeight(art, 0, 0);
+	int width = gCachedHex.width;
+	int height = gCachedHex.height;
 
 	fallout::Rect artRect;
 	artRect.left = x, artRect.top = y, artRect.right = x + width - 1, artRect.bottom = y + height - 1;
 
 	fallout::Rect intersection;
-	if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) {
-		fallout::artUnlock(cacheEntry);
-		return;
-	}
+	if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
 
-	unsigned char* src = fallout::artGetFrameData(art, 0, 0);
+	unsigned char* src = gCachedHex.data;
 
 	src += width * (intersection.top - y) + (intersection.left - x);
-
-	// int artId = artId & 0xFFFF;
-
-	// // default red af
-	//    unsigned char edgeColor = 135;
-	//    unsigned char innerColor = 135;
-	//
-	// // maps reserved (996 - 999) to debug colors
-	// // interface fids 996-999 are reserved for debug purposes
-	// // check art.cc 
-	// if (artId == 998) { 
-	// 	edgeColor = 198; // green
-	// 	innerColor = 198;
-	// } 
-	// else if (artId == 997) { 
-	// 	edgeColor = 57; // yellow
-	// 	innerColor = 57;
-	// } 
-	// else if (artId == 996) { 
-	// 	edgeColor = 105; //
-	// 	innerColor = 105; // blue
-	// }
 
 	blit_debug_hex_colored(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
 			width, fallout::tileGetWindowBuffer(), intersection.left, intersection.top,
 			fallout::tileGetWindowPitch(), edgeColor, innerColor
 			);
-
-	artUnlock(cacheEntry);
 }
 
-static std::vector<CkDebugHexInstance> gPersistentHexes;
+
+void ck_debug_overlay_shutdown() {
+    free(gCachedHex.data);
+    gCachedHex.data = nullptr;
+}
 
 void blit_debug_hex_colored(
 		const unsigned char* src, int width, int height, int srcPitch,
