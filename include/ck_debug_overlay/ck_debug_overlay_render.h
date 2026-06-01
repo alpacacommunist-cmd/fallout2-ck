@@ -1,12 +1,17 @@
 // fid, anchorTile, screenX - anchorTileX, screenY - anchorTileY
 
 struct DebugHexColor { unsigned char edge; unsigned char inner; };
-struct CkDebugHexInstance {int artId; int anchorTile; int offsetX; int offsetY; DebugHexColor color; };
+struct CkDebugHex {int artId; int anchorTile; int tile; DebugHexColor color; };
 
-constexpr DebugHexColor RED { 135, 135 };
-constexpr DebugHexColor GREEN { 198, 198 };
-constexpr DebugHexColor BLUE { 105, 105 };
-constexpr DebugHexColor YELLOW { 57, 57 };
+constexpr int ckdbgBLOCKER    = 996;
+constexpr int ckdbgWALKABLE   = 997;
+constexpr int ckdbgTRANSITION = 998;
+constexpr int ckdbgSELECTED   = 999;
+
+constexpr DebugHexColor ckdbgRED { 135, 135 };
+constexpr DebugHexColor ckdbgGREEN { 198, 198 };
+constexpr DebugHexColor ckdbgBLUE { 105, 105 };
+constexpr DebugHexColor ckdbgYELLOW { 57, 57 };
 
 void blit_debug_hex_colored(
 		const unsigned char* src, int width, int height, int srcPitch,
@@ -14,9 +19,11 @@ void blit_debug_hex_colored(
 		unsigned char edgeColor, unsigned char innerColor
 );
 
+CkDebugHex* ck_debug_overlay_find_hex(int tile);
+
 void ck_debug_overlay_clear();
-void ck_debug_overlay_shutdown(); // clears cached art
-void ck_debug_overlay_add_hex(int fid, int anchorTile, int offsetX, int offsetY, DebugHexColor color);
+void ck_debug_overlay_add_hex(int fid, int anchorTile, int tile, DebugHexColor color);
+void ck_debug_overlay_remove_hex(int tile);
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect);
 
 int ck_debug_overlay_build_interface_fid(int fid);

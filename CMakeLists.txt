@@ -9,7 +9,6 @@ add_library(fallout2-ck STATIC
 
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_render.cc
-    src/ck_debug_overlay/ck_debug_overlay_colors.cc
 )
 
 # includes relative to fallout2-ck

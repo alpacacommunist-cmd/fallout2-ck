@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <map>
 
 #include "color.h"
 #include "tile.h"
@@ -10,7 +11,7 @@
 #include "art.h"
 #include "draw.h"
 
-static std::vector<CkDebugHexInstance> gPersistentHexes;
+static std::map<int, CkDebugHex> gPersistentHexes;
 
 struct CachedHexArt {
     unsigned char* data = nullptr;
@@ -67,12 +68,6 @@ static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
 			);
 }
 
-
-void ck_debug_overlay_shutdown() {
-    free(gCachedHex.data);
-    gCachedHex.data = nullptr;
-}
-
 void blit_debug_hex_colored(
 		const unsigned char* src, int width, int height, int srcPitch,
 		unsigned char* dest, int destX, int destY, int destPitch,
@@ -103,26 +98,44 @@ void blit_debug_hex_colored(
 void ck_debug_overlay_clear() {
 	gPersistentHexes.clear();
 
+    free(gCachedHex.data);
+    gCachedHex.data = nullptr;
+
 	fallout::tileWindowRefresh();
 }
 
-void ck_debug_overlay_add_hex(int artId, int anchorTile, int offsetX, int offsetY, DebugHexColor color) {
-    gPersistentHexes.push_back({ artId, anchorTile, offsetX, offsetY, color });
+void ck_debug_overlay_add_hex(int artId, int anchorTile, int tile, DebugHexColor color) {
+	gPersistentHexes[tile] = { artId, anchorTile, tile, color };
+}
+
+void ck_debug_overlay_remove_hex(int tile) {
+    gPersistentHexes.erase(tile);
 }
 
 int ck_debug_overlay_build_interface_fid(int artId) {
 	return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
 }
 
+
+CkDebugHex* ck_debug_overlay_find_hex(int tile) {
+    auto it = gPersistentHexes.find(tile);
+
+    if (it != gPersistentHexes.end()) return &(it->second);
+    return nullptr;
+}
+
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
-	for (const auto& hex : gPersistentHexes) {
-		int screenX, screenY;
-		fallout::tileToScreenXY(hex.anchorTile, &screenX, &screenY);
+    int anchorScreenX, anchorScreenY;
 
-		int fid = ck_debug_overlay_build_interface_fid(hex.artId);
+    for (const auto& [tile, hex] : gPersistentHexes) {
+        int fid = ck_debug_overlay_build_interface_fid(hex.artId);
 
-		draw_misc_art(fid, screenX + hex.offsetX, screenY + hex.offsetY, rect,
-				hex.color.edge, hex.color.inner);
-	}
+        fallout::tileToScreenXY(hex.anchorTile, &anchorScreenX, &anchorScreenY);
+        int screenX, screenY;
+        fallout::tileToScreenXY(hex.tile, &screenX, &screenY);
+
+
+        draw_misc_art(fid, screenX, screenY, rect, hex.color.edge, hex.color.inner);
+    }
 }
 
