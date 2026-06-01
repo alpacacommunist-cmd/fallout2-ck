@@ -2,6 +2,7 @@
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 
 #include <unordered_set>
+#include <iostream>
 
 #include "display_monitor.h"
 #include "mouse.h"
@@ -157,9 +158,33 @@ static void mode_main_paint(int anchorTile) {
 	}
 }
 
+static void mode_main_export(int anchorTile) {
+    static bool minusKeyWasPressed = false; // previous frame
+    // ctrl + -
+    bool isCtrl = fallout::ck_input_ctrl();
+    bool isMinusPressed = fallout::ck_input_pressed(fallout::CK_KEY_MINUS);
+
+    if (isCtrl && isMinusPressed) {
+        if (!minusKeyWasPressed) {
+            minusKeyWasPressed = true;
+
+			std::vector<int> selected = ck_debug_overlay_selected_tiles();
+
+			std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
+			for (int tile : selected) {
+				std::cout << "[CK DEBUG] SELECTED tile=" << tile << std::endl;
+			}
+			std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
+        }
+    } else {
+        minusKeyWasPressed = false;
+    }
+}
+
 static void mode_main(int anchorTile) {
 	mode_main_dude_scan(anchorTile);
 	mode_main_paint(anchorTile);
+	mode_main_export(anchorTile);
 }
 
 bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }

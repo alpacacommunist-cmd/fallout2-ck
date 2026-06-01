@@ -158,6 +158,15 @@ int ck_debug_overlay_build_interface_fid(int artId) {
 	return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
 }
 
+std::vector<int> ck_debug_overlay_selected_tiles() {
+	std::vector<int> result;
+
+	for (const auto& [tile, hex] : gPersistentHexes)
+		if (hex.artId == ckdbgSELECTED || hex.artId == ckdbgTRANSITION) result.push_back(hex.tile);
+
+	return result;
+}
+
 
 CkDebugHex* ck_debug_overlay_find_hex(int tile) {
     auto it = gPersistentHexes.find(tile);
