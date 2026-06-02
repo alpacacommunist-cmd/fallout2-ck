@@ -139,7 +139,7 @@ void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
     }
 }
 
-void ck_debug_overlay_clear() {
+void ck_debug_overlay_render_clear() {
     ck_debug_overlay_clear_hexes();
 
     for (auto& [key, hex] : gPrecoloredCache) {

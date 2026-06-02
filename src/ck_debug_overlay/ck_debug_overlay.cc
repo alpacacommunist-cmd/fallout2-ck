@@ -12,31 +12,52 @@
 
 static bool gDebugOverlayEnabled = false;
 
-static std::unordered_set<int> gScannedTiles;
+bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
+
+void ck_debug_overlay_toggle() {
+    gDebugOverlayEnabled = !gDebugOverlayEnabled;
+
+	if (gDebugOverlayEnabled) {
+		fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
+
+		fallout::tileWindowRefresh();
+	} else {
+		fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
+
+		ck_debug_overlay_render_clear();
+	}
+}
+
+// different modes, work in progress
 
 static void mode_palette(int anchorTile) {
-    if (!ck_debug_overlay_enabled()) return;
+	if (!ck_debug_overlay_enabled()) return;
+    if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
 
     static int lastTile = -1;
     static unsigned char currentColor = 0;
 
     int mouseX, mouseY;
     fallout::mouseGetPosition(&mouseX, &mouseY);
+    int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
 
-    int tile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
+    if (currentMouseTile == lastTile) return;
+    lastTile = currentMouseTile;
+	CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 
-    if (tile == lastTile) return;
+    const bool isShift = ck_input_shift();
 
-    lastTile = tile;
+	// clicked on existing hex
+    if (hex != nullptr) {
+		std::cout << "[CK PALETTE] tile=" << currentMouseTile
+			<< ", color= edge: " << (int)hex->color.edge << ", inner: " << (int)hex->color.inner
+			<< std::endl;
+	} else {
+		if (!isShift) return;
 
-    int anchorScreenX, anchorScreenY;
-    fallout::tileToScreenXY(anchorTile, &anchorScreenX, &anchorScreenY);
-
-    fallout::debugPrint("[CK] color=%d tile=%d\n", currentColor, tile);
-
-    ck_debug_overlay_add_hex(999, anchorTile, tile, { currentColor, currentColor });
-
-    currentColor++;
+		ck_debug_overlay_add_hex(999, anchorTile, currentMouseTile, { currentColor, currentColor });
+		currentColor++;
+	}
 }
 
 static void mode_select(int anchorTile) {
@@ -79,88 +100,79 @@ static void mode_select(int anchorTile) {
 }
 
 static void mode_main_dude_scan(int anchorTile) {
-	static int sLastDudeTile = -1;
+    static int sLastDudeTile = -1;
 
-	fallout::Object* dude = fallout::gDude;
-
+    fallout::Object* dude = fallout::gDude;
     if (dude == nullptr) return;
-	if (dude->tile == sLastDudeTile) return;
+    if (dude->tile == sLastDudeTile) return;
 
-	sLastDudeTile = dude->tile;
-
-    int anchorScreenX, anchorScreenY;
-    fallout::tileToScreenXY(anchorTile, &anchorScreenX, &anchorScreenY);
+    sLastDudeTile = dude->tile;
 
     const int radius = 3;
 
     for (int tile = dude->tile - radius; tile <= dude->tile + radius; tile++) {
         if (!fallout::hexGridTileIsValid(tile)) continue;
 
-		// already scanned
-        if (gScannedTiles.find(tile) != gScannedTiles.end()) continue;
+        if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
 
-        gScannedTiles.insert(tile);
+        fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+		bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
 
-        int screenX, screenY;
-        fallout::tileToScreenXY(tile, &screenX, &screenY);
-
-        fallout::Object* blocker = fallout::_obj_blocking_at( nullptr, tile, fallout::gElevation);
-
-        if (blocker != nullptr && blocker->fid != dude->fid) {
-            fallout::debugPrint("[CK] BLOCKER tile=%d pid=%d fid=%d flags=%08X\n",
-                tile, blocker->pid, blocker->fid, blocker->flags);
-
-            ck_debug_overlay_add_hex(996, anchorTile, tile, ckdbgRED);
+        if (blocking) {
+            ck_debug_overlay_add_hex(ckdbgBLOCKER, anchorTile, tile, ckdbgRED);
         } else {
-            ck_debug_overlay_add_hex(997, anchorTile, tile, ckdbgBLUE);
+            ck_debug_overlay_add_hex(ckdbgWALKABLE, anchorTile, tile, ckdbgBLUE);
         }
     }
 }
 
 static void mode_main_paint(int anchorTile) {
-	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-		int mouseX, mouseY;
-		fallout::mouseGetPosition(&mouseX, &mouseY);
-		int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
+    if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
 
-		CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
-		// SHIFT + LMB -> select
-		if (ck_input_shift()) {
-			if (hex == nullptr) {
-				ck_debug_overlay_add_hex(ckdbgSELECTED, anchorTile, currentMouseTile, ckdbgGREEN);
-			} else if (hex->artId == ckdbgBLOCKER) {
-				hex->artId = ckdbgTRANSITION;
-				hex->color = ckdbgYELLOW;
-			} else if (hex->artId == ckdbgWALKABLE) {
-				hex->artId = ckdbgSELECTED;
-				hex->color = ckdbgGREEN;
-			}
-		}
+    int mouseX, mouseY;
+    fallout::mouseGetPosition(&mouseX, &mouseY);
+    int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
 
-		// CTRL + LMB -> clear selection
-		if (ck_input_ctrl()) {
-			if (hex == nullptr) return;
+    const bool isShift = ck_input_shift();
+    const bool isCtrl = ck_input_ctrl();
+    if (!isShift && !isCtrl) return;
 
-			if (hex->artId == ckdbgTRANSITION) {
-				hex->artId = ckdbgBLOCKER;
-				hex->color = ckdbgRED;
-			} else if (hex->artId == ckdbgSELECTED) {
-				// scanned and selected. Make it just scanned
-				if (gScannedTiles.find(hex->tile) != gScannedTiles.end()) {
-					hex->artId = ckdbgWALKABLE;
-					hex->color = ckdbgBLUE;
-				// selected but not scanned, just remove
-				} else {
-					ck_debug_overlay_remove_hex(hex->tile);
-				}
-			}
-		}
-	}
+    fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, currentMouseTile, fallout::gElevation);
+	bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
+
+    CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
+    // SHIFT + LMB select area
+    if (isShift) {
+        if (hex == nullptr) {
+			if (blocking) ck_debug_overlay_add_hex(ckdbgTRANSITION, anchorTile, currentMouseTile, ckdbgYELLOW);
+			else ck_debug_overlay_add_hex(ckdbgSELECTED, anchorTile, currentMouseTile, ckdbgGREEN);
+            return;
+        }
+
+        switch (hex->artId) {
+            case ckdbgBLOCKER:  hex->setState(ckdbgTRANSITION, ckdbgYELLOW); break;
+            case ckdbgWALKABLE: hex->setState(ckdbgSELECTED,   ckdbgGREEN);  break;
+        }
+    }
+    // CTRL + LMB clear selection
+    else if (isCtrl && hex != nullptr) {
+        switch (hex->artId) {
+            case ckdbgTRANSITION:
+                hex->setState(ckdbgBLOCKER, ckdbgRED);
+                break;
+
+            case ckdbgSELECTED:
+				if (blocking) hex->setState(ckdbgBLOCKER, ckdbgRED);
+				else hex->setState(ckdbgWALKABLE, ckdbgBLUE);
+
+                break;
+        }
+    }
 }
 
 static void mode_main_export(int anchorTile) {
-    static bool minusKeyWasPressed = false; // previous frame
-    // ctrl + -
+    static bool minusKeyWasPressed = false;
+
     bool isCtrl = ck_input_ctrl();
     bool isMinusPressed = ck_input_pressed(CK_KEY_MINUS);
 
@@ -168,13 +180,13 @@ static void mode_main_export(int anchorTile) {
         if (!minusKeyWasPressed) {
             minusKeyWasPressed = true;
 
-			std::vector<int> selected = ck_debug_overlay_selected_tiles();
+            std::vector<int> selected = ck_debug_overlay_selected_tiles();
 
-			std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
-			for (int tile : selected) {
-				std::cout << "[CK DEBUG] SELECTED tile=" << tile << std::endl;
-			}
-			std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
+            std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
+            for (int tile : selected) {
+                std::cout << "[CK DEBUG] SELECTED tile=" << tile << std::endl;
+            }
+            std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
         }
     } else {
         minusKeyWasPressed = false;
@@ -187,29 +199,20 @@ static void mode_main(int anchorTile) {
 	mode_main_export(anchorTile);
 }
 
-bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
-
-void ck_debug_overlay_toggle() {
-    gDebugOverlayEnabled = !gDebugOverlayEnabled;
-
-	if (gDebugOverlayEnabled) {
-		fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
-	} else {
-		fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
-
-		ck_debug_overlay_clear();
-		gScannedTiles.clear();
-	}
-}
 
 void ck_debug_overlay_render(fallout::Rect* rect) {
     if (!gDebugOverlayEnabled) return;
 
 	ck_debug_overlay_persistent_hexes(rect);
 
+	// shift + lmb to select area
+	// ctrl + lmb to clear selection
 	mode_main(17290);
 
 	// mode_select(17290);
+
+	// shift + lmb to paint
+	// lclick to get color
 	// mode_palette(17290);
 }
 

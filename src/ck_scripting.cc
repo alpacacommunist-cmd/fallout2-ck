@@ -2,6 +2,7 @@
 
 #include "ck_scripting.h"
 #include "ck_rendering.h"
+#include "ck_debug_overlay/ck_debug_overlay.h"
 
 // bindings (requirements)
 #include "display_monitor.h"
@@ -361,6 +362,7 @@ void ck_scripting_on_map_enter() {
     if (gLuaState == nullptr) return;
 
 	ck_rendering_clear();
+	if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 
     // search global lua table for function "ckOnMapEnter"
     lua_getglobal(gLuaState, "ckOnMapEnter");
