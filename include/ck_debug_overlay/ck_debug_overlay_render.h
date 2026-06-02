@@ -1,7 +1,12 @@
 #ifndef CK_DEBUG_OVERLAY_RENDER_H
 #define CK_DEBUG_OVERLAY_RENDER_H
 
+#include <map>
 #include <vector>
+
+namespace fallout {
+    struct Rect;
+}
 
 struct DebugHexColor { unsigned char edge; unsigned char inner; };
 struct CkDebugHex {int artId; int anchorTile; int tile; DebugHexColor color; };

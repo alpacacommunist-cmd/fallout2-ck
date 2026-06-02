@@ -1,9 +1,8 @@
-#include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
+#include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 
 #include <cstdlib>
 #include <cstring>
-#include <map>
 
 #include "color.h"
 #include "tile.h"
@@ -11,16 +10,12 @@
 #include "art.h"
 #include "draw.h"
 
-static std::map<int, CkDebugHex> gPersistentHexes;
-
-// base art
 struct CachedHexArt {
     unsigned char* data = nullptr;
     int width = 0;
     int height = 0;
 };
 
-// precolored hex cache
 struct PrecoloredHex {
     unsigned char* data = nullptr;
     int width = 0;
@@ -28,7 +23,7 @@ struct PrecoloredHex {
 };
 
 static std::map<int, PrecoloredHex> gPrecoloredCache;
-static CachedHexArt gBaseHexArt; // base art
+static CachedHexArt gBaseHexArt;
 
 static PrecoloredHex get_or_create_colored_hex(unsigned char edgeColor, unsigned char innerColor) {
 	// base art load
@@ -124,69 +119,38 @@ static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
             fallout::tileGetWindowPitch());
 }
 
-void ck_debug_overlay_clear() {
-	gPersistentHexes.clear();
-
-	for (auto& [key, hex] : gPrecoloredCache) {
-		if (hex.data != nullptr) {
-			std::free(hex.data);
-			hex.data = nullptr;
-		}
-	}
-
-	gPrecoloredCache.clear();
-
-	if (gBaseHexArt.data != nullptr) {
-		std::free(gBaseHexArt.data);
-		gBaseHexArt.data = nullptr;
-		gBaseHexArt.width = 0;
-		gBaseHexArt.height = 0;
-	}
-
-	fallout::tileWindowRefresh();
-}
-
-void ck_debug_overlay_add_hex(int artId, int anchorTile, int tile, DebugHexColor color) {
-	gPersistentHexes[tile] = { artId, anchorTile, tile, color };
-}
-
-void ck_debug_overlay_remove_hex(int tile) {
-    gPersistentHexes.erase(tile);
-}
 
 int ck_debug_overlay_build_interface_fid(int artId) {
-	return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
-}
-
-std::vector<int> ck_debug_overlay_selected_tiles() {
-	std::vector<int> result;
-
-	for (const auto& [tile, hex] : gPersistentHexes)
-		if (hex.artId == ckdbgSELECTED || hex.artId == ckdbgTRANSITION) result.push_back(hex.tile);
-
-	return result;
-}
-
-
-CkDebugHex* ck_debug_overlay_find_hex(int tile) {
-    auto it = gPersistentHexes.find(tile);
-
-    if (it != gPersistentHexes.end()) return &(it->second);
-    return nullptr;
+    return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
 }
 
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
     int anchorScreenX, anchorScreenY;
+    const auto& hexes = ck_debug_overlay_get_all_hexes();
 
-    for (const auto& [tile, hex] : gPersistentHexes) {
+    for (const auto& [tile, hex] : hexes) {
         int fid = ck_debug_overlay_build_interface_fid(hex.artId);
-
         fallout::tileToScreenXY(hex.anchorTile, &anchorScreenX, &anchorScreenY);
+
         int screenX, screenY;
         fallout::tileToScreenXY(hex.tile, &screenX, &screenY);
-
 
         draw_misc_art(fid, screenX, screenY, rect, hex.color.edge, hex.color.inner);
     }
 }
 
+void ck_debug_overlay_clear() {
+    ck_debug_overlay_clear_hexes();
+
+    for (auto& [key, hex] : gPrecoloredCache) {
+        if (hex.data != nullptr) std::free(hex.data);
+    }
+    gPrecoloredCache.clear();
+
+    if (gBaseHexArt.data != nullptr) {
+        std::free(gBaseHexArt.data);
+        gBaseHexArt.data = nullptr;
+    }
+
+    fallout::tileWindowRefresh();
+}

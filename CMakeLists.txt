@@ -8,6 +8,7 @@ add_library(fallout2-ck STATIC
     src/ck_rendering.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc
+    src/ck_debug_overlay/ck_debug_overlay_hexes.cc
     src/ck_debug_overlay/ck_debug_overlay_render.cc
 )
 
