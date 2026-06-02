@@ -74,7 +74,7 @@ static void mode_select(int anchorTile) {
 	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
 		ck_debug_overlay_add_hex(999, anchorTile, tile, ckdbgGREEN);
 
-		if (fallout::ck_input_shift()) ck_debug_overlay_remove_hex(tile);
+		if (ck_input_shift()) ck_debug_overlay_remove_hex(tile);
 	}
 }
 
@@ -125,7 +125,7 @@ static void mode_main_paint(int anchorTile) {
 
 		CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 		// SHIFT + LMB -> select
-		if (fallout::ck_input_shift()) {
+		if (ck_input_shift()) {
 			if (hex == nullptr) {
 				ck_debug_overlay_add_hex(ckdbgSELECTED, anchorTile, currentMouseTile, ckdbgGREEN);
 			} else if (hex->artId == ckdbgBLOCKER) {
@@ -138,7 +138,7 @@ static void mode_main_paint(int anchorTile) {
 		}
 
 		// CTRL + LMB -> clear selection
-		if (fallout::ck_input_ctrl()) {
+		if (ck_input_ctrl()) {
 			if (hex == nullptr) return;
 
 			if (hex->artId == ckdbgTRANSITION) {
@@ -161,8 +161,8 @@ static void mode_main_paint(int anchorTile) {
 static void mode_main_export(int anchorTile) {
     static bool minusKeyWasPressed = false; // previous frame
     // ctrl + -
-    bool isCtrl = fallout::ck_input_ctrl();
-    bool isMinusPressed = fallout::ck_input_pressed(fallout::CK_KEY_MINUS);
+    bool isCtrl = ck_input_ctrl();
+    bool isMinusPressed = ck_input_pressed(CK_KEY_MINUS);
 
     if (isCtrl && isMinusPressed) {
         if (!minusKeyWasPressed) {
