@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 
 #include "art.h"
 #include "cache.h"
@@ -18,10 +19,10 @@ struct CkSceneryDrawRequest { int fid; int x; int y; };
 static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests;
 
 // persistent queues
-struct CkSceneryInstance {int fid; int tile; int offsetX; int offsetY;};
+struct CkSceneryInstance { int fid; int tile; };
 static std::vector<CkSceneryInstance> gPersistentScenery;
 
-struct CkTileInstance {int fid; int tile; int offsetX; int offsetY; };
+struct CkTileInstance { int fid; int tile; };
 static std::vector<CkTileInstance> gPersistentTiles;
 
 // frame
@@ -31,12 +32,12 @@ void ck_rendering_draw_scenery(int fid, int x, int y) {
 
 
 // persistent
-void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY) {
-    gPersistentScenery.push_back({ fid, tile, offsetX, offsetY });
+void ck_rendering_add_scenery(int fid, int tile) {
+    gPersistentScenery.push_back({ fid, tile });
 }
 
-void ck_rendering_add_tile(int fid, int tile, int offsetX, int offsetY) {
-    gPersistentTiles.push_back({ fid, tile, offsetX, offsetY });
+void ck_rendering_add_tile(int fid, int tile) {
+    gPersistentTiles.push_back({ fid, tile });
 }
 
 void ck_rendering_clear() {
@@ -127,27 +128,21 @@ static void draw_scenery_art(int fid, int x, int y, Rect* rect) {
 
 static void ck_rendering_tiles(fallout::Rect* rect) {
     for (const auto& tileInstance : gPersistentTiles) {
-
-        int screenX;
-        int screenY;
-
+        int screenX, screenY;
         tileToScreenXY(tileInstance.tile, &screenX, &screenY);
-        int fid = ck_rendering_build_tile_fid(tileInstance.fid);
 
-        tileRenderFloorExternal(fid, screenX + tileInstance.offsetX, screenY + tileInstance.offsetY, rect);
+        int fid = ck_rendering_build_tile_fid(tileInstance.fid);
+        tileRenderFloorExternal(fid, screenX, screenY, rect);
     }
 }
 
 static void ck_rendering_scenery(fallout::Rect* rect) {
     for (const auto& scenery : gPersistentScenery) {
-        int screenX;
-        int screenY;
-
+        int screenX, screenY;
         tileToScreenXY(scenery.tile, &screenX, &screenY);
 
         int fid = ck_rendering_build_scenery_fid(scenery.fid);
-
-        draw_scenery_art(fid, screenX + scenery.offsetX, screenY + scenery.offsetY, rect);
+        draw_scenery_art(fid, screenX, screenY, rect);
     }
 }
 

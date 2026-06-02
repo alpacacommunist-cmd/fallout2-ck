@@ -129,20 +129,16 @@ static int l_draw_scenery(lua_State* L) {
 static int l_add_scenery(lua_State* L) {
     int fid = luaL_checkinteger(L, 1);
     int tile = luaL_checkinteger(L, 2);
-    int offsetX = luaL_checkinteger(L, 3);
-    int offsetY = luaL_checkinteger(L, 4);
 
-    ck_rendering_add_scenery(fid, tile, offsetX, offsetY);
+    ck_rendering_add_scenery(fid, tile);
     return 0;
 }
 
 static int l_add_tile(lua_State* L) {
     int fid = luaL_checkinteger(L, 1);
     int tile = luaL_checkinteger(L, 2);
-    int offsetX = luaL_checkinteger(L, 3);
-    int offsetY = luaL_checkinteger(L, 4);
 
-    ck_rendering_add_tile(fid, tile, offsetX, offsetY);
+    ck_rendering_add_tile(fid, tile);
     return 0;
 }
 

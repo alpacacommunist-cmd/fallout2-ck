@@ -16,9 +16,8 @@ int build_scenery_fid(int fid);
 int build_tile_fid(int fid);
 int build_interface_fid(int fid);
 
-void ck_rendering_add_scenery(int fid, int tile, int offsetX, int offsetY);
-void ck_rendering_add_tile(int fid, int tile, int offsetX, int offsetY);
-void ck_rendering_add_misc(int fid, int tile, int offsetX, int offsetY);
+void ck_rendering_add_scenery(int fid, int tile);
+void ck_rendering_add_tile(int fid, int tile);
 void ck_rendering_clear();
 
 struct CkCameraBorders {

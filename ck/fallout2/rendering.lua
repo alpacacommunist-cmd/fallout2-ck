@@ -8,16 +8,12 @@ function rendering.drawScenery(fid, x, y)
 end
 
 -- persistent draw
-function rendering.addScenery(fid, tile, offsetX, offsetY)
-  ck.rendering.add_scenery(fid, tile, offsetX, offsetY)
+function rendering.addScenery(fid, tile)
+  ck.rendering.add_scenery(fid, tile)
 end
 
-function rendering.addTile(fid, tile, offsetX, offsetY)
-  ck.rendering.add_tile(fid, tile, offsetX, offsetY)
-end
-
-function rendering.addMisc(fid, tile, offsetX, offsetY)
-  ck.rendering.add_misc(fid, tile, offsetX, offsetY)
+function rendering.addTile(fid, tile)
+  ck.rendering.add_tile(fid, tile)
 end
 
 -- clear all
