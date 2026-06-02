@@ -145,17 +145,6 @@ static int l_add_tile(lua_State* L) {
     return 0;
 }
 
-static int l_add_misc(lua_State* L) {
-    int fid = luaL_checkinteger(L, 1);
-    int tile = luaL_checkinteger(L, 2);
-    int offsetX = luaL_checkinteger(L, 3);
-    int offsetY = luaL_checkinteger(L, 4);
-
-    ck_rendering_add_misc(fid, tile, offsetX, offsetY);
-    return 0;
-}
-
-
 static int l_set_camera_borders(lua_State* L) {
     int left = luaL_checkinteger(L, 1);
     int right = luaL_checkinteger(L, 2);
@@ -175,7 +164,6 @@ static const luaL_Reg rendering_lib[] = {
     { "draw_scenery", l_draw_scenery },
 	{ "add_scenery", l_add_scenery },
 	{ "add_tile", l_add_tile },
-	{ "add_misc", l_add_misc },
 	{ "clear", l_clear_rendering },
 	{ "set_camera_borders", l_set_camera_borders },
     { nullptr, nullptr }
