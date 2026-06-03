@@ -2,12 +2,10 @@
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 
-#include <unordered_set>
 #include <iostream>
 
 #include "display_monitor.h"
 #include "mouse.h"
-#include "debug.h"
 #include "tile.h"
 #include "ck_input.h"
 
@@ -89,9 +87,10 @@ static void mode_select() {
 
 	fallout::tileToScreenXY(tile, &screenX, &screenY);
 
-	fallout::debugPrint(
-			"[CK] Hover tile=%d hex=(%d,%d) screen=(%d, %d) blocked=%s\n", tile, tileX, tileY,
-			screenX, screenY, blocked ? "true" : "false");
+	std::cout << "[CK] Hover tile=" << tile << " hex(" << tileX << "," << tileY
+		<< ") screen=(" << screenX << "," << screenY << ") blocked=" << (blocked ? "true" : "false") << std::endl;
+			// "[CK] Hover tile=%d hex=(%d,%d) screen=(%d, %d) blocked=%s\n", tile, tileX, tileY,
+			// screenX, screenY, blocked ? "true" : "false");
 
 	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
 		ck_debug_overlay_add_hex(tile, HexState::SELECTED);
@@ -171,38 +170,28 @@ static void mode_main_paint() {
 }
 
 static void mode_main_export() {
-	static bool minusKeyWasPressed = false;
+    if (ck_input_ctrl() && ck_input_just_pressed(CK_KEY_MINUS)) {
+        std::vector<int> selected = ck_debug_overlay_selected_tiles();
+        int gridWidth = fallout::tileGetHexGridWidth();
 
-	bool isCtrl = ck_input_ctrl();
-	bool isMinusPressed = ck_input_pressed(CK_KEY_MINUS);
+        std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
+        for (int tile : selected) {
+            int tileX = gridWidth - 1 - tile % gridWidth,
+                tileY = tile / gridWidth;
 
-	if (isCtrl && isMinusPressed) {
-		if (!minusKeyWasPressed) {
-			minusKeyWasPressed = true;
-
-			std::vector<int> selected = ck_debug_overlay_selected_tiles();
-
-			int gridWidth = fallout::tileGetHexGridWidth();
-
-			std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
-			for (int tile : selected) {
-				int tileX = gridWidth - 1 - tile % gridWidth,
-					tileY = tile / gridWidth;
-
-				std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
-					<< std::endl;
-			}
-			std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
-		}
-	} else {
-		minusKeyWasPressed = false;
-	}
+            std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
+                      << std::endl;
+        }
+        std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
+    }
 }
 
 static void mode_main() {
 	mode_main_dude_scan();
 	mode_main_paint();
 	mode_main_export();
+
+	ck_input_update(); // key just pressed
 }
 
 
@@ -213,12 +202,12 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
-	mode_main();
+	// mode_main();
 
 	// mode_select(17290);
 
 	// shift + lmb to paint
 	// lclick to get color
-	// mode_palette();
+	mode_palette();
 }
 

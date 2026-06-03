@@ -2,14 +2,10 @@
 #include <iostream>
 
 #include "art.h"
-#include "cache.h"
 #include "debug.h"
-#include "geometry.h"
-#include "map.h"
 #include "light.h"
 #include "mouse.h"
 #include "object.h"
-#include "draw.h"
 #include "tile.h"
 
 #include "ck_rendering.h"
@@ -29,7 +25,6 @@ static std::vector<CkTileInstance> gPersistentTiles;
 void ck_rendering_draw_scenery(int fid, int x, int y) {
     gSceneryDrawRequests.push_back({ fid, x, y });
 }
-
 
 // persistent
 void ck_rendering_add_scenery(int fid, int tile) {
@@ -90,10 +85,6 @@ int ck_rendering_build_scenery_fid(int fid) {
 
 int ck_rendering_build_tile_fid(int fid) {
     return buildFid(OBJ_TYPE_TILE, fid, 0, 0, 0);
-}
-
-int ck_rendering_build_interface_fid(int fid) {
-    return buildFid(OBJ_TYPE_INTERFACE, fid, 0, 0, 0);
 }
 
 static void draw_scenery_art(int fid, int x, int y, Rect* rect) {
