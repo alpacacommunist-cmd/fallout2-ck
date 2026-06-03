@@ -5,14 +5,9 @@ local outskirts = {}
 outskirts.anchorTile = 17290
 
 outskirts.mountainTiles = {
-  { fid = 1508, tile = 13894 },
-  { fid = 1507, tile = 14094 },
-  { fid = 1505, tile = 14897 },
-  { fid = 1505, tile = 13694 },
-  { fid = 1509, tile = 13493 },
-  { fid = 1510, tile = 14895 },
-  { fid = 1510, tile = 15095 },
-  { fid = 1510, tile = 14494 },
+  { fid = 1509, tile = 13893 },
+  { fid = 1508, tile = 14896 },
+  { fid = 1508, tile = 13494 }
 }
 
 outskirts.mountainScenery = {

@@ -125,12 +125,10 @@ int ck_debug_overlay_build_interface_fid(int artId) {
 }
 
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
-    int anchorScreenX, anchorScreenY;
     const auto& hexes = ck_debug_overlay_get_all_hexes();
 
     for (const auto& [tile, hex] : hexes) {
         int fid = ck_debug_overlay_build_interface_fid(hex.artId);
-        fallout::tileToScreenXY(hex.anchorTile, &anchorScreenX, &anchorScreenY);
 
         int screenX, screenY;
         fallout::tileToScreenXY(hex.tile, &screenX, &screenY);

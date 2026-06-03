@@ -30,7 +30,7 @@ void ck_debug_overlay_toggle() {
 
 // different modes, work in progress
 
-static void mode_palette(int anchorTile) {
+static void mode_palette() {
 	if (!ck_debug_overlay_enabled()) return;
     if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
 
@@ -55,18 +55,15 @@ static void mode_palette(int anchorTile) {
 	} else {
 		if (!isShift) return;
 
-		ck_debug_overlay_add_hex(999, anchorTile, currentMouseTile, { currentColor, currentColor });
+		ck_debug_overlay_add_hex(999, currentMouseTile, { currentColor, currentColor });
 		currentColor++;
 	}
 }
 
-static void mode_select(int anchorTile) {
+static void mode_select() {
     if (!gDebugOverlayEnabled) return;
 
     static int lastTile = -1;
-
-    int anchorScreenX, anchorScreenY;
-    fallout::tileToScreenXY(anchorTile, &anchorScreenX, &anchorScreenY);
 
     int mouseX, mouseY;
     fallout::mouseGetPosition(&mouseX, &mouseY);
@@ -89,17 +86,16 @@ static void mode_select(int anchorTile) {
 
 	fallout::debugPrint(
 			"[CK] Hover tile=%d hex=(%d,%d) screen=(%d, %d) blocked=%s\n", tile, tileX, tileY,
-			screenX - anchorScreenX, screenY - anchorScreenY,
-			blocked ? "true" : "false");
+			screenX, screenY, blocked ? "true" : "false");
 
 	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-		ck_debug_overlay_add_hex(999, anchorTile, tile, ckdbgGREEN);
+		ck_debug_overlay_add_hex(999, tile, ckdbgGREEN);
 
 		if (ck_input_shift()) ck_debug_overlay_remove_hex(tile);
 	}
 }
 
-static void mode_main_dude_scan(int anchorTile) {
+static void mode_main_dude_scan() {
     static int sLastDudeTile = -1;
 
     fallout::Object* dude = fallout::gDude;
@@ -119,14 +115,14 @@ static void mode_main_dude_scan(int anchorTile) {
 		bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
 
         if (blocking) {
-            ck_debug_overlay_add_hex(ckdbgBLOCKER, anchorTile, tile, ckdbgRED);
+            ck_debug_overlay_add_hex(ckdbgBLOCKER, tile, ckdbgRED);
         } else {
-            ck_debug_overlay_add_hex(ckdbgWALKABLE, anchorTile, tile, ckdbgBLUE);
+            ck_debug_overlay_add_hex(ckdbgWALKABLE, tile, ckdbgBLUE);
         }
     }
 }
 
-static void mode_main_paint(int anchorTile) {
+static void mode_main_paint() {
     if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
 
     int mouseX, mouseY;
@@ -144,8 +140,8 @@ static void mode_main_paint(int anchorTile) {
     // SHIFT + LMB select area
     if (isShift) {
         if (hex == nullptr) {
-			if (blocking) ck_debug_overlay_add_hex(ckdbgTRANSITION, anchorTile, currentMouseTile, ckdbgYELLOW);
-			else ck_debug_overlay_add_hex(ckdbgSELECTED, anchorTile, currentMouseTile, ckdbgGREEN);
+			if (blocking) ck_debug_overlay_add_hex(ckdbgTRANSITION, currentMouseTile, ckdbgYELLOW);
+			else ck_debug_overlay_add_hex(ckdbgSELECTED, currentMouseTile, ckdbgGREEN);
             return;
         }
 
@@ -170,7 +166,7 @@ static void mode_main_paint(int anchorTile) {
     }
 }
 
-static void mode_main_export(int anchorTile) {
+static void mode_main_export() {
     static bool minusKeyWasPressed = false;
 
     bool isCtrl = ck_input_ctrl();
@@ -182,9 +178,15 @@ static void mode_main_export(int anchorTile) {
 
             std::vector<int> selected = ck_debug_overlay_selected_tiles();
 
+			int gridWidth = fallout::tileGetHexGridWidth();
+
             std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
             for (int tile : selected) {
-                std::cout << "[CK DEBUG] SELECTED tile=" << tile << std::endl;
+				int tileX = gridWidth - 1 - tile % gridWidth,
+					tileY = tile / gridWidth;
+
+                std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
+					<< std::endl;
             }
             std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
         }
@@ -193,10 +195,10 @@ static void mode_main_export(int anchorTile) {
     }
 }
 
-static void mode_main(int anchorTile) {
-	mode_main_dude_scan(anchorTile);
-	mode_main_paint(anchorTile);
-	mode_main_export(anchorTile);
+static void mode_main() {
+	mode_main_dude_scan();
+	mode_main_paint();
+	mode_main_export();
 }
 
 
@@ -207,12 +209,12 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
-	mode_main(17290);
+	mode_main();
 
 	// mode_select(17290);
 
 	// shift + lmb to paint
 	// lclick to get color
-	// mode_palette(17290);
+	// mode_palette();
 }
 

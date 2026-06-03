@@ -11,7 +11,6 @@ namespace fallout {
 struct DebugHexColor { unsigned char edge; unsigned char inner; };
 struct CkDebugHex {
     int artId;
-    int anchorTile;
     int tile;
     DebugHexColor color;
 
@@ -43,7 +42,7 @@ std::vector<int> ck_debug_overlay_selected_tiles();
 
 void ck_debug_overlay_render_clear();
 
-void ck_debug_overlay_add_hex(int fid, int anchorTile, int tile, DebugHexColor color);
+void ck_debug_overlay_add_hex(int fid, int tile, DebugHexColor color);
 void ck_debug_overlay_remove_hex(int tile);
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect);
 

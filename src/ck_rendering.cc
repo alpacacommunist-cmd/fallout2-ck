@@ -73,8 +73,8 @@ bool ck_rendering_is_camera_position_allowed(int tile) {
     int tileX = gridWidth - 1 - tile % gridWidth;
     int tileY = tile / gridWidth;
 
-    bool allowed = (tileX >= gCameraBorders.left && tileX <= gCameraBorders.right) &&
-        (tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom);
+    bool allowed = tileX >= gCameraBorders.left && tileX <= gCameraBorders.right &&
+        tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom;
 
     // fallout::debugPrint("[CK] Camera check " "tile=(%d,%d) " "bounds=(%d..%d,%d..%d) " "allowed=%d\n",
     //     tileX, tileY, gCameraBorders.left, gCameraBorders.right, gCameraBorders.top, gCameraBorders.bottom, allowed);

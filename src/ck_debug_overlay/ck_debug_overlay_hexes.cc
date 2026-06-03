@@ -3,8 +3,8 @@
 
 static std::map<int, CkDebugHex> gPersistentHexes;
 
-void ck_debug_overlay_add_hex(int artId, int anchorTile, int tile, DebugHexColor color) {
-    gPersistentHexes[tile] = { artId, anchorTile, tile, color };
+void ck_debug_overlay_add_hex(int artId, int tile, DebugHexColor color) {
+    gPersistentHexes[tile] = { artId, tile, color };
 }
 
 void ck_debug_overlay_remove_hex(int tile) {
