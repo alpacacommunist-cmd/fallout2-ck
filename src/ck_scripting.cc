@@ -3,7 +3,12 @@
 
 #include "ck_scripting.h"
 #include "ck_rendering.h"
+
 #include "game_time/game_time_bindings.h"
+#include "rendering/rendering_bindings.h"
+
+#include "game_time/game_time.h"
+
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 // bindings (requirements)
@@ -70,10 +75,6 @@ int l_ck_log_print(lua_State* L) {
 	return 0; // nothing to return
 }
 
-//
-// void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr)
-// 
-
 // l_ck_get_map_id -> ckGetMapId -> fallout2.map.getMapID
 int l_ck_get_map_id(lua_State* L) {
     lua_pushinteger(L, fallout::mapGetCurrentMap());
@@ -96,62 +97,6 @@ int l_ck_spawn_critter(lua_State* L) {
     }
 
 	lua_pushboolean(L, true);
-    return 1;
-}
-
-// rendering
-static int l_draw_scenery(lua_State* L) {
-    int fid = luaL_checkinteger(L, 1);
-    int x = luaL_checkinteger(L, 2);
-    int y = luaL_checkinteger(L, 3);
-
-    ck_rendering_draw_scenery(fid, x, y);
-    return 0;
-}
-
-static int l_add_scenery(lua_State* L) {
-    int fid = luaL_checkinteger(L, 1);
-    int tile = luaL_checkinteger(L, 2);
-
-    ck_rendering_add_scenery(fid, tile);
-    return 0;
-}
-
-static int l_add_tile(lua_State* L) {
-    int fid = luaL_checkinteger(L, 1);
-    int tile = luaL_checkinteger(L, 2);
-
-    ck_rendering_add_tile(fid, tile);
-    return 0;
-}
-
-static int l_set_camera_borders(lua_State* L) {
-    int left = luaL_checkinteger(L, 1);
-    int right = luaL_checkinteger(L, 2);
-    int top = luaL_checkinteger(L, 3);
-    int bottom = luaL_checkinteger(L, 4);
-
-	ck_rendering_set_camera_borders(left, right, top, bottom);
-	return 0;
-}
-
-static int l_clear_rendering(lua_State* L) {
-    ck_rendering_clear();
-    return 0;
-}
-
-static const luaL_Reg rendering_lib[] = {
-    { "draw_scenery", l_draw_scenery },
-	{ "add_scenery", l_add_scenery },
-	{ "add_tile", l_add_tile },
-	{ "clear", l_clear_rendering },
-	{ "set_camera_borders", l_set_camera_borders },
-    { nullptr, nullptr }
-};
-
-static int luaopen_ck_rendering(lua_State* L) {
-    luaL_newlib(L, rendering_lib);
-
     return 1;
 }
 
@@ -181,7 +126,6 @@ void ck_reload_mods() {
 }
 
 // Init
-//
 void ck_scripting_init() {
     std::cout << "[CK] Initializing LuaJIT backend..." << std::endl;
 
@@ -221,7 +165,6 @@ void ck_scripting_init() {
 }
 
 // Exit
-//
 void ck_scripting_exit() {
     if (gLuaState != nullptr) {
         std::cout << "[CK] Shutting down LuaJIT backend..." << std::endl;
@@ -247,54 +190,6 @@ void ck_scripting_on_game_start() {
         
         if (status != LUA_OK) {
             std::cerr << "[CK] Hook Error (onGameStart): " << lua_tostring(gLuaState, -1) << std::endl;
-            lua_pop(gLuaState, 1); // clears error out of stack
-        }
-    } else {
-        // no such function, remove it from stack
-        lua_pop(gLuaState, 1);
-    }
-}
-
-void ck_scripting_on_day_passed() {
-    if (gLuaState == nullptr) return;
-
-    // search global lua table for function "ckOnDayPassed"
-    // and put it on top of lua stack
-    lua_getglobal(gLuaState, "ckOnDayPassed");
-
-    if (lua_isfunction(gLuaState, -1)) {
-        // run it!
-        // params lua_pcall: state, nargs (0), nresults (0), msgh (0)
-		int status = lua_pcall(gLuaState, 0, 0, 0);
-
-        if (status != LUA_OK) {
-            std::cerr << "[CK] Hook Error " << "(onDayPassed): " << lua_tostring(gLuaState, -1) << std::endl;
-            lua_pop(gLuaState, 1); // clears error out of stack
-        }
-    } else {
-        // no such function, remove it from stack
-        lua_pop(gLuaState, 1);
-    }
-}
-
-// just in case
-void ck_scripting_on_after_rest(int hours, int minutes) {
-	ck_scripting_on_time_advance(hours, minutes);
-}
-
-void ck_scripting_on_time_advance(int hours, int minutes) {
-    if (gLuaState == nullptr) return;
-
-    lua_getglobal(gLuaState, "ckOnTimeAdvance");
-
-    if (lua_isfunction(gLuaState, -1)) {
-        lua_pushinteger(gLuaState, hours);
-        lua_pushinteger(gLuaState, minutes);
-
-        int status = lua_pcall(gLuaState, 2, 0, 0);
-
-        if (status != LUA_OK) {
-            std::cerr << "[CK] Hook Error " << "(onTimeAdvance): " << lua_tostring(gLuaState, -1) << std::endl;
             lua_pop(gLuaState, 1); // clears error out of stack
         }
     } else {

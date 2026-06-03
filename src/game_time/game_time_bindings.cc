@@ -7,6 +7,10 @@ extern "C" {
 }
 
 namespace {
+
+	//
+	// void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr)
+	// 
     // l_ck_get_year -> ck.game_time.get_year
     int l_ck_get_year(lua_State* L) {
         int year = 0;
@@ -41,7 +45,6 @@ namespace {
         return 1;
     }
 
-    // Список функций конкретно для этого модуля
     const luaL_Reg game_time_lib[] = {
         { "get_year",       l_ck_get_year },
         { "get_day",        l_ck_get_day },
@@ -52,7 +55,6 @@ namespace {
     };
 }
 
-// Реализация функции открытия модуля
 int luaopen_ck_game_time(lua_State* L) {
     luaL_newlib(L, game_time_lib);
     return 1;

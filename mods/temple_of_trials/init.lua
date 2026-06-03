@@ -13,7 +13,7 @@ events.on('onMapEnter', function()
     return
   end
 
-  rendering.setBorders(105, 113, 87, 98)
+  rendering.setBorders(95, 113, 87, 110)
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
     rendering.addScenery(scenery.fid, scenery.tile)
