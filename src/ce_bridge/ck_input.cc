@@ -3,11 +3,8 @@
 
 static int ck_to_scancode(CkKey key) {
     switch (key) {
-
-        case CK_KEY_MINUS:     return 45; // -
-        case CK_KEY_EQUALS:    return 46; // =
-        case CK_KEY_COMMA:     return 54; // ,
-        case CK_KEY_PERIOD:    return 55; // .
+		case CK_KEY_MINUS:     return SDL_SCANCODE_MINUS;
+        case CK_KEY_EQUALS:    return SDL_SCANCODE_EQUALS;
 
         default:                        return 0; // SDL_SCANCODE_UNKNOWN;
     }

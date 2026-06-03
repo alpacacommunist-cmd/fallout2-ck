@@ -1,82 +1,68 @@
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 
-#include <cstdlib>
+#include <unordered_map>
+#include <vector>
 #include <cstring>
 
-#include "color.h"
-#include "tile.h"
-#include "object.h"
-#include "art.h"
-#include "draw.h"
+#include <object.h>
+#include <tile.h>
+#include <art.h>
 
-struct CachedHexArt {
-    unsigned char* data = nullptr;
+struct HexBuffer {
+    std::vector<unsigned char> data;
     int width = 0;
     int height = 0;
+
+    bool empty() const { return data.empty(); }
 };
 
-struct PrecoloredHex {
-    unsigned char* data = nullptr;
-    int width = 0;
-    int height = 0;
-};
+static std::unordered_map<int, HexBuffer> gPrecoloredCache;
 
-static std::map<int, PrecoloredHex> gPrecoloredCache;
-static CachedHexArt gBaseHexArt;
-
-static PrecoloredHex get_or_create_colored_hex(unsigned char edgeColor, unsigned char innerColor) {
-	// base art load
-    if (gBaseHexArt.data == nullptr) {
-        int fid = ck_debug_overlay_build_interface_fid(999);
-        fallout::CacheEntry* cacheEntry;
-        fallout::Art* art = artLock(fid, &cacheEntry);
-
-        if (art != nullptr) {
-            gBaseHexArt.width = artGetWidth(art, 0, 0);
-			gBaseHexArt.height = artGetHeight(art, 0, 0);
-            int size = gBaseHexArt.width * gBaseHexArt.height;
-
-            gBaseHexArt.data = (unsigned char*)malloc(size);
-
-            if (gBaseHexArt.data) memcpy(gBaseHexArt.data, artGetFrameData(art, 0, 0), size);
-            artUnlock(cacheEntry);
-        }
-    }
-    
-    if (gBaseHexArt.data == nullptr) return PrecoloredHex{};
-
-    // look for precolored hex
+static const HexBuffer& get_or_create_colored_hex(unsigned char edgeColor, unsigned char innerColor) {
     int colorKey = (edgeColor << 8) | innerColor;
+
+    // search cache
     auto it = gPrecoloredCache.find(colorKey);
+    if (it != gPrecoloredCache.end()) {
+        return it->second;
+    }
 
-	// return precolored hex if found in cache
-    if (it != gPrecoloredCache.end()) return it->second;
+    // new buffer if nothing found in cache
+    HexBuffer newHex;
+    int fid = ck_debug_overlay_build_interface_fid(CK_DEBUG_HEX_ART_ID);
+    fallout::CacheEntry* cacheEntry = nullptr;
+    fallout::Art* art = artLock(fid, &cacheEntry);
 
-    // generate newHex if precolored version is not cached yet
-    PrecoloredHex newHex;
-    newHex.width = gBaseHexArt.width;
-    newHex.height = gBaseHexArt.height;
-    int size = newHex.width * newHex.height;
-    newHex.data = (unsigned char*)malloc(size);
+    if (art != nullptr) {
+        newHex.width = artGetWidth(art, 0, 0);
+        newHex.height = artGetHeight(art, 0, 0);
+        int size = newHex.width * newHex.height;
 
-    if (newHex.data) {
-        // paint buffer
-        for (int i = 0; i < size; i++) {
-            unsigned char pixel = gBaseHexArt.data[i];
-            if (pixel == 0) {
-                newHex.data[i] = 0; // transparent
-            } else if (pixel > 150) {
-                newHex.data[i] = edgeColor;
-            } else {
-                newHex.data[i] = innerColor;
+        newHex.data.resize(size);
+        const unsigned char* baseData = artGetFrameData(art, 0, 0);
+
+        if (baseData != nullptr) {
+            for (int i = 0; i < size; i++) {
+                unsigned char pixel = baseData[i];
+                if (pixel == 0) {
+                    newHex.data[i] = 0; // Прозрачный
+                } else if (pixel > 150) {
+                    newHex.data[i] = edgeColor;
+                } else {
+                    newHex.data[i] = innerColor;
+                }
             }
         }
-		// adds to cache
-        gPrecoloredCache[colorKey] = newHex;
+        artUnlock(cacheEntry);
     }
 
-    return newHex;
+    if (newHex.empty()) {
+        static const HexBuffer emptyBuffer;
+        return emptyBuffer;
+    }
+
+    return gPrecoloredCache.emplace(colorKey, std::move(newHex)).first->second;
 }
 
 void blit_debug_hex_colored(const unsigned char* src, int width, int height, int srcPitch,
@@ -97,26 +83,25 @@ void blit_debug_hex_colored(const unsigned char* src, int width, int height, int
 }
 
 static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
-        unsigned char edgeColor, unsigned char innerColor) {
-    
-    PrecoloredHex hex = get_or_create_colored_hex(edgeColor, innerColor);
-    if (hex.data == nullptr) return;
+                          unsigned char edgeColor, unsigned char innerColor) {
+     const HexBuffer& hex = get_or_create_colored_hex(edgeColor, innerColor);
+     if (hex.empty()) return;
 
-    int width = hex.width;
-    int height = hex.height;
+     int width = hex.width;
+     int height = hex.height;
 
-    fallout::Rect artRect;
-    artRect.left = x, artRect.top = y, artRect.right = x + width - 1, artRect.bottom = y + height - 1;
+     fallout::Rect artRect;
+     artRect.left = x, artRect.top = y, artRect.right = x + width - 1, artRect.bottom = y + height - 1;
 
-    fallout::Rect intersection;
-    if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
+     fallout::Rect intersection;
+     if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
 
-    unsigned char* src = hex.data;
-    src += width * (intersection.top - y) + (intersection.left - x);
+     const unsigned char* src = hex.data.data();
+     src += width * (intersection.top - y) + (intersection.left - x);
 
-    blit_debug_hex_colored(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
-            width, fallout::tileGetWindowBuffer(), intersection.left, intersection.top,
-            fallout::tileGetWindowPitch());
+     blit_debug_hex_colored(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
+              width, fallout::tileGetWindowBuffer(), intersection.left, intersection.top,
+              fallout::tileGetWindowPitch());
 }
 
 DebugHexColor ck_debug_get_color_for_state(HexState state) {
@@ -152,15 +137,7 @@ void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
 void ck_debug_overlay_render_clear() {
     ck_debug_overlay_clear_hexes();
 
-    for (auto& [key, hex] : gPrecoloredCache) {
-        if (hex.data != nullptr) std::free(hex.data);
-    }
-    gPrecoloredCache.clear();
-
-    if (gBaseHexArt.data != nullptr) {
-        std::free(gBaseHexArt.data);
-        gBaseHexArt.data = nullptr;
-    }
+	gPrecoloredCache.clear();
 
     fallout::tileWindowRefresh();
 }
