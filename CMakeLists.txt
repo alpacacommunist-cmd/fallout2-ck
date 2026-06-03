@@ -10,6 +10,9 @@ set(LUAJIT_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit/src/libluajit.a")
 add_library(fallout2-ck STATIC
     src/ck_scripting.cc
     src/ck_rendering.cc
+
+    src/game_time/game_time_bindings.cc
+
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc
     src/ck_debug_overlay/ck_debug_overlay_render.cc

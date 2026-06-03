@@ -3,19 +3,19 @@
 local gameTime = {}
 
 function gameTime.getYear()
-  return ckGetYear()
+  return ck.game_time.get_year()
 end
 
 function gameTime.getDay()
-  return ckGetDay()
+  return ck.game_time.get_day()
 end
 
 function gameTime.getMonth()
-  return ckGetMonth()
+  return ck.game_time.get_month()
 end
 
 function gameTime.getHour()
-  return ckGetHour()
+  return ck.game_time.get_hour()
 end
 
 function gameTime.getDate()
@@ -28,7 +28,7 @@ function gameTime.getDate()
 end
 
 function gameTime.getTotalDays()
-  return ckGetTotalDays()
+  return ck.game_time.get_total_days()
 end
 
 function gameTime.getTimeOfDay()

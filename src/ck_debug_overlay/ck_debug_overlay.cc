@@ -202,12 +202,12 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
-	// mode_main();
+	mode_main();
 
 	// mode_select(17290);
 
 	// shift + lmb to paint
 	// lclick to get color
-	mode_palette();
+	// mode_palette();
 }
 

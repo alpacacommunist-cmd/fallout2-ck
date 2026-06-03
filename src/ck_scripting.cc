@@ -1,14 +1,15 @@
 #include <iostream>
+#include <cstring>
 
 #include "ck_scripting.h"
 #include "ck_rendering.h"
+#include "game_time/game_time_bindings.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 // bindings (requirements)
 #include "display_monitor.h"
 #include "proto_instance.h"
 #include "map.h"
-#include "scripts.h"
 #include "tile.h"
 
 extern "C" {
@@ -20,6 +21,37 @@ extern "C" {
 // lua state global pointer, lives as long as game lives
 lua_State* gLuaState = nullptr;
 
+static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, int gl) {
+    lua_pushcfunction(L, openf);
+    lua_pushstring(L, modname); // push modname as argument for openf
+    // call openf(modname). returns module table on stck
+    lua_call(L, 1, 1);
+
+	// package.loaded
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "loaded"); // stack: [module, package, loaded]
+
+	// package.loaded[modname] = module
+	lua_pushvalue(L, -3);
+	lua_setfield(L, -2, modname);
+
+	// -package -loaded
+	lua_pop(L, 2); // stack: [module]
+
+	// if gl == true register module as global in ck
+	if (gl) {
+		lua_getglobal(L, "ck"); // stack: [module, ck]
+
+		// name after dot
+		const char* dot = strchr(modname, '.');
+		const char* subname = dot ? dot + 1 : modname;
+
+		lua_pushvalue(L, -2); // copy module on top of stack
+		lua_setfield(L, -2, subname); // ck[subname] = module
+
+		lua_pop(L, 1); // -ck
+	}
+}
 
 // bindings
 // C <-> Lua contract, raw -> registered -> lua api
@@ -46,55 +78,6 @@ int l_ck_log_print(lua_State* L) {
 int l_ck_get_map_id(lua_State* L) {
     lua_pushinteger(L, fallout::mapGetCurrentMap());
     return 1;
-}
-
-// l_ck_get_year -> ckGetYear -> fallout2.game_time.getYear
-int l_ck_get_year(lua_State* L) {
-	int year = 0;
-	fallout::gameTimeGetDate(nullptr, nullptr, &year);
-
-	lua_pushinteger(L, year);
-    return 1; // one return value for lua
-}
-
-// l_ck_get_day -> ckGetDay -> fallout2.game_time.getDay
-int l_ck_get_day(lua_State* L) {
-    int day = 0;
-
-    fallout::gameTimeGetDate(nullptr, &day, nullptr);
-
-    lua_pushinteger(L, day);
-    return 1; // one return value for lua
-}
-
-// l_ck_get_month -> ckGetMonth -> fallout2.game_time.getMonth
-int l_ck_get_month(lua_State* L) {
-    int month = 0;
-
-    fallout::gameTimeGetDate(&month, nullptr, nullptr);
-
-    lua_pushinteger(L, month);
-    return 1; // one return value for lua
-}
-
-// l_ck_get_hour -> ckGetHour -> fallout2.game_time.getHour
-int l_ck_get_hour(lua_State* L) {
-    int hour = fallout::gameTimeGetHour();
-
-    lua_pushinteger(L, hour);
-    return 1; // one return value for lua
-}
-
-// l_ck_get_total_days -> ckGetTotalDays -> fallout2.game_time.getTotalDays
-int l_ck_get_total_days(lua_State* L) {
-    unsigned int gameTime = fallout::gameTimeGetTime();
-    // 10 ticks = 1 second
-    // 60 sec * 60 min * 24 hours = seconds/day
-    int totalDays = gameTime / (10 * 60 * 60 * 24);
-
-    lua_pushinteger(L, totalDays);
-
-    return 1; // one value returned to Lua
 }
 
 int l_ck_spawn_critter(lua_State* L) {
@@ -211,18 +194,11 @@ void ck_scripting_init() {
 		lua_newtable(gLuaState);               // stack: [ck]
 		lua_setglobal(gLuaState, "ck");        // stack: []
 
-		// create rendering module
-		lua_pushcfunction(gLuaState, luaopen_ck_rendering); // stack: [ck, rendering_module]
-		lua_call(gLuaState, 0, 1);
+		ck_requiref(gLuaState, "ck.rendering", luaopen_ck_rendering, 1);
+		lua_pop(gLuaState, 1);
 
-		// assign rendering_module into ck.rendering
-		lua_getglobal(gLuaState, "ck");           // stack: [rendering_module, ck]
-		lua_pushvalue(gLuaState, -2);             // stack: [rendering_module, ck, rendering_module]
-		lua_setfield(gLuaState, -2, "rendering"); // ck.rendering = rendering_module
-
-		// cleanup stack: pop rendering_module and ck
-		lua_pop(gLuaState, 2);
-
+		ck_requiref(gLuaState, "ck.game_time", luaopen_ck_game_time, 1);
+		lua_pop(gLuaState, 1);
 
         // expand path to include fallout2-ck/ck/fallout2
         // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
@@ -230,11 +206,6 @@ void ck_scripting_init() {
 
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
-		lua_register(gLuaState, "ckGetYear", l_ck_get_year);
-		lua_register(gLuaState, "ckGetDay", l_ck_get_day);
-		lua_register(gLuaState, "ckGetMonth", l_ck_get_month);
-		lua_register(gLuaState, "ckGetHour", l_ck_get_hour);
-		lua_register(gLuaState, "ckGetTotalDays", l_ck_get_total_days);
 		lua_register(gLuaState, "ckGetMapId", l_ck_get_map_id);
 
 		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
