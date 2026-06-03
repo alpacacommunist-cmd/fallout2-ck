@@ -119,6 +119,15 @@ static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
             fallout::tileGetWindowPitch());
 }
 
+DebugHexColor ck_debug_get_color_for_state(HexState state) {
+    switch (state) {
+        case HexState::BLOCKER:    return ckdbgRED;
+        case HexState::WALKABLE:   return ckdbgBLUE;
+        case HexState::TRANSITION: return ckdbgYELLOW;
+        case HexState::SELECTED:   return ckdbgGREEN;
+    }
+    return ckdbgBLUE;
+}
 
 int ck_debug_overlay_build_interface_fid(int artId) {
     return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
@@ -126,14 +135,17 @@ int ck_debug_overlay_build_interface_fid(int artId) {
 
 void ck_debug_overlay_persistent_hexes(fallout::Rect* rect) {
     const auto& hexes = ck_debug_overlay_get_all_hexes();
+    int fid = ck_debug_overlay_build_interface_fid(CK_DEBUG_HEX_ART_ID);
 
     for (const auto& [tile, hex] : hexes) {
-        int fid = ck_debug_overlay_build_interface_fid(hex.artId);
-
         int screenX, screenY;
         fallout::tileToScreenXY(hex.tile, &screenX, &screenY);
 
-        draw_misc_art(fid, screenX, screenY, rect, hex.color.edge, hex.color.inner);
+        DebugHexColor color = (hex.state == HexState::CUSTOM)
+                              ? hex.customColor
+                              : ck_debug_get_color_for_state(hex.state);
+
+        draw_misc_art(fid, screenX, screenY, rect, color.edge, color.inner);
     }
 }
 

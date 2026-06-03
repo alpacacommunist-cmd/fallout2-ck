@@ -5,7 +5,8 @@
 #include <map>
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 
-void ck_debug_overlay_add_hex(int artId, int tile, DebugHexColor color);
+void ck_debug_overlay_add_hex(int tile, HexState state);
+void ck_debug_overlay_add_custom_hex(int tile, DebugHexColor color);
 void ck_debug_overlay_remove_hex(int tile);
 void ck_debug_overlay_clear_hexes();
 

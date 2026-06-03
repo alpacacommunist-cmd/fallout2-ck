@@ -1,10 +1,13 @@
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
-#include <map>
 
 static std::map<int, CkDebugHex> gPersistentHexes;
 
-void ck_debug_overlay_add_hex(int artId, int tile, DebugHexColor color) {
-    gPersistentHexes[tile] = { artId, tile, color };
+void ck_debug_overlay_add_hex(int tile, HexState state) {
+    gPersistentHexes[tile] = { tile, state, {0,0} };
+}
+
+void ck_debug_overlay_add_custom_hex(int tile, DebugHexColor color) {
+    gPersistentHexes[tile] = { tile, HexState::CUSTOM, color };
 }
 
 void ck_debug_overlay_remove_hex(int tile) {
@@ -24,7 +27,7 @@ CkDebugHex* ck_debug_overlay_find_hex(int tile) {
 std::vector<int> ck_debug_overlay_selected_tiles() {
     std::vector<int> result;
     for (const auto& [tile, hex] : gPersistentHexes) {
-        if (hex.artId == ckdbgSELECTED || hex.artId == ckdbgTRANSITION) {
+        if (hex.state == HexState::SELECTED || hex.state == HexState::TRANSITION) {
             result.push_back(hex.tile);
         }
     }
