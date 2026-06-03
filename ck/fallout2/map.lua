@@ -7,7 +7,7 @@ function map.spawnCritter(pid)
 end
 
 function map.getId()
-  return ckGetMapId()
+  return ck.map.get_id()
 end
 
 return map

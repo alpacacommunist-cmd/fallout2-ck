@@ -2,19 +2,17 @@
 #include <cstring>
 
 #include "ck_scripting.h"
-#include "ck_rendering.h"
 
+// bindings
 #include "game_time/game_time_bindings.h"
 #include "rendering/rendering_bindings.h"
+#include "map/map_bindings.h"
 
-#include "game_time/game_time.h"
+#include "game_time/ck_game_time.h"
+#include "map/ck_map.h"
 
-#include "ck_debug_overlay/ck_debug_overlay.h"
-
-// bindings (requirements)
 #include "display_monitor.h"
 #include "proto_instance.h"
-#include "map.h"
 #include "tile.h"
 
 extern "C" {
@@ -75,11 +73,6 @@ int l_ck_log_print(lua_State* L) {
 	return 0; // nothing to return
 }
 
-// l_ck_get_map_id -> ckGetMapId -> fallout2.map.getMapID
-int l_ck_get_map_id(lua_State* L) {
-    lua_pushinteger(L, fallout::mapGetCurrentMap());
-    return 1;
-}
 
 int l_ck_spawn_critter(lua_State* L) {
     // argument #1 from Lua
@@ -144,14 +137,15 @@ void ck_scripting_init() {
 		ck_requiref(gLuaState, "ck.game_time", luaopen_ck_game_time, 1);
 		lua_pop(gLuaState, 1);
 
+		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
+		lua_pop(gLuaState, 1);
+
         // expand path to include fallout2-ck/ck/fallout2
         // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
         luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?.lua'");
 
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
-		lua_register(gLuaState, "ckGetMapId", l_ck_get_map_id);
-
 		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
 
         // bootstrap
@@ -220,26 +214,6 @@ void ck_scripting_on_game_loaded() {
     }
 }
 
-void ck_scripting_on_map_enter() {
-    if (gLuaState == nullptr) return;
-
-	ck_rendering_clear();
-	if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
-
-    // search global lua table for function "ckOnMapEnter"
-    lua_getglobal(gLuaState, "ckOnMapEnter");
-
-    if (lua_isfunction(gLuaState, -1)) {
-        int status = lua_pcall(gLuaState, 0, 0, 0);
-
-        if (status != LUA_OK) {
-            std::cerr << "[CK] Hook Error " << "(onMapEnter): " << lua_tostring(gLuaState, -1) << std::endl;
-            lua_pop(gLuaState, 1);
-        }
-    } else {
-        lua_pop(gLuaState, 1);
-    }
-}
 
 
 int ck_get_config_int(const char* key, int default_value) {
