@@ -1,6 +1,9 @@
 #ifndef CK_SCRIPTING_H
 #define CK_SCRIPTING_H
 
+void ck_call_hook(const char* name);
+void ck_call_hook_int(const char* name, int arg);
+
 void ck_reload_mods();
 void ck_scripting_init();
 void ck_scripting_exit();

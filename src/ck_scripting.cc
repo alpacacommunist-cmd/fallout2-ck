@@ -56,6 +56,19 @@ static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, 
 	}
 }
 
+void ck_call_hook(const char* name);
+void ck_call_hook_int(const char* name, int arg);
+
+void ck_call_hook(const char* name) {
+    if (gLuaState == nullptr) return;
+    lua_getglobal(gLuaState, name);
+    if (!lua_isfunction(gLuaState, -1)) { lua_pop(gLuaState, 1); return; }
+    if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
+        std::cerr << "[CK] Hook Error (" << name << "): " << lua_tostring(gLuaState, -1) << std::endl;
+        lua_pop(gLuaState, 1);
+    }
+}
+
 // bindings
 // C <-> Lua contract, raw -> registered -> lua api
 //
@@ -170,51 +183,12 @@ void ck_scripting_exit() {
 // this is called from fallout2-ce once interface is ready
 // work in progress chill
 void ck_scripting_on_game_start() {
-    if (gLuaState == nullptr) return;
-
-    // search global lua table for function "ckOnGameStart"
-    // and put it on top of lua stack
-    lua_getglobal(gLuaState, "ckOnGameStart");
-
-    // check if it's indeed a function
-    if (lua_isfunction(gLuaState, -1)) {
-        // run it!
-        // params lua_pcall: state, nargs (0), nresults (0), msgh (0)
-        int status = lua_pcall(gLuaState, 0, 0, 0);
-        
-        if (status != LUA_OK) {
-            std::cerr << "[CK] Hook Error (onGameStart): " << lua_tostring(gLuaState, -1) << std::endl;
-            lua_pop(gLuaState, 1); // clears error out of stack
-        }
-    } else {
-        // no such function, remove it from stack
-        lua_pop(gLuaState, 1);
-    }
+	ck_call_hook("ckOnGameStart");
 }
 
 void ck_scripting_on_game_loaded() {
-    if (gLuaState == nullptr) return;
-
-    // search global lua table for function "ckOnGameLoaded"
-    // and put it on top of lua stack
-    lua_getglobal(gLuaState, "ckOnGameLoaded");
-
-    if (lua_isfunction(gLuaState, -1)) {
-        // run it!
-        // params lua_pcall: state, nargs (0), nresults (0), msgh (0)
-		int status = lua_pcall(gLuaState, 0, 0, 0);
-
-        if (status != LUA_OK) {
-            std::cerr << "[CK] Hook Error " << "(onGameLoaded): " << lua_tostring(gLuaState, -1) << std::endl;
-            lua_pop(gLuaState, 1); // clears error out of stack
-        }
-    } else {
-        // no such function, remove it from stack
-        lua_pop(gLuaState, 1);
-    }
+	ck_call_hook("ckOnGameLoaded");
 }
-
-
 
 int ck_get_config_int(const char* key, int default_value) {
     if (gLuaState == nullptr) return default_value;
