@@ -2,6 +2,16 @@
 
 static std::map<int, CkDebugHex> gPersistentHexes;
 
+DebugHexColor ck_debug_get_color_for_state(HexState state) {
+    switch (state) {
+        case HexState::BLOCKER:    return ckdbgRED;
+        case HexState::WALKABLE:   return ckdbgBLUE;
+        case HexState::TRANSITION: return ckdbgYELLOW;
+        case HexState::SELECTED:   return ckdbgGREEN;
+    }
+    return ckdbgBLUE;
+}
+
 void ck_debug_overlay_add_hex(int tile, HexState state) {
     gPersistentHexes[tile] = { tile, state, {0,0} };
 }

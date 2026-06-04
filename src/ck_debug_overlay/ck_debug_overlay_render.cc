@@ -104,16 +104,6 @@ static void draw_misc_art(int fid, int x, int y, fallout::Rect* rect,
               fallout::tileGetWindowPitch());
 }
 
-DebugHexColor ck_debug_get_color_for_state(HexState state) {
-    switch (state) {
-        case HexState::BLOCKER:    return ckdbgRED;
-        case HexState::WALKABLE:   return ckdbgBLUE;
-        case HexState::TRANSITION: return ckdbgYELLOW;
-        case HexState::SELECTED:   return ckdbgGREEN;
-    }
-    return ckdbgBLUE;
-}
-
 int ck_debug_overlay_build_interface_fid(int artId) {
     return fallout::buildFid(fallout::OBJ_TYPE_INTERFACE, artId, 0, 0, 0);
 }

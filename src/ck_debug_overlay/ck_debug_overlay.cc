@@ -196,7 +196,6 @@ static void mode_main_export() {
 static void ck_place_perimeter_blockers(const std::vector<int>& selectedTiles) {
     std::unordered_set<int> selectedSet(selectedTiles.begin(), selectedTiles.end());
 
-    // берём только TRANSITION тайлы — они на границе
     const auto& allHexes = ck_debug_overlay_get_all_hexes();
 
     for (const auto& [tile, hex] : allHexes) {

@@ -13,6 +13,8 @@ extern lua_State* gLuaState;
 void ck_scripting_on_map_enter() {
 	ck_rendering_clear();
 	if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
+
 	ck_call_hook("ckOnMapEnter");
 }
+
 
