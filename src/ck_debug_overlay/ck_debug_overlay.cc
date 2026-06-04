@@ -3,6 +3,7 @@
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 
 #include <iostream>
+#include <unordered_set>
 
 #include "display_monitor.h"
 #include "mouse.h"
@@ -83,14 +84,20 @@ static void mode_select() {
 		tileY = tile / gridWidth;
 
 	fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-	bool blocked = blocker != nullptr;
+	bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
 
 	fallout::tileToScreenXY(tile, &screenX, &screenY);
 
-	std::cout << "[CK] Hover tile=" << tile << " hex(" << tileX << "," << tileY
-		<< ") screen=(" << screenX << "," << screenY << ") blocked=" << (blocked ? "true" : "false") << std::endl;
-			// "[CK] Hover tile=%d hex=(%d,%d) screen=(%d, %d) blocked=%s\n", tile, tileX, tileY,
-			// screenX, screenY, blocked ? "true" : "false");
+	// std::cout << "[CK] Hover tile=" << tile << " hex(" << tileX << "," << tileY
+	// 	<< ") screen=(" << screenX << "," << screenY << ") blocked=" << (blocking ? "true" : "false") << std::endl;
+
+	if (blocking) {
+		std::cout << "[CK] BLOCKER tile=" << tile << " pid=" << blocker->pid << " fid=" << blocker->fid <<
+			" flags=" << blocker->flags << std::endl;
+	}
+
+	// fallout::debugPrint("[CK] BLOCKER tile=%d pid=%d fid=%d flags=%08X\n",
+	// 		tile, blocker->pid, blocker->fid, blocker->flags);
 
 	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
 		ck_debug_overlay_add_hex(tile, HexState::SELECTED);
@@ -186,10 +193,60 @@ static void mode_main_export() {
     }
 }
 
+static void ck_place_perimeter_blockers(const std::vector<int>& selectedTiles) {
+    std::unordered_set<int> selectedSet(selectedTiles.begin(), selectedTiles.end());
+
+    // берём только TRANSITION тайлы — они на границе
+    const auto& allHexes = ck_debug_overlay_get_all_hexes();
+
+    for (const auto& [tile, hex] : allHexes) {
+        if (hex.state != HexState::TRANSITION) continue;
+
+        for (int dir = 0; dir < 6; dir++) {
+            int neighbor = fallout::tileGetTileInDirection(tile, dir, 1);
+
+            if (selectedSet.count(neighbor)) continue;  // inside selected area - skip
+            if (fallout::tileIsEdge(neighbor)) continue;
+
+            fallout::Object* existing = fallout::_obj_blocking_at(nullptr, neighbor, fallout::gElevation);
+            if (existing != nullptr) continue;  // has blocker outside - skip
+
+            fallout::Object* blocker = nullptr;
+            fallout::objectCreateWithFidPid(&blocker, 0x2000015, 0x2000158);
+            fallout::objectSetLocation(blocker, neighbor, fallout::gElevation, nullptr);
+        }
+    }
+}
+
+static void mode_main_clear_selected() {
+    if (ck_input_shift() && ck_input_just_pressed(CK_KEY_Q)) {
+        std::vector<int> selected = ck_debug_overlay_selected_tiles();
+
+		ck_place_perimeter_blockers(selected);
+
+        std::cout << "[CK DEBUG] --- Area clear started --- Count: " << selected.size() << std::endl;
+        for (int tile : selected) {
+			fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+			bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
+
+			if (!blocking) continue;
+
+			fallout::Rect rect;
+			fallout::objectDestroy(blocker, &rect);
+        }
+        std::cout << "[CK DEBUG] --- Area clear complete ---" << std::endl;
+
+		ck_place_perimeter_blockers(selected);
+    }
+}
+
+
 static void mode_main() {
 	mode_main_dude_scan();
 	mode_main_paint();
 	mode_main_export();
+
+	mode_main_clear_selected();
 
 	ck_input_update(); // key just pressed
 }
@@ -203,8 +260,7 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
 	mode_main();
-
-	// mode_select(17290);
+	// mode_select();
 
 	// shift + lmb to paint
 	// lclick to get color
