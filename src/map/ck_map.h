@@ -7,5 +7,19 @@ void ck_scripting_on_map_enter();
 void ck_map_add_scenery(int fid, int tile);
 void ck_map_add_tile(int fid, int tile);
 
+struct CkCameraBorders {
+    bool enabled = false;
+
+    int left = 0;
+    int right = 0;
+    int top = 0;
+    int bottom = 0;
+};
+static CkCameraBorders gCameraBorders;
+
+void ck_map_set_camera_borders(int left, int right, int top, int bottom);
+void ck_map_clear_camera_borders();
+bool ck_map_is_camera_position_allowed(int tile);
+bool ck_map_has_camera_borders();
 
 #endif

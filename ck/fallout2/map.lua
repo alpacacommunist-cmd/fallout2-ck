@@ -19,5 +19,9 @@ function map.addTile(fid, tile)
   ck.map.add_tile(fid, tile)
 end
 
+function map.setBorders(left, right, top, bottom)
+  ck.map.set_camera_borders(left, right, top, bottom)
+end
+
 
 return map

@@ -30,10 +30,22 @@ namespace {
 		return 0;
 	}
 
+	int l_set_camera_borders(lua_State* L) {
+		int left = luaL_checkinteger(L, 1);
+		int right = luaL_checkinteger(L, 2);
+		int top = luaL_checkinteger(L, 3);
+		int bottom = luaL_checkinteger(L, 4);
+
+		ck_map_set_camera_borders(left, right, top, bottom);
+		return 0;
+	}
+
+
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
 		{ "add_scenery", l_add_scenery },
 		{ "add_tile", l_add_tile },
+		{ "set_camera_borders", l_set_camera_borders },
         { nullptr,          nullptr }
     };
 

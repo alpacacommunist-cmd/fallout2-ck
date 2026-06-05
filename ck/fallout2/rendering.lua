@@ -12,8 +12,4 @@ function rendering.clear()
   ck.rendering.clear()
 end
 
-function rendering.setBorders(left, right, top, bottom)
-  ck.rendering.set_camera_borders(left, right, top, bottom)
-end
-
 return rendering

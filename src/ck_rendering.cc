@@ -26,8 +26,6 @@ void ck_rendering_add_tile(int fid, int tile) {
 void ck_rendering_clear() {
 	gPersistentScenery.clear();
 	gPersistentTiles.clear();
-
-	ck_rendering_clear_camera_borders();
 }
 
 using namespace fallout;
@@ -38,8 +36,6 @@ static void ck_rendering_draw(fallout::Rect* rect);
 static void ck_rendering_scenery(fallout::Rect* rect);
 static void ck_rendering_tiles(fallout::Rect* rect);
 
-static CkCameraBorders gCameraBorders;
-
 void ck_rendering_render(fallout::Rect* rect) {
 	ck_rendering_scenery(rect);
 	ck_rendering_tiles(rect);
@@ -47,25 +43,6 @@ void ck_rendering_render(fallout::Rect* rect) {
 	ck_rendering_draw(rect);
 }
 
-bool ck_rendering_is_camera_position_allowed(int tile) {
-    if (!gCameraBorders.enabled) {
-        return false;
-    }
-
-    int gridWidth = fallout::tileGetHexGridWidth();
-    int tileX = gridWidth - 1 - tile % gridWidth;
-    int tileY = tile / gridWidth;
-
-    bool allowed = tileX >= gCameraBorders.left && tileX <= gCameraBorders.right &&
-        tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom;
-
-    // fallout::debugPrint("[CK] Camera check " "tile=(%d,%d) " "bounds=(%d..%d,%d..%d) " "allowed=%d\n",
-    //     tileX, tileY, gCameraBorders.left, gCameraBorders.right, gCameraBorders.top, gCameraBorders.bottom, allowed);
-
-	return allowed;
-}
-
-bool ck_rendering_has_camera_borders() { return gCameraBorders.enabled; }
 
 int ck_rendering_build_scenery_fid(int fid) {
     return buildFid(OBJ_TYPE_SCENERY, fid, 0, 0, 0);
@@ -124,17 +101,6 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         draw_scenery_art(fid, screenX, screenY, rect);
     }
 }
-
-void ck_rendering_set_camera_borders(int left, int right, int top, int bottom) {
-    gCameraBorders.enabled = true;
-
-    gCameraBorders.left = left;
-    gCameraBorders.right = right;
-    gCameraBorders.top = top;
-    gCameraBorders.bottom = bottom;
-}
-
-void ck_rendering_clear_camera_borders() { gCameraBorders = {}; }
 
 // refactor zone
 

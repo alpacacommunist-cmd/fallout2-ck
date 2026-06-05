@@ -4,7 +4,6 @@ print("[Mod] Loading Temple of Trials...")
 
 local events    = require('fallout2.events')
 local map       = require('fallout2.map')
-local rendering = require('fallout2.rendering')
 
 local outskirts = require('temple_of_trials.outskirts')
 
@@ -13,7 +12,7 @@ events.on('onMapEnter', function()
     return
   end
 
-  rendering.setBorders(95, 113, 87, 110)
+  map.setBorders(95, 113, 87, 110)
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
     map.addScenery(scenery.fid, scenery.tile)
