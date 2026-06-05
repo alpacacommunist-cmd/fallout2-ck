@@ -64,46 +64,13 @@ static void mode_palette() {
 	}
 }
 
-static void mode_select() {
-	if (!gDebugOverlayEnabled) return;
+static bool ck_is_tile_blocking(int tile) {
+    fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+    return blocker != nullptr && FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER;
+}
 
-	static int lastTile = -1;
-
-	int mouseX, mouseY;
-	fallout::mouseGetPosition(&mouseX, &mouseY);
-
-	int screenX, screenY;
-	int tile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
-
-	if (tile == lastTile) return;
-
-	lastTile = tile;
-
-	int gridWidth = fallout::tileGetHexGridWidth();
-	int tileX = gridWidth - 1 - tile % gridWidth,
-		tileY = tile / gridWidth;
-
-	fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-	bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
-
-	fallout::tileToScreenXY(tile, &screenX, &screenY);
-
-	// std::cout << "[CK] Hover tile=" << tile << " hex(" << tileX << "," << tileY
-	// 	<< ") screen=(" << screenX << "," << screenY << ") blocked=" << (blocking ? "true" : "false") << std::endl;
-
-	if (blocking) {
-		std::cout << "[CK] BLOCKER tile=" << tile << " pid=" << blocker->pid << " fid=" << blocker->fid <<
-			" flags=" << blocker->flags << std::endl;
-	}
-
-	// fallout::debugPrint("[CK] BLOCKER tile=%d pid=%d fid=%d flags=%08X\n",
-	// 		tile, blocker->pid, blocker->fid, blocker->flags);
-
-	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-		ck_debug_overlay_add_hex(tile, HexState::SELECTED);
-
-		if (ck_input_shift()) ck_debug_overlay_remove_hex(tile);
-	}
+static HexState ck_hex_state_for_tile(int tile) {
+    return ck_is_tile_blocking(tile) ? HexState::BLOCKER : HexState::WALKABLE;
 }
 
 static void mode_main_dude_scan() {
@@ -119,14 +86,9 @@ static void mode_main_dude_scan() {
 
 	for (int tile = dude->tile - radius; tile <= dude->tile + radius; tile++) {
 		if (!fallout::hexGridTileIsValid(tile)) continue;
-
 		if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
 
-		fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-		bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
-
-		if (blocking) ck_debug_overlay_add_hex(tile, HexState::BLOCKER);
-		else ck_debug_overlay_add_hex(tile, HexState::WALKABLE);
+		ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));
 	}
 }
 
@@ -141,16 +103,15 @@ static void mode_main_paint() {
 	const bool isCtrl = ck_input_ctrl();
 	if (!isShift && !isCtrl) return;
 
-	fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, currentMouseTile, fallout::gElevation);
-	bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
-
 	CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 
 	// SHIFT + LMB: select area
 	if (isShift) {
 		if (hex == nullptr) {
-			if (blocking) ck_debug_overlay_add_hex(currentMouseTile, HexState::TRANSITION);
-			else          ck_debug_overlay_add_hex(currentMouseTile, HexState::SELECTED);
+			if (ck_is_tile_blocking(currentMouseTile))
+				ck_debug_overlay_add_hex(currentMouseTile, HexState::TRANSITION);
+			else
+				ck_debug_overlay_add_hex(currentMouseTile, HexState::SELECTED);
 			return;
 		}
 
@@ -163,14 +124,9 @@ static void mode_main_paint() {
 	// CTRL + LMB: clear selection
 	else if (isCtrl && hex != nullptr) {
 		switch (hex->state) {
-			case HexState::TRANSITION:
-				hex->switchTo(HexState::BLOCKER);
-				break;
+			case HexState::TRANSITION: hex->switchTo(HexState::BLOCKER); break;
+			case HexState::SELECTED: hex->switchTo(ck_hex_state_for_tile(hex->tile)); break;
 
-			case HexState::SELECTED:
-				if (blocking) hex->switchTo(HexState::BLOCKER);
-				else          hex->switchTo(HexState::WALKABLE);
-				break;
 			default: break;
 		}
 	}
@@ -259,7 +215,6 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
 	mode_main();
-	// mode_select();
 
 	// shift + lmb to paint
 	// lclick to get color
