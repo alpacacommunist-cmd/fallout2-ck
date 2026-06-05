@@ -16,11 +16,11 @@ events.on('onMapEnter', function()
   rendering.setBorders(95, 113, 87, 110)
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
-    rendering.addScenery(scenery.fid, scenery.tile)
+    map.addScenery(scenery.fid, scenery.tile)
   end
 
   for _, tile in ipairs(outskirts.mountainTiles) do
-    rendering.addTile(tile.fid, tile.tile)
+    map.addTile(tile.fid, tile.tile)
   end
 
   print("[Temple] Temple of Trials loaded.")

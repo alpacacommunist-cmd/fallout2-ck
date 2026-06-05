@@ -4,4 +4,8 @@
 
 void ck_scripting_on_map_enter();
 
+void ck_map_add_scenery(int fid, int tile);
+void ck_map_add_tile(int fid, int tile);
+
+
 #endif

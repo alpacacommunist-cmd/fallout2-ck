@@ -17,4 +17,11 @@ void ck_scripting_on_map_enter() {
 	ck_call_hook("ckOnMapEnter");
 }
 
+void ck_map_add_scenery(int fid, int tile) {
+	ck_rendering_add_scenery(fid, tile);
+}
+
+void ck_map_add_tile(int fid, int tile) {
+	ck_rendering_add_tile(fid, tile);
+}
 

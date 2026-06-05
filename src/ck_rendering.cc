@@ -1,4 +1,3 @@
-#include <vector>
 #include <iostream>
 
 #include "art.h"
@@ -9,17 +8,6 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
-
-// frame queue
-struct CkSceneryDrawRequest { int fid; int x; int y; };
-static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests;
-
-// persistent queues
-struct CkSceneryInstance { int fid; int tile; };
-static std::vector<CkSceneryInstance> gPersistentScenery;
-
-struct CkTileInstance { int fid; int tile; };
-static std::vector<CkTileInstance> gPersistentTiles;
 
 // frame
 void ck_rendering_draw_scenery(int fid, int x, int y) {
