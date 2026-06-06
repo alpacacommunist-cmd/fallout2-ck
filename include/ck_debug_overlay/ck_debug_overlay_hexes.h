@@ -25,7 +25,7 @@ constexpr DebugHexColor ckdbgYELLOW   { 58, 58 };
 
 DebugHexColor ck_debug_get_color_for_state(HexState state);
 
-struct CkDebugHex {
+struct ckDebugHex {
     int tile;
     HexState state;
 	DebugHexColor customColor{0, 0};
@@ -47,9 +47,10 @@ void ck_debug_overlay_add_custom_hex(int tile, DebugHexColor color);
 void ck_debug_overlay_remove_hex(int tile);
 void ck_debug_overlay_clear_hexes();
 
-CkDebugHex* ck_debug_overlay_find_hex(int tile);
+ckDebugHex* ck_debug_overlay_find_hex(int tile);
+std::vector<ckDebugHex*> ck_debug_overlay_selected_hexes();
 std::vector<int> ck_debug_overlay_selected_tiles();
 
-const std::map<int, CkDebugHex>& ck_debug_overlay_get_all_hexes();
+const std::map<int, ckDebugHex>& ck_debug_overlay_get_all_hexes();
 
 #endif // CK_DEBUG_OVERLAY_HEXES_H

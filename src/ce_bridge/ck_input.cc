@@ -3,10 +3,13 @@
 
 static int ck_to_scancode(CkKey key) {
     switch (key) {
+		case CK_KEY_NONE:      return 0;
 		case CK_KEY_MINUS:     return SDL_SCANCODE_MINUS;
         case CK_KEY_EQUALS:    return SDL_SCANCODE_EQUALS;
 
 		case CK_KEY_Q:         return SDL_SCANCODE_Q;
+		case CK_KEY_W:         return SDL_SCANCODE_W;
+		case CK_KEY_E:         return SDL_SCANCODE_E;
 		case CK_KEY_X:         return SDL_SCANCODE_X;
 		case CK_KEY_V:         return SDL_SCANCODE_V;
 		case CK_KEY_F:         return SDL_SCANCODE_F;
@@ -46,6 +49,17 @@ bool ck_input_just_pressed(CkKey key) {
     bool was_previously_pressed = g_previous_keys[scancode];
 
     return is_currently_pressed && !was_previously_pressed;
+}
+
+CkKey ck_input_get_just_pressed_key() {
+    for (int i = 0; i < CK_KEY_COUNT; ++i) {
+        CkKey key = static_cast<CkKey>(i);
+
+		if (key == CK_KEY_NONE) continue;
+        if (ck_input_just_pressed(key)) return key;
+    }
+
+    return CK_KEY_NONE;
 }
 
 bool ck_input_shift() {

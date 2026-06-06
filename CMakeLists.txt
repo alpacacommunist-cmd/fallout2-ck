@@ -17,6 +17,7 @@ add_library(fallout2-ck STATIC
 
     src/game_time/ck_game_time.cc
     src/map/ck_map.cc
+    src/object/ck_object.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc
@@ -25,7 +26,6 @@ add_library(fallout2-ck STATIC
 
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/ck_debug_overlay"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge"
     "${LUAJIT_INCLUDE}"

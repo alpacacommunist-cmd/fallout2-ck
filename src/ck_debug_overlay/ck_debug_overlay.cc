@@ -1,16 +1,18 @@
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
+#include "ck_input.h"
 
 #include <iostream>
 #include <unordered_set>
 
 #include "display_monitor.h"
+#include "game_sound.h"
 #include "mouse.h"
 #include "tile.h"
-#include "ck_input.h"
 
 static bool gDebugOverlayEnabled = false;
+static bool gNeedsRefresh = false;
 
 bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
 
@@ -44,7 +46,7 @@ static void mode_palette() {
 	if (currentMouseTile == lastTile) return;
 	lastTile = currentMouseTile;
 
-	CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
+	ckDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 	const bool isShift = ck_input_shift();
 
 	if (hex != nullptr) {
@@ -103,7 +105,7 @@ static void mode_main_paint() {
 	const bool isCtrl = ck_input_ctrl();
 	if (!isShift && !isCtrl) return;
 
-	CkDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
+	ckDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 
 	// SHIFT + LMB: select area
 	if (isShift) {
@@ -133,75 +135,90 @@ static void mode_main_paint() {
 }
 
 static void mode_main_export() {
-    if (ck_input_ctrl() && ck_input_just_pressed(CK_KEY_MINUS)) {
-        std::vector<int> selected = ck_debug_overlay_selected_tiles();
-        int gridWidth = fallout::tileGetHexGridWidth();
+	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
+	int gridWidth = fallout::tileGetHexGridWidth();
 
-        std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selected.size() << std::endl;
-        for (int tile : selected) {
-            int tileX = gridWidth - 1 - tile % gridWidth,
-                tileY = tile / gridWidth;
+	std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selectedHexes.size() << std::endl;
+	for (ckDebugHex* hex : selectedHexes) {
+		int tile = hex->tile;
+		int tileX = gridWidth - 1 - tile % gridWidth, tileY = tile / gridWidth;
 
-            std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
-                      << std::endl;
-        }
-        std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
-    }
+		std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
+			<< std::endl;
+	}
+	std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
 }
 
-static void ck_place_perimeter_blockers(const std::vector<int>& selectedTiles) {
-    std::unordered_set<int> selectedSet(selectedTiles.begin(), selectedTiles.end());
+static void mode_main_create_blockers() {
+	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
 
-    const auto& allHexes = ck_debug_overlay_get_all_hexes();
+	std::cout << "[CK DEBUG] --- Creating blockers --- Count: " << selectedHexes.size() << std::endl;
+	for (ckDebugHex* hex : selectedHexes) {
+		fallout::Object* blocker = nullptr;
+		fallout::objectCreateWithFidPid(&blocker, 0x2000015, 0x2000158);
+		fallout::objectSetLocation(blocker, hex->tile, fallout::gElevation, nullptr);
 
-    for (const auto& [tile, hex] : allHexes) {
-        if (hex.state != HexState::TRANSITION) continue;
+		hex->switchTo(HexState::BLOCKER);
+	}
+	std::cout << "[CK DEBUG] --- Creating blockers COMPLETE ---" << std::endl;
 
-        for (int dir = 0; dir < 6; dir++) {
-            int neighbor = fallout::tileGetTileInDirection(tile, dir, 1);
+	gNeedsRefresh = true;
 
-            if (selectedSet.count(neighbor)) continue;  // inside selected area - skip
-            if (fallout::tileIsEdge(neighbor)) continue;
-
-            fallout::Object* existing = fallout::_obj_blocking_at(nullptr, neighbor, fallout::gElevation);
-            if (existing != nullptr) continue;  // has blocker outside - skip
-
-            fallout::Object* blocker = nullptr;
-            fallout::objectCreateWithFidPid(&blocker, 0x2000015, 0x2000158);
-            fallout::objectSetLocation(blocker, neighbor, fallout::gElevation, nullptr);
-        }
-    }
+	fallout::soundPlayFile("iisxxxx1");
 }
 
-static void mode_main_clear_selected() {
-    if (ck_input_shift() && ck_input_just_pressed(CK_KEY_Q)) {
-        std::vector<int> selected = ck_debug_overlay_selected_tiles();
+static void mode_main_remove_selected_blockers() {
+	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
 
-		ck_place_perimeter_blockers(selected);
+	std::cout << "[CK DEBUG] --- Removing blockers started --- Count: " << selectedHexes.size() << std::endl;
+	for (ckDebugHex* hex : selectedHexes) {
+		fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, hex->tile, fallout::gElevation);
+		bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
 
-        std::cout << "[CK DEBUG] --- Area clear started --- Count: " << selected.size() << std::endl;
-        for (int tile : selected) {
-			fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-			bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
+		if (blocking) fallout::objectDestroy(blocker, nullptr);
+		hex->switchTo(ck_hex_state_for_tile(hex->tile));
+	}
+	std::cout << "[CK DEBUG] --- Removing blockers complete ---" << std::endl;
 
-			if (!blocking) continue;
+	gNeedsRefresh = true;
 
-			fallout::Rect rect;
-			fallout::objectDestroy(blocker, &rect);
-        }
-        std::cout << "[CK DEBUG] --- Area clear complete ---" << std::endl;
+	fallout::soundPlayFile("iisxxxx1");
+}
 
-		ck_place_perimeter_blockers(selected);
-    }
+static void mode_main_clear_all() {
+	ck_debug_overlay_clear_hexes();
+
+	gNeedsRefresh = true;
 }
 
 
 static void mode_main() {
 	mode_main_dude_scan();
 	mode_main_paint();
-	mode_main_export();
 
-	mode_main_clear_selected();
+	int pressedKey = ck_input_get_just_pressed_key();
+	switch (pressedKey) {
+		case CK_KEY_E: {
+							   if (ck_input_shift()) mode_main_export();
+							   break;
+						   }
+
+		case CK_KEY_X:     {
+							   if (ck_input_shift()) mode_main_clear_all();
+							   break;
+						   }
+
+		case CK_KEY_MINUS: {
+							   if (ck_input_ctrl()) mode_main_remove_selected_blockers();
+							   break;
+					       }
+
+		case CK_KEY_EQUALS: {
+								if (ck_input_ctrl()) mode_main_create_blockers();
+								break;
+							}
+
+	}
 
 	ck_input_update(); // key just pressed
 }
@@ -215,6 +232,11 @@ void ck_debug_overlay_render(fallout::Rect* rect) {
 	// shift + lmb to select area
 	// ctrl + lmb to clear selection
 	mode_main();
+
+	if (gNeedsRefresh) {
+		gNeedsRefresh = false;
+		fallout::tileWindowRefresh();
+	}
 
 	// shift + lmb to paint
 	// lclick to get color
