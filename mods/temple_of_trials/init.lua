@@ -22,6 +22,14 @@ events.on('onMapEnter', function()
     map.addTile(tile.fid, tile.tile)
   end
 
+  for _, tile in ipairs(outskirts.removeBlockers) do
+    map.removeBlocker(tile)
+  end
+
+  for _, tile in ipairs(outskirts.createBlockers) do
+    map.createBlocker(tile)
+  end
+
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)

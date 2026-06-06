@@ -19,6 +19,7 @@ static int ck_to_scancode(CkKey key) {
 		case CK_KEY_Y:         return SDL_SCANCODE_Y;
 		case CK_KEY_T:         return SDL_SCANCODE_T;
 		case CK_KEY_C:         return SDL_SCANCODE_C;
+		case CK_KEY_U:         return SDL_SCANCODE_U;
 
         default:                        return 0; // SDL_SCANCODE_UNKNOWN;
     }

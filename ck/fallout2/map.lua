@@ -23,5 +23,13 @@ function map.setBorders(left, right, top, bottom)
   ck.map.set_camera_borders(left, right, top, bottom)
 end
 
+function map.removeBlocker(tile)
+  ck.map.remove_blocker(tile)
+end
+
+function map.createBlocker(tile)
+  ck.map.create_blocker(tile)
+end
+
 
 return map

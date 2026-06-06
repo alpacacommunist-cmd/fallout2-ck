@@ -18,6 +18,7 @@ enum CkKey {
 	CK_KEY_Y,
 	CK_KEY_T,
 	CK_KEY_C,
+	CK_KEY_U,
 
     CK_KEY_COUNT
 };

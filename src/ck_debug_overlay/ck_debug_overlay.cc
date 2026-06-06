@@ -125,11 +125,15 @@ static void mode_main_dude_scan() {
 
 	const int radius = 3;
 
-	for (int tile = dude->tile - radius; tile <= dude->tile + radius; tile++) {
-		if (!fallout::hexGridTileIsValid(tile)) continue;
-		if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
+	for (int direction = 0; direction < 6; direction++) {
+		for (int distance = 1; distance <= radius; distance++) {
+			int tile = fallout::tileGetTileInDirection(dude->tile, direction, distance);
 
-		ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));
+			if (!fallout::hexGridTileIsValid(tile)) continue;
+			if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
+
+			ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));
+		}
 	}
 }
 
@@ -225,6 +229,14 @@ static void mode_main_clear_all() {
 	gNeedsRefresh = true;
 }
 
+static void mode_main_clear_selected() {
+	ck_debug_overlay_clear_hexes_by_state(HexState::SELECTED);
+	ck_debug_overlay_clear_hexes_by_state(HexState::TRANSITION);
+	fallout::soundPlayFile("iisxxxx1");
+
+	gNeedsRefresh = true;
+}
+
 
 static void mode_main() {
 	mode_main_dude_scan();
@@ -238,6 +250,10 @@ static void mode_main() {
 						   }
 		case CK_KEY_X:     {
 							   if (ck_input_shift()) mode_main_clear_all();
+							   break;
+						   }
+		case CK_KEY_U:     {
+							   if (ck_input_shift()) mode_main_clear_selected();
 							   break;
 						   }
 		case CK_KEY_C:     {

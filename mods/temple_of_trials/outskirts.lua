@@ -26,7 +26,8 @@ outskirts.mountainScenery = {
   { fid = 706, tile = 13854 }
 }
 
-outskirts.walkableTiles = {
-}
+outskirts.removeBlockers = {18308, 18509, 18108, 18709}
+outskirts.createBlockers = {16708, 16906, 16907, 16909, 16910, 17106, 17110, 17306, 17311,
+17312, 17506, 17507, 17512, 17707, 17713, 17913, 18113, 18114, 18314, 18514, 18712, 18713, 18911 }
 
 return outskirts

@@ -40,12 +40,28 @@ namespace {
 		return 0;
 	}
 
+	int l_remove_blocker(lua_State* L) {
+		int tile = luaL_checkinteger(L, 1);
+
+		ck_map_remove_blocker(tile);
+		return 0;
+	}
+
+	int l_create_blocker(lua_State* L) {
+		int tile = luaL_checkinteger(L, 1);
+
+		ck_map_create_blocker(tile);
+		return 0;
+	}
+
 
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
 		{ "add_scenery", l_add_scenery },
 		{ "add_tile", l_add_tile },
 		{ "set_camera_borders", l_set_camera_borders },
+		{ "remove_blocker", l_remove_blocker },
+		{ "create_blocker", l_create_blocker },
         { nullptr,          nullptr }
     };
 

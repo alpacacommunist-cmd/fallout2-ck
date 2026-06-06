@@ -1,6 +1,7 @@
 #include "ck_scripting.h"
 #include "ck_rendering.h"
 #include "map/ck_map.h"
+#include "object/ck_object.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "tile.h"
@@ -27,6 +28,14 @@ void ck_map_add_scenery(int fid, int tile) {
 
 void ck_map_add_tile(int fid, int tile) {
 	ck_rendering_add_tile(fid, tile);
+}
+
+void ck_map_remove_blocker(int tile) {
+	ck_object_remove_blocker_at(tile);
+}
+
+void ck_map_create_blocker(int tile) {
+	ck_object_create_blocker_at(tile);
 }
 
 bool ck_map_is_camera_position_allowed(int tile) {
@@ -57,5 +66,4 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
 }
 
 void ck_map_clear_camera_borders() { gCameraBorders = {}; }
-
 const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
