@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ck_scripting.h"
 #include "ck_rendering.h"
 #include "map/ck_map.h"
@@ -36,6 +37,11 @@ void ck_map_remove_blocker(int tile) {
 
 void ck_map_create_blocker(int tile) {
 	ck_object_create_blocker_at(tile);
+}
+
+void ck_map_create_object(int artId, int tile) {
+	int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
+	ck_object_create_at(fid, tile);
 }
 
 bool ck_map_is_camera_position_allowed(int tile) {

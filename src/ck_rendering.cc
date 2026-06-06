@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 
 #include "art.h"
 #include "debug.h"
@@ -8,6 +9,48 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
+
+struct CachedArt {
+    fallout::Art* art = nullptr;
+    fallout::CacheEntry* cacheEntry = nullptr;
+    int width = 0;
+    int height = 0;
+    unsigned char* frameData = nullptr;
+};
+
+// global texture cache
+static std::unordered_map<int, CachedArt> gArtCache;
+
+static const CachedArt* get_or_cache_art(int fid) {
+    auto it = gArtCache.find(fid);
+    if (it != gArtCache.end()) {
+        return &(it->second);
+    }
+
+    fallout::CacheEntry* entry = nullptr;
+    fallout::Art* art = fallout::artLock(fid, &entry);
+
+    if (art == nullptr) return nullptr;
+
+    CachedArt cached;
+    cached.art = art;
+    cached.cacheEntry = entry;
+    cached.width = fallout::artGetWidth(art, 0, 0);
+    cached.height = fallout::artGetHeight(art, 0, 0);
+    cached.frameData = fallout::artGetFrameData(art, 0, 0);
+
+    gArtCache[fid] = cached;
+    return &gArtCache[fid];
+}
+
+void ck_rendering_clear_art_cache() {
+    for (auto& [fid, cached] : gArtCache) {
+        if (cached.cacheEntry) {
+            fallout::artUnlock(cached.cacheEntry);
+        }
+    }
+    gArtCache.clear();
+}
 
 // frame
 void ck_rendering_draw_scenery(int fid, int x, int y) {
@@ -26,6 +69,8 @@ void ck_rendering_add_tile(int fid, int tile) {
 void ck_rendering_clear() {
 	gPersistentScenery.clear();
 	gPersistentTiles.clear();
+
+	ck_rendering_clear_art_cache();
 }
 
 using namespace fallout;
@@ -52,34 +97,33 @@ int ck_rendering_build_tile_fid(int fid) {
     return buildFid(OBJ_TYPE_TILE, fid, 0, 0, 0);
 }
 
-static void draw_scenery_art(int fid, int x, int y, Rect* rect) {
-    CacheEntry* cacheEntry;
-    Art* art = artLock(fid, &cacheEntry);
+static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
+    // Получаем арт из нашего быстрого кэша указателей
+    const CachedArt* cached = get_or_cache_art(fid);
+    if (cached == nullptr || cached->frameData == nullptr) return;
 
-    if (art == nullptr) return;
+    fallout::Rect artRect;
+    artRect.left = x; artRect.top = y; artRect.right = x + cached->width - 1; artRect.bottom = y + cached->height - 1;
 
-    int width = artGetWidth(art, 0, 0);
-    int height = artGetHeight(art, 0, 0);
+    fallout::Rect intersection;
+	// object is out of screen
+    if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
 
-    Rect artRect;
-    artRect.left = x, artRect.top = y, artRect.right = x + width - 1, artRect.bottom = y + height - 1;
+    unsigned char* src = cached->frameData;
+    src += cached->width * (intersection.top - y) + (intersection.left - x);
 
-    Rect intersection;
-    if (rectIntersection(&artRect, rect, &intersection) == -1) {
-		artUnlock(cacheEntry);
-        return;
-    }
-
-    unsigned char* src = artGetFrameData(art, 0, 0);
-
-    src += width * (intersection.top - y) + (intersection.left - x);
-
-	int light = lightGetAmbientIntensity();
-	_dark_trans_buf_to_buf(src, rectGetWidth(&intersection), rectGetHeight(&intersection),
-			width, tileGetWindowBuffer(), intersection.left, intersection.top,
-			tileGetWindowPitch(), light);
-
-    artUnlock(cacheEntry);
+    int light = fallout::lightGetAmbientIntensity();
+    fallout::_dark_trans_buf_to_buf(
+        src, 
+        fallout::rectGetWidth(&intersection), 
+        fallout::rectGetHeight(&intersection),
+        cached->width, 
+        fallout::tileGetWindowBuffer(), 
+        intersection.left, 
+        intersection.top,
+        fallout::tileGetWindowPitch(), 
+        light
+    );
 }
 
 static void ck_rendering_tiles(fallout::Rect* rect) {

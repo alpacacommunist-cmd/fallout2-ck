@@ -1,6 +1,5 @@
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
-#include "ck_debug_overlay/ck_debug_overlay_render.h"
 #include "ck_input.h"
 
 #include "object/ck_object.h"
@@ -69,6 +68,18 @@ static void mode_palette() {
 		currentColor++;
 	}
 }
+
+// const char* get_scenery_frm_name(int fid) {
+//     if (FID_TYPE(fid) != fallout::OBJ_TYPE_SCENERY) {
+//         return "NOT_SCENERY";
+//     }
+//
+//     int artId = fid & 0x0000FFFF;
+//
+//     const char* name = fallout::artGetFileName(fallout::OBJ_TYPE_SCENERY, artId);
+//
+//     return (name != nullptr) ? name : "UNKNOWN_FRM";
+// }
 
 static bool ck_is_tile_blocking(int tile) {
     fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
@@ -188,6 +199,15 @@ static void mode_main_export() {
 
 		std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
 			<< std::endl;
+
+		fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+
+		if (blocker != nullptr && FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER) {
+			fallout::Proto* proto = nullptr;
+
+			std::cout << "[CK DEBUG] BLOCKER tile=" << tile << " pid=" << blocker->pid << ", fid=" << blocker->fid
+				<< " artId=" << (int)(blocker->fid & 0x0000FFFF) << std::endl;
+		}
 	}
 	std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
 }
@@ -236,7 +256,6 @@ static void mode_main_clear_selected() {
 
 	gNeedsRefresh = true;
 }
-
 
 static void mode_main() {
 	mode_main_dude_scan();

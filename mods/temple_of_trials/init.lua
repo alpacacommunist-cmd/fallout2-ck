@@ -30,6 +30,21 @@ events.on('onMapEnter', function()
     map.createBlocker(tile)
   end
 
+  -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
+  map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
+  map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
+
+  -- local mountain_wall = {
+  --   "MMMMM  MMMMM",
+  --   "  MMMMMMMM  ",
+  --   "   mmmmmm   "
+  -- }
+  --
+  -- map.tools.spawnMask(18290, mountain_wall, {
+  --   M = {176},
+  --   m = {175}
+  -- })
+
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)

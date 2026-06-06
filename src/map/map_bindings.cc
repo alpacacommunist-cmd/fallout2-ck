@@ -1,4 +1,4 @@
-// src/game_time/map_bindings.cc
+// src/map/map_bindings.cc
 #include "map/map_bindings.h"
 #include "map.h" // ce map
 #include "map/ck_map.h" // ck map
@@ -54,6 +54,14 @@ namespace {
 		return 0;
 	}
 
+	int l_create_object(lua_State* L) {
+		int fid = luaL_checkinteger(L, 1);
+		int tile = luaL_checkinteger(L, 2);
+
+		ck_map_create_object(fid, tile);
+		return 0;
+	}
+
 
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
@@ -62,6 +70,7 @@ namespace {
 		{ "set_camera_borders", l_set_camera_borders },
 		{ "remove_blocker", l_remove_blocker },
 		{ "create_blocker", l_create_blocker },
+		{ "create_object", l_create_object },
         { nullptr,          nullptr }
     };
 
