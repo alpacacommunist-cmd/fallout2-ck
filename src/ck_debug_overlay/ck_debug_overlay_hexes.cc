@@ -8,6 +8,7 @@ DebugHexColor ck_debug_get_color_for_state(HexState state) {
         case HexState::WALKABLE:   return ckdbgBLUE;
         case HexState::TRANSITION: return ckdbgYELLOW;
         case HexState::SELECTED:   return ckdbgGREEN;
+        case HexState::CAMERA:     return ckdbgWHITE;
     }
     return ckdbgBLUE;
 }
@@ -22,6 +23,13 @@ void ck_debug_overlay_add_custom_hex(int tile, DebugHexColor color) {
 
 void ck_debug_overlay_remove_hex(int tile) {
     gPersistentHexes.erase(tile);
+}
+
+void ck_debug_overlay_clear_hexes_by_state(HexState state) {
+	for (auto it = gPersistentHexes.begin(); it != gPersistentHexes.end(); ) {
+		if (it->second.state == state) it = gPersistentHexes.erase(it);
+		else ++it;
+	}
 }
 
 void ck_debug_overlay_clear_hexes() {

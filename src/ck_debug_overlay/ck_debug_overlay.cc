@@ -3,6 +3,9 @@
 #include "ck_debug_overlay/ck_debug_overlay_render.h"
 #include "ck_input.h"
 
+#include "object/ck_object.h"
+#include "map/ck_map.h"
+
 #include <iostream>
 #include <unordered_set>
 
@@ -13,6 +16,7 @@
 
 static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
+static bool gCameraSquareDrawn = false;
 
 bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
 
@@ -73,6 +77,41 @@ static bool ck_is_tile_blocking(int tile) {
 
 static HexState ck_hex_state_for_tile(int tile) {
     return ck_is_tile_blocking(tile) ? HexState::BLOCKER : HexState::WALKABLE;
+}
+
+static void ck_toggle_camera_square() {
+	if (gCameraSquareDrawn) {
+		ck_debug_overlay_clear_hexes_by_state(HexState::CAMERA);
+
+		gCameraSquareDrawn = false;
+		gNeedsRefresh = true;
+
+		return;
+	}
+
+	const CkCameraBorders& borders = ck_map_get_camera_borders();
+
+	if (!borders.enabled) { return; }
+
+	// tileX = gridWidth - 1 - tile % gridWidth; -> tile % gridWidth = gridWidth - 1 - tileX;
+	// tileY = tile / gridWidth; -> tile = tileY * gridWidth + (tile % gridWidth);
+	int gridWidth = fallout::tileGetHexGridWidth();
+	    auto toTile = [gridWidth](int x, int y) {
+        return y * gridWidth + (gridWidth - 1 - x);
+    };
+
+    for (int x = borders.left; x <= borders.right; ++x) {
+        ck_debug_overlay_add_hex(toTile(x, borders.top), HexState::CAMERA);
+        ck_debug_overlay_add_hex(toTile(x, borders.bottom), HexState::CAMERA);
+    }
+
+    for (int y = borders.top; y <= borders.bottom; ++y) {
+        ck_debug_overlay_add_hex(toTile(borders.left, y), HexState::CAMERA);
+        ck_debug_overlay_add_hex(toTile(borders.right, y), HexState::CAMERA);
+    }
+
+	gNeedsRefresh = true;
+	gCameraSquareDrawn = true;
 }
 
 static void mode_main_dude_scan() {
@@ -154,10 +193,7 @@ static void mode_main_create_blockers() {
 
 	std::cout << "[CK DEBUG] --- Creating blockers --- Count: " << selectedHexes.size() << std::endl;
 	for (ckDebugHex* hex : selectedHexes) {
-		fallout::Object* blocker = nullptr;
-		fallout::objectCreateWithFidPid(&blocker, 0x2000015, 0x2000158);
-		fallout::objectSetLocation(blocker, hex->tile, fallout::gElevation, nullptr);
-
+		ck_object_create_blocker_at(hex->tile);
 		hex->switchTo(HexState::BLOCKER);
 	}
 	std::cout << "[CK DEBUG] --- Creating blockers COMPLETE ---" << std::endl;
@@ -172,10 +208,7 @@ static void mode_main_remove_selected_blockers() {
 
 	std::cout << "[CK DEBUG] --- Removing blockers started --- Count: " << selectedHexes.size() << std::endl;
 	for (ckDebugHex* hex : selectedHexes) {
-		fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, hex->tile, fallout::gElevation);
-		bool blocking = (blocker != nullptr && (FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER));
-
-		if (blocking) fallout::objectDestroy(blocker, nullptr);
+		ck_object_remove_blocker_at(hex->tile);
 		hex->switchTo(ck_hex_state_for_tile(hex->tile));
 	}
 	std::cout << "[CK DEBUG] --- Removing blockers complete ---" << std::endl;
@@ -188,6 +221,7 @@ static void mode_main_remove_selected_blockers() {
 static void mode_main_clear_all() {
 	ck_debug_overlay_clear_hexes();
 
+	gCameraSquareDrawn = false;
 	gNeedsRefresh = true;
 }
 
@@ -198,21 +232,22 @@ static void mode_main() {
 
 	int pressedKey = ck_input_get_just_pressed_key();
 	switch (pressedKey) {
-		case CK_KEY_E: {
+		case CK_KEY_E: 	   {
 							   if (ck_input_shift()) mode_main_export();
 							   break;
 						   }
-
 		case CK_KEY_X:     {
 							   if (ck_input_shift()) mode_main_clear_all();
 							   break;
 						   }
-
+		case CK_KEY_C:     {
+							   if (ck_input_alt()) ck_toggle_camera_square();
+							   break;
+						   }
 		case CK_KEY_MINUS: {
 							   if (ck_input_ctrl()) mode_main_remove_selected_blockers();
 							   break;
 					       }
-
 		case CK_KEY_EQUALS: {
 								if (ck_input_ctrl()) mode_main_create_blockers();
 								break;

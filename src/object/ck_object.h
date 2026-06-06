@@ -4,6 +4,7 @@
 
 #include "object.h"
 
-void ck_object_destroy(fallout::Object blocker, fallout::Rect rect);
+void ck_object_remove_blocker_at(int tile);
+void ck_object_create_blocker_at(int tile);
 
 #endif

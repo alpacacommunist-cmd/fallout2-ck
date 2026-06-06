@@ -10,6 +10,8 @@ extern "C" {
 }
 extern lua_State* gLuaState;
 
+static CkCameraBorders gCameraBorders;
+
 void ck_scripting_on_map_enter() {
 	ck_rendering_clear();
 	ck_map_clear_camera_borders();
@@ -56,3 +58,4 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
 
 void ck_map_clear_camera_borders() { gCameraBorders = {}; }
 
+const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
