@@ -22,9 +22,9 @@ function tools.spawnBrush(centerTile, radius, density, fids)
     local current = table.remove(queue, 1)
 
     if current.tile ~= centerTile and math.random() <= density then
-      local random_fid = fids[math.random(#fids)]
-      -- map.addScenery(random_fid, current.tile)
-      map.createObject(random_fid, current.tile)
+      local randomFid = fids[math.random(#fids)]
+      -- map.addScenery(randomFid, current.tile)
+      map.createObject(randomFid, current.tile)
     end
 
     if current.dist < radius then
@@ -41,18 +41,23 @@ function tools.spawnBrush(centerTile, radius, density, fids)
 end
 
 function tools.spawnMask(anchorTile, maskTable, mapping)
+  local AXIS_X = HEX_DIRECTIONS[2]
+  local AXIS_Y = HEX_DIRECTIONS[3]
+
   for y, row in ipairs(maskTable) do
     for x = 1, #row do
       local char = row:sub(x, x)
 
       if mapping[char] then
-        local targetTile = anchorTile + (x - 1) * 1 + (y - 1) * 200
+        local targetTile = anchorTile + (x - 1) * AXIS_X + (y - 1) * AXIS_Y
 
         if targetTile >= 0 and targetTile < 40000 then
-          local fidsPool = mapping[char]
-          local randomFid = fidsPool[math.random(#fidsPool)]
-          -- map.addScenery(random_fid, targetTile)
-          map.createObject(random_fid, targetTile)
+          local element = mapping[char]
+
+          local randomFid = element.fids[math.random(#element.fids)]
+          map.addScenery(randomFid, targetTile)
+
+          if element.block then map.createBlocker(targetTile) end
         end
       end
     end

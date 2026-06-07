@@ -1,4 +1,3 @@
-#include <iostream>
 #include <unordered_map>
 
 #include "art.h"
@@ -23,9 +22,7 @@ static std::unordered_map<int, CachedArt> gArtCache;
 
 static const CachedArt* get_or_cache_art(int fid) {
     auto it = gArtCache.find(fid);
-    if (it != gArtCache.end()) {
-        return &(it->second);
-    }
+    if (it != gArtCache.end()) return &(it->second);
 
     fallout::CacheEntry* entry = nullptr;
     fallout::Art* art = fallout::artLock(fid, &entry);
@@ -98,7 +95,6 @@ int ck_rendering_build_tile_fid(int fid) {
 }
 
 static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
-    // Получаем арт из нашего быстрого кэша указателей
     const CachedArt* cached = get_or_cache_art(fid);
     if (cached == nullptr || cached->frameData == nullptr) return;
 
@@ -142,7 +138,25 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         tileToScreenXY(scenery.tile, &screenX, &screenY);
 
         int fid = ck_rendering_build_scenery_fid(scenery.fid);
-        draw_scenery_art(fid, screenX, screenY, rect);
+
+        const CachedArt* cached = get_or_cache_art(fid);
+        if (cached == nullptr || cached->frameData == nullptr) continue;
+
+		int frameX = 0, frameY = 0;
+		int rotationX = 0, rotationY = 0;
+
+		fallout::artGetFrameOffsets(cached->art, 0, 0, &frameX, &frameY);
+        fallout::artGetRotationOffsets(cached->art, 0, &rotationX, &rotationY);
+
+		int screenCenterX = screenX + 16, screenCenterY = screenY + 12;
+
+        // Offset
+        // sprite centers horizontally (width / 2)
+        // evens up on bottom hex edge (shift 100% height)
+		int offsetX = screenCenterX + frameX + rotationX - (cached->width / 2);
+		int offsetY = screenCenterY + frameY + rotationY - cached->height;
+
+        draw_scenery_art(fid, offsetX, offsetY, rect);
     }
 }
 
