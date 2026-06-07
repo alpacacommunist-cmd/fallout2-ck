@@ -127,11 +127,6 @@ static void ck_rendering_tiles(fallout::Rect* rect) {
         int screenX, screenY;
         tileToScreenXY(tileInstance.tile, &screenX, &screenY);
 
-        int gridWidth = fallout::tileGetHexGridWidth();
-        int tileX = gridWidth - 1 - tileInstance.tile % gridWidth;
-
-        screenX -= (tileX & 1) ? 32 : 0;
-
         int fid = ck_rendering_build_tile_fid(tileInstance.fid);
         tileRenderFloorExternal(fid, screenX, screenY, rect);
     }

@@ -34,14 +34,14 @@ events.on('onMapEnter', function()
   map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
   map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
 
-  local mountain_wall = {
+  local forestLeft = {
     "M MMM  MM  M",
     "  MM   MMM  ",
     "   mm  mm   ",
     "GGG      GG "
   }
 
-  map.tools.spawnMask(17516, mountain_wall, {
+  map.tools.spawnMask(17516, forestLeft, {
     M = { fids = {956}, type = "scenery", block = true },
     m = { fids = {957}, type = "scenery", block = true },
     G = { fids = {2289, 2290}, type = "tile", block = false }

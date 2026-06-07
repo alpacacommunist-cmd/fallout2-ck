@@ -4,55 +4,88 @@
 local map = {}
 local tools = {}
 
--- it's square bro fucc
-local HEX_DIRECTIONS = {
-  [0] = -200, -- up         -> screen: top-right (North-East)
-  [1] = -199, -- up-left    -> screen: up (North)
-  [2] = 1,    -- left       -> screen: top-left (North-West)
-  [3] = 200,  -- down       -> screen: down-left (South-West)
-  [4] = 199,  -- down-right -> screen: down (South)
-  [5] = -1    -- right      -> screen: down-right (South-East)
-}
-
-function tools.spawnBrush(centerTile, radius, density, fids)
+function map.getNeighbourTile(tile, direction)
   local gridWidth = 200
-  -- do it bro
   if fallout and fallout.tileGetHexGridWidth then
     gridWidth = fallout.tileGetHexGridWidth()
   end
 
-  local centerX = gridWidth - 1 - (centerTile % gridWidth)
-  local centerY = math.floor(centerTile / gridWidth)
+  local tileX = gridWidth - 1 - (tile % gridWidth)
+  local isOddX = (tileX % 2 ~= 0)
 
-  for y = centerY - radius, centerY + radius do
-    for x = centerX - radius, centerX + radius do
+  if direction == 0 then     -- North-East
+    return tile - gridWidth
+  elseif direction == 1 then -- North
+    return isOddX and (tile - gridWidth - 1) or (tile - gridWidth)
+  elseif direction == 2 then -- North-West
+    return isOddX and (tile - 1) or (tile + 1)
+  elseif direction == 3 then -- South-West
+    return tile + gridWidth
+  elseif direction == 4 then -- South
+    return isOddX and (tile + gridWidth) or (tile + gridWidth + 1)
+  elseif direction == 5 then -- South-East
+    return isOddX and (tile + 1) or (tile - 1)
+  end
+  return -1
+end
 
-      local dx = x - centerX
-      local dy = y - centerY
+-- 0(N)
+function tools.spawnBrush(centerTile, radius, density, fids)
+  local gridWidth = 200
+  if fallout and fallout.tileGetHexGridWidth then
+    gridWidth = fallout.tileGetHexGridWidth()
+  end
 
-      local distance = math.max(math.abs(dx), math.abs(dy), math.abs(dx + dy))
+  local visited = {}
+  local queue = {}
+  local distances = {}
 
-      if distance <= radius and (dx ~= 0 or dy ~= 0) then
-        if math.random() <= density then
+  visited[centerTile] = true
+  distances[centerTile] = 0
+  table.insert(queue, centerTile)
 
-          local targetTile = (gridWidth - 1 - x) + (y * gridWidth)
-          if x >= 0 and x < gridWidth and targetTile >= 0 and targetTile < 40000 then
-            local randomFid = fids[math.random(#fids)]
+  local head = 1
 
-            if map.createObject then
-              map.createObject(randomFid, targetTile)
-            else
-              map.addScenery(randomFid, targetTile)
-            end
+  while head <= #queue do
+    local currentTile = queue[head]
+    head = head + 1
+
+    local currentDist = distances[currentTile]
+
+    if currentDist < radius then
+      for dir = 0, 5 do
+        local neighbour = map.getNeighbourTile(currentTile, dir)
+
+        if neighbour >= 0 and neighbour < (gridWidth * gridWidth) then
+          local currX = gridWidth - 1 - (currentTile % gridWidth)
+          local neighX = gridWidth - 1 - (neighbour % gridWidth)
+
+          if math.abs(currX - neighX) <= 1 and not visited[neighbour] then
+            visited[neighbour] = true
+            distances[neighbour] = currentDist + 1
+            table.insert(queue, neighbour)
           end
-
         end
       end
+    end
+  end
 
+  for _, targetTile in ipairs(queue) do
+    if targetTile ~= centerTile then
+      if math.random() <= density then
+        local randomFid = fids[math.random(#fids)]
+
+        if map.createObject then
+          map.createObject(randomFid, targetTile)
+        else
+          map.addScenery(randomFid, targetTile)
+        end
+      end
     end
   end
 end
 
+-- O(w*h)
 function tools.spawnMask(anchorTile, maskTable, mapping)
   local gridWidth = 200
   if fallout and fallout.tileGetHexGridWidth then
@@ -69,28 +102,31 @@ function tools.spawnMask(anchorTile, maskTable, mapping)
       local char = row:sub(x, x)
       local dx = x - 1
 
-      local targetX = anchorX - dx
+      local targetX = anchorX - dx - math.floor((anchorY + dy) / 2) + math.floor(anchorY / 2)
       local targetY = anchorY + dy
 
       local targetTile = (gridWidth - 1 - targetX) + (targetY * gridWidth)
 
-      if targetX >= 0 and targetX < gridWidth and targetTile >= 0 and targetTile < 40000 then
-        if char == " " then
-          if map.removeBlocker then map.removeBlocker(targetTile) end
+      if targetX >= 0 and targetX < gridWidth and targetY >= 0 and targetY < gridWidth then
+        if targetTile >= 0 and targetTile < (gridWidth * gridWidth) then
 
-        elseif mapping[char] then
-          local element = mapping[char]
-          local randomFid = element.fids[math.random(#element.fids)]
+          if char == " " then
+            if map.removeBlocker then map.removeBlocker(targetTile) end
 
-          if element.type == "tile" then
-            if map.addTile then map.addTile(randomFid, targetTile) end
-          else
-            map.addScenery(randomFid, targetTile)
+          elseif mapping[char] then
+            local element = mapping[char]
+            local randomFid = element.fids[math.random(#element.fids)]
+
+            if element.type == "tile" then
+              if map.addTile then map.addTile(randomFid, targetTile) end
+            else
+              map.addScenery(randomFid, targetTile)
+            end
+
+            if element.block then map.createBlocker(targetTile) end
           end
 
-          if element.block then map.createBlocker(targetTile) end
         end
-
       end
     end
   end
