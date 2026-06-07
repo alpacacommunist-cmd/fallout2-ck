@@ -31,18 +31,20 @@ events.on('onMapEnter', function()
   end
 
   -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
-  -- map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
-  -- map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
+  map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
+  map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
 
   local mountain_wall = {
-    "MMMMM  MMMMM",
-    "  MMMMMMMM  ",
-    "   mmmmmm   "
+    "M MMM  MM  M",
+    "  MM   MMM  ",
+    "   mm  mm   ",
+    "GGG      GG "
   }
 
   map.tools.spawnMask(17516, mountain_wall, {
-    M = { fids = {956}, block = true },
-    m = { fids = {957}, block = true }
+    M = { fids = {956}, type = "scenery", block = true },
+    m = { fids = {957}, type = "scenery", block = true },
+    G = { fids = {2289, 2290}, type = "tile", block = false }
   })
 
   print("[Temple] Temple of Trials loaded.")

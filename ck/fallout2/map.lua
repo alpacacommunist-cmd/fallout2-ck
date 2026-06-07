@@ -4,61 +4,93 @@
 local map = {}
 local tools = {}
 
+-- it's square bro fucc
 local HEX_DIRECTIONS = {
-  [0] = -200, -- top-left
-  [1] = -199, -- top-right
-  [2] = 1,    -- right
-  [3] = 200,  -- down-right
-  [4] = 199,  -- down-left
-  [5] = -1    -- left
+  [0] = -200, -- up         -> screen: top-right (North-East)
+  [1] = -199, -- up-left    -> screen: up (North)
+  [2] = 1,    -- left       -> screen: top-left (North-West)
+  [3] = 200,  -- down       -> screen: down-left (South-West)
+  [4] = 199,  -- down-right -> screen: down (South)
+  [5] = -1    -- right      -> screen: down-right (South-East)
 }
 
 function tools.spawnBrush(centerTile, radius, density, fids)
-  local visited = {}
-  local queue = { {tile = centerTile, dist = 0} }
-  visited[centerTile] = true
+  local gridWidth = 200
+  -- do it bro
+  if fallout and fallout.tileGetHexGridWidth then
+    gridWidth = fallout.tileGetHexGridWidth()
+  end
 
-  while #queue > 0 do
-    local current = table.remove(queue, 1)
+  local centerX = gridWidth - 1 - (centerTile % gridWidth)
+  local centerY = math.floor(centerTile / gridWidth)
 
-    if current.tile ~= centerTile and math.random() <= density then
-      local randomFid = fids[math.random(#fids)]
-      -- map.addScenery(randomFid, current.tile)
-      map.createObject(randomFid, current.tile)
-    end
+  for y = centerY - radius, centerY + radius do
+    for x = centerX - radius, centerX + radius do
 
-    if current.dist < radius then
-      for i = 0, 5 do
-        local nextTile = current.tile + HEX_DIRECTIONS[i]
+      local dx = x - centerX
+      local dy = y - centerY
 
-        if nextTile >= 0 and nextTile < 40000 and not visited[nextTile] then
-          visited[nextTile] = true
-          table.insert(queue, {tile = nextTile, dist = current.dist + 1})
+      local distance = math.max(math.abs(dx), math.abs(dy), math.abs(dx + dy))
+
+      if distance <= radius and (dx ~= 0 or dy ~= 0) then
+        if math.random() <= density then
+
+          local targetTile = (gridWidth - 1 - x) + (y * gridWidth)
+          if x >= 0 and x < gridWidth and targetTile >= 0 and targetTile < 40000 then
+            local randomFid = fids[math.random(#fids)]
+
+            if map.createObject then
+              map.createObject(randomFid, targetTile)
+            else
+              map.addScenery(randomFid, targetTile)
+            end
+          end
+
         end
       end
+
     end
   end
 end
 
 function tools.spawnMask(anchorTile, maskTable, mapping)
-  local AXIS_X = HEX_DIRECTIONS[2]
-  local AXIS_Y = HEX_DIRECTIONS[3]
+  local gridWidth = 200
+  if fallout and fallout.tileGetHexGridWidth then
+    gridWidth = fallout.tileGetHexGridWidth()
+  end
+
+  local anchorX = gridWidth - 1 - (anchorTile % gridWidth)
+  local anchorY = math.floor(anchorTile / gridWidth)
 
   for y, row in ipairs(maskTable) do
+    local dy = y - 1
+
     for x = 1, #row do
       local char = row:sub(x, x)
+      local dx = x - 1
 
-      if mapping[char] then
-        local targetTile = anchorTile + (x - 1) * AXIS_X + (y - 1) * AXIS_Y
+      local targetX = anchorX - dx
+      local targetY = anchorY + dy
 
-        if targetTile >= 0 and targetTile < 40000 then
+      local targetTile = (gridWidth - 1 - targetX) + (targetY * gridWidth)
+
+      if targetX >= 0 and targetX < gridWidth and targetTile >= 0 and targetTile < 40000 then
+        if char == " " then
+          if map.removeBlocker then map.removeBlocker(targetTile) end
+
+        elseif mapping[char] then
           local element = mapping[char]
-
           local randomFid = element.fids[math.random(#element.fids)]
-          map.addScenery(randomFid, targetTile)
+
+          if element.type == "tile" then
+            if map.addTile then map.addTile(randomFid, targetTile) end
+          else
+            map.addScenery(randomFid, targetTile)
+          end
 
           if element.block then map.createBlocker(targetTile) end
         end
+
       end
     end
   end

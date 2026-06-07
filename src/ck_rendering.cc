@@ -127,6 +127,11 @@ static void ck_rendering_tiles(fallout::Rect* rect) {
         int screenX, screenY;
         tileToScreenXY(tileInstance.tile, &screenX, &screenY);
 
+        int gridWidth = fallout::tileGetHexGridWidth();
+        int tileX = gridWidth - 1 - tileInstance.tile % gridWidth;
+
+        screenX -= (tileX & 1) ? 32 : 0;
+
         int fid = ck_rendering_build_tile_fid(tileInstance.fid);
         tileRenderFloorExternal(fid, screenX, screenY, rect);
     }
@@ -150,9 +155,6 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
 
 		int screenCenterX = screenX + 16, screenCenterY = screenY + 12;
 
-        // Offset
-        // sprite centers horizontally (width / 2)
-        // evens up on bottom hex edge (shift 100% height)
 		int offsetX = screenCenterX + frameX + rotationX - (cached->width / 2);
 		int offsetY = screenCenterY + frameY + rotationY - cached->height;
 
