@@ -1,6 +1,6 @@
 -- ck/fallout2/map/tools.lua
 
-local geometry = require('fallout2.map.geometry')
+local geometry = require('ck.fallout2.map.geometry')
 local tools    = {}
 
 function tools.spawnBrush(centerTile, radius, density, fids)

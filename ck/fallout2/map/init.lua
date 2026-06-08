@@ -1,7 +1,7 @@
 -- ck/fallout2/map/init.lua
 
-local geometry = require('fallout2.map.geometry')
-local tools    = require('fallout2.map.tools')
+local geometry = require('ck.fallout2.map.geometry')
+local tools    = require('ck.fallout2.map.tools')
 local map      = {}
 
 -- apply bindings to `tools`

@@ -2,10 +2,10 @@
 
 print("[Mod] Loading Temple of Trials...")
 
-local events    = require('fallout2.events')
-local map       = require('fallout2.map')
+local events    = require('ck.fallout2.events')
+local map       = require('ck.fallout2.map')
 
-local outskirts = require('temple_of_trials.outskirts')
+local outskirts = require('mods.temple_of_trials.outskirts')
 
 events.on('onMapEnter', function()
   if map.getId() ~= 126 then

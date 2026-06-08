@@ -1,8 +1,8 @@
 -- mods/username/hunting_grounds.lua
 
-local map = require('fallout2.map')
-local constants = require('fallout2.constants')
-local log = require('fallout2.log')
+local map = require('ck.fallout2.map')
+local constants = require('ck.fallout2.constants')
+local log = require('ck.fallout2.log')
 
 local huntingGrounds = {}
 

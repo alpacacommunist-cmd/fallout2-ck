@@ -2,7 +2,7 @@
 
 local respawn = {}
 
-local gameTime = require('fallout2.game_time')
+local gameTime = require('ck.fallout2.game_time')
 
 function respawn.markToday()
   return gameTime.getTotalDays()

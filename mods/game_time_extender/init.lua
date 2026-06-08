@@ -1,11 +1,11 @@
 -- mods/game_time_extender/init.lua
 print("[Mod] Loading Game Time Extender...")
 
-local config = require('fallout2.config')
-local log    = require('fallout2.log')
-local events = require('fallout2.events')
-local gameTime = require('fallout2.game_time')
-local respawn = require('fallout2.respawn')
+local config = require('ck.fallout2.config')
+local log    = require('ck.fallout2.log')
+local events = require('ck.fallout2.events')
+local gameTime = require('ck.fallout2.game_time')
+local respawn = require('ck.fallout2.respawn')
 
 -- we're gona use a separate config module
 -- engine doesn't do none of this yet, that's just front

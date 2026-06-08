@@ -1,9 +1,10 @@
 -- ck/fallout2/loader.lua
-local rendering = require('fallout2.rendering')
-local events = require('fallout2.events')
+local rendering = require('ck.fallout2.rendering')
+local events = require('ck.fallout2.events')
 
 -- extend path to include fallout2-ck/mods
-package.path = package.path .. ";../mods/?.lua;../mods/?/init.lua"
+-- package.path = package.path .. ";../mods/?.lua;../mods/?/init.lua"
+package.path = package.path .. ";../?.lua;../?/init.lua"
 
 print("[CK Loader] Initializing Mod Loader...")
 
@@ -27,7 +28,7 @@ function ckInitializeMods()
 
     local success, err = pcall(function()
       -- requires each mod to use single entry point as init.lua
-      require(mod_folder .. ".init")
+      require('mods.' .. mod_folder .. ".init")
     end)
 
     if not success then
@@ -47,20 +48,23 @@ function ckReloadMods()
 
   -- unload reloadable lua modules
   for _, mod_folder in ipairs(reloadable_mods) do
-    for module_name in pairs(package.loaded) do
-      if module_name:match("^" .. mod_folder) then
-        package.loaded[module_name] = nil
-        print("[CK Loader] Unloaded: " .. module_name)
+    local target_prefix = "mods." .. mod_folder
+
+    for mod_name in pairs(package.loaded) do
+      if mod_name:match("^" .. target_prefix) then
+        package.loaded[mod_name] = nil
+        print("[CK Loader] Unloaded: " .. mod_name)
       end
     end
   end
 
   -- reload mods
   for _, mod_folder in ipairs(reloadable_mods) do
+    local target_prefix = "mods." .. mod_folder
     print("[CK Loader] Reloading: " .. mod_folder)
 
     local success, err = pcall(function()
-      require(mod_folder .. ".init")
+      require(target_prefix .. ".init")
     end)
 
     if not success then

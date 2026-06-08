@@ -1,13 +1,13 @@
 -- mods/username/init.lua
 print("[Mod] Loading Username Test Mod...")
 
-local events = require('fallout2.events')
-local gameTime = require('fallout2.game_time')
-local log = require('fallout2.log')
-local respawn = require('fallout2.respawn')
-local map = require('fallout2.map')
-local constants = require('fallout2.constants')
-local huntingGrounds = require('username.hunting_grounds')
+local events = require('ck.fallout2.events')
+local gameTime = require('ck.fallout2.game_time')
+local log = require('ck.fallout2.log')
+local respawn = require('ck.fallout2.respawn')
+local map = require('ck.fallout2.map')
+local constants = require('ck.fallout2.constants')
+local huntingGrounds = require('mods.username.hunting_grounds')
 
 local huntingGroundsState = {
   lastRespawnDay = 0,
