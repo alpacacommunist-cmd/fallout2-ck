@@ -28,10 +28,15 @@ namespace {
 	}
 
 	int l_add_tile(lua_State* L) {
-		int fid = luaL_checkinteger(L, 1);
 		int tile = luaL_checkinteger(L, 2);
 
-		ck_map_add_tile(fid, tile);
+		if (lua_type(L, 1) == LUA_TSTRING) {
+			const char* key = lua_tostring(L, 1);
+			ck_map_add_tile(std::string(key), tile);
+		} else {
+			int fid = luaL_checkinteger(L, 1);
+			ck_map_add_tile(fid, tile);
+		}
 		return 0;
 	}
 

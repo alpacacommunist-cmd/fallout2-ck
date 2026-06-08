@@ -3,6 +3,8 @@
 /gamedir/**
 !/gamedir/README
 
+assets/
+
 *.o
 *.a
 *.so

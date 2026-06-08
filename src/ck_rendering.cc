@@ -67,7 +67,17 @@ void ck_rendering_add_custom_scenery(const std::string& key, int tile) {
 }
 
 void ck_rendering_add_tile(int fid, int tile) {
-    gPersistentTiles.push_back({ fid, tile });
+    CkTileInstance inst;
+    inst.tile      = tile;
+    inst.engineFid = fid;
+    gPersistentTiles.push_back(inst);
+}
+
+void ck_rendering_add_custom_tile(const std::string& key, int tile) {
+    CkTileInstance inst;
+    inst.tile     = tile;
+    inst.assetKey = key;
+    gPersistentTiles.push_back(inst);
 }
 
 void ck_rendering_clear() {
@@ -161,7 +171,13 @@ static void ck_rendering_tiles(fallout::Rect* rect) {
         int screenX, screenY;
         tileToScreenXY(tileInstance.tile, &screenX, &screenY);
 
-        int fid = ck_rendering_build_tile_fid(tileInstance.fid);
+		if (tileInstance.isCustomAsset()) {
+			CkFrm* frm = ck_assets_resolve(gAssetRegistry, tileInstance.assetKey);
+			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
+			continue;
+		}
+
+        int fid = ck_rendering_build_tile_fid(tileInstance.engineFid);
         tileRenderFloorExternal(fid, screenX, screenY, rect);
     }
 }

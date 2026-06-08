@@ -8,7 +8,10 @@ void ck_scripting_on_map_enter();
 
 void ck_map_add_scenery(const std::string& key, int tile);
 void ck_map_add_scenery(int fid, int tile);
+
 void ck_map_add_tile(int fid, int tile);
+void ck_map_add_tile(const std::string& key, int tile);
+
 void ck_map_remove_blocker(int tile);
 void ck_map_create_blocker(int tile);
 void ck_map_create_object(int fid, int tile);

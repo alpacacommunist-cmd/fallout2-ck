@@ -35,6 +35,10 @@ void ck_map_add_tile(int fid, int tile) {
 	ck_rendering_add_tile(fid, tile);
 }
 
+void ck_map_add_tile(const std::string& key, int tile) {
+    ck_rendering_add_custom_tile(key, tile);
+}
+
 void ck_map_remove_blocker(int tile) {
 	ck_object_remove_blocker_at(tile);
 }
