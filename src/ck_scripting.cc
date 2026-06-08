@@ -161,6 +161,7 @@ void ck_scripting_init() {
         // expand path to include fallout2-ck/ck/fallout2
         // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
         luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?.lua'");
+        luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?/init.lua'");
 
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
