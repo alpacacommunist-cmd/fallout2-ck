@@ -13,6 +13,7 @@
 
 #include "ck_assets/ck_frm.h"
 #include "ck_assets/ck_asset_registry.h"
+#include "ck_assets/ck_proto_cache.h"
 
 #include "display_monitor.h"
 #include "proto_instance.h"
@@ -179,13 +180,13 @@ void ck_scripting_init() {
 
 	ck_assets_register_mod(gAssetRegistry, "temple_of_trials", "../mods/temple_of_trials/assets");
 
-	CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:tree10");
+	CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
 	if (frm) {
 		std::cout << "[CK TEST] resolved! " << frm->frames[0][0].width << "x" << frm->frames[0][0].height << std::endl;
 	}
 
 	// should be cached and not shown
-	CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:tree10");
+	CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
 }
 
 // Exit
@@ -198,9 +199,13 @@ void ck_scripting_exit() {
 }
 
 // this is called from fallout2-ce once interface is ready
-// work in progress chill
 void ck_scripting_on_game_start() {
 	ck_call_hook("ckOnGameStart");
+}
+
+void ck_scripting_on_engine_ready() {
+    std::cout << "[CK] Engine ready, initializing proto cache..." << std::endl;
+    gProtoCache.initialize("build/proto_cache.json");
 }
 
 void ck_scripting_on_game_loaded() {

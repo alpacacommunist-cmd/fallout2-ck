@@ -48,6 +48,14 @@ bool CkProtoCache::loadFromJson(const std::string& path) {
             if (nameEnd == std::string::npos) continue;
             info.name = line.substr(nameStart, nameEnd - nameStart);
 
+			// filename
+			size_t filenameStart = line.find("\"filename\":\"");
+			if (filenameStart != std::string::npos) {
+				filenameStart += 12;
+				size_t filenameEnd = line.find("\"", filenameStart);
+				info.filename = line.substr(filenameStart, filenameEnd - filenameStart);
+			}
+
             // Extract pid
             size_t pidStart = line.find("\"pid\":");
             if (pidStart == std::string::npos) continue;
@@ -84,32 +92,54 @@ bool CkProtoCache::loadFromJson(const std::string& path) {
 }
 
 bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
-    // Scan all engine protos
-    for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
-        int maxId = fallout::proto_max_id(type);
+	// Scan all engine protos
+	for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
+		int maxId = fallout::proto_max_id(type);
+		std::cout << "[CK Proto Cache] Scanning type " << type << ", maxId=" << maxId << std::endl;
 
-        for (int id = 0; id < maxId; id++) {
-            int pid = (type << 24) | id;
-            fallout::Proto* proto = nullptr;
+		if (maxId <= 1) continue;
 
-            if (fallout::protoGetProto(pid, &proto) == 0 && proto != nullptr) {
-                const char* protoName = fallout::protoGetName(pid);
-                if (protoName == nullptr || strlen(protoName) == 0) continue;
+		for (int id = 0; id < maxId; id++) {
+			int pid = (type << 24) | id;
+			fallout::Proto* proto = nullptr;
 
-                CkProtoInfo info;
-                info.pid = pid;
-                info.fid = proto->fid;
-                info.type = type;
-                info.name = std::string(protoName);
+			// Try to load the proto, but skip if it fails
+			if (fallout::protoGetProto(pid, &proto) != 0 || proto == nullptr) {
+				continue;
+			}
 
-                nameIndex[info.name] = info;
-                pidIndex[info.pid] = info;
-            }
-        }
-    }
+			const char* protoName = nullptr;
+			try {
+				protoName = fallout::protoGetName(pid);
+			} catch (...) {
+				std::cerr << "[CK Proto Cache] Exception loading proto name for pid=" << pid << std::endl;
+				continue;
+			}
 
-    std::cout << "[CK Proto Cache] Scanned " << nameIndex.size() << " protos" << std::endl;
+			if (protoName == nullptr || strlen(protoName) == 0) continue;
 
+			std::cout << "[CK Proto Cache] Found: " << protoName << " (pid=" << pid << ")" << std::endl;
+
+			CkProtoInfo info;
+			info.pid = pid;
+			info.fid = proto->fid;
+			info.type = type;
+			info.name = std::string(protoName);
+
+			// Get the LST filename
+			char lstFilename[256] = {0};
+			if (fallout::_proto_list_str(pid, lstFilename) == 0) {
+				info.filename = std::string(lstFilename);
+			} else {
+				info.filename = info.name;  // Fallback to name if LST lookup fails
+			}
+
+			nameIndex[info.name] = info;
+			pidIndex[info.pid] = info;
+		}
+	}
+
+	std::cout << "[CK Proto Cache] Scanned " << nameIndex.size() << " protos" << std::endl;
     // Write to JSON
     fs::path jsonPath(cachePath);
     fs::create_directories(jsonPath.parent_path());
@@ -124,8 +154,9 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
     bool first = true;
     for (const auto& [name, info] : nameIndex) {
         if (!first) file << ",\n";
-        file << "  {\"name\":\"" << name << "\",\"pid\":" << info.pid
-             << ",\"fid\":" << info.fid << ",\"type\":" << info.type << "}";
+		file << "  {\"name\":\"" << name << "\",\"filename\":\"" << info.filename 
+			<< "\",\"pid\":" << info.pid << ",\"fid\":" << info.fid 
+			<< ",\"type\":" << info.type << "}";
         first = false;
     }
     file << "\n]\n";
@@ -159,3 +190,5 @@ std::vector<CkProtoInfo> CkProtoCache::getByType(int type) const {
     }
     return result;
 }
+
+CkProtoCache gProtoCache;

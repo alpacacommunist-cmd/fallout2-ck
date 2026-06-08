@@ -9,6 +9,7 @@ struct CkProtoInfo {
     int pid = -1;
     int fid = -1;
     std::string name;
+	std::string filename;
     int type = -1;  // OBJ_TYPE_*
 };
 
@@ -35,4 +36,5 @@ private:
     bool buildFromEngine(const std::string& cachePath);
 };
 
+extern CkProtoCache gProtoCache;
 #endif
