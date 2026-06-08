@@ -32,7 +32,9 @@ events.on('onMapEnter', function()
 
   -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
   map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
-  map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
+  -- map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
+  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:grass01", "temple_of_trials:grass02"})
+
 
   local forestLeft = {
     "M MMM  MM  M",
@@ -42,10 +44,16 @@ events.on('onMapEnter', function()
   }
 
   map.tools.spawnMask(17516, forestLeft, {
-    M = { fids = {956}, type = "scenery", block = true },
-    m = { fids = {957}, type = "scenery", block = true },
-    G = { fids = {2289, 2290}, type = "tile", block = false }
+    M = { assets = {"temple_of_trials:tree10"}, type = "scenery", block = true },
+    M = { assets = {"temple_of_trials:tree11"}, type = "scenery", block = true },
+    G = { assets = {"temple_of_trials:grass01"}, type = "tile", block = false }
   })
+
+  -- map.tools.spawnMask(17516, forestLeft, {
+  --   M = { fids = {956}, type = "scenery", block = true },
+  --   m = { fids = {957}, type = "scenery", block = true },
+  --   G = { fids = {2289, 2290}, type = "tile", block = false }
+  -- })
 
   map.addScenery("temple_of_trials:tree10", 17290)
 

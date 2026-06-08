@@ -4,6 +4,21 @@
 local map = {}
 local tools = {}
 
+local function applyElement(element, tile)
+  local source = element.assets or element.fids
+  if not source then return end
+
+  local randomValue = source[math.random(#source)]
+
+  if element.type == "tile" then
+    map.addTile(randomValue, tile)
+  else
+    map.addScenery(randomValue, tile)
+  end
+
+  if element.block then map.createBlocker(tile) end
+end
+
 function map.getNeighbourTile(tile, direction)
   local gridWidth = 200
   if fallout and fallout.tileGetHexGridWidth then
@@ -73,12 +88,15 @@ function tools.spawnBrush(centerTile, radius, density, fids)
   for _, targetTile in ipairs(queue) do
     if targetTile ~= centerTile then
       if math.random() <= density then
-        local randomFid = fids[math.random(#fids)]
-
-        if map.createObject then
-          map.createObject(randomFid, targetTile)
+        local randomValue = fids[math.random(#fids)]
+        if type(randomValue) == "string" then
+          map.addScenery(randomValue, targetTile)
         else
-          map.addScenery(randomFid, targetTile)
+          if map.createObject then
+            map.createObject(randomValue, targetTile)
+          else
+            map.addScenery(randomValue, targetTile)
+          end
         end
       end
     end
@@ -114,18 +132,8 @@ function tools.spawnMask(anchorTile, maskTable, mapping)
             if map.removeBlocker then map.removeBlocker(targetTile) end
 
           elseif mapping[char] then
-            local element = mapping[char]
-            local randomFid = element.fids[math.random(#element.fids)]
-
-            if element.type == "tile" then
-              if map.addTile then map.addTile(randomFid, targetTile) end
-            else
-              map.addScenery(randomFid, targetTile)
-            end
-
-            if element.block then map.createBlocker(targetTile) end
+            applyElement(mapping[char], targetTile)
           end
-
         end
       end
     end
