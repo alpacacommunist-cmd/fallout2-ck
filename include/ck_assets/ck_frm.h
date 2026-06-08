@@ -16,12 +16,11 @@ struct CkFrmFrame {
 struct CkFrm {
     uint16_t fps;
     uint16_t framesPerDirection;
-    std::vector<CkFrmFrame> frames; // direction 0 only
-
+    std::vector<CkFrmFrame> frames[6];
     bool valid = false;
 };
 
-// path - абсолютный путь к .frm файлу
+// path - absolute path to .frm
 CkFrm ck_frm_load(const std::string& path);
 
 #endif

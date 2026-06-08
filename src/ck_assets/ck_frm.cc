@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <dirent.h>
 
 template<typename T>
 static bool read(FILE* f, T& value) {
@@ -23,14 +24,51 @@ static int16_t swap16s(int16_t v) {
     return (int16_t)swap16((uint16_t)v);
 }
 
+static std::string find_file_nocase(const std::string& path) {
+    // breaks path to dir + filename
+    auto slash = path.rfind('/');
+    std::string dir      = (slash == std::string::npos) ? "." : path.substr(0, slash);
+    std::string filename = (slash == std::string::npos) ? path : path.substr(slash + 1);
+
+    // lowercase filename for comparison
+    std::string filenameLower = filename;
+    for (char& c : filenameLower) c = tolower(c);
+
+    DIR* d = opendir(dir.c_str());
+    if (d == nullptr) return "";
+
+    std::string result;
+    struct dirent* entry;
+    while ((entry = readdir(d)) != nullptr) {
+        std::string entryLower = entry->d_name;
+        for (char& c : entryLower) c = tolower(c);
+
+        if (entryLower == filenameLower) {
+            result = dir + "/" + entry->d_name;
+            break;
+        }
+    }
+
+    closedir(d);
+    return result;
+}
+
 CkFrm ck_frm_load(const std::string& path) {
     CkFrm result;
 
-    FILE* f = fopen(path.c_str(), "rb");
-    if (f == nullptr) {
-        std::cerr << "[CK FRM] Cannot open: " << path << std::endl;
-        return result; // result.valid == false
-    }
+	// first try path then case-insensitive
+	FILE* f = fopen(path.c_str(), "rb");
+	if (f == nullptr) {
+		std::string found = find_file_nocase(path);
+		if (!found.empty()) {
+			f = fopen(found.c_str(), "rb");
+		}
+	}
+
+	if (f == nullptr) {
+		std::cerr << "[CK FRM] Cannot open: " << path << std::endl;
+		return result;
+	}
 
     // --- header ---
     uint32_t version;
@@ -77,48 +115,47 @@ CkFrm ck_frm_load(const std::string& path) {
         return result;
     }
 
-    // direction 0 all frames
-    for (int i = 0; i < framesPerDirection; i++) {
-        uint16_t width, height;
-        uint32_t size;
-        int16_t  offsetX, offsetY;
+	for (int dir = 0; dir < 6; dir++) {
+		uint32_t dirOffset = 62 + frameOffset[dir];
+		if (fseek(f, dirOffset, SEEK_SET) != 0) continue;
 
-        if (!read(f, width))   break;
-        if (!read(f, height))  break;
-        if (!read(f, size))    break;
-        if (!read(f, offsetX)) break;
-        if (!read(f, offsetY)) break;
+		for (int i = 0; i < framesPerDirection; i++) {
+			uint16_t width, height;
+			uint32_t size;
+			int16_t  offsetX, offsetY;
 
-        width   = swap16(width);
-        height  = swap16(height);
-        size    = swap32(size);
-        offsetX = swap16s(offsetX);
-        offsetY = swap16s(offsetY);
+			if (!read(f, width))   break;
+			if (!read(f, height))  break;
+			if (!read(f, size))    break;
+			if (!read(f, offsetX)) break;
+			if (!read(f, offsetY)) break;
 
-        CkFrmFrame frame;
-        frame.width   = width;
-        frame.height  = height;
-        frame.offsetX = offsetX;
-        frame.offsetY = offsetY;
-        frame.pixels.resize(size);
+			width   = swap16(width);
+			height  = swap16(height);
+			size    = swap32(size);
+			offsetX = swap16s(offsetX);
+			offsetY = swap16s(offsetY);
 
-        if (fread(frame.pixels.data(), 1, size, f) != size) {
-            std::cerr << "[CK FRM] Pixel read failed at frame " << i << std::endl;
-            break;
-        }
+			CkFrmFrame frame;
+			frame.width   = width;
+			frame.height  = height;
+			frame.offsetX = offsetX;
+			frame.offsetY = offsetY;
+			frame.pixels.resize(size);
 
-        result.frames.push_back(std::move(frame));
-    }
+			if (fread(frame.pixels.data(), 1, size, f) != size) break;
 
-    fclose(f);
+			result.frames[dir].push_back(std::move(frame));
+		}
+	}
 
-    if (!result.frames.empty()) {
-        result.valid = true;
-        std::cout << "[CK FRM] Loaded: " << path
-                  << " frames=" << result.frames.size()
-                  << " size=" << result.frames[0].width << "x" << result.frames[0].height
-                  << std::endl;
-    }
+	if (!result.frames[0].empty()) {
+		result.valid = true;
+		std::cout << "[CK FRM] Loaded: " << path
+			<< " frames=" << result.frames[0].size()
+			<< " size=" << result.frames[0][0].width << "x" << result.frames[0][0].height
+			<< std::endl;
+	}
 
     return result;
 }

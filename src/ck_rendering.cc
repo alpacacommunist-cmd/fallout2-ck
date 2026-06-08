@@ -134,8 +134,9 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     );
 }
 
-static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rect* rect) {
-    const CkFrmFrame& frame = frm->frames[0];
+static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rect* rect, int dir = 0) {
+	if (frm->frames[dir].empty()) return;
+    const CkFrmFrame& frame = frm->frames[dir][0];
 
     int offsetX = screenX + 16 + frame.offsetX - (frame.width / 2);
     int offsetY = screenY + 12 + frame.offsetY - frame.height;

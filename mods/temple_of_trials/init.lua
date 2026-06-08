@@ -33,7 +33,7 @@ events.on('onMapEnter', function()
   -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
   map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
   -- map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
-  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:grass01", "temple_of_trials:grass02"})
+  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"})
 
 
   local forestLeft = {
@@ -44,9 +44,9 @@ events.on('onMapEnter', function()
   }
 
   map.tools.spawnMask(17516, forestLeft, {
-    M = { assets = {"temple_of_trials:tree10"}, type = "scenery", block = true },
-    M = { assets = {"temple_of_trials:tree11"}, type = "scenery", block = true },
-    G = { assets = {"temple_of_trials:grass01"}, type = "tile", block = false }
+    M = { assets = {"temple_of_trials:scenery/tree10"}, type = "scenery", block = true },
+    M = { assets = {"temple_of_trials:scenery/tree11"}, type = "scenery", block = true },
+    G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile", block = false }
   })
 
   -- map.tools.spawnMask(17516, forestLeft, {

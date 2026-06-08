@@ -18,27 +18,25 @@ void ck_assets_register_mod(CkAssetRegistry& reg, const std::string& modId, cons
 }
 
 CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
-    // already loaded
     auto it = reg.assets.find(key);
     if (it != reg.assets.end()) {
+        // nullptr means we already tried and failed
+        if (!it->second.frm.valid) return nullptr;
         return &it->second.frm;
     }
 
-    // parse the key
     std::string modId, assetPath;
     if (!split_key(key, modId, assetPath)) {
         std::cerr << "[CK Assets] Bad key format: " << key << std::endl;
         return nullptr;
     }
 
-    // known mod?
     auto modIt = reg.modPaths.find(modId);
     if (modIt == reg.modPaths.end()) {
         std::cerr << "[CK Assets] Unknown mod: " << modId << std::endl;
         return nullptr;
     }
 
-    // make path and load
     std::string filePath = modIt->second + "/" + assetPath + ".frm";
 
     CkAsset asset;
@@ -46,12 +44,11 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
     asset.filePath = filePath;
     asset.frm      = ck_frm_load(filePath);
 
-    if (!asset.frm.valid) {
-        std::cerr << "[CK Assets] Failed to load: " << filePath << std::endl;
-        return nullptr;
-    }
-
+    // puts in registry anyways even if it fails
+    // next resolve will quietly return nullptr
     reg.assets[key] = std::move(asset);
+
+    if (!reg.assets[key].frm.valid) return nullptr;
     return &reg.assets[key].frm;
 }
 

@@ -179,7 +179,7 @@ void ck_scripting_init() {
 
 	CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:tree10");
 	if (frm) {
-		std::cout << "[CK TEST] resolved! " << frm->frames[0].width << "x" << frm->frames[0].height << std::endl;
+		std::cout << "[CK TEST] resolved! " << frm->frames[0][0].width << "x" << frm->frames[0][0].height << std::endl;
 	}
 
 	// should be cached and not shown
