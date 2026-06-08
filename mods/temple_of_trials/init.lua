@@ -47,6 +47,8 @@ events.on('onMapEnter', function()
     G = { fids = {2289, 2290}, type = "tile", block = false }
   })
 
+  map.addScenery("temple_of_trials:tree10", 17290)
+
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)

@@ -2,6 +2,7 @@
 #define CK_RENDERING_H
 
 #include <vector>
+#include <string>
 
 namespace fallout {
 	struct Rect;
@@ -10,14 +11,13 @@ namespace fallout {
 void ck_rendering_render(fallout::Rect* rect);
 void ck_rendering_clear();
 
-void ck_rendering_draw_scenery(int fid, int x, int y);
+struct CkSceneryInstance {
+    int tile;
+    int engineFid = -1;
+    std::string assetKey;
 
-// frame queue
-struct CkSceneryDrawRequest { int fid; int x; int y; };
-static std::vector<CkSceneryDrawRequest> gSceneryDrawRequests;
-
-// persistent queues
-struct CkSceneryInstance { int fid; int tile; };
+    bool isCustomAsset() const { return engineFid == -1; }
+};
 static std::vector<CkSceneryInstance> gPersistentScenery;
 
 struct CkTileInstance { int fid; int tile; };
@@ -26,6 +26,7 @@ static std::vector<CkTileInstance> gPersistentTiles;
 const std::vector<CkSceneryInstance>& ck_rendering_get_scenery();
 const std::vector<CkTileInstance>& ck_rendering_get_tiles();
 
+void ck_rendering_add_custom_scenery(const std::string& key, int tile);
 void ck_rendering_add_scenery(int fid, int tile);
 void ck_rendering_add_tile(int fid, int tile);
 

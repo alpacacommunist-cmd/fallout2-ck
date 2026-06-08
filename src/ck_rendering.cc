@@ -8,6 +8,9 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
+#include "ck_assets/ck_asset_registry.h"
+
+extern CkAssetRegistry gAssetRegistry;
 
 struct CachedArt {
     fallout::Art* art = nullptr;
@@ -49,14 +52,18 @@ void ck_rendering_clear_art_cache() {
     gArtCache.clear();
 }
 
-// frame
-void ck_rendering_draw_scenery(int fid, int x, int y) {
-    gSceneryDrawRequests.push_back({ fid, x, y });
+void ck_rendering_add_scenery(int fid, int tile) {
+    CkSceneryInstance inst;
+    inst.tile      = tile;
+    inst.engineFid = fid;
+    gPersistentScenery.push_back(inst);
 }
 
-// persistent
-void ck_rendering_add_scenery(int fid, int tile) {
-    gPersistentScenery.push_back({ fid, tile });
+void ck_rendering_add_custom_scenery(const std::string& key, int tile) {
+    CkSceneryInstance inst;
+    inst.tile     = tile;
+    inst.assetKey = key;
+    gPersistentScenery.push_back(inst);
 }
 
 void ck_rendering_add_tile(int fid, int tile) {
@@ -72,17 +79,12 @@ void ck_rendering_clear() {
 
 using namespace fallout;
 
-// frame queue
-static void ck_rendering_draw(fallout::Rect* rect);
-// persistent queue
 static void ck_rendering_scenery(fallout::Rect* rect);
 static void ck_rendering_tiles(fallout::Rect* rect);
 
 void ck_rendering_render(fallout::Rect* rect) {
 	ck_rendering_scenery(rect);
 	ck_rendering_tiles(rect);
-
-	ck_rendering_draw(rect);
 }
 
 
@@ -122,6 +124,38 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     );
 }
 
+static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rect* rect) {
+    const CkFrmFrame& frame = frm->frames[0];
+
+    int offsetX = screenX + 16 + frame.offsetX - (frame.width / 2);
+    int offsetY = screenY + 12 + frame.offsetY - frame.height;
+
+    fallout::Rect artRect;
+    artRect.left   = offsetX;
+    artRect.top    = offsetY;
+    artRect.right  = offsetX + frame.width - 1;
+    artRect.bottom = offsetY + frame.height - 1;
+
+    fallout::Rect intersection;
+    if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
+
+    unsigned char* src = const_cast<unsigned char*>(frame.pixels.data());
+    src += frame.width * (intersection.top - offsetY) + (intersection.left - offsetX);
+
+    int light = fallout::lightGetAmbientIntensity();
+    fallout::_dark_trans_buf_to_buf(
+        src,
+        fallout::rectGetWidth(&intersection),
+        fallout::rectGetHeight(&intersection),
+        frame.width,
+        fallout::tileGetWindowBuffer(),
+        intersection.left,
+        intersection.top,
+        fallout::tileGetWindowPitch(),
+        light
+    );
+}
+
 static void ck_rendering_tiles(fallout::Rect* rect) {
     for (const auto& tileInstance : gPersistentTiles) {
         int screenX, screenY;
@@ -137,7 +171,13 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         int screenX, screenY;
         tileToScreenXY(scenery.tile, &screenX, &screenY);
 
-        int fid = ck_rendering_build_scenery_fid(scenery.fid);
+		if (scenery.isCustomAsset()) {
+			CkFrm* frm = ck_assets_resolve(gAssetRegistry, scenery.assetKey);
+			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
+			continue;
+		}
+
+        int fid = ck_rendering_build_scenery_fid(scenery.engineFid);
 
         const CachedArt* cached = get_or_cache_art(fid);
         if (cached == nullptr || cached->frameData == nullptr) continue;
@@ -156,25 +196,3 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         draw_scenery_art(fid, offsetX, offsetY, rect);
     }
 }
-
-// refactor zone
-
-static void ck_rendering_draw(fallout::Rect* rect) {
-	int anchor_tile = 17290;
-
-	int screen_x;
-	int screen_y;
-
-	tileToScreenXY(anchor_tile, &screen_x, &screen_y);
-
-	// debugPrint("scenery requests: %d\n", gSceneryDrawRequests.size());
-
-	for (const auto& scenery : gSceneryDrawRequests) {
-		int fid = buildFid(OBJ_TYPE_SCENERY, scenery.fid, 0, 0, 0);
-
-		draw_scenery_art(fid, screen_x + scenery.x, screen_y + scenery.y, rect);
-	}
-
-	gSceneryDrawRequests.clear();
-}
-

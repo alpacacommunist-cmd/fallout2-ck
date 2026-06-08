@@ -27,6 +27,10 @@ void ck_map_add_scenery(int fid, int tile) {
 	ck_rendering_add_scenery(fid, tile);
 }
 
+void ck_map_add_scenery(const std::string& key, int tile) {
+    ck_rendering_add_custom_scenery(key, tile);
+}
+
 void ck_map_add_tile(int fid, int tile) {
 	ck_rendering_add_tile(fid, tile);
 }

@@ -11,6 +11,9 @@ add_library(fallout2-ck STATIC
     src/ck_scripting.cc
     src/ck_rendering.cc
 
+    src/ck_assets/ck_frm.cc
+    src/ck_assets/ck_asset_registry.cc
+
     src/game_time/game_time_bindings.cc
     src/rendering/rendering_bindings.cc
     src/map/map_bindings.cc

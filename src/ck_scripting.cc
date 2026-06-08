@@ -11,6 +11,9 @@
 #include "game_time/ck_game_time.h"
 #include "map/ck_map.h"
 
+#include "ck_assets/ck_frm.h"
+#include "ck_assets/ck_asset_registry.h"
+
 #include "display_monitor.h"
 #include "proto_instance.h"
 #include "tile.h"
@@ -20,6 +23,8 @@ extern "C" {
 #include "../../src/vendor/luajit/src/lualib.h"
 #include "../../src/vendor/luajit/src/lauxlib.h"
 }
+
+CkAssetRegistry gAssetRegistry;
 
 // lua state global pointer, lives as long as game lives
 lua_State* gLuaState = nullptr;
@@ -168,7 +173,17 @@ void ck_scripting_init() {
         }
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
-    }
+	}
+
+	ck_assets_register_mod(gAssetRegistry, "temple_of_trials", "../mods/temple_of_trials/assets");
+
+	CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:tree10");
+	if (frm) {
+		std::cout << "[CK TEST] resolved! " << frm->frames[0].width << "x" << frm->frames[0].height << std::endl;
+	}
+
+	// should be cached and not shown
+	CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:tree10");
 }
 
 // Exit
