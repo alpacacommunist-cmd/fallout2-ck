@@ -12,6 +12,16 @@ static bool split_key(const std::string& key, std::string& outModId, std::string
     return true;
 }
 
+static int ck_assets_obj_type(const std::string& name) {
+    if (name == "scenery")  return fallout::OBJ_TYPE_SCENERY;
+    if (name == "items")    return fallout::OBJ_TYPE_ITEM;
+    if (name == "critters") return fallout::OBJ_TYPE_CRITTER;
+    if (name == "walls")    return fallout::OBJ_TYPE_WALL;
+    if (name == "tiles")    return fallout::OBJ_TYPE_TILE;
+    if (name == "misc")     return fallout::OBJ_TYPE_MISC;
+    return -1;
+}
+
 void ck_assets_register_mod(CkAssetRegistry& reg, const std::string& modId, const std::string& basePath) {
     reg.modPaths[modId] = basePath;
     std::cout << "[CK Assets] Registered mod: " << modId << " -> " << basePath << std::endl;
@@ -43,6 +53,31 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
     asset.modId    = modId;
     asset.filePath = filePath;
     asset.frm      = ck_frm_load(filePath);
+
+	// assetPath = "scenery/tree10" -> type="scenery", name="tree10"
+	asset.lookupDone = true;
+	auto slash = assetPath.find('/');
+	if (slash != std::string::npos) {
+		std::string typeName = assetPath.substr(0, slash);
+		std::string artName  = assetPath.substr(slash + 1);
+
+		int objectType = ck_assets_obj_type(typeName);
+		if (objectType != -1) {
+			asset.objectType = objectType;
+
+			int artId = fallout::artListIndex(objectType, artName.c_str());
+			if (artId != -1) {
+				asset.artId = artId;
+				asset.fid   = fallout::buildFid(objectType, artId, 0, 0, 0);
+
+				asset.pid   = (objectType << 24) | artId;
+
+				std::cout << "[CK Assets] Found art: " << artId << " -> " << artName.c_str() << std::endl;
+			} else {
+				asset.lookupFailed = true;
+			}
+		}
+	}
 
     // puts in registry anyways even if it fails
     // next resolve will quietly return nullptr

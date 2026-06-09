@@ -9,7 +9,7 @@ function tools.spawnBrush(centerTile, radius, density, fids)
   for _, tile in ipairs(tiles) do
     if tile ~= centerTile and math.random() <= density then
       local value = fids[math.random(#fids)]
-      tools._applyValue(value, "scenery", false, tile)
+      tools._applyValue(value, false, false, tile)
     end
   end
 end

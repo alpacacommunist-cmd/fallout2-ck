@@ -7,6 +7,7 @@
 #include "game_time/game_time_bindings.h"
 #include "rendering/rendering_bindings.h"
 #include "map/map_bindings.h"
+#include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
 #include "map/ck_map.h"
@@ -159,6 +160,9 @@ void ck_scripting_init() {
 		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
 		lua_pop(gLuaState, 1);
 
+		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
+		lua_pop(gLuaState, 1);
+
         // expand path to include fallout2-ck/ck/fallout2
         // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
         // luaL_dostring(gLuaState, "package.path = package.path .. ';../ck/?.lua'");
@@ -178,15 +182,15 @@ void ck_scripting_init() {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
 
-	ck_assets_register_mod(gAssetRegistry, "temple_of_trials", "../mods/temple_of_trials/assets");
-
-	CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
-	if (frm) {
-		std::cout << "[CK TEST] resolved! " << frm->frames[0][0].width << "x" << frm->frames[0][0].height << std::endl;
-	}
-
-	// should be cached and not shown
-	CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
+	// ck_assets_register_mod(gAssetRegistry, "temple_of_trials", "../mods/temple_of_trials/assets");
+	//
+	// CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
+	// if (frm) {
+	// 	std::cout << "[CK TEST] resolved! " << frm->frames[0][0].width << "x" << frm->frames[0][0].height << std::endl;
+	// }
+	//
+	// // should be cached and not shown
+	// CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
 }
 
 // Exit

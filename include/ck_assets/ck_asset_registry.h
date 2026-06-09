@@ -5,10 +5,19 @@
 #include <string>
 #include <unordered_map>
 
+#include <art.h>
+
 struct CkAsset {
     std::string modId;
     std::string filePath;
-    CkFrm frm;            // lazy loads on first resolve
+    CkFrm frm;
+
+    int artId       = -1;
+    int fid         = -1;
+    int pid         = -1;
+	int objectType  = -1;
+    bool lookupDone = false;  // tried engine lookup
+    bool lookupFailed = false; // tried and failed
 };
 
 // register mod and resolve assets "mod_id:path/to/asset"
