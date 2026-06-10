@@ -181,16 +181,6 @@ void ck_scripting_init() {
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
-
-	// ck_assets_register_mod(gAssetRegistry, "temple_of_trials", "../mods/temple_of_trials/assets");
-	//
-	// CkFrm* frm = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
-	// if (frm) {
-	// 	std::cout << "[CK TEST] resolved! " << frm->frames[0][0].width << "x" << frm->frames[0][0].height << std::endl;
-	// }
-	//
-	// // should be cached and not shown
-	// CkFrm* frm2 = ck_assets_resolve(gAssetRegistry, "temple_of_trials:scenery/tree10");
 }
 
 // Exit

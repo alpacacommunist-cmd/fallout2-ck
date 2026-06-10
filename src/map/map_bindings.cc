@@ -72,6 +72,15 @@ namespace {
 		return 0;
 	}
 
+	int l_create_object_fid(lua_State* L) {
+		int fid = luaL_checkinteger(L, 1);
+		int tile = luaL_checkinteger(L, 2);
+
+		ck_map_create_object(fid, tile);
+		return 0;
+	}
+
+
 
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
@@ -81,6 +90,7 @@ namespace {
 		{ "remove_blocker", l_remove_blocker },
 		{ "create_blocker", l_create_blocker },
 		{ "create_object", l_create_object },
+		{ "create_object_fid", l_create_object },
         { nullptr,          nullptr }
     };
 

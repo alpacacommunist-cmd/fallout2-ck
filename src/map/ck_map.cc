@@ -52,6 +52,10 @@ void ck_map_create_object(int artId, int tile) {
 	ck_object_create_at(fid, tile);
 }
 
+void ck_map_create_object_fid(int fid, int tile) {
+	ck_object_create_at(fid, tile);
+}
+
 bool ck_map_is_camera_position_allowed(int tile) {
     if (!gCameraBorders.enabled) { return false; }
 

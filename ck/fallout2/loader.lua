@@ -1,14 +1,12 @@
 -- ck/fallout2/loader.lua
 local rendering = require('ck.fallout2.rendering')
-local events = require('ck.fallout2.events')
+local events    = require('ck.fallout2.events')
+local assets    = require('ck.fallout2.assets')
 
--- extend path to include fallout2-ck/mods
--- package.path = package.path .. ";../mods/?.lua;../mods/?/init.lua"
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
 print("[CK Loader] Initializing Mod Loader...")
 
--- Mod list
 local active_mods = {
   "game_time_extender",
   "username",
@@ -19,15 +17,39 @@ local reloadable_mods = {
   "temple_of_trials"
 }
 
--- Loads mods
+local function loadManifest(mod_folder)
+  local key = 'mods.' .. mod_folder .. '.mod'
+
+  local ok, manifest = pcall(require, key)
+
+  if not ok or type(manifest) ~= 'table' then
+    print("[CK Loader] WARNING: no manifest for " .. mod_folder)
+    return nil
+  end
+
+  return manifest
+end
+
+local function applyManifest(manifest)
+  if not manifest then return end
+
+  if manifest.assets then
+    assets.register(manifest.id, manifest.assets)
+  end
+end
+
 function ckInitializeMods()
   print("[CK Loader] Loading active modules...")
 
   for _, mod_folder in ipairs(active_mods) do
     print("[CK Loader] Booting: " .. mod_folder)
 
+    -- manifest
+    local manifest = loadManifest(mod_folder)
+    applyManifest(manifest)
+
+    -- init.lua
     local success, err = pcall(function()
-      -- requires each mod to use single entry point as init.lua
       require('mods.' .. mod_folder .. ".init")
     end)
 
@@ -42,11 +64,9 @@ end
 function ckReloadMods()
   print("[CK Loader] Reloading mods...")
 
-  -- clear persistent rendering
   events.clear()
   rendering.clear()
 
-  -- unload reloadable lua modules
   for _, mod_folder in ipairs(reloadable_mods) do
     local target_prefix = "mods." .. mod_folder
 
@@ -58,13 +78,14 @@ function ckReloadMods()
     end
   end
 
-  -- reload mods
   for _, mod_folder in ipairs(reloadable_mods) do
-    local target_prefix = "mods." .. mod_folder
     print("[CK Loader] Reloading: " .. mod_folder)
 
+    local manifest = loadManifest(mod_folder)
+    applyManifest(manifest)
+
     local success, err = pcall(function()
-      require(target_prefix .. ".init")
+      require('mods.' .. mod_folder .. ".init")
     end)
 
     if not success then
@@ -72,8 +93,6 @@ function ckReloadMods()
     end
   end
 
-  -- re-fire map enter event
   events.emit("onMapEnter")
-
   print("[CK Loader] Reload complete!")
 end
