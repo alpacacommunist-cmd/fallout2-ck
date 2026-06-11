@@ -2,6 +2,7 @@
 #include <cstring>
 
 #include "ck_scripting.h"
+#include "ck_config_patch.h"
 
 // bindings
 #include "game_time/game_time_bindings.h"
@@ -181,6 +182,30 @@ void ck_scripting_init() {
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
+
+	// int mapIdx  = ck_config_next_map_index("data/data/maps.txt");
+	// int areaIdx = ck_config_next_area_index("data/data/city.txt");
+	int mapIdx  = 151;
+	int areaIdx = 49;
+
+	std::string mapSection  = "Map "  + std::to_string(mapIdx);
+	std::string areaSection = "Area " + std::to_string(areaIdx);
+
+	std::cout << "[CK] Registering test location as "
+		<< mapSection << " / " << areaSection << std::endl;
+
+	ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", "Test Cave");
+	ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    "test_cave");
+	ck_config_patch_add("data\\maps.txt", mapSection, "music",       "07desert");
+	ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
+
+	ck_config_patch_add("data\\city.txt", areaSection, "area_name",               "Test Cave");
+	ck_config_patch_add("data\\city.txt", areaSection, "world_pos",               "200,140");
+	ck_config_patch_add("data\\city.txt", areaSection, "start_state",             "On");
+	ck_config_patch_add("data\\city.txt", areaSection, "size",                    "Small");
+	ck_config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",         "-1");
+	ck_config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx",   "-1");
+	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",              "On,130,410,Test Cave,-1,-1,0");
 }
 
 // Exit
