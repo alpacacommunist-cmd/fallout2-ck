@@ -2,10 +2,20 @@
 cmake_minimum_required(VERSION 3.15)
 project(fallout2-ck CXX)
 
-add_subdirectory(fallout2-ce)
+include(ExternalProject)
+set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
+set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")
+set(LUAJIT_LIB "${LUAJIT_SRC_DIR}/src/libluajit.a")
 
-set(LUAJIT_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit/src")
-set(LUAJIT_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit/src/libluajit.a")
+ExternalProject_Add(luajit_project
+    SOURCE_DIR "${LUAJIT_SRC_DIR}"
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND make -C "${LUAJIT_SRC_DIR}/src"
+    INSTALL_COMMAND ""
+    BUILD_BYPRODUCTS "${LUAJIT_LIB}"
+)
+
+add_subdirectory(fallout2-ce)
 
 add_library(fallout2-ck STATIC
     src/ck_scripting.cc
@@ -31,6 +41,8 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_overlay_render.cc
 )
 
+add_dependencies(fallout2-ck luajit_project)
+
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -44,14 +56,14 @@ target_link_libraries(fallout2-ck PUBLIC
     dl
 )
 
-file(GLOB CE_BRIDGE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/*.cc")
+set(CE_BRIDGE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/ck_input.cc"
+)
 
 foreach(TARGET fallout2-ce mapper-ce)
     if(TARGET ${TARGET})
         target_sources(${TARGET} PRIVATE ${CE_BRIDGE_SOURCES})
-
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-
         target_link_libraries(${TARGET} fallout2-ck)
     endif()
 endforeach()
