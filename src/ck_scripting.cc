@@ -65,16 +65,20 @@ static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, 
 	}
 }
 
-void ck_scripting_register_location(
-    const std::string& name,
-    const std::string& mapFile,
-    const std::string& music,
-    int worldX, int worldY,
-    const std::string& size,
-    int entranceX, int entranceY, int entranceTile)
-{
-    int mapIdx  = 151; // TODO: dynamic
-    int areaIdx = 49;  // TODO: dynamic
+void ck_scripting_register_location(const std::string& name, const std::string& mapFile,
+    const std::string& music, int worldX, int worldY, const std::string& size,
+    int entranceX, int entranceY, int entranceTile) {
+
+	static int nextMapIdx  = -1;
+	static int nextAreaIdx = -1;
+
+	if (nextMapIdx == -1) {
+		nextMapIdx  = ck_config_next_map_index("data\\data\\maps.txt");
+        nextAreaIdx = ck_config_next_area_index("data\\data\\city.txt");
+	}
+
+    int mapIdx  = nextMapIdx++;
+    int areaIdx = nextAreaIdx++;
 
     std::string mapSection  = "Map "  + std::to_string(mapIdx);
     std::string areaSection = "Area " + std::to_string(areaIdx);
@@ -151,11 +155,8 @@ static int l_ck_register_location(lua_State* L) {
     int entranceY            = luaL_checkinteger(L, 8);
     int entranceTile         = luaL_checkinteger(L, 9);
 
-    ck_scripting_register_location(
-        name, mapFile, music,
-        worldX, worldY, size,
-        entranceX, entranceY, entranceTile
-    );
+    ck_scripting_register_location(name, mapFile, music, worldX, worldY,
+			size, entranceX, entranceY, entranceTile);
 
     return 0;
 }
@@ -249,40 +250,6 @@ void ck_scripting_init() {
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
-
-	// // int mapIdx  = ck_config_next_map_index("data/data/maps.txt");
-	// // int areaIdx = ck_config_next_area_index("data/data/city.txt");
-	// int mapIdx  = 151;
-	// int areaIdx = 49;
-	//
-	// // 1500 + areaIdx (49)
-	// // ck_message_patch_add("worldmap.msg", 1549, "Test Cave");
-	//
-	// // 200 + 10 * areaIdx + entranceIdx
-	// // ck_message_patch_add("worldmap.msg", 690, "Test Cave Entrance");
-	//
-	//     // return getmsg(&gMapMessageList, &messageListItem, map * 3 + elevation + 200);
-	//
-	// ck_message_patch_add("game/map.msg", 1549, "Test Cave");
-	//
-	// std::string mapSection  = "Map "  + std::to_string(mapIdx);
-	// std::string areaSection = "Area " + std::to_string(areaIdx);
-	//
-	// std::cout << "[CK] Registering test location as "
-	// 	<< mapSection << " / " << areaSection << std::endl;
-	//
-	// ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", "Test Cave");
-	// ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    "TEST_CAVE");
-	// ck_config_patch_add("data\\maps.txt", mapSection, "music",       "07desert");
-	// ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
-	//
-	// ck_config_patch_add("data\\city.txt", areaSection, "area_name",               "Test Cave");
-	// ck_config_patch_add("data\\city.txt", areaSection, "world_pos",               "220,140");
-	// ck_config_patch_add("data\\city.txt", areaSection, "start_state",             "On");
-	// ck_config_patch_add("data\\city.txt", areaSection, "size",                    "Small");
-	// ck_config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",         "-1");
-	// ck_config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx",   "-1");
-	// ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",              "On,330,110,Test Cave,-1,19275,0");
 }
 
 // Exit

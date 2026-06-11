@@ -1,4 +1,6 @@
 #include "ck_config_patch.h"
+#include "db.h"
+
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -10,47 +12,49 @@ namespace fallout {
 
 static std::vector<CkConfigPatch> gPatches;
 
-static int ck_find_last_index(const std::string& filePath, const std::string& prefix) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        std::string upper = filePath;
-        for (char& c : upper) c = toupper(c);
-        file.open(upper);
-    }
-    if (!file.is_open()) {
-        std::cerr << "[CK Config Patch] Cannot open for index scan: " << filePath << std::endl;
+static int ck_find_last_index_vfs(const char* filePath, const char* prefix) {
+	fallout::File* f = fallout::fileOpen(filePath, "rt");
+    if (f == nullptr) {
+        std::cerr << "[CK Config Patch] VFS cannot open: " << filePath << std::endl;
         return -1;
     }
 
     int lastIndex = -1;
-    std::string line;
-    std::string searchPrefix = "[" + prefix + " ";
+    char line[1024];
+    std::string searchPrefix = std::string("[") + prefix + " ";
 
-    while (std::getline(file, line)) {
-        if (line.find(searchPrefix) == 0) {
+    while (fileReadString(line, sizeof(line), f) != nullptr) {
+        std::string s = line;
+        // trim \r\n
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) {
+            s.pop_back();
+        }
+
+        if (s.find(searchPrefix) == 0) {
             size_t start = searchPrefix.size();
-            size_t end   = line.find(']', start);
+            size_t end   = s.find(']', start);
             if (end != std::string::npos) {
                 try {
-                    int idx = std::stoi(line.substr(start, end - start));
+                    int idx = std::stoi(s.substr(start, end - start));
                     if (idx > lastIndex) lastIndex = idx;
                 } catch (...) {}
             }
         }
     }
 
+    fileClose(f);
     return lastIndex;
 }
 
 int ck_config_next_map_index(const std::string& filePath) {
-    int last = ck_find_last_index(filePath, "Map");
-    std::cout << "[CK Config Patch] Last map index in " << filePath << ": " << last << std::endl;
+    int last = ck_find_last_index_vfs(filePath.c_str(), "Map");
+    std::cout << "[CK Config Patch] Last map index: " << last << std::endl;
     return last == -1 ? 0 : last + 1;
 }
 
 int ck_config_next_area_index(const std::string& filePath) {
-    int last = ck_find_last_index(filePath, "Area");
-    std::cout << "[CK Config Patch] Last area index in " << filePath << ": " << last << std::endl;
+    int last = ck_find_last_index_vfs(filePath.c_str(), "Area");
+    std::cout << "[CK Config Patch] Last area index: " << last << std::endl;
     return last == -1 ? 0 : last + 1;
 }
 
