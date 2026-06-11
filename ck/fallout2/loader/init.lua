@@ -3,9 +3,9 @@ local rendering = require('ck.fallout2.rendering')
 local events    = require('ck.fallout2.events')
 local assets    = require('ck.fallout2.assets')
 
-package.path = package.path .. ";../?.lua;../?/init.lua"
+local validations = require('ck.fallout2.loader.validations')
 
-print("[CK Loader] Initializing Mod Loader...")
+local M = {}
 
 local active_mods = {
   "game_time_extender",
@@ -39,22 +39,29 @@ local function applyManifest(manifest)
 
   if manifest.locations then
     for _, loc in ipairs(manifest.locations) do
-      ckRegisterLocation(
-        loc.name,
-        loc.map_file,
-        loc.music      or "07desert",
-        loc.world_pos[1],
-        loc.world_pos[2],
-        loc.size       or "Small",
-        loc.entrance.x,
-        loc.entrance.y,
-        loc.entrance.tile
-      )
+      local is_valid, err_msg = validations.validateLocation(loc, manifest.id)
+
+      if is_valid then
+        ckRegisterLocation(
+          loc.name,
+          loc.map_file,
+          loc.music      or "07desert",
+          loc.world_pos[1],
+          loc.world_pos[2],
+          loc.size       or "Small",
+          loc.entrance.x,
+          loc.entrance.y,
+          loc.entrance.tile
+        )
+      else
+        print(string.format("[CK Loader] [ERROR] mod '%s' has wrong location definition: %s. Skipping.", manifest.id, err_msg))
+      end
     end
   end
 end
 
-function ckInitializeMods()
+function M.initialize()
+  print("[CK Loader] Initializing Mod Loader...")
   print("[CK Loader] Loading active modules...")
 
   for _, mod_folder in ipairs(active_mods) do
@@ -77,7 +84,10 @@ function ckInitializeMods()
   print("[CK Loader] All mods processed successfully!")
 end
 
-function ckReloadMods()
+-- function ckInitializeMods()
+-- end
+
+function M.reloadMods()
   print("[CK Loader] Reloading mods...")
 
   events.clear()
@@ -112,3 +122,7 @@ function ckReloadMods()
   events.emit("onMapEnter")
   print("[CK Loader] Reload complete!")
 end
+
+_G["ckReloadMods"] = M.reloadMods
+
+return M
