@@ -3,6 +3,7 @@
 
 #include "ck_scripting.h"
 #include "ck_config_patch.h"
+#include "ck_message_patch.h"
 
 // bindings
 #include "game_time/game_time_bindings.h"
@@ -188,6 +189,16 @@ void ck_scripting_init() {
 	int mapIdx  = 151;
 	int areaIdx = 49;
 
+	// 1500 + areaIdx (49)
+	// ck_message_patch_add("worldmap.msg", 1549, "Test Cave");
+
+	// 200 + 10 * areaIdx + entranceIdx
+	// ck_message_patch_add("worldmap.msg", 690, "Test Cave Entrance");
+
+	    // return getmsg(&gMapMessageList, &messageListItem, map * 3 + elevation + 200);
+
+	ck_message_patch_add("game/map.msg", 1549, "Test Cave");
+
 	std::string mapSection  = "Map "  + std::to_string(mapIdx);
 	std::string areaSection = "Area " + std::to_string(areaIdx);
 
@@ -195,17 +206,17 @@ void ck_scripting_init() {
 		<< mapSection << " / " << areaSection << std::endl;
 
 	ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", "Test Cave");
-	ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    "test_cave");
+	ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    "TEST_CAVE");
 	ck_config_patch_add("data\\maps.txt", mapSection, "music",       "07desert");
 	ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
 
 	ck_config_patch_add("data\\city.txt", areaSection, "area_name",               "Test Cave");
-	ck_config_patch_add("data\\city.txt", areaSection, "world_pos",               "200,140");
+	ck_config_patch_add("data\\city.txt", areaSection, "world_pos",               "220,140");
 	ck_config_patch_add("data\\city.txt", areaSection, "start_state",             "On");
 	ck_config_patch_add("data\\city.txt", areaSection, "size",                    "Small");
 	ck_config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",         "-1");
 	ck_config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx",   "-1");
-	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",              "On,130,410,Test Cave,-1,-1,0");
+	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",              "On,330,110,Test Cave,-1,19275,0");
 }
 
 // Exit
