@@ -36,6 +36,22 @@ local function applyManifest(manifest)
   if manifest.assets then
     assets.register(manifest.id, manifest.assets)
   end
+
+  if manifest.locations then
+    for _, loc in ipairs(manifest.locations) do
+      ckRegisterLocation(
+        loc.name,
+        loc.map_file,
+        loc.music      or "07desert",
+        loc.world_pos[1],
+        loc.world_pos[2],
+        loc.size       or "Small",
+        loc.entrance.x,
+        loc.entrance.y,
+        loc.entrance.tile
+      )
+    end
+  end
 end
 
 function ckInitializeMods()
