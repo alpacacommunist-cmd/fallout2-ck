@@ -58,10 +58,15 @@ void ck_map_register_path(const std::string& mapFile, const std::string& fullPat
 const char* ck_map_resolve_path(const char* name) {
     static char path[512];
 
-    // name = "TST_CV.MAP" — remove extension
-    std::string key = name;
-    auto dot = key.find('.');
-    if (dot != std::string::npos) key = key.substr(0, dot);
+    std::string fullName = name;
+    auto dot = fullName.find('.');
+    std::string key = (dot != std::string::npos) ? fullName.substr(0, dot) : fullName;
+    std::string ext = (dot != std::string::npos) ? fullName.substr(dot) : "";
+
+    // .MAP only — for .EDG, .SAV etc skip to engine
+    std::string extUpper = ext;
+    for (char& c : extUpper) c = toupper(c);
+    if (extUpper != ".MAP") return nullptr;
 
     auto it = gMapPaths.find(key);
     if (it == gMapPaths.end()) return nullptr;
