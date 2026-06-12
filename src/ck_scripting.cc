@@ -6,6 +6,7 @@
 #include "ck_config_patch.h"
 #include "ck_message_patch.h"
 #include "ck_map_registry.h"
+#include "ck_map_patch.h"
 
 // bindings
 #include "game_time/game_time_bindings.h"
@@ -255,6 +256,8 @@ void ck_scripting_init() {
 		std::cout << "[CK TEST] resolved: mapIdx=" << entry.mapIdx << " areaIdx=" << entry.areaIdx << std::endl;
 
 		registry.save("../ck_registry.json");
+
+		ck_map_patch_header("../mods/temple_of_trials/maps/TST_CV.MAP", "TST_CV.MAP", entry.mapIdx);
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
