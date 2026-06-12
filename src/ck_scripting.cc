@@ -23,8 +23,8 @@
 #include "ck_assets/ck_proto_cache.h"
 
 #include "display_monitor.h"
-#include "proto_instance.h"
 #include "tile.h"
+#include "settings.h"
 
 extern "C" {
 #include "../../src/vendor/luajit/src/lua.h"
@@ -209,26 +209,6 @@ static int l_ck_register_location(lua_State* L) {
     return 0;
 }
 
-
-int l_ck_spawn_critter(lua_State* L) {
-    // argument #1 from Lua
-    int pid = luaL_checkinteger(L, 1);
-
-    fallout::Object* critter;
-
-    if (fallout::objectCreateWithPid(&critter, pid) == 0) {
-        fallout::objectAttemptPlacement(
-            critter,
-            fallout::gDude->tile,
-            fallout::gDude->elevation, // originally fallout::gElevation
-            3
-        );
-    }
-
-	lua_pushboolean(L, true);
-    return 1;
-}
-
 // ck scripting reload mods
 void ck_reload_mods() {
     if (gLuaState == nullptr) {
@@ -285,7 +265,6 @@ void ck_scripting_init() {
 
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
-		lua_register(gLuaState, "ckSpawnCritter", l_ck_spawn_critter);
 		lua_register(gLuaState, "ckRegisterLocation", l_ck_register_location);
 
         // bootstrap
