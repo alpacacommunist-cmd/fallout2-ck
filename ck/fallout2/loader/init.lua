@@ -9,7 +9,7 @@ local M = {}
 
 local active_mods = {
   "game_time_extender",
-  "username",
+  "arroyo_expanded",
   "temple_of_trials"
 }
 
