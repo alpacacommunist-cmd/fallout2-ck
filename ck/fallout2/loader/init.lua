@@ -41,13 +41,16 @@ local function applyManifest(manifest)
     for _, loc in ipairs(manifest.locations) do
       local is_valid, err_msg = validations.validateLocation(loc, manifest.id)
 
+      local map_file_upper = loc.map_file:upper()
+
       if is_valid then
         ckRegisterLocation(
           manifest.id,
           manifest.maps,
 
           loc.name,
-          loc.map_file,
+          loc.sub_name or "Entrance",
+          map_file_upper,
           loc.music      or "07desert",
           loc.world_pos[1],
           loc.world_pos[2],

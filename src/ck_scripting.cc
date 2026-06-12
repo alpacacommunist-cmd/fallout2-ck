@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 
 #include "ck_scripting.h"
 
@@ -70,7 +71,7 @@ static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, 
 }
 
 void ck_scripting_register_location(const std::string& modId, const std::string& mapsDir,
-        const std::string& name, const std::string& mapFile,
+        const std::string& name, const std::string& subName, const std::string& mapFile,
         const std::string& music, int worldX, int worldY, const std::string& size,
         int entranceX, int entranceY, int entranceTile) {
 
@@ -88,14 +89,20 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
         nextAreaIdx = ck_config_next_area_index("data\\data\\city.txt");
     }
 
-    std::string registryKey = modId + ":" + mapFile;
-    bool mapEntryIsNew = !gMapRegistry.has(registryKey);
+	std::string mapFileUpper = mapFile;
+	std::transform(mapFileUpper.begin(), mapFileUpper.end(), mapFileUpper.begin(), ::toupper); // "TSTCV"
 
-    auto& entry = gMapRegistry.resolve(registryKey, nextMapIdx, nextAreaIdx);
-    if (mapEntryIsNew) {
-        nextMapIdx++;
-        nextAreaIdx++;
-    }
+	std::string mapFileLower = mapFile;
+	std::transform(mapFileLower.begin(), mapFileLower.end(), mapFileLower.begin(), ::tolower); // "tstcv"
+
+	std::string registryKey = modId + ":" + mapFileUpper;
+	bool mapEntryIsNew = !gMapRegistry.has(registryKey);
+
+	auto& entry = gMapRegistry.resolve(registryKey, nextMapIdx, nextAreaIdx);
+	if (mapEntryIsNew) {
+		nextMapIdx++;
+		nextAreaIdx++;
+	}
 
     int mapIdx  = entry.mapIdx;
     int areaIdx = entry.areaIdx;
@@ -108,7 +115,7 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 
     // maps.txt
     ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
-    ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    mapFile);
+    ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    mapFileUpper);
     ck_config_patch_add("data\\maps.txt", mapSection, "music",       music);
     ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
 
@@ -135,18 +142,18 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	// (mapIdx * 3) + 101 -> first line save
 	ck_message_patch_add("game/map.msg", mapMsgBase + 1, name);
 	// (mapIdx * 3) + 200 -> description
-	ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, "Infiltration");
+	ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, subName);
 
     // mod map file path
-    std::string mapFilePath = "../" + mapsDir + "/" + mapFile + ".MAP";
+    std::string mapFilePath = "../" + mapsDir + "/" + mapFileUpper + ".MAP";
 
     // only patch header once
     if (mapEntryIsNew) {
-		ck_map_patch_header(mapFilePath, mapFile + ".MAP", mapIdx);
+		ck_map_patch_header(mapFilePath, mapFileUpper + ".MAP", mapIdx);
     }
 
     // path for mapBuildPath hook
-    ck_map_register_path(mapFile, mapFilePath);
+    ck_map_register_path(mapFileLower, mapFilePath);
 
     // save registry after each registration
     gMapRegistry.save("../ck_registry.json");
@@ -186,16 +193,17 @@ static int l_ck_register_location(lua_State* L) {
 	const char* modId    = luaL_checkstring(L, 1);
 	const char* mapsDir  = luaL_checkstring(L, 2);
     const char* name         = luaL_checkstring(L, 3);
-    const char* mapFile      = luaL_checkstring(L, 4);
-    const char* music        = luaL_checkstring(L, 5);
-    int worldX               = luaL_checkinteger(L, 6);
-    int worldY               = luaL_checkinteger(L, 7);
-    const char* size         = luaL_checkstring(L, 8);
-    int entranceX            = luaL_checkinteger(L, 9);
-    int entranceY            = luaL_checkinteger(L, 10);
-    int entranceTile         = luaL_checkinteger(L, 11);
+	const char* subName     = luaL_checkstring(L, 4);
+    const char* mapFile      = luaL_checkstring(L, 5);
+    const char* music        = luaL_checkstring(L, 6);
+    int worldX               = luaL_checkinteger(L, 7);
+    int worldY               = luaL_checkinteger(L, 8);
+    const char* size         = luaL_checkstring(L, 9);
+    int entranceX            = luaL_checkinteger(L, 10);
+    int entranceY            = luaL_checkinteger(L, 11);
+    int entranceTile         = luaL_checkinteger(L, 12);
 
-    ck_scripting_register_location(modId, mapsDir, name, mapFile, music, worldX, worldY,
+    ck_scripting_register_location(modId, mapsDir, name, subName, mapFile, music, worldX, worldY,
 			size, entranceX, entranceY, entranceTile);
 
     return 0;
