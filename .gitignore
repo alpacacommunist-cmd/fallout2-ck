@@ -19,5 +19,7 @@ maps/
 
 /insights
 
-/src/vendor/sqlite3
-/src/vendor/luajit
+/src/vendor/sqlite3/**
+/src/vendor/luajit/**
+!/src/vendor/sqlite3/README
+!/src/vendor/luajit/README
