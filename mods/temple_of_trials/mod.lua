@@ -11,7 +11,7 @@ return {
   locations = {
     {
       name      = "Test Cave",
-      map_file  = "TST_CV",
+      map_file  = "TSTCV",
       music     = "07desert",
       world_pos = {220, 140},
       size      = "Small",

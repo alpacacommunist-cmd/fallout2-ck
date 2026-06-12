@@ -125,17 +125,24 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     ck_config_patch_add("data\\city.txt", areaSection, "size",                  size);
     ck_config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",       "-1");
     ck_config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx", "-1");
-    ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",            entrance);
+	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",            entrance);
 
-    // map.msg — city name
-    ck_message_patch_add("game/map.msg", 1500 + areaIdx, name);
+	// map.msg — city name
+	ck_message_patch_add("game/map.msg", 1500 + areaIdx, name);
+
+	int mapMsgBase = (mapIdx * 3) + 100;
+	ck_message_patch_add("game/map.msg", mapMsgBase, name);
+	// (mapIdx * 3) + 101 -> first line save
+	ck_message_patch_add("game/map.msg", mapMsgBase + 1, name);
+	// (mapIdx * 3) + 200 -> description
+	ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, "Infiltration");
 
     // mod map file path
     std::string mapFilePath = "../" + mapsDir + "/" + mapFile + ".MAP";
 
     // only patch header once
     if (mapEntryIsNew) {
-        ck_map_patch_header(mapFilePath, mapFile + ".MAP", mapIdx);
+		ck_map_patch_header(mapFilePath, mapFile + ".MAP", mapIdx);
     }
 
     // path for mapBuildPath hook

@@ -1,9 +1,12 @@
 /build/
 
+/ck_registry.json
+
 /gamedir/**
 !/gamedir/README
 
 assets/
+maps/
 
 *.o
 *.a
