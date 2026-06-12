@@ -23,6 +23,7 @@ add_library(fallout2-ck STATIC
 
     src/ce_config/ck_config_patch.cc
     src/ce_config/ck_message_patch.cc
+    src/ce_config/ck_map_registry.cc
 
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc

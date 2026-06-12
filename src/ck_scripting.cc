@@ -2,8 +2,10 @@
 #include <cstring>
 
 #include "ck_scripting.h"
+
 #include "ck_config_patch.h"
 #include "ck_message_patch.h"
+#include "ck_map_registry.h"
 
 // bindings
 #include "game_time/game_time_bindings.h"
@@ -245,6 +247,14 @@ void ck_scripting_init() {
         if (status != 0) {
             std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
         }
+
+		CkMapRegistry registry;
+		registry.load("../ck_registry.json");
+
+		auto& entry = registry.resolve("temple_of_trials:TEST_CAVE", 151, 49);
+		std::cout << "[CK TEST] resolved: mapIdx=" << entry.mapIdx << " areaIdx=" << entry.areaIdx << std::endl;
+
+		registry.save("../ck_registry.json");
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}
