@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "proto.h"
+#include "message.h"
 
 CkProtoCache gProtoCache;
 
@@ -64,62 +65,143 @@ bool CkProtoCache::createTables() {
 }
 
 bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
-	if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK) {
-		std::cerr << "[CK SQL Error] Cannot create database file: " << cachePath << std::endl;
-		return false;
-	}
+    if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK) {
+        std::cerr << "[CK SQL Error] Cannot create database file: " << cachePath << std::endl;
+        return false;
+    }
 
-	if (!createTables()) return false;
+    if (!createTables()) return false;
 
-	sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    fallout::MessageList msgLists[fallout::OBJ_TYPE_COUNT];
+    bool msgListLoaded[fallout::OBJ_TYPE_COUNT] = { false };
 
-	const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, name, filename, description) VALUES (?, ?, ?, ?, ?, ?);";
-	sqlite3_stmt* stmt = nullptr;
+    for (int i = 0; i < fallout::OBJ_TYPE_COUNT; i++) {
+        fallout::messageListInit(&msgLists[i]);
+    }
 
-	if (sqlite3_prepare_v2(db, insertSql, -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "[CK SQL Error] Failed to prepare insert statement" << std::endl;
-		sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-		return false;
-	}
+    auto loadMsg = [&](int type, const char* filename) {
+        std::string fullMsgPath = "game\\" + std::string(filename);
+        if (fallout::messageListLoad(&msgLists[type], const_cast<char*>(fullMsgPath.c_str()))) {
+            msgListLoaded[type] = true;
+            std::cout << "[CK Proto Cache] Successfully loaded text base: " << filename << " for Type: " << type << std::endl;
+        } else {
+            std::cerr << "[CK MSG WARNING] Failed to load msg file: " << fullMsgPath << std::endl;
+        }
+    };
 
-	for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
-		int maxId = fallout::proto_max_id(type);
-		if (maxId <= 1) continue;
+// --- File: fallout2-ce/src/obj_types.h ---
+// 17 | enum ObjectType {
+// 18 |     OBJ_TYPE_ITEM,
+// 19 |     OBJ_TYPE_CRITTER,
+// 20 |     OBJ_TYPE_SCENERY,
+// 21 |     OBJ_TYPE_WALL,
+// 22 |     OBJ_TYPE_TILE,
+// 23 |     OBJ_TYPE_MISC,
+// 24 |     OBJ_TYPE_INTERFACE,
+// 25 |     OBJ_TYPE_INVENTORY,
+// 26 |     OBJ_TYPE_HEAD,
+// 27 |     OBJ_TYPE_BACKGROUND,
+// 28 |     OBJ_TYPE_SKILLDEX,
+// 29 |     OBJ_TYPE_COUNT,
+// 30 | };
+//
+// ls data/text/english/game/*
+// data/text/english/game/CMBATAI2.BAK  data/text/english/game/LSGAME.MSG    data/text/english/game/PROTO.MSG
+// data/text/english/game/CMBATAI2.msg  data/text/english/game/MAP.MSG       data/text/english/game/pro_wall.msg
+// data/text/english/game/COMBATAI.BAK  data/text/english/game/MISC.MSG      data/text/english/game/quests.msg
+// data/text/english/game/COMBATAI.MSG  data/text/english/game/OPTIONS.MSG   data/text/english/game/SCRIPT.MSG
+// data/text/english/game/COMBAT.MSG    data/text/english/game/PERK.MSG      data/text/english/game/scrname.msg
+// data/text/english/game/custom.msg    data/text/english/game/PIPBOY.MSG    data/text/english/game/SKILLDEX.MSG
+// data/text/english/game/DBOX.MSG      data/text/english/game/pro_crit.msg  data/text/english/game/SKILL.MSG
+// data/text/english/game/EDITOR.MSG    data/text/english/game/pro_item.msg  data/text/english/game/STAT.MSG
+// data/text/english/game/INTRFACE.MSG  data/text/english/game/pro_misc.msg  data/text/english/game/TRAIT.MSG
+// data/text/english/game/INVENTRY.MSG  data/text/english/game/pro_scen.msg  data/text/english/game/WORLDMAP.MSG
+// data/text/english/game/ITEM.MSG      data/text/english/game/pro_tile.msg  data/text/english/game/WORLDMP.MSG
 
-		for (int id = 0; id < maxId; id++) {
-			int pid = (type << 24) | id;
-			fallout::Proto* proto = nullptr;
 
-			if (fallout::protoGetProto(pid, &proto) != 0 || proto == nullptr) {
-				continue;
-			}
+    loadMsg(fallout::OBJ_TYPE_ITEM,      "pro_item.msg"); // 0
+    loadMsg(fallout::OBJ_TYPE_CRITTER,   "pro_crit.msg"); // 1
+    loadMsg(fallout::OBJ_TYPE_SCENERY,   "pro_scen.msg"); // 2
+    loadMsg(fallout::OBJ_TYPE_WALL,      "pro_wall.msg"); // 3
+    loadMsg(fallout::OBJ_TYPE_TILE,      "pro_tile.msg"); // 4
+    loadMsg(fallout::OBJ_TYPE_MISC,      "pro_misc.msg"); // 5
 
-			int fid = proto->fid;
+    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
 
-			char textBuf[32];
-			snprintf(textBuf, sizeof(textBuf), "%08d.pro", id);
-			std::string filenameStr(textBuf);
+    const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, name, filename, description) VALUES (?, ?, ?, ?, ?, ?);";
+    sqlite3_stmt* stmt = nullptr;
 
-			std::string nameStr = "Proto_" + std::to_string(type) + "_" + std::to_string(id);
-			std::string descStr = "Description for proto " + std::to_string(pid);
+    if (sqlite3_prepare_v2(db, insertSql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "[CK SQL Error] Failed to prepare insert statement" << std::endl;
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+        for (int i = 0; i < fallout::OBJ_TYPE_COUNT; i++) fallout::messageListFree(&msgLists[i]);
+        return false;
+    }
 
-			sqlite3_bind_int(stmt, 1, pid);
-			sqlite3_bind_int(stmt, 2, fid);
-			sqlite3_bind_int(stmt, 3, type);
-			sqlite3_bind_text(stmt, 4, nameStr.c_str(), -1, SQLITE_TRANSIENT);
-			sqlite3_bind_text(stmt, 5, filenameStr.c_str(), -1, SQLITE_TRANSIENT);
-			sqlite3_bind_text(stmt, 6, descStr.c_str(), -1, SQLITE_TRANSIENT);
+    for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
+        int maxId = fallout::proto_max_id(type);
+        if (maxId <= 1) continue;
 
-			sqlite3_step(stmt);
-			sqlite3_reset(stmt);
-		}
-	}
+        for (int id = 0; id < maxId; id++) {
+            int pid = (type << 24) | id;
+            fallout::Proto* proto = nullptr;
 
-	sqlite3_finalize(stmt);
-	sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+            if (fallout::protoGetProto(pid, &proto) != 0 || proto == nullptr) {
+                continue;
+            }
 
-	std::cout << "[CK Proto Cache] Database cache successfully built from engine!" << std::endl;
-	return true;
+            int fid = proto->fid;
+
+            char textBuf[32];
+            snprintf(textBuf, sizeof(textBuf), "%08d.pro", id);
+            std::string filenameStr(textBuf);
+
+            std::string nameStr = "";
+            std::string descStr = "";
+
+            if (msgListLoaded[type]) {
+                fallout::MessageListItem msgItem;
+
+                // name = 100 + (id * 100), desc = 101 + (id * 2)
+                int nameMsgId = 100 + (id * 100);
+                msgItem.num = nameMsgId;
+                if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
+                    nameStr = msgItem.text;
+                }
+
+                int descMsgId = 100 + (id * 100) + 1;
+                msgItem.num = descMsgId;
+                if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
+                    descStr = msgItem.text;
+                }
+            }
+
+			// no text in MSG
+            if (nameStr.empty()) {
+                nameStr = "Proto_" + std::to_string(type) + "_" + std::to_string(id);
+            }
+
+            sqlite3_bind_int(stmt, 1, pid);
+            sqlite3_bind_int(stmt, 2, fid);
+            sqlite3_bind_int(stmt, 3, type);
+            sqlite3_bind_text(stmt, 4, nameStr.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 5, filenameStr.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 6, descStr.c_str(), -1, SQLITE_TRANSIENT);
+
+            sqlite3_step(stmt);
+            sqlite3_reset(stmt);
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+
+    for (int i = 0; i < fallout::OBJ_TYPE_COUNT; i++) {
+        fallout::messageListFree(&msgLists[i]);
+    }
+
+    std::cout << "[CK Proto Cache] Database cache successfully built" << std::endl;
+    return true;
 }
 
 CkProtoInfo CkProtoCache::getByPid(int pid) const {
