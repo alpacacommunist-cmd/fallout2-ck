@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
 
 // shift `index` MapHeader
 // version(4) + name(16) + enteringTile(4) + enteringElevation(4)
@@ -45,4 +46,26 @@ bool ck_map_patch_header(const std::string& mapFilePath, const std::string& mapN
               << " in " << mapFilePath << std::endl;
 
     return true;
+}
+
+static std::unordered_map<std::string, std::string> gMapPaths; // "TST_CV" -> "../mods/.../TST_CV.MAP"
+
+void ck_map_register_path(const std::string& mapFile, const std::string& fullPath) {
+    gMapPaths[mapFile] = fullPath;
+    std::cout << "[CK Map Patch] Registered path: " << mapFile << " -> " << fullPath << std::endl;
+}
+
+const char* ck_map_resolve_path(const char* name) {
+    static char path[512];
+
+    // name = "TST_CV.MAP" — remove extension
+    std::string key = name;
+    auto dot = key.find('.');
+    if (dot != std::string::npos) key = key.substr(0, dot);
+
+    auto it = gMapPaths.find(key);
+    if (it == gMapPaths.end()) return nullptr;
+
+    strncpy(path, it->second.c_str(), sizeof(path) - 1);
+    return path;
 }

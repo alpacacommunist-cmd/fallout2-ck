@@ -32,6 +32,7 @@ extern "C" {
 }
 
 CkAssetRegistry gAssetRegistry;
+CkMapRegistry gMapRegistry;
 
 // lua state global pointer, lives as long as game lives
 lua_State* gLuaState = nullptr;
@@ -68,20 +69,36 @@ static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, 
 	}
 }
 
-void ck_scripting_register_location(const std::string& name, const std::string& mapFile,
-    const std::string& music, int worldX, int worldY, const std::string& size,
-    int entranceX, int entranceY, int entranceTile) {
+void ck_scripting_register_location(const std::string& modId, const std::string& mapsDir,
+        const std::string& name, const std::string& mapFile,
+        const std::string& music, int worldX, int worldY, const std::string& size,
+        int entranceX, int entranceY, int entranceTile) {
 
-	static int nextMapIdx  = -1;
-	static int nextAreaIdx = -1;
+    static int nextMapIdx  = -1;
+    static int nextAreaIdx = -1;
+    static bool registryLoaded = false;
 
-	if (nextMapIdx == -1) {
-		nextMapIdx  = ck_config_next_map_index("data\\data\\maps.txt");
+    if (!registryLoaded) {
+        gMapRegistry.load("../ck_registry.json");
+        registryLoaded = true;
+    }
+
+    if (nextMapIdx == -1) {
+        nextMapIdx  = ck_config_next_map_index("data\\data\\maps.txt");
         nextAreaIdx = ck_config_next_area_index("data\\data\\city.txt");
-	}
+    }
 
-    int mapIdx  = nextMapIdx++;
-    int areaIdx = nextAreaIdx++;
+    std::string registryKey = modId + ":" + mapFile;
+    bool mapEntryIsNew = !gMapRegistry.has(registryKey);
+
+    auto& entry = gMapRegistry.resolve(registryKey, nextMapIdx, nextAreaIdx);
+    if (mapEntryIsNew) {
+        nextMapIdx++;
+        nextAreaIdx++;
+    }
+
+    int mapIdx  = entry.mapIdx;
+    int areaIdx = entry.areaIdx;
 
     std::string mapSection  = "Map "  + std::to_string(mapIdx);
     std::string areaSection = "Area " + std::to_string(areaIdx);
@@ -113,8 +130,19 @@ void ck_scripting_register_location(const std::string& name, const std::string& 
     // map.msg — city name
     ck_message_patch_add("game/map.msg", 1500 + areaIdx, name);
 
-    // copy .map file from mod to data/maps/
-    // modMapPath hardcoded test
+    // mod map file path
+    std::string mapFilePath = "../" + mapsDir + "/" + mapFile + ".MAP";
+
+    // only patch header once
+    if (mapEntryIsNew) {
+        ck_map_patch_header(mapFilePath, mapFile + ".MAP", mapIdx);
+    }
+
+    // path for mapBuildPath hook
+    ck_map_register_path(mapFile, mapFilePath);
+
+    // save registry after each registration
+    gMapRegistry.save("../ck_registry.json");
 }
 
 void ck_call_hook(const char* name);
@@ -148,17 +176,19 @@ int l_ck_log_print(lua_State* L) {
 }
 
 static int l_ck_register_location(lua_State* L) {
-    const char* name         = luaL_checkstring(L, 1);
-    const char* mapFile      = luaL_checkstring(L, 2);
-    const char* music        = luaL_checkstring(L, 3);
-    int worldX               = luaL_checkinteger(L, 4);
-    int worldY               = luaL_checkinteger(L, 5);
-    const char* size         = luaL_checkstring(L, 6);
-    int entranceX            = luaL_checkinteger(L, 7);
-    int entranceY            = luaL_checkinteger(L, 8);
-    int entranceTile         = luaL_checkinteger(L, 9);
+	const char* modId    = luaL_checkstring(L, 1);
+	const char* mapsDir  = luaL_checkstring(L, 2);
+    const char* name         = luaL_checkstring(L, 3);
+    const char* mapFile      = luaL_checkstring(L, 4);
+    const char* music        = luaL_checkstring(L, 5);
+    int worldX               = luaL_checkinteger(L, 6);
+    int worldY               = luaL_checkinteger(L, 7);
+    const char* size         = luaL_checkstring(L, 8);
+    int entranceX            = luaL_checkinteger(L, 9);
+    int entranceY            = luaL_checkinteger(L, 10);
+    int entranceTile         = luaL_checkinteger(L, 11);
 
-    ck_scripting_register_location(name, mapFile, music, worldX, worldY,
+    ck_scripting_register_location(modId, mapsDir, name, mapFile, music, worldX, worldY,
 			size, entranceX, entranceY, entranceTile);
 
     return 0;
@@ -248,16 +278,6 @@ void ck_scripting_init() {
         if (status != 0) {
             std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
         }
-
-		CkMapRegistry registry;
-		registry.load("../ck_registry.json");
-
-		auto& entry = registry.resolve("temple_of_trials:TEST_CAVE", 151, 49);
-		std::cout << "[CK TEST] resolved: mapIdx=" << entry.mapIdx << " areaIdx=" << entry.areaIdx << std::endl;
-
-		registry.save("../ck_registry.json");
-
-		ck_map_patch_header("../mods/temple_of_trials/maps/TST_CV.MAP", "TST_CV.MAP", entry.mapIdx);
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}

@@ -43,6 +43,9 @@ local function applyManifest(manifest)
 
       if is_valid then
         ckRegisterLocation(
+          manifest.id,
+          manifest.maps,
+
           loc.name,
           loc.map_file,
           loc.music      or "07desert",
