@@ -314,7 +314,7 @@ void ck_scripting_on_game_start() {
 
 void ck_scripting_on_engine_ready() {
     std::cout << "[CK] Engine ready, initializing proto cache..." << std::endl;
-    // gProtoCache.initialize("build/proto_cache.json");
+    gProtoCache.initialize("build/proto_cache.db");
 }
 
 void ck_scripting_on_game_loaded() {

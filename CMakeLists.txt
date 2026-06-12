@@ -1,6 +1,6 @@
 # fallout2-ck/CMakeLists.txt
 cmake_minimum_required(VERSION 3.15)
-project(fallout2-ck CXX)
+project(fallout2-ck C CXX)
 
 include(ExternalProject)
 set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
@@ -18,6 +18,8 @@ ExternalProject_Add(luajit_project
 add_subdirectory(fallout2-ce)
 
 add_library(fallout2-ck STATIC
+    src/vendor/sqlite3/sqlite3.c
+
     src/ck_scripting.cc
     src/ck_rendering.cc
 
@@ -50,6 +52,7 @@ target_include_directories(fallout2-ck PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
     "${LUAJIT_INCLUDE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src"
 )
