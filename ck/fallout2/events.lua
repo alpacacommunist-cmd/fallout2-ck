@@ -90,6 +90,15 @@ end
 
 function ckOnDialogStart(id)
   print("[CK Events] Dialogue started: " .. tostring(id))
+
+  ck.dialog.set_reply("Hello, traveler.")
+  ck.dialog.add_option("Who are you?")
+  ck.dialog.add_option("Goodbye.")
+
+  local choice = ck.dialog.go()
+  print("[CK Dialog] choice = " .. tostring(choice))
+
+  ck.dialog.exit()
 end
 
 -- 

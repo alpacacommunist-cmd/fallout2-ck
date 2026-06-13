@@ -17,6 +17,7 @@ events.on('onMapEnter', function()
   log.print("Entered map!")
 
   if (mapId == 4) then
-    map.spawnCritter(16777218, 19908, 1)
+    -- map.spawnCritter(16777218, 19908, 2000)
+    map.spawnCritter(16777219, 19908, 2000)
   end
 end)
