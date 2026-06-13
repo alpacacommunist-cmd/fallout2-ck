@@ -286,12 +286,29 @@ void ck_scripting_exit() {
     }
 }
 
+void ck_scripting_set_language() {
+    if (gLuaState == nullptr) return;
+
+    lua_getglobal(gLuaState, "ckSetLanguage");
+    if (!lua_isfunction(gLuaState, -1)) {
+        lua_pop(gLuaState, 1);
+        return;
+    }
+
+    std::cout << "[CK] System language: " << fallout::settings.system.language << std::endl;
+
+    lua_pushstring(gLuaState, fallout::settings.system.language.c_str());
+    lua_pcall(gLuaState, 1, 0, 0);
+}
+
 // this is called from fallout2-ce once interface is ready
 void ck_scripting_on_game_start() {
 	ck_call_hook("ckOnGameStart");
 }
 
 void ck_scripting_on_engine_ready() {
+	ck_scripting_set_language();
+
     std::cout << "[CK] Engine ready, initializing proto cache..." << std::endl;
     gProtoCache.initialize("build/proto_cache.db");
 }

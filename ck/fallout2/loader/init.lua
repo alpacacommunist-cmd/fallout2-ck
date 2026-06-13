@@ -2,6 +2,7 @@
 local rendering = require('ck.fallout2.rendering')
 local events    = require('ck.fallout2.events')
 local assets    = require('ck.fallout2.assets')
+local i18n      = require('ck.fallout2.i18n')
 
 local validations = require('ck.fallout2.loader.validations')
 
@@ -35,6 +36,10 @@ local function applyManifest(manifest)
 
   if manifest.assets then
     assets.register(manifest.id, manifest.assets)
+  end
+
+  if manifest.locale then
+    i18n.register(manifest.id, manifest.locale)
   end
 
   if manifest.locations then
