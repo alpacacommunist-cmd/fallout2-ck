@@ -15,16 +15,7 @@ extern "C" {
 extern lua_State* gLuaState;
 
 namespace ck {
-	static std::unordered_map<fallout::Object*, int> gLuaCritters;
-	void dialog_register_critter(fallout::Object* obj, int lua_script_id) {
-		if (obj != nullptr) gLuaCritters[obj] = lua_script_id;
-	}
-	bool dialog_is_lua_critter(fallout::Object* obj) {
-		if (obj == nullptr) return false;
-
-		return gLuaCritters.find(obj) != gLuaCritters.end();
-	}
-
+	const int OBJECT_LUA_MANAGED  = 0x08000000;
 	// not in header
 	typedef enum GameDialogReaction {
 		GAME_DIALOG_REACTION_GOOD = 49,
@@ -48,12 +39,7 @@ namespace ck {
 		if (speaker == nullptr || gLuaState == nullptr) return false;
 		std::cout << "[CK] speaker sid: " << speaker->sid << std::endl;
 
-		auto it = ck::gLuaCritters.find(speaker);
-		std::cout << "[CK] found lua critter: " << speaker->sid << std::endl;
-		if (it == ck::gLuaCritters.end()) return false; // skip to engine
-
-		int lua_script_id = it->second;
-		std::cout << "[CK] speaker lua id: " << lua_script_id << std::endl;
+		if (!(speaker->flags & OBJECT_LUA_MANAGED)) return false;
 
 		if (fallout::ckOpenDialogUI(speaker) == -1) {
 			std::cerr << "[CK Dialog Error]: Failed to initialize Dialogue UI!" << std::endl;
@@ -62,7 +48,7 @@ namespace ck {
 
 		lua_getglobal(gLuaState, "ckOnDialogStart");
 		if (lua_isfunction(gLuaState, -1)) {
-			lua_pushinteger(gLuaState, lua_script_id);
+			lua_pushinteger(gLuaState, 1000);
 			lua_pushlightuserdata(gLuaState, speaker);
 
 			if (lua_pcall(gLuaState, 2, 0, 0) != 0) {
