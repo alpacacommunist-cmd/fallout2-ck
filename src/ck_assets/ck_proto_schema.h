@@ -9,6 +9,7 @@ const char* const CK_PROTO_SCHEMA_SQL =
     "pid INTEGER PRIMARY KEY, "
     "fid INTEGER, "
     "type INTEGER, "
+    "sid INTEGER, "
     "name TEXT, "
     "filename TEXT, "
     "description TEXT);";

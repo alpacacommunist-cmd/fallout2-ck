@@ -128,7 +128,8 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
 
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
 
-    const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, name, filename, description) VALUES (?, ?, ?, ?, ?, ?);";
+    // const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, name, filename, description) VALUES (?, ?, ?, ?, ?, ?);";
+	const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, sid, name, filename, description) VALUES (?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(db, insertSql, -1, &stmt, nullptr) != SQLITE_OK) {
@@ -142,7 +143,7 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
         int maxId = fallout::proto_max_id(type);
         if (maxId <= 1) continue;
 
-        for (int id = 0; id < maxId; id++) {
+        for (int id = 1; id < maxId; id++) {
             int pid = (type << 24) | id;
             fallout::Proto* proto = nullptr;
 
@@ -162,14 +163,15 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
             if (msgListLoaded[type]) {
                 fallout::MessageListItem msgItem;
 
+				int msgIndex = id - 1;
                 // name = 100 + (id * 100), desc = 101 + (id * 2)
-                int nameMsgId = 100 + (id * 100);
+                int nameMsgId = 100 + (msgIndex * 100);
                 msgItem.num = nameMsgId;
                 if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
                     nameStr = msgItem.text;
                 }
 
-                int descMsgId = 100 + (id * 100) + 1;
+                int descMsgId = 100 + (msgIndex * 100) + 1;
                 msgItem.num = descMsgId;
                 if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
                     descStr = msgItem.text;
@@ -181,12 +183,15 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
                 nameStr = "Proto_" + std::to_string(type) + "_" + std::to_string(id);
             }
 
+			int sid = proto->sid;
+
             sqlite3_bind_int(stmt, 1, pid);
             sqlite3_bind_int(stmt, 2, fid);
             sqlite3_bind_int(stmt, 3, type);
-            sqlite3_bind_text(stmt, 4, nameStr.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 5, filenameStr.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 6, descStr.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int(stmt, 4, sid);
+            sqlite3_bind_text(stmt, 5, nameStr.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 6, filenameStr.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 7, descStr.c_str(), -1, SQLITE_TRANSIENT);
 
             sqlite3_step(stmt);
             sqlite3_reset(stmt);
