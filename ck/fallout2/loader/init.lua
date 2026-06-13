@@ -131,6 +131,8 @@ function M.reloadMods()
   end
 
   events.emit("onMapEnter")
+  events.emit("onModReload")
+
   print("[CK Loader] Reload complete!")
 end
 

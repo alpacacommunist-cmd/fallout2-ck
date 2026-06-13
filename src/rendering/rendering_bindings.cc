@@ -12,8 +12,14 @@ namespace {
 		return 0;
 	}
 
+	static int l_refresh_rendering(lua_State* L) {
+		ck_rendering_refresh();
+		return 0;
+	}
+
 	static const luaL_Reg rendering_lib[] = {
 		{ "clear", l_clear_rendering },
+		{ "refresh", l_refresh_rendering },
 		{ nullptr, nullptr }
 	};
 }

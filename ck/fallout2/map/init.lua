@@ -52,6 +52,8 @@ map.removeBlocker = function(tile) ck.map.remove_blocker(tile) end
 map.createObject  = function(artId, tile) ck.map.create_object(artId, tile) end
 map.spawnCritter  = function(pid) return ckSpawnCritter(pid) end
 
+map.renderingRefresh = function() return ck.rendering.refresh() end
+
 -- value = int  → create_object (raw fid, "place")
 -- value = string + mode="draw"  → add_scenery/add_tile directly
 -- value = string + mode="place" → assets.resolve

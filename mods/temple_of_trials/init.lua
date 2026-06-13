@@ -7,6 +7,10 @@ local map       = require('ck.fallout2.map')
 
 local outskirts = require('mods.temple_of_trials.outskirts')
 
+events.on('onModReload', function()
+  map.renderingRefresh()
+end)
+
 events.on('onMapEnter', function()
   if map.getId() ~= 126 then
     return

@@ -10,6 +10,7 @@ namespace fallout {
 
 void ck_rendering_render(fallout::Rect* rect);
 void ck_rendering_clear();
+void ck_rendering_refresh();
 
 struct CkSceneryInstance {
     int tile;

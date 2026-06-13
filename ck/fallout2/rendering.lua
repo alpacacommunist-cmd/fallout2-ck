@@ -12,4 +12,8 @@ function rendering.clear()
   ck.rendering.clear()
 end
 
+function rendering.refresh()
+  ck.rendering.refresh()
+end
+
 return rendering

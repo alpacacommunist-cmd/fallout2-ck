@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "light.h"
 #include "mouse.h"
-#include "object.h"
 #include "tile.h"
 
 #include "ck_rendering.h"
@@ -87,6 +86,10 @@ void ck_rendering_clear() {
 	ck_rendering_clear_art_cache();
 }
 
+void ck_rendering_refresh() {
+	fallout::tileWindowRefresh();
+}
+
 using namespace fallout;
 
 static void ck_rendering_scenery(fallout::Rect* rect);
@@ -96,7 +99,6 @@ void ck_rendering_render(fallout::Rect* rect) {
 	ck_rendering_scenery(rect);
 	ck_rendering_tiles(rect);
 }
-
 
 int ck_rendering_build_scenery_fid(int fid) {
     return buildFid(OBJ_TYPE_SCENERY, fid, 0, 0, 0);

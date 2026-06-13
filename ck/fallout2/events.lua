@@ -4,6 +4,7 @@ local unpack = table.unpack or unpack
 local events = {
   -- listeners stack
   listeners = {
+    onModReload = {},
     onGameStart = {},
     onDayPassed = {},
     onHourPassed = {},

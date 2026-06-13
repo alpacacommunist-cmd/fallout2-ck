@@ -23,7 +23,6 @@
 #include "ck_assets/ck_proto_cache.h"
 
 #include "display_monitor.h"
-#include "tile.h"
 #include "settings.h"
 
 extern "C" {
@@ -230,8 +229,6 @@ void ck_reload_mods() {
         lua_pop(gLuaState, 1);
 		return;
     }
-
-	fallout::tileWindowRefresh();
 }
 
 // Init
