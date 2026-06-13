@@ -35,10 +35,12 @@ add_library(fallout2-ck STATIC
     src/game_time/game_time_bindings.cc
     src/rendering/rendering_bindings.cc
     src/map/map_bindings.cc
+    src/dialog/dialog_bindings.cc
     src/ck_assets/assets_bindings.cc
 
     src/game_time/ck_game_time.cc
     src/map/ck_map.cc
+    src/dialog/ck_dialog.cc
     src/object/ck_object.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc

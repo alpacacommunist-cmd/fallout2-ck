@@ -13,6 +13,7 @@
 #include "game_time/game_time_bindings.h"
 #include "rendering/rendering_bindings.h"
 #include "map/map_bindings.h"
+#include "dialog/dialog_bindings.h"
 #include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
@@ -251,6 +252,9 @@ void ck_scripting_init() {
 		lua_pop(gLuaState, 1);
 
 		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
+		lua_pop(gLuaState, 1);
+
+		ck_requiref(gLuaState, "ck.dialog", luaopen_ck_dialog, 1);
 		lua_pop(gLuaState, 1);
 
 		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);

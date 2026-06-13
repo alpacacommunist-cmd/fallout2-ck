@@ -88,6 +88,10 @@ function ckOnTimeAdvance(hours, minutes)
   events.emit('onTimeAdvance', hours, minutes)
 end
 
+function ckOnDialogStart(id)
+  print("[CK Events] Dialogue started: " .. tostring(id))
+end
+
 -- 
 -- C <-> lua entry points END
 --
