@@ -4,6 +4,7 @@
 
 const int BLOCKER_PID=0x2000158; // dummy collision object
 const int BLOCKER_FID=0x02000015;
+const int LUA_SCRIPT_SID_START = 50000;
 
 static fallout::Object* ck_object_blocker_at(int tile) {
 	return fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
@@ -35,4 +36,17 @@ void ck_object_remove_blocker_at(int tile) {
 
 void ck_object_create_blocker_at(int tile) {
 	ck_object_create_at(BLOCKER_FID, tile);
+}
+
+void ck_object_critter_create(int pid, int tile, int lua_script_id) {
+	if (ck_object_blocking(tile)) return;
+
+    fallout::Object* critter = nullptr;
+
+    if (fallout::objectCreateWithPid(&critter, pid) == 0) {
+        fallout::objectSetLocation(critter, tile, fallout::gElevation, nullptr);
+
+        critter->sid = LUA_SCRIPT_SID_START + lua_script_id;
+        critter->flags |= fallout::OBJECT_NO_SAVE;
+    }
 }

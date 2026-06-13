@@ -80,7 +80,14 @@ namespace {
 		return 0;
 	}
 
+	int l_create_critter_pid(lua_State* L) {
+		int pid = luaL_checkinteger(L, 1);
+		int tile = luaL_checkinteger(L, 2);
+		int sid = luaL_checkinteger(L, 3);
 
+		ck_map_create_critter_pid(pid, tile, sid);
+		return 0;
+	}
 
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
@@ -91,6 +98,7 @@ namespace {
 		{ "create_blocker", l_create_blocker },
 		{ "create_object", l_create_object },
 		{ "create_object_fid", l_create_object },
+		{ "create_critter_pid", l_create_critter_pid },
         { nullptr,          nullptr }
     };
 

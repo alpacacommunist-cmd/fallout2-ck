@@ -11,6 +11,12 @@ events.on('onGameLoaded', function()
 end)
 
 events.on('onMapEnter', function()
-  log.print("Map id: " .. tostring(map.getId()))
+  local mapId = map.getId()
+
+  log.print("Map id: " .. tostring(mapId))
   log.print("Entered map!")
+
+  if (mapId == 4) then
+    map.spawnCritter(16777218, 19908, 1)
+  end
 end)

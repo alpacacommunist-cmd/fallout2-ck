@@ -16,6 +16,8 @@ void ck_map_remove_blocker(int tile);
 void ck_map_create_blocker(int tile);
 void ck_map_create_object(int fid, int tile);
 
+void ck_map_create_critter_pid(int pid, int tile, int sid);
+
 struct CkCameraBorders {
     bool enabled = false;
 

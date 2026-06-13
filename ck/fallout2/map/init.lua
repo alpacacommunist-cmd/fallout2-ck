@@ -50,7 +50,7 @@ map.addTile       = function(fid, tile) ck.map.add_tile(fid, tile) end
 map.createBlocker = function(tile) ck.map.create_blocker(tile) end
 map.removeBlocker = function(tile) ck.map.remove_blocker(tile) end
 map.createObject  = function(artId, tile) ck.map.create_object(artId, tile) end
-map.spawnCritter  = function(pid) return ckSpawnCritter(pid) end
+map.spawnCritter  = function(pid, tile, sid) return ck.map.create_critter_pid(pid, tile, sid) end
 
 map.renderingRefresh = function() return ck.rendering.refresh() end
 
