@@ -5,10 +5,10 @@
 #include "ck_scripting.h"
 #include "ck_utils.h"
 
-#include "ck_config_patch.h"
-#include "ck_message_patch.h"
-#include "ck_map_registry.h"
-#include "ck_map_patch.h"
+#include "ce_config/ck_config_patch.h"
+#include "ce_config/ck_message_patch.h"
+#include "ce_config/ck_map_registry.h"
+#include "ce_config/ck_map_patch.h"
 
 // bindings
 #include "rendering/rendering_bindings.h"
@@ -17,7 +17,7 @@
 #include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
-#include "map/ck_map.h"
+#include "object/ck_object_registry.h"
 
 #include "ck_assets/ck_frm.h"
 #include "ck_assets/ck_asset_registry.h"
@@ -223,6 +223,8 @@ void ck_reload_mods() {
         lua_pop(gLuaState, 1);
         return;
     }
+
+	gObjectRegistry.destroy_all();
 
     if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
 		std::cout << "[CK] Reload Error: " << lua_tostring(gLuaState, -1) << std::endl;

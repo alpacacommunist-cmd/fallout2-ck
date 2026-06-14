@@ -1,26 +1,25 @@
-#include <iostream>
-#include "ck_scripting.h"
+#include "ck_utils.h"
 #include "ck_rendering.h"
 #include "map/ck_map.h"
 #include "object/ck_object.h"
+#include "object/ck_object_registry.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "tile.h"
 
-extern "C" {
-#include "../../src/vendor/luajit/src/lua.h"
-}
-extern lua_State* gLuaState;
+#include <iostream>
 
 static CkCameraBorders gCameraBorders;
 
 void ck_scripting_on_map_enter() {
+	gObjectRegistry.destroy_all();
+
 	ck_rendering_clear();
 	ck_map_clear_camera_borders();
 
 	if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 
-	ck_call_hook("ckOnMapEnter");
+	ck_call_lua_hook("ckOnMapEnter");
 }
 
 void ck_map_add_scenery(int fid, int tile) {

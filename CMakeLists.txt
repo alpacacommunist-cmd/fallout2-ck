@@ -41,6 +41,7 @@ add_library(fallout2-ck STATIC
     src/map/ck_map.cc
     src/dialog/ck_dialog.cc
     src/object/ck_object.cc
+    src/object/ck_object_registry.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc

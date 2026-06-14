@@ -1,4 +1,3 @@
-#include "ck_scripting.h"
 #include "object/ck_object.h"
 #include "tile.h"
 
