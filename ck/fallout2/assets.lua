@@ -1,7 +1,7 @@
 local assets = {}
 
-function assets.register(modId, basePath)
-  ck.assets.register(modId, basePath)
+function assets.register(mod_id, base_path)
+  ck.assets.register(mod_id, base_path)
 end
 
 function assets.resolve(key)

@@ -16,12 +16,6 @@ extern lua_State* gLuaState;
 
 namespace ck {
 	const int OBJECT_LUA_MANAGED  = 0x08000000;
-	// not in header
-	typedef enum GameDialogReaction {
-		GAME_DIALOG_REACTION_GOOD = 49,
-		GAME_DIALOG_REACTION_NEUTRAL = 50,
-		GAME_DIALOG_REACTION_BAD = 51,
-	} GameDialogReaction;
 
 	static fallout::Program gDummyProgram;
 	int gLastDialogChoice = -1;
@@ -69,9 +63,9 @@ namespace ck {
 		fallout::gameDialogSetTextReply(dialog_get_dummy_program(), -4, text);
 	}
 
-	void dialog_add_option(const char* text) {
+	void dialog_add_option(const char* text, int reaction) {
 		// proc=0 — no int procedures
-		fallout::gameDialogAddTextOptionWithProc(-4, text, 0, GAME_DIALOG_REACTION_NEUTRAL);
+		fallout::gameDialogAddTextOptionWithProc(-4, text, 0, reaction);
 	}
 
 	int dialog_go() {

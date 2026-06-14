@@ -2,7 +2,7 @@
 #include "object/ck_object.h"
 #include "tile.h"
 
-const int BLOCKER_PID=0x2000158; // dummy collision object
+const int BLOCKER_PID=0x2000158;  // dummy collision object
 const int BLOCKER_FID=0x02000015;
 
 const int SCRIPT_ID           = 13;

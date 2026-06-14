@@ -2,24 +2,24 @@
 
 local respawn = {}
 
-local gameTime = require('ck.fallout2.game_time')
+local game_time = require('ck.fallout2.game_time')
 
-function respawn.markToday()
-  return gameTime.getTotalDays()
+function respawn.mark_today()
+  return game_time.get_total_days()
 end
 
-function respawn.isReady(lastRespawnDay, days)
-  return gameTime.hasDaysPassed(days, lastRespawnDay)
+function respawn.is_ready(last_respawn_day, days)
+  return game_time.has_days_passed(days, last_respawn_day)
 end
 
 function respawn.try(area, callback)
-  if not respawn.isReady(area.lastRespawnDay, area.respawnDays) then
+  if not respawn.is_ready(area.last_respawn_day, area.respawn_days) then
     return
   end
 
   callback()
 
-  area.lastRespawnDay = respawn.markToday()
+  area.last_respawn_day = respawn.mark_today()
 end
 
 

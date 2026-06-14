@@ -16,19 +16,19 @@ local events = {
 
 -- Public mod API
 -- Allows mod events subscription (fallout2.events.on('onGameStart'))
-function events.on(eventName, callback)
-  if events.listeners[eventName] then
-    table.insert(events.listeners[eventName], callback)
+function events.on(event_name, callback)
+  if events.listeners[event_name] then
+    table.insert(events.listeners[event_name], callback)
   else
-    print("[CK Warning] Attempted to subscribe to unknown event: " .. tostring(eventName))
+    print("[CK Warning] Attempted to subscribe to unknown event: " .. tostring(event_name))
   end
 end
 
-function events.emit(eventName, ...)
-  local listeners = events.listeners[eventName]
+function events.emit(event_name, ...)
+  local listeners = events.listeners[event_name]
 
   if not listeners then
-    print("[CK Warning] Attempted to emit unknown event: " .. tostring(eventName))
+    print("[CK Warning] Attempted to emit unknown event: " .. tostring(event_name))
     return
   end
 
@@ -40,14 +40,14 @@ function events.emit(eventName, ...)
     end, debug.traceback)
 
     if not ok then
-      print(string.format("[CK Events] ERROR in event '%s' callback #%d:\n%s", eventName, index, err))
+      print(string.format("[CK Events] ERROR in event '%s' callback #%d:\n%s", event_name, index, err))
     end
   end
 end
 
 function events.clear()
-  for eventName in pairs(events.listeners) do
-    events.listeners[eventName] = {}
+  for event_name in pairs(events.listeners) do
+    events.listeners[event_name] = {}
   end
 
   print("[CK Events] Cleared all listeners.")
@@ -92,7 +92,7 @@ function ckOnDialogStart(id)
   print("[CK Events] Dialogue started: " .. tostring(id))
 
   ck.dialog.set_reply("Hello, traveler.")
-  ck.dialog.add_option("Who are you?")
+  ck.dialog.add_option("Who are you?", 49)
   ck.dialog.add_option("Goodbye.")
 
   local choice = ck.dialog.go()

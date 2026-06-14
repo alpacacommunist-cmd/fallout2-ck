@@ -13,7 +13,8 @@ namespace {
 
     static int l_add_option(lua_State* L) {
         const char* text = luaL_checkstring(L, 1);
-        ck::dialog_add_option(text);
+		int reaction     = luaL_optinteger(L, 2, ck::GAME_DIALOG_REACTION_NEUTRAL);
+        ck::dialog_add_option(text, reaction);
         return 0;
     }
 

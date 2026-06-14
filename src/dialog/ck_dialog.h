@@ -10,7 +10,11 @@ namespace fallout {
 
 namespace ck {
 
-const int LUA_SCRIPT_SID_START = 50000;
+typedef enum GameDialogReaction {
+	GAME_DIALOG_REACTION_GOOD = 49,
+	GAME_DIALOG_REACTION_NEUTRAL = 50,
+	GAME_DIALOG_REACTION_BAD = 51,
+} GameDialogReaction;
 
 extern int gLastDialogChoice;
 
@@ -23,7 +27,7 @@ bool dialog_try_handle(fallout::Object* speaker);
 fallout::Program* dialog_get_dummy_program();
 
 void dialog_set_reply(const char* text);
-void dialog_add_option(const char* text);
+void dialog_add_option(const char* text, int reaction = GAME_DIALOG_REACTION_NEUTRAL);
 int  dialog_go();
 void dialog_exit();
 
