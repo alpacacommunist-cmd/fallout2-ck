@@ -32,7 +32,6 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_asset_registry.cc
     src/ck_assets/ck_proto_cache.cc
 
-    src/game_time/game_time_bindings.cc
     src/rendering/rendering_bindings.cc
     src/map/map_bindings.cc
     src/dialog/dialog_bindings.cc
@@ -73,5 +72,7 @@ foreach(TARGET fallout2-ce mapper-ce)
         target_sources(${TARGET} PRIVATE ${CE_BRIDGE_SOURCES})
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
         target_link_libraries(${TARGET} fallout2-ck)
+
+	set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE) # ffi
     endif()
 endforeach()

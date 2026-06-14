@@ -10,7 +10,6 @@
 #include "ck_map_patch.h"
 
 // bindings
-#include "game_time/game_time_bindings.h"
 #include "rendering/rendering_bindings.h"
 #include "map/map_bindings.h"
 #include "dialog/dialog_bindings.h"
@@ -248,8 +247,14 @@ void ck_scripting_init() {
 		ck_requiref(gLuaState, "ck.rendering", luaopen_ck_rendering, 1);
 		lua_pop(gLuaState, 1);
 
-		ck_requiref(gLuaState, "ck.game_time", luaopen_ck_game_time, 1);
-		lua_pop(gLuaState, 1);
+		// ffi test
+		lua_getglobal(gLuaState, "gLuaState"); // ck table
+		lua_getglobal(gLuaState, "ck");
+		lua_pushstring(gLuaState, "game_time");
+		lua_newtable(gLuaState);               // {}
+	    lua_settable(gLuaState, -3);           // ck.game_time = {}
+	    lua_pop(gLuaState, 1);
+		// ffi test end
 
 		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
 		lua_pop(gLuaState, 1);
