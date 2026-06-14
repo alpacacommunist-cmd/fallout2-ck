@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "ck_scripting.h"
+#include "ck_utils.h"
 
 #include "ck_config_patch.h"
 #include "ck_message_patch.h"
