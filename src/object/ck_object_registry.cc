@@ -26,7 +26,7 @@ int CkObjectRegistry::find_by_ptr(fallout::Object* ptr) const {
 void CkObjectRegistry::destroy_all() {
     int count = 0;
     for (auto& [id, managed] : objects) {
-        if (!managed.alive || managed.ptr == nullptr) continue;
+        if (managed.ptr == nullptr || !managed.alive) continue;
 
         fallout::objectDestroy(managed.ptr, nullptr);
 

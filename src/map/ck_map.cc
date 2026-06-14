@@ -56,8 +56,19 @@ void ck_map_create_object_fid(int fid, int tile) {
 }
 
 void ck_map_create_critter_pid(int pid, int tile, int sid) {
-	ck_object_critter_create(pid, tile, sid);
+	ck_object_create_critter(pid, tile, sid);
 }
+
+int ck_map_register_object(int artId, int tile) {
+	int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
+	return ck_object_register_object(fid, tile);
+}
+
+int ck_map_register_critter(int pid, int tile) {
+	return ck_object_register_critter(pid, tile);
+}
+
+// Camera start
 
 bool ck_map_is_camera_position_allowed(int tile) {
     if (!gCameraBorders.enabled) { return false; }
@@ -88,3 +99,5 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
 
 void ck_map_clear_camera_borders() { gCameraBorders = {}; }
 const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
+
+// Camera END

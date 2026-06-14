@@ -89,6 +89,27 @@ namespace {
 		return 0;
 	}
 
+	int l_register_object(lua_State* L) {
+		int artId = luaL_checkinteger(L, 1);
+		int tile  = luaL_checkinteger(L, 2);
+
+		int luaId = ck_map_register_object(artId, tile);
+		lua_pushinteger(L, luaId);
+
+		return 1;
+	}
+
+	int l_register_critter(lua_State* L) {
+		int pid = luaL_checkinteger(L, 1);
+		int tile = luaL_checkinteger(L, 2);
+
+		int luaId = ck_map_register_critter(pid, tile);
+		lua_pushinteger(L, luaId);
+
+		return 1;
+	}
+
+
     const luaL_Reg map_lib[] = {
 		{ "get_id", l_get_map_id },
 		{ "add_scenery", l_add_scenery },
@@ -99,6 +120,8 @@ namespace {
 		{ "create_object", l_create_object },
 		{ "create_object_fid", l_create_object },
 		{ "create_critter_pid", l_create_critter_pid },
+		{ "register_object", l_register_object },
+		{ "register_critter", l_register_critter },
         { nullptr,          nullptr }
     };
 

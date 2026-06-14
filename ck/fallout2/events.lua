@@ -8,6 +8,7 @@ local events = {
     onGameStart = {},
     onDayPassed = {},
     onHourPassed = {},
+    onBeforeGameLoad = {},
     onGameLoaded = {},
     onTimeAdvance = {},
     onMapEnter = {}
@@ -61,6 +62,11 @@ end
 function ckOnGameStart()
   print("[CK Events] Engine signaled: Game Start! Firing listeners...")
   events.emit('onGameStart')
+end
+
+function ckOnBeforeGameLoad()
+  print("[CK Events] Engine signaled: Game Loaded!")
+  events.emit('onBeforeGameLoad')
 end
 
 function ckOnGameLoaded()

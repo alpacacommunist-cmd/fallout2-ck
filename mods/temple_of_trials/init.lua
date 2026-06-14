@@ -4,6 +4,7 @@ print("[Mod] Loading Temple of Trials...")
 
 local events    = require('ck.fallout2.events')
 local map       = require('ck.fallout2.map')
+local assets = require('ck.fallout2.assets')
 
 local outskirts = require('mods.temple_of_trials.outskirts')
 
@@ -53,7 +54,8 @@ events.on('onMapEnter', function()
     G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile", block = false }
   })
 
-  map.placeObject("temple_of_trials:scenery/tree10", 19094)
+  asset = assets.resolve("temple_of_trials:scenery/tree10")
+  map.registerObject(asset.artId, 19094)
 
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))

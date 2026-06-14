@@ -13,6 +13,7 @@ void ck_scripting_exit();
 void ck_scripting_on_game_start();
 void ck_scripting_on_engine_ready();
 void ck_scripting_on_day_passed();
+void ck_scripting_on_before_game_load();
 void ck_scripting_on_game_loaded();
 void ck_scripting_on_map_enter();
 

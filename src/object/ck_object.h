@@ -6,9 +6,13 @@
 
 static fallout::Object* ck_object_blocker_at(int tile);
 bool ck_object_blocking(int tile);
+
+fallout::Object* ck_object_create_at(int fid, int tile);
+fallout::Object* ck_object_create_critter(int pid, int tile, int lua_script_id);
+
+int ck_object_register_object(int pid, int tile);
+int ck_object_register_critter(int pid, int tile);
+
 void ck_object_remove_blocker_at(int tile);
 void ck_object_create_blocker_at(int tile);
-void ck_object_create_at(int fid, int tile);
-
-void ck_object_critter_create(int pid, int tile, int lua_script_id);
 #endif

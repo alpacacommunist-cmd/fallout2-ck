@@ -216,6 +216,8 @@ void ck_reload_mods() {
         return;
     }
 
+	gObjectRegistry.destroy_all();
+
     lua_getglobal(gLuaState, "ckReloadMods");
 
     if (!lua_isfunction(gLuaState, -1)) {
@@ -223,8 +225,6 @@ void ck_reload_mods() {
         lua_pop(gLuaState, 1);
         return;
     }
-
-	gObjectRegistry.destroy_all();
 
     if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
 		std::cout << "[CK] Reload Error: " << lua_tostring(gLuaState, -1) << std::endl;
@@ -320,6 +320,12 @@ void ck_scripting_on_engine_ready() {
 
     std::cout << "[CK] Engine ready, initializing proto cache..." << std::endl;
     gProtoCache.initialize("build/proto_cache.db");
+}
+
+void ck_scripting_on_before_game_load() {
+	gObjectRegistry.destroy_all();
+
+	ck_call_hook("ckOnBeforeGameLoad");
 }
 
 void ck_scripting_on_game_loaded() {

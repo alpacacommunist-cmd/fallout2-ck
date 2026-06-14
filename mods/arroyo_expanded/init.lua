@@ -17,7 +17,8 @@ events.on('onMapEnter', function()
   log.print("Entered map!")
 
   if (mapId == 4) then
-    map.spawnCritter(16777218, 19908, 2000)
+    local npcId = map.registerCritter(16777218, 19908)
+    print("[CK] NPC ID: " .. tostring(npcId))
     -- map.spawnCritter(16777219, 19908, 2000)
   end
 end)
