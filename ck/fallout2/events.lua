@@ -94,18 +94,20 @@ function ckOnTimeAdvance(hours, minutes)
   events.emit('onTimeAdvance', hours, minutes)
 end
 
-function ckOnDialogStart(id)
-  print("[CK Events] Dialogue started: " .. tostring(id))
+-- function ckOnDialogStart(id)
+--   print("[CK Events] Dialogue started: " .. tostring(id))
+--
+--   dialogue.start(npcId)
+--   -- ck.dialog.set_reply("Hello, traveler.")
+--   -- ck.dialog.add_option("Who are you?", 49)
+--   -- ck.dialog.add_option("Goodbye.")
+--   --
+--   -- local choice = ck.dialog.go()
+--   -- print("[CK Dialog] choice = " .. tostring(choice))
+--   --
+--   -- ck.dialog.exit()
+-- end
 
-  ck.dialog.set_reply("Hello, traveler.")
-  ck.dialog.add_option("Who are you?", 49)
-  ck.dialog.add_option("Goodbye.")
-
-  local choice = ck.dialog.go()
-  print("[CK Dialog] choice = " .. tostring(choice))
-
-  ck.dialog.exit()
-end
 
 -- 
 -- C <-> lua entry points END

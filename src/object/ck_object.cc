@@ -7,7 +7,6 @@ const int BLOCKER_FID=0x02000015;
 
 const int SCRIPT_ID           = 13;
 const int SCRIPT_TYPE_CRITTER = 4;
-const int OBJECT_LUA_MANAGED  = 0x08000000;
 
 static fallout::Object* ck_object_blocker_at(int tile) {
 	return fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
@@ -45,7 +44,6 @@ fallout::Object* ck_object_create_critter(int pid, int tile, int lua_script_id) 
 		critter->sid = (SCRIPT_TYPE_CRITTER << 24) | SCRIPT_ID;
 
 		critter->flags |= fallout::OBJECT_NO_SAVE;
-		critter->flags |= OBJECT_LUA_MANAGED;
 
 		return critter;
 	}

@@ -1,4 +1,5 @@
 #include "dialog/ck_dialog.h"
+#include "object/ck_object_registry.h"
 
 #include "interpreter.h" // Program struct
 #include "game_dialog.h"
@@ -15,8 +16,6 @@ extern "C" {
 extern lua_State* gLuaState;
 
 namespace ck {
-	const int OBJECT_LUA_MANAGED  = 0x08000000;
-
 	static fallout::Program gDummyProgram;
 	int gLastDialogChoice = -1;
 
@@ -31,9 +30,9 @@ namespace ck {
 
 	bool dialog_try_handle(fallout::Object* speaker) {
 		if (speaker == nullptr || gLuaState == nullptr) return false;
-		std::cout << "[CK] speaker sid: " << speaker->sid << std::endl;
 
-		if (!(speaker->flags & OBJECT_LUA_MANAGED)) return false;
+		int lua_id = gObjectRegistry.find_by_ptr(speaker);
+		if (lua_id == -1) return false;
 
 		if (fallout::ckOpenDialogUI(speaker) == -1) {
 			std::cerr << "[CK Dialog Error]: Failed to initialize Dialogue UI!" << std::endl;
@@ -42,10 +41,9 @@ namespace ck {
 
 		lua_getglobal(gLuaState, "ckOnDialogStart");
 		if (lua_isfunction(gLuaState, -1)) {
-			lua_pushinteger(gLuaState, 1000);
-			lua_pushlightuserdata(gLuaState, speaker);
+			lua_pushinteger(gLuaState, lua_id);
 
-			if (lua_pcall(gLuaState, 2, 0, 0) != 0) {
+			if (lua_pcall(gLuaState, 1, 0, 0) != 0) {
 				std::cerr << "[CK Dialog Error]: " << lua_tostring(gLuaState, -1) << std::endl;
 				lua_pop(gLuaState, 1);
 			}
