@@ -128,7 +128,6 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
 
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
 
-    // const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, name, filename, description) VALUES (?, ?, ?, ?, ?, ?);";
 	const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, sid, name, filename, description) VALUES (?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt = nullptr;
 

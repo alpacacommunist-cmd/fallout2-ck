@@ -1,3 +1,4 @@
+#include "ck_ids.h"
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
 #include "tile.h"
@@ -34,7 +35,7 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 }
 void ck_object_create_persistent_at(int fid, int tile);
 
-fallout::Object* ck_object_create_critter(int pid, int tile, int lua_script_id) {
+fallout::Object* ck_object_create_critter(int pid, int tile) {
 	if (ck_object_blocking(tile)) return nullptr;
 
 	fallout::Object* critter = nullptr;
@@ -60,11 +61,18 @@ int ck_object_register_object(int pid, int tile) {
 }
 
 int ck_object_register_critter(int pid, int tile) {
-	fallout::Object* critter = ck_object_create_critter(pid, tile, 100);
+	fallout::Object* critter = ck_object_create_critter(pid, tile);
 
-	if (critter != nullptr) return gObjectRegistry.add(critter);
+	int lua_id = -1;
 
-	return -1;
+	if (critter != nullptr) {
+		lua_id = gObjectRegistry.add(critter);
+
+		int custom_sid = ck::make_sid(lua_id);
+		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
+	}
+
+	return lua_id;
 }
 
 void ck_object_remove_blocker_at(int tile) {

@@ -1,3 +1,5 @@
+#include "ck_ids.h"
+#include "ck_utils.h"
 #include "dialog/ck_dialog.h"
 #include "object/ck_object_registry.h"
 
@@ -34,23 +36,14 @@ namespace ck {
 		int lua_id = gObjectRegistry.find_by_ptr(speaker);
 		if (lua_id == -1) return false;
 
+		std::cout << "[CK Dialog]: Speaker sid: " << ck::clean_sid(speaker->sid) << std::endl;
+
 		if (fallout::ckOpenDialogUI(speaker) == -1) {
 			std::cerr << "[CK Dialog Error]: Failed to initialize Dialogue UI!" << std::endl;
 			return false;
 		}
 
-		lua_getglobal(gLuaState, "ckOnDialogStart");
-		if (lua_isfunction(gLuaState, -1)) {
-			lua_pushinteger(gLuaState, lua_id);
-
-			if (lua_pcall(gLuaState, 1, 0, 0) != 0) {
-				std::cerr << "[CK Dialog Error]: " << lua_tostring(gLuaState, -1) << std::endl;
-				lua_pop(gLuaState, 1);
-			}
-		} else {
-			lua_pop(gLuaState, 1);
-			std::cerr << "[CK Dialog Warning]: ckOnDialogStart is not defined in Lua!" << std::endl;
-		}
+		ck_call_lua_hook("ckOnDialogStart", lua_id);
 
 		fallout::ckCloseDialogUI();
 

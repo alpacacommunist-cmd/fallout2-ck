@@ -56,7 +56,7 @@ void ck_map_create_object_fid(int fid, int tile) {
 }
 
 void ck_map_create_critter_pid(int pid, int tile, int sid) {
-	ck_object_create_critter(pid, tile, sid);
+	ck_object_create_critter(pid, tile);
 }
 
 int ck_map_register_object(int artId, int tile) {
