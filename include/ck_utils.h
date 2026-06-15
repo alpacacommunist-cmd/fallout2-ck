@@ -41,3 +41,15 @@ void ck_call_lua_hook(const char* hook_name, Args... args) {
 		lua_pop(gLuaState, 1);
 	}
 }
+
+inline void ck_create_global_subtable(const char* global_name, const char* sub_table_name) {
+    if (gLuaState == nullptr) return;
+
+    lua_getglobal(gLuaState, global_name);
+    if (lua_istable(gLuaState, -1)) {
+        lua_pushstring(gLuaState, sub_table_name);
+        lua_newtable(gLuaState);
+        lua_settable(gLuaState, -3); // global_table[sub_table_name] = {}
+    }
+    lua_pop(gLuaState, 1); // - global_table
+}

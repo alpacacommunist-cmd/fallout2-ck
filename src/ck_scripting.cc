@@ -250,26 +250,12 @@ void ck_scripting_init() {
 		lua_pop(gLuaState, 1);
 
 		// ffi test
-		lua_getglobal(gLuaState, "gLuaState"); // ck table
-		lua_getglobal(gLuaState, "ck");
-		lua_pushstring(gLuaState, "game_time");
-		lua_newtable(gLuaState);               // {}
-	    lua_settable(gLuaState, -3);           // ck.game_time = {}
-	    lua_pop(gLuaState, 1);
+		ck_create_global_subtable("ck", "game_time");
+		ck_create_global_subtable("ck", "dialogue");
 		// ffi test end
 
 		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
 		lua_pop(gLuaState, 1);
-
-		// ck_requiref(gLuaState, "ck.dialog", luaopen_ck_dialog, 1);
-		// lua_pop(gLuaState, 1);
-		lua_getglobal(gLuaState, "gLuaState"); // ck table
-		lua_getglobal(gLuaState, "ck");
-		lua_pushstring(gLuaState, "dialogue");
-		lua_newtable(gLuaState);               // {}
-	    lua_settable(gLuaState, -3);           // ck.dialogue = {}
-	    lua_pop(gLuaState, 1);
-
 
 		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
 		lua_pop(gLuaState, 1);
