@@ -1,5 +1,7 @@
+#include "ck_api.h"
 #include "ck_ids.h"
 #include "ck_utils.h"
+
 #include "dialog/ck_dialog.h"
 #include "object/ck_object_registry.h"
 
@@ -62,20 +64,18 @@ namespace ck {
 } // namespace ck
 
 
-extern "C" {
-	void ck_dialog_set_reply(const char* text) {
-		ck::dialog_set_reply(text);
-	}
+void ck_dialog_set_reply(const char* text) {
+	ck::dialog_set_reply(text);
+}
 
-	void ck_dialog_add_option(const char* text, int reaction) {
-		ck::dialog_add_option(text, reaction);
-	}
+void ck_dialog_add_option(const char* text, int reaction) {
+	ck::dialog_add_option(text, reaction);
+}
 
-	int ck_dialog_go() {
-		return ck::dialog_go();
-	}
+int ck_dialog_go() {
+	return ck::dialog_go();
+}
 
-	void ck_dialog_exit() {
-		ck::dialog_exit();
-	}
+void ck_dialog_exit() {
+	ck::dialog_exit();
 }
