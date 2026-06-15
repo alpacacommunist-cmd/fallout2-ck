@@ -22,7 +22,7 @@ events.on('onMapEnter', function()
 
   local npc_id = map.register_critter(16777218, 19908, {
     name = "Alice",
-    description = "You see Alice."
+    description = "You see Alice. She knows erlang"
   })
 
   local npc_meta = "";

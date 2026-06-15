@@ -38,6 +38,7 @@ add_library(fallout2-ck STATIC
     src/game_time/ck_game_time.cc
     src/map/ck_map.cc
     src/dialog/ck_dialog.cc
+    src/script/ck_script.cc
     src/object/ck_object.cc
     src/object/ck_object_registry.cc
 
