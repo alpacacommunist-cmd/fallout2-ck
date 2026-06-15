@@ -34,7 +34,6 @@ add_library(fallout2-ck STATIC
 
     src/rendering/rendering_bindings.cc
     src/map/map_bindings.cc
-    src/dialog/dialog_bindings.cc
     src/ck_assets/assets_bindings.cc
 
     src/game_time/ck_game_time.cc

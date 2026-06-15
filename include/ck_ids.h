@@ -5,7 +5,7 @@
 #include "scripts.h"
 
 static const int CK_SID_BASE = 2000;
-static const int CK_SID_BASE = 10000;
+static const int CK_SID_LIMIT = 10000;
 
 namespace ck {
 

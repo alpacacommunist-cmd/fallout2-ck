@@ -3,19 +3,10 @@
 #include "dialog/ck_dialog.h"
 #include "object/ck_object_registry.h"
 
-#include "interpreter.h" // Program struct
 #include "game_dialog.h"
 
 #include <iostream>
 #include <algorithm>
-#include <unordered_map>
-
-extern "C" {
-#include "../../src/vendor/luajit/src/lua.h"
-#include "../../src/vendor/luajit/src/lauxlib.h"
-}
-
-extern lua_State* gLuaState;
 
 namespace ck {
 	static fallout::Program gDummyProgram;
@@ -69,3 +60,22 @@ namespace ck {
 	}
 
 } // namespace ck
+
+
+extern "C" {
+	void ck_dialog_set_reply(const char* text) {
+		ck::dialog_set_reply(text);
+	}
+
+	void ck_dialog_add_option(const char* text, int reaction) {
+		ck::dialog_add_option(text, reaction);
+	}
+
+	int ck_dialog_go() {
+		return ck::dialog_go();
+	}
+
+	void ck_dialog_exit() {
+		ck::dialog_exit();
+	}
+}
