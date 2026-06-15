@@ -1,9 +1,8 @@
 #include "ck_utils.h"
 #include "ck_rendering.h"
+#include "ck_debug_overlay/ck_debug_overlay.h"
 #include "map/ck_map.h"
 #include "object/ck_object.h"
-#include "object/ck_object_registry.h"
-#include "ck_debug_overlay/ck_debug_overlay.h"
 
 #include "tile.h"
 
@@ -38,37 +37,9 @@ void ck_map_add_tile(const std::string& key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-void ck_map_remove_blocker(int tile) {
-	ck_object_remove_blocker_at(tile);
+int ck_map_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
+	return ck_object_register_critter(pid, tile, meta);
 }
-
-void ck_map_create_blocker(int tile) {
-	ck_object_create_blocker_at(tile);
-}
-
-void ck_map_create_object(int artId, int tile) {
-	int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	ck_object_create_at(fid, tile);
-}
-
-void ck_map_create_object_fid(int fid, int tile) {
-	ck_object_create_at(fid, tile);
-}
-
-void ck_map_create_critter_pid(int pid, int tile, int sid) {
-	ck_object_create_critter(pid, tile);
-}
-
-int ck_map_register_object(int artId, int tile) {
-	int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	return ck_object_register_object(fid, tile);
-}
-
-int ck_map_register_critter(int pid, int tile) {
-	return ck_object_register_critter(pid, tile);
-}
-
-// Camera start
 
 bool ck_map_is_camera_position_allowed(int tile) {
     if (!gCameraBorders.enabled) { return false; }
@@ -88,6 +59,34 @@ bool ck_map_is_camera_position_allowed(int tile) {
 
 bool ck_map_has_camera_borders() { return gCameraBorders.enabled; }
 
+void ck_map_clear_camera_borders() { gCameraBorders = {}; }
+const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
+
+
+// ffi
+
+extern "C" {
+
+int ck_map_get_id() {
+	return fallout::mapGetCurrentMap();
+}
+
+void ck_map_add_scenery_fid(int fid, int tile) {
+	ck_rendering_add_scenery(fid, tile);
+}
+
+void ck_map_add_scenery_key(const char* key, int tile) {
+    ck_rendering_add_custom_scenery(key, tile);
+}
+
+void ck_map_add_tile_fid(int fid, int tile) {
+	ck_rendering_add_tile(fid, tile);
+}
+
+void ck_map_add_tile_key(const char* key, int tile) {
+    ck_rendering_add_custom_tile(key, tile);
+}
+
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
     gCameraBorders.enabled = true;
 
@@ -97,7 +96,33 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
     gCameraBorders.bottom = bottom;
 }
 
-void ck_map_clear_camera_borders() { gCameraBorders = {}; }
-const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
+void ck_map_remove_blocker(int tile) { ck_object_remove_blocker_at(tile); }
+void ck_map_create_blocker(int tile) { ck_object_create_blocker_at(tile); }
 
-// Camera END
+void ck_map_create_object(int artId, int tile) {
+    int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
+    ck_object_create_at(fid, tile);
+}
+
+void ck_map_create_object_fid(int fid, int tile) {
+	ck_object_create_at(fid, tile);
+}
+
+void ck_map_create_critter_pid(int pid, int tile, int sid) {
+	ck_object_create_critter(pid, tile);
+}
+
+int ck_map_register_object(int artId, int tile) {
+    int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
+    return ck_object_register_object(fid, tile);
+}
+
+int ck_map_register_critter(int pid, int tile, const char* name, const char* description) {
+    LuaCritterMeta meta;
+    meta.name = std::string(name);
+    meta.description = std::string(description);
+
+    return ck_object_register_critter(pid, tile, meta);
+}
+
+}

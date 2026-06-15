@@ -9,30 +9,30 @@ local assets = require('ck.fallout2.assets')
 local outskirts = require('mods.temple_of_trials.outskirts')
 
 events.on('onModReload', function()
-  map.renderingRefresh()
+  map.rendering_refresh()
 end)
 
 events.on('onMapEnter', function()
-  if map.getId() ~= 126 then
+  if map.get_id() ~= 126 then
     return
   end
 
-  map.setBorders(95, 113, 82, 110)
+  map.set_borders(95, 113, 82, 110)
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
-    map.addScenery(scenery.fid, scenery.tile)
+    map.add_scenery_fid(scenery.fid, scenery.tile)
   end
 
   for _, tile in ipairs(outskirts.mountainTiles) do
-    map.addTile(tile.fid, tile.tile)
+    map.add_tile_fid(tile.fid, tile.tile)
   end
 
   for _, tile in ipairs(outskirts.removeBlockers) do
-    map.removeBlocker(tile)
+    map.remove_blocker(tile)
   end
 
   for _, tile in ipairs(outskirts.createBlockers) do
-    map.createBlocker(tile)
+    map.create_blocker(tile)
   end
 
   -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
@@ -55,7 +55,7 @@ events.on('onMapEnter', function()
   })
 
   asset = assets.resolve("temple_of_trials:scenery/tree10")
-  map.registerObject(asset.artId, 19094)
+  map.register_object(asset.artId, 19094)
 
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))

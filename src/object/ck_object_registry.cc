@@ -4,9 +4,19 @@
 
 CkObjectRegistry gObjectRegistry;
 
-int CkObjectRegistry::add(fallout::Object* obj) {
+const LuaCritterMeta* CkObjectRegistry::get_meta(int lua_id) const {
+    auto it = objects.find(lua_id);
+    if (it == objects.end() || !it->second.alive) return nullptr;
+    return &it->second.meta;
+}
+
+int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
     int id = next_id++;
-    objects[id] = { obj, id, true };
+    objects[id] = { obj, id, true, meta };
+
+	std::cout << "[CK] Registering CRITTER META: name: " << meta.name << " description: " << meta.description
+		<< std::endl;
+
     return id;
 }
 

@@ -20,30 +20,28 @@ void ck_scripting_on_time_advance(int hours, int minutes) {
 }
 
 // ffi
-extern "C" {
-    int ck_game_get_year() {
-        int year = 0;
-        fallout::gameTimeGetDate(nullptr, nullptr, &year);
-        return year;
-    }
+int ck_game_get_year() {
+	int year = 0;
+	fallout::gameTimeGetDate(nullptr, nullptr, &year);
+	return year;
+}
 
-    int ck_game_get_day() {
-        int day = 0;
-        fallout::gameTimeGetDate(nullptr, &day, nullptr);
-        return day;
-    }
+int ck_game_get_day() {
+	int day = 0;
+	fallout::gameTimeGetDate(nullptr, &day, nullptr);
+	return day;
+}
 
-    int ck_game_get_month() {
-        int month = 0;
-        fallout::gameTimeGetDate(&month, nullptr, nullptr);
-        return month;
-    }
+int ck_game_get_month() {
+	int month = 0;
+	fallout::gameTimeGetDate(&month, nullptr, nullptr);
+	return month;
+}
 
-    int ck_game_get_hour() {
-        return fallout::gameTimeGetHour();
-    }
+int ck_game_get_hour() {
+	return fallout::gameTimeGetHour();
+}
 
-    int ck_game_get_time() {
-        return fallout::gameTimeGetTime();
-    }
+int ck_game_get_time() {
+	return fallout::gameTimeGetTime();
 }

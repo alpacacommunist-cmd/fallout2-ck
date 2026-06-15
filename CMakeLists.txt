@@ -33,7 +33,6 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_proto_cache.cc
 
     src/rendering/rendering_bindings.cc
-    src/map/map_bindings.cc
     src/ck_assets/assets_bindings.cc
 
     src/game_time/ck_game_time.cc

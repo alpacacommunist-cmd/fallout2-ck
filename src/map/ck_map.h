@@ -2,6 +2,9 @@
 #ifndef CK_SCRIPTING_MAP_H
 #define CK_SCRIPTING_MAP_H
 
+#include "ck_api.h"
+#include "object/ck_object_registry.h"
+
 #include <string>
 
 void ck_scripting_on_map_enter();
@@ -12,15 +15,6 @@ void ck_map_add_scenery(int fid, int tile);
 void ck_map_add_tile(int fid, int tile);
 void ck_map_add_tile(const std::string& key, int tile);
 
-void ck_map_remove_blocker(int tile);
-void ck_map_create_blocker(int tile);
-void ck_map_create_object(int fid, int tile);
-
-void ck_map_create_critter_pid(int pid, int tile, int sid);
-
-int ck_map_register_object(int pid, int tile);
-int ck_map_register_critter(int pid, int tile);
-
 struct CkCameraBorders {
     bool enabled = false;
 
@@ -30,11 +24,24 @@ struct CkCameraBorders {
     int bottom = 0;
 };
 
-void ck_map_set_camera_borders(int left, int right, int top, int bottom);
 void ck_map_clear_camera_borders();
 bool ck_map_is_camera_position_allowed(int tile);
 bool ck_map_has_camera_borders();
 
 const CkCameraBorders& ck_map_get_camera_borders();
+
+CK_API int  ck_map_get_id();
+CK_API void ck_map_add_scenery_fid(int fid, int tile);
+CK_API void ck_map_add_scenery_key(const char* key, int tile);
+CK_API void ck_map_add_tile_fid(int fid, int tile);
+CK_API void ck_map_add_tile_key(const char* key, int tile);
+CK_API void ck_map_set_camera_borders(int left, int right, int top, int bottom);
+CK_API void ck_map_remove_blocker(int tile);
+CK_API void ck_map_create_blocker(int tile);
+CK_API void ck_map_create_object(int artId, int tile);
+CK_API void ck_map_create_object_fid(int fid, int tile);
+CK_API void ck_map_create_critter_pid(int pid, int tile, int sid);
+CK_API int  ck_map_register_object(int artId, int tile);
+CK_API int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
 
 #endif

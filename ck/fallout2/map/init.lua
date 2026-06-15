@@ -1,10 +1,54 @@
 -- ck/fallout2/map/init.lua
+local ffi = require("ffi")
+
+ffi.cdef[[
+  int  ck_map_get_id();
+  void ck_map_add_scenery_fid(int fid, int tile);
+  void ck_map_add_scenery_key(const char* key, int tile);
+  void ck_map_add_tile_fid(int fid, int tile);
+  void ck_map_add_tile_key(const char* key, int tile);
+  void ck_map_set_camera_borders(int left, int right, int top, int bottom);
+  void ck_map_remove_blocker(int tile);
+  void ck_map_create_blocker(int tile);
+  void ck_map_create_object(int fid, int tile);
+  void ck_map_create_object_fid(int fid, int tile);
+  void ck_map_create_critter_pid(int pid, int tile, int sid);
+  int  ck_map_register_object(int artId, int tile);
+  int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
+]]
+
+local C = ffi.C
 
 local geometry = require('ck.fallout2.map.geometry')
 local tools    = require('ck.fallout2.map.tools')
 local assets   = require('ck.fallout2.assets')
+
 local map      = {}
 
+map.get_id            = C.ck_map_get_id
+map.set_borders       = C.ck_map_set_camera_borders
+map.add_tile_fid      = C.ck_map_add_tile_fid
+map.add_tile_key      = C.ck_map_add_tile_key
+map.add_scenery_fid   = C.ck_map_add_scenery_fid
+map.add_scenery_key   = C.ck_map_add_scenery_key
+map.create_object     = C.ck_map_create_object
+map.create_object_fid = C.ck_map_create_object_fid
+map.create_blocker    = C.ck_map_create_blocker
+map.remove_blocker    = C.ck_map_remove_blocker
+map.register_object   = C.ck_map_register_object
+map.rendering_refresh = ck.rendering.refresh
+
+map.register_critter = function(pid, tile, meta)
+  local name = ""
+  local description = ""
+
+  if type(meta) == "table" then
+    name        = meta.name or name
+    description = meta.description or description
+  end
+
+  return C.ck_map_register_critter(pid, tile, name, description)
+end
 
 -- apply bindings to `tools`
 tools._applyValue = function(value, objType, block, tile, mode)
@@ -13,63 +57,32 @@ tools._applyValue = function(value, objType, block, tile, mode)
   -- artId
   if type(value) == "number" then
     if objType == "tile" then
-      ck.map.add_tile(value, tile)
+      map.add_tile_fid(value, tile)
     else
-      ck.map.create_object(value, tile)
+      map.create_object(value, tile)
     end
   else
     asset = assets.resolve(value)
     -- assets key
     -- tiles
     if objType == "tile" or (asset and asset.isTile) then
-      ck.map.add_tile(value, tile)
+      map.add_tile_key(value, tile)
 
       return
     end
     -- scenery
     if mode == "draw" or not asset or asset.fid == -1 then
-      ck.map.add_scenery(value, tile)
+      map.add_scenery_fid(value, tile)
     else
-      ck.map.create_object_fid(asset.fid, tile)
+      map.create_object_fid(asset.fid, tile)
     end
   end
 
-  if block then ck.map.create_blocker(tile) end
+  if block then map.create_blocker(tile) end
 end
 
 tools._onClear = function(tile)
-  ck.map.remove_blocker(tile)
-end
-
--- public API
-map.getId      = function() return ck.map.get_id() end
-map.setBorders = function(l, r, t, b) ck.map.set_camera_borders(l, r, t, b) end
-
-map.addScenery    = function(fid, tile) ck.map.add_scenery(fid, tile) end
-map.addTile       = function(fid, tile) ck.map.add_tile(fid, tile) end
-map.createBlocker = function(tile) ck.map.create_blocker(tile) end
-map.removeBlocker = function(tile) ck.map.remove_blocker(tile) end
-map.createObject  = function(artId, tile) ck.map.create_object(artId, tile) end
-map.spawnCritter  = function(pid, tile, sid) return ck.map.create_critter_pid(pid, tile, sid) end
-map.registerObject  = function(artId, tile) return ck.map.register_object(artId, tile) end
-map.registerCritter  = function(pid, tile) return ck.map.register_critter(pid, tile) end
-
-map.renderingRefresh = function() return ck.rendering.refresh() end
-
--- value = int  → create_object (raw fid, "place")
--- value = string + mode="draw"  → add_scenery/add_tile directly
--- value = string + mode="place" → assets.resolve
---     fid found  → create_object (transparency, collision)
---     fid not found → add_scenery/add_tile (render mods .frm)
-
-function map.placeObject(assetKey, tile)
-  local asset = assets.resolve(assetKey)
-
-  if asset and asset.fid ~= -1 then
-    ck.map.create_object_fid(asset.fid, tile)
-  else
-    ck.map.add_scenery(assetKey, tile)
-  end
+  map.remove_blocker(tile)
 end
 
 map.geometry = geometry

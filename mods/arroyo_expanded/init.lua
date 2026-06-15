@@ -13,15 +13,21 @@ events.on('onGameLoaded', function()
 end)
 
 events.on('onMapEnter', function()
-  local mapId = map.getId()
+  local map_id = map.get_id()
 
-  log.print("Map id: " .. tostring(mapId))
+  log.print("Map id: " .. tostring(map_id))
   log.print("Entered map!")
 
-  if mapId ~= 4 then return end
+  if map_id ~= 4 then return end
 
-  local npc_id = map.registerCritter(16777218, 19908)
-  print("[CK] NPC ID: " .. tostring(npcId))
+  local npc_id = map.register_critter(16777218, 19908, {
+    name = "Alice",
+    description = "You see Alice."
+  })
+
+  local npc_meta = "";
+
+  print("[CK] NPC ID: " .. tostring(npc_id))
 
   dialogue.register(npc_id, function(ctx)
     local askedAboutQuest = false

@@ -12,7 +12,6 @@
 
 // bindings
 #include "rendering/rendering_bindings.h"
-#include "map/map_bindings.h"
 #include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
@@ -252,10 +251,8 @@ void ck_scripting_init() {
 		// ffi test
 		ck_create_global_subtable("ck", "game_time");
 		ck_create_global_subtable("ck", "dialogue");
+		ck_create_global_subtable("ck", "map");
 		// ffi test end
-
-		ck_requiref(gLuaState, "ck.map", luaopen_ck_map, 1);
-		lua_pop(gLuaState, 1);
 
 		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
 		lua_pop(gLuaState, 1);
