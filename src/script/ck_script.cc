@@ -101,7 +101,9 @@ namespace ck {
 } // namespace ck
 
 // ffi
+extern "C" {
 void ck_dialog_set_reply(const char* text) { ck::dialog_set_reply(text); }
 void ck_dialog_add_option(const char* text, int reaction) { ck::dialog_add_option(text, reaction); }
 int ck_dialog_go() { return ck::dialog_go(); }
 void ck_dialog_exit() { ck::dialog_exit(); }
+}
