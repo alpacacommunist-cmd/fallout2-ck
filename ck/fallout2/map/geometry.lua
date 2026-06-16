@@ -73,4 +73,48 @@ function geometry.tilesInRadius(centerTile, radius)
   return queue
 end
 
+function geometry.distance(tileA, tileB)
+  local x1, y1 = geometry.tileToXY(tileA)
+  local x2, y2 = geometry.tileToXY(tileB)
+
+  local z1 = y1 - math.floor(x1 / 2)
+  local z2 = y2 - math.floor(x2 / 2)
+
+  local dx = x1 - x2
+  local dz = z1 - z2
+  local dy = (-x1 - z1) - (-x2 - z2)
+
+  return math.max(math.abs(dx), math.abs(dy), math.abs(dz))
+end
+
+function geometry.tilesInRect(left, right, top, bottom)
+  local tiles = {}
+  for y = top, bottom do
+    for x = left, right do
+      if x >= 0 and x < 200 and y >= 0 and y < 200 then
+        table.insert(tiles, geometry.xyToTile(x, y))
+      end
+    end
+  end
+  return tiles
+end
+
+function geometry.line(tileA, tileB)
+  local dist = geometry.distance(tileA, tileB)
+  local list = {}
+  if dist == 0 then return {tileA} end
+
+  local x1, y1 = geometry.tileToXY(tileA)
+  local x2, y2 = geometry.tileToXY(tileB)
+
+  for i = 0, dist do
+    local t = i / dist
+    -- line interpolation xy
+    local cx = math.floor(x1 + (x2 - x1) * t + 0.5)
+    local cy = math.floor(y1 + (y2 - y1) * t + 0.5)
+    table.insert(list, geometry.xyToTile(cx, cy))
+  end
+  return list
+end
+
 return geometry
