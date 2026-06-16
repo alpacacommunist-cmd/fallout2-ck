@@ -13,49 +13,59 @@ events.on('onModReload', function()
 end)
 
 events.on('onMapEnter', function()
-  if map.get_id() ~= 126 then
-    return
-  end
+  if map.get_id() ~= 126 then return end
 
   map.set_borders(95, 113, 82, 110)
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
-    map.add_scenery_fid(scenery.fid, scenery.tile)
+    map.place(scenery.fid, scenery.tile, { mode = "draw" })
   end
 
   for _, tile in ipairs(outskirts.mountainTiles) do
-    map.add_tile_fid(tile.fid, tile.tile)
+    map.place(tile.fid, tile.tile, { type = "tile" })
   end
 
-  for _, tile in ipairs(outskirts.removeBlockers) do
-    map.remove_blocker(tile)
-  end
+  for _, tile in ipairs(outskirts.removeBlockers) do map.remove_blocker(tile) end
+  for _, tile in ipairs(outskirts.createBlockers) do map.create_blocker(tile) end
 
-  for _, tile in ipairs(outskirts.createBlockers) do
-    map.create_blocker(tile)
-  end
+  map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
+  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
+    { type = "tile" })
 
-  -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
-  map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
-  -- map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
-  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"})
-
-
-  local forestLeft = {
+  map.tools.spawnMask(17516, {
     "M MMM  MM  M",
     "  MM   MMM  ",
     "   mm  mm   ",
     "GGG      GG "
-  }
-
-  map.tools.spawnMask(17516, forestLeft, {
-    M = { assets = {"temple_of_trials:scenery/tree10"}, type = "scenery", block = true },
-    m = { assets = {"temple_of_trials:scenery/tree11"}, type = "scenery", block = true },
-    G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile", block = false }
+  }, {
+    M = { assets = {"temple_of_trials:scenery/tree10"}, block = true },
+    m = { assets = {"temple_of_trials:scenery/tree11"}, block = true },
+    G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile" }
   })
 
-  asset = assets.resolve("temple_of_trials:scenery/tree10")
-  map.register_object(asset.artId, 19094)
+  map.place("temple_of_trials:scenery/tree10", 19094)
+
+  -- map.tools.spawnBrush(15290, 8, 0.7, {263, 264})
+  -- map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958})
+  -- map.tools.spawnBrush(18313, 2, 0.3, {956, 957, 958})
+  -- map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"})
+
+
+  -- local forestLeft = {
+  --   "M MMM  MM  M",
+  --   "  MM   MMM  ",
+  --   "   mm  mm   ",
+  --   "GGG      GG "
+  -- }
+  --
+  -- map.tools.spawnMask(17516, forestLeft, {
+  --   M = { assets = {"temple_of_trials:scenery/tree10"}, type = "scenery", block = true },
+  --   m = { assets = {"temple_of_trials:scenery/tree11"}, type = "scenery", block = true },
+  --   G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile", block = false }
+  -- })
+  --
+  -- asset = assets.resolve("temple_of_trials:scenery/tree10")
+  -- map.register_object(asset.artId, 19094)
 
   print("[Temple] Temple of Trials loaded.")
   -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))

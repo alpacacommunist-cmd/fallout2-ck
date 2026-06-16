@@ -1,15 +1,17 @@
--- ck/fallout2/map/tools.lua
-
 local geometry = require('ck.fallout2.map.geometry')
 local tools    = {}
+local map_ref  = nil
 
-function tools.spawnBrush(centerTile, radius, density, fids)
+function tools.init(map_instance)
+  map_ref = map_instance
+end
+
+function tools.spawnBrush(centerTile, radius, density, pool, config)
   local tiles = geometry.tilesInRadius(centerTile, radius)
-
   for _, tile in ipairs(tiles) do
     if tile ~= centerTile and math.random() <= density then
-      local value = fids[math.random(#fids)]
-      tools._applyValue(value, false, false, tile)
+      local value = pool[math.random(#pool)]
+      map_ref.place(value, tile, config)
     end
   end
 end
@@ -22,7 +24,7 @@ function tools.spawnMask(anchorTile, maskTable, mapping)
     local dy = y - 1
     for x = 1, #row do
       local char = row:sub(x, x)
-      local dx   = x - 1
+      local dx = x - 1
 
       local tx = ax - dx - math.floor((ay + dy) / 2) + math.floor(ay / 2)
       local ty = ay + dy
@@ -31,33 +33,20 @@ function tools.spawnMask(anchorTile, maskTable, mapping)
         local tile = geometry.xyToTile(tx, ty)
 
         if char == " " then
-          tools._onClear(tile)
+          map_ref.remove_blocker(tile)
         elseif mapping[char] then
-          tools._applyElement(mapping[char], tile)
+          local element = mapping[char]
+          local pool = element.assets or element.fids
+
+          if pool then
+            local value = pool[math.random(#pool)]
+            map_ref.place(value, tile, element)
+          end
         end
+
       end
     end
   end
-end
-
--- `tools` gets below functions from outside upon init
--- `tools` knows geometry, doesn't know bindings
-function tools._applyElement(element, tile)
-  local source = element.assets or element.fids
-  if not source then return end
-
-  local value = source[math.random(#source)]
-  local mode  = element.mode or "place"
-
-  tools._applyValue(value, element.type or "scenery", element.block or false, tile, mode)
-end
-
-function tools._applyValue(value, objType, block, tile, mode)
-  -- overloaded in map/init.lua
-end
-
-function tools._onClear(tile)
-  -- overloaded in map/init.lua
 end
 
 return tools

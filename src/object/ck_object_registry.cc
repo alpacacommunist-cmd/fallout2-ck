@@ -15,11 +15,11 @@ int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
     int id = next_id++;
     objects[id] = { obj, id, true, meta };
 
-	std::cout << "[CK] Registering CRITTER META: name: " << meta.name << " description: " << meta.description
-		<< std::endl;
-
-	std::cout << "[CK] Registering CRITTER META: sid: " << ck::clean_sid(obj->sid)
-		<< std::endl;
+	// std::cout << "[CK] Registering CRITTER META: name: " << meta.name << " description: " << meta.description
+	// 	<< std::endl;
+	//
+	// std::cout << "[CK] Registering CRITTER META: sid: " << ck::clean_sid(obj->sid)
+	// 	<< std::endl;
 
     return id;
 }

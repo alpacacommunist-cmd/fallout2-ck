@@ -19,11 +19,13 @@ ffi.cdef[[
 
 local C = ffi.C
 
-local geometry = require('ck.fallout2.map.geometry')
-local tools    = require('ck.fallout2.map.tools')
-local assets   = require('ck.fallout2.assets')
+local map  = {
+  geometry = require('ck.fallout2.map.geometry'),
+  tools    = require('ck.fallout2.map.tools'),
+  assets   = require('ck.fallout2.assets')
+}
 
-local map      = {}
+map.tools.init(map)
 
 map.get_id            = C.ck_map_get_id
 map.set_borders       = C.ck_map_set_camera_borders
@@ -50,42 +52,35 @@ map.register_critter = function(pid, tile, meta)
   return C.ck_map_register_critter(pid, tile, name, description)
 end
 
--- apply bindings to `tools`
-tools._applyValue = function(value, objType, block, tile, mode)
-  mode  = mode or "place"
 
-  -- artId
-  if type(value) == "number" then
-    if objType == "tile" then
-      map.add_tile_fid(value, tile)
+map.tools.init(map)
+
+function map.place(value, tile, config)
+  config = config or {}
+  local mode = config.mode or "place"
+
+  local asset = (type(value) == "string") and map.assets.resolve(value) or nil
+  local is_tile = (config.type == "tile") or (asset and asset.isTile)
+
+  -- render
+  if mode == "draw" or is_tile then
+    if type(value) == "number" then
+      if is_tile then map.add_tile_fid(value, tile) else map.add_scenery_fid(value, tile) end
     else
-      map.create_object(value, tile)
+      if is_tile then map.add_tile_key(value, tile) else map.add_scenery_key(value, tile) end
     end
+  -- create_object
   else
-    asset = assets.resolve(value)
-    -- assets key
-    -- tiles
-    if objType == "tile" or (asset and asset.isTile) then
-      map.add_tile_key(value, tile)
-
-      return
-    end
-    -- scenery
-    if mode == "draw" or not asset or asset.fid == -1 then
-      map.add_scenery_fid(value, tile)
+    if type(value) == "number" then
+      map.register_object(value, tile)
+    elseif asset and asset.artId then
+      map.register_object(asset.artId, tile)
     else
-      map.create_object_fid(asset.fid, tile)
+      map.add_scenery_key(value, tile)
     end
   end
 
-  if block then map.create_blocker(tile) end
+  if config.block then map.create_blocker(tile) end
 end
-
-tools._onClear = function(tile)
-  map.remove_blocker(tile)
-end
-
-map.geometry = geometry
-map.tools    = tools
 
 return map
