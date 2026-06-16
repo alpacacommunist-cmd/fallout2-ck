@@ -2,28 +2,20 @@
 #include "ck_utils.h"
 
 #include "scripts.h"
+#include "game_dialog.h"
 #include "display_monitor.h"
+
+#include "script/ck_script.h"
 #include "object/ck_object_registry.h"
 
 #include <iostream>
 #include <string>
 
 namespace ck {
+	int gLastDialogChoice = -1;
 
+	static fallout::Program gDummyProgram;
 	static fallout::Script gDummyScript;
-
-	// void script_init() {
-	// 	std::fill(reinterpret_cast<char*>(&gDummyScript),
-	// 			reinterpret_cast<char*>(&gDummyScript) + sizeof(fallout::Script), 0);
-	//
-	// 	gDummyScript.sp.built_tile = -1;
-	// 	gDummyScript.sp.radius = -1;
-	// 	gDummyScript.actionBeingUsed = -1;
-	//
-	// 	for (int index = 0; index < fallout::SCRIPT_PROC_COUNT; index++) {
-	// 		gDummyScript.procs[index] = fallout::SCRIPT_PROC_NO_PROC;
-	// 	}
-	// }
 
 	bool owns_sid(int sid) {
 		return ck::is_ck_sid(ck::clean_sid(sid));
@@ -32,6 +24,10 @@ namespace ck {
 	fallout::Script* script_get_dummy(int sid) {
 		gDummyScript.sid = sid;
 		return &gDummyScript;
+	}
+
+	fallout::Program* program_get_dummy() {
+		return &gDummyProgram;
 	}
 
 	bool script_try_handle(int sid, int proc) {
@@ -61,6 +57,15 @@ namespace ck {
 				return true;
 
 			case fallout::SCRIPT_PROC_TALK:
+				if (fallout::_gdialogInitFromScript(-1, 0) == -1) {
+					std::cerr << "[CK Dialog Error]: Failed to initialize Dialogue UI!" << std::endl;
+					return false;
+				}
+
+				ck_call_lua_hook("ckOnDialogStart", lua_id);
+
+				fallout::_gdialogExitFromScript();
+
 				return true;
 
 			default:
@@ -77,4 +82,26 @@ namespace ck {
 		}
 	}
 
+	void dialog_set_reply(const char* text) {
+		fallout::gameDialogSetTextReply(program_get_dummy(), -4, text);
+	}
+
+	void dialog_add_option(const char* text, int reaction) {
+		// proc=0 — no int procedures
+		fallout::gameDialogAddTextOptionWithProc(-4, text, 0, reaction);
+	}
+
+	int dialog_go() {
+		fallout::_gdialogGo();
+		return gLastDialogChoice;
+	}
+
+	void dialog_exit() { fallout::gameDialogExit(); }
+
 } // namespace ck
+
+// ffi
+void ck_dialog_set_reply(const char* text) { ck::dialog_set_reply(text); }
+void ck_dialog_add_option(const char* text, int reaction) { ck::dialog_add_option(text, reaction); }
+int ck_dialog_go() { return ck::dialog_go(); }
+void ck_dialog_exit() { ck::dialog_exit(); }
