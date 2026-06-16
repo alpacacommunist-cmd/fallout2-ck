@@ -71,41 +71,44 @@ local function applyManifest(manifest)
   end
 end
 
+local function loadAndInitMod(mod_folder)
+  events.current_loading_mod = mod_folder
+
+  local manifest = loadManifest(mod_folder)
+  applyManifest(manifest)
+
+  local success, err = pcall(function()
+    require('mods.' .. mod_folder .. ".init")
+  end)
+
+  if not success then
+    print("[CK Loader] ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
+  end
+
+  events.current_loading_mod = nil
+end
+
 function M.initialize()
   print("[CK Loader] Initializing Mod Loader...")
-  print("[CK Loader] Loading active modules...")
+  print("[CK Loader] Loading active mods...")
 
   for _, mod_folder in ipairs(active_mods) do
     print("[CK Loader] Booting: " .. mod_folder)
-
-    -- manifest
-    local manifest = loadManifest(mod_folder)
-    applyManifest(manifest)
-
-    -- init.lua
-    local success, err = pcall(function()
-      require('mods.' .. mod_folder .. ".init")
-    end)
-
-    if not success then
-      print("[CK Loader] CRITICAL ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
-    end
+    loadAndInitMod(mod_folder)
   end
 
   print("[CK Loader] All mods processed successfully!")
 end
 
--- function ckInitializeMods()
--- end
-
 function M.reloadMods()
   print("[CK Loader] Reloading mods...")
 
-  events.clear()
   rendering.clear()
 
   for _, mod_folder in ipairs(reloadable_mods) do
     local target_prefix = "mods." .. mod_folder
+
+    events.clearForMod(mod_folder)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
@@ -117,17 +120,7 @@ function M.reloadMods()
 
   for _, mod_folder in ipairs(reloadable_mods) do
     print("[CK Loader] Reloading: " .. mod_folder)
-
-    local manifest = loadManifest(mod_folder)
-    applyManifest(manifest)
-
-    local success, err = pcall(function()
-      require('mods.' .. mod_folder .. ".init")
-    end)
-
-    if not success then
-      print("[CK Loader] ERROR reloading mod '" .. mod_folder .. "': " .. tostring(err))
-    end
+    loadAndInitMod(mod_folder)
   end
 
   events.emit("onMapEnter")
