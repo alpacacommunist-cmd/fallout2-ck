@@ -11,6 +11,8 @@ namespace fallout {
 struct LuaCritterMeta {
     std::string name;
     std::string description;
+
+	int proto_sid;
 };
 
 struct CkManagedObject {
@@ -25,7 +27,9 @@ class CkObjectRegistry {
 public:
     int  add(fallout::Object* obj, const LuaCritterMeta& meta = {});
 
-    fallout::Object* get(int luaId) const;
+	const CkManagedObject* get_managed(int luaId) const;
+
+    fallout::Object* get(int lua_id) const;
     int find_by_ptr(fallout::Object* ptr) const;
 	const LuaCritterMeta* get_meta(int lua_id) const;
 

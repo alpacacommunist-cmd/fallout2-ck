@@ -1,3 +1,4 @@
+#include "ck_ids.h"
 #include "object/ck_object_registry.h"
 #include "object.h"
 #include <iostream>
@@ -17,7 +18,16 @@ int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
 	std::cout << "[CK] Registering CRITTER META: name: " << meta.name << " description: " << meta.description
 		<< std::endl;
 
+	std::cout << "[CK] Registering CRITTER META: sid: " << ck::clean_sid(obj->sid)
+		<< std::endl;
+
     return id;
+}
+
+const CkManagedObject* CkObjectRegistry::get_managed(int lua_id) const {
+    auto it = objects.find(lua_id);
+    if (it == objects.end() || !it->second.alive) return nullptr;
+    return &it->second;
 }
 
 fallout::Object* CkObjectRegistry::get(int lua_id) const {

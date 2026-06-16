@@ -2,6 +2,7 @@
 #include "object/ck_object.h"
 
 #include "tile.h"
+#include "proto.h"
 
 const int BLOCKER_PID=0x2000158;  // dummy collision object
 const int BLOCKER_FID=0x02000015;
@@ -41,6 +42,7 @@ fallout::Object* ck_object_create_critter(int pid, int tile) {
 		fallout::objectSetLocation(critter, tile, fallout::gElevation, nullptr);
 
 		critter->flags |= fallout::OBJECT_NO_SAVE;
+		critter->sid    = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, fallout::gMapSid);
 
 		return critter;
 	}
@@ -61,8 +63,11 @@ int ck_object_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
 
 	int lua_id = -1;
 
+	LuaCritterMeta full_meta = meta;
+	full_meta.proto_sid      = critter->sid;
+
 	if (critter != nullptr) {
-		lua_id = gObjectRegistry.add(critter, meta);
+		lua_id = gObjectRegistry.add(critter, full_meta);
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
