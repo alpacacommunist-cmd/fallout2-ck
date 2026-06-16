@@ -195,18 +195,29 @@ static void mode_main_export() {
 	std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selectedHexes.size() << std::endl;
 	for (ckDebugHex* hex : selectedHexes) {
 		int tile = hex->tile;
-		int tileX = gridWidth - 1 - tile % gridWidth, tileY = tile / gridWidth;
+		int tileX = gridWidth - 1 - tile % gridWidth;
+		int tileY = tile / gridWidth;
 
-		std::cout << "[CK DEBUG] SELECTED tile=" << tile << ", hex(x=" << tileX << ", y=" << tileY << ")"
-			<< std::endl;
+		std::cout << "[CK DEBUG] SELECTED tile=" << tile << " (" << tileX << "," << tileY << ")" << std::endl;
 
-		fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+		if (fallout::isExitGridAt(tile, fallout::gElevation)) {
+			std::cout << "  [SYSTEM ALERT] EXIT GRID DETECTED BY ENGINE!" << std::endl;
+		}
 
-		if (blocker != nullptr && FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER) {
-			fallout::Proto* proto = nullptr;
+		fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+		int objIndex = 0;
 
-			std::cout << "[CK DEBUG] BLOCKER tile=" << tile << " pid=" << blocker->pid << ", fid=" << blocker->fid
-				<< " artId=" << (int)(blocker->fid & 0x0000FFFF) << std::endl;
+		while (obj != nullptr) {
+			int objType = FID_TYPE(obj->fid);
+
+			std::cout << "  [OBJ #" << objIndex++ << "] Name: " << fallout::objectGetName(obj)
+				<< " | Type: " << objType
+				<< " | PID: " << obj->pid
+				<< " | FID: " << obj->fid
+				<< " | SID: " << obj->sid
+				<< " | Flags: 0x" << std::hex << obj->flags << std::dec << std::endl;
+
+			obj = fallout::objectFindNextAtLocation();
 		}
 	}
 	std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;

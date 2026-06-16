@@ -10,7 +10,7 @@
 
 static CkCameraBorders gCameraBorders;
 
-void ck_scripting_on_map_enter() {
+void ck_on_map_enter() {
 	gObjectRegistry.destroy_all();
 
 	ck_rendering_clear();
@@ -20,6 +20,11 @@ void ck_scripting_on_map_enter() {
 
 	ck_call_lua_hook("ckOnMapEnter");
 }
+
+void ck_on_before_map_enter() {
+	gObjectRegistry.destroy_all();
+}
+
 
 void ck_map_add_scenery(int fid, int tile) {
 	ck_rendering_add_scenery(fid, tile);

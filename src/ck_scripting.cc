@@ -275,6 +275,10 @@ void ck_scripting_init() {
 	}
 }
 
+void ck_on_scripts_reset() {
+	gObjectRegistry.destroy_all();
+}
+
 // Exit
 void ck_scripting_exit() {
     if (gLuaState != nullptr) {
