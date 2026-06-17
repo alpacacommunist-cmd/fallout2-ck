@@ -16,9 +16,6 @@ ffi.cdef[[
   int  ck_map_register_object(int artId, int tile);
   int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
 
-  int ck_proto_first_exit_grid_pid();
-  int ck_proto_last_exit_grid_pid();
-
   void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
   void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
 ]]
@@ -26,17 +23,13 @@ ffi.cdef[[
 local C = ffi.C
 
 local map  = {
-  geometry = require('ck.fallout2.map.geometry'),
-  tools    = require('ck.fallout2.map.tools'),
-  assets   = require('ck.fallout2.assets')
+  geometry  = require('ck.fallout2.map.geometry'),
+  tools     = require('ck.fallout2.map.tools'),
+  exit_grid = require('ck.fallout2.map.exit_grid'),
+  assets    = require('ck.fallout2.assets')
 }
 
 map.tools.init(map)
-
-map.first_exit_grid_pid = C.ck_proto_first_exit_grid_pid
-map.last_exit_grid_pid  = C.ck_proto_last_exit_grid_pid
-
-map.destroy_exit_grid_in_rect = C.ck_landscape_destroy_exit_grid_in_rect
 
 map.get_id            = C.ck_map_get_id
 map.set_borders       = C.ck_map_set_camera_borders
@@ -62,9 +55,6 @@ map.register_critter = function(pid, tile, meta)
 
   return C.ck_map_register_critter(pid, tile, name, description)
 end
-
-
-map.tools.init(map)
 
 function map.place(value, tile, config)
   config = config or {}

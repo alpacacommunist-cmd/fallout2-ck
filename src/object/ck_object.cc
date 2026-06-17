@@ -20,12 +20,12 @@ bool ck_object_blocking(int tile) {
 	return blocker != nullptr; // something blocks tile
 }
 
-fallout::Object* ck_object_create_at(int fid, int tile) {
+fallout::Object* ck_object_create(int pid, int tile) {
 	if (ck_object_blocking(tile)) return nullptr;
 
 	fallout::Object* object = nullptr;
 
-	if (fallout::objectCreateWithFidPid(&object, fid, BLOCKER_PID) == 0) {
+	if (fallout::objectCreateWithPid(&object, pid) == 0) {
 		fallout::objectSetLocation(object, tile, fallout::gElevation, nullptr);
 		object->flags |= fallout::OBJECT_NO_SAVE;
 
@@ -34,7 +34,15 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 
 	return nullptr;
 }
-void ck_object_create_persistent_at(int fid, int tile);
+
+fallout::Object* ck_object_create_at(int fid, int tile) {
+	fallout::Object* object = ck_object_create(BLOCKER_PID, tile);
+
+	if (object == nullptr) return nullptr;
+	object->fid = fid;
+
+	return object;
+}
 
 fallout::Object* ck_object_create_critter(int pid, int tile) {
 	if (ck_object_blocking(tile)) return nullptr;

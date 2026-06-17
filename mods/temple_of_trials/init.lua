@@ -17,11 +17,15 @@ events.on('onMapEnter', function()
 
   map.set_borders(95, 113, 82, 110)
 
-  -- for _, tile in ipairs(outskirts.new_exit_grid) do
-  --   map.create_pid_at(83886100, tile)
-  -- end
+  map.exit_grid.destroy_in_rect(21514, 22727, 24113, 24323);
 
-  map.destroy_exit_grid_in_rect(21514, 22727, 24113, 24323);
+  map.exit_grid.spawn_in_rect(22132, 23531, 23938, 24731, {
+    map = 4,
+    tile = 11683,
+    elevation = 0,
+    rotation = 1,
+    style = 2
+  })
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
     map.place(scenery.fid, scenery.tile, { mode = "draw" })

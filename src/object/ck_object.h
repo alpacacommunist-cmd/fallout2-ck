@@ -10,7 +10,9 @@
 static fallout::Object* ck_object_blocker_at(int tile);
 bool ck_object_blocking(int tile);
 
+fallout::Object* ck_object_create(int pid, int tile);
 fallout::Object* ck_object_create_at(int fid, int tile);
+
 fallout::Object* ck_object_create_critter(int pid, int tile);
 
 int ck_object_register_object(int pid, int tile);

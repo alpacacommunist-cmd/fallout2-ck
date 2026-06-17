@@ -2,8 +2,7 @@
 
 local outskirts = {}
 
-outskirts.new_exit_grid = { 23128, 23328, 23329, 23528, 23529, 23728, 23928 }
-outskirts.new_exit_marker_tile = 23128
+outskirts.new_exit_grid_rect = {}
 
 outskirts.mountainTiles = {
   { fid = 1509, tile = 13893 },
