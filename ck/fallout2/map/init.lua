@@ -16,8 +16,11 @@ ffi.cdef[[
   int  ck_map_register_object(int artId, int tile);
   int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
 
-  void ck_map_remove_all_by_pid(int pid);
-  void ck_map_create_pid_at(int pid, int tile);
+  int ck_proto_first_exit_grid_pid();
+  int ck_proto_last_exit_grid_pid();
+
+  void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
+  void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
 ]]
 
 local C = ffi.C
@@ -29,6 +32,11 @@ local map  = {
 }
 
 map.tools.init(map)
+
+map.first_exit_grid_pid = C.ck_proto_first_exit_grid_pid
+map.last_exit_grid_pid  = C.ck_proto_last_exit_grid_pid
+
+map.destroy_exit_grid_in_rect = C.ck_landscape_destroy_exit_grid_in_rect
 
 map.get_id            = C.ck_map_get_id
 map.set_borders       = C.ck_map_set_camera_borders
@@ -42,9 +50,6 @@ map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.register_object   = C.ck_map_register_object
 map.rendering_refresh = ck.rendering.refresh
-
-map.remove_all_by_pid = C.ck_map_remove_all_by_pid
-map.create_pid_at     = C.ck_map_create_pid_at
 
 map.register_critter = function(pid, tile, meta)
   local name = ""

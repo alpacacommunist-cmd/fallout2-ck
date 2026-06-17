@@ -21,6 +21,7 @@ add_library(fallout2-ck STATIC
     src/vendor/sqlite3/sqlite3.c
 
     src/geometry/geometry.cc
+    src/geometry/landscape.cc
 
     src/ck_scripting.cc
     src/ck_rendering.cc

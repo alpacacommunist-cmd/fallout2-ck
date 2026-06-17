@@ -22,8 +22,4 @@ void ck_object_create_blocker_at(int tile);
 void ck_object_remove_all_by_pid(int pid);
 void ck_object_create_pid_at(int pid, int tile);
 
-void ck_object_toggle_visibility_in_rect(const HexRect& rect, bool visible);
-
-CK_API void ck_map_remove_all_by_pid(int pid);
-CK_API void ck_map_create_pid_at(int pid, int tile);
 #endif

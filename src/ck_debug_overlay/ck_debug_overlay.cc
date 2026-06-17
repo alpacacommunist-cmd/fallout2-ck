@@ -3,6 +3,7 @@
 #include "ck_input.h"
 
 #include "geometry/geometry.h"
+#include "geometry/landscape.h"
 #include "object/ck_object.h"
 #include "map/ck_map.h"
 
@@ -108,19 +109,19 @@ static void ck_toggle_camera_square() {
 
 	// tileX = gridWidth - 1 - tile % gridWidth; -> tile % gridWidth = gridWidth - 1 - tileX;
 	// tileY = tile / gridWidth; -> tile = tileY * gridWidth + (tile % gridWidth);
-	int gridWidth = fallout::tileGetHexGridWidth();
-	auto toTile = [gridWidth](int x, int y) {
-		return y * gridWidth + (gridWidth - 1 - x);
+	int grid_width = fallout::tileGetHexGridWidth();
+	auto to_tile = [grid_width](int x, int y) {
+		return y * grid_width + (grid_width - 1 - x);
 	};
 
     for (int x = borders.left; x <= borders.right; ++x) {
-        ck_debug_overlay_add_hex(toTile(x, borders.top), HexState::CAMERA);
-        ck_debug_overlay_add_hex(toTile(x, borders.bottom), HexState::CAMERA);
+        ck_debug_overlay_add_hex(to_tile(x, borders.top), HexState::CAMERA);
+        ck_debug_overlay_add_hex(to_tile(x, borders.bottom), HexState::CAMERA);
     }
 
     for (int y = borders.top; y <= borders.bottom; ++y) {
-        ck_debug_overlay_add_hex(toTile(borders.left, y), HexState::CAMERA);
-        ck_debug_overlay_add_hex(toTile(borders.right, y), HexState::CAMERA);
+        ck_debug_overlay_add_hex(to_tile(borders.left, y), HexState::CAMERA);
+        ck_debug_overlay_add_hex(to_tile(borders.right, y), HexState::CAMERA);
     }
 
 	gNeedsRefresh = true;
@@ -282,7 +283,7 @@ static void mode_main_toggle_hidden_in_rect() {
 
 	gAreaVisibilitySwitch = !gAreaVisibilitySwitch;
 
-	ck_object_toggle_visibility_in_rect(rect, gAreaVisibilitySwitch);
+	ck_landscape_toggle_visibility_in_rect(rect, gAreaVisibilitySwitch);
 
 	gNeedsRefresh = true;
 }

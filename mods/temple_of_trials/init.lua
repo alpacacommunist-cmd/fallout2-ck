@@ -17,18 +17,11 @@ events.on('onMapEnter', function()
 
   map.set_borders(95, 113, 82, 110)
 
-  -- map.remove_all_by_pid(83886100) -- Базовая сетка
-  -- map.remove_all_by_pid(83886098) -- Базовая сетка
-  -- map.remove_all_by_pid(83886097) -- Базовая сетка
-
   -- for _, tile in ipairs(outskirts.new_exit_grid) do
   --   map.create_pid_at(83886100, tile)
   -- end
 
-  -- map.create_pid_at(33554481, outskirts.new_exit_marker_tile)
-  -- map.create_pid_at(83886100, outskirts.new_exit_marker_tile)
-  -- map.create_pid_at(83886098, outskirts.new_exit_marker_tile)
-  -- map.create_pid_at(83886097, outskirts.new_exit_marker_tile)
+  map.destroy_exit_grid_in_rect(21514, 22727, 24113, 24323);
 
   for _, scenery in ipairs(outskirts.mountainScenery) do
     map.place(scenery.fid, scenery.tile, { mode = "draw" })
