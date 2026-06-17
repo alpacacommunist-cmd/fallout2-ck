@@ -2,6 +2,7 @@
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 #include "ck_input.h"
 
+#include "geometry/geometry.h"
 #include "object/ck_object.h"
 #include "map/ck_map.h"
 
@@ -16,6 +17,7 @@
 static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
+static bool gAreaVisibilitySwitch = true;
 
 bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
 
@@ -107,9 +109,9 @@ static void ck_toggle_camera_square() {
 	// tileX = gridWidth - 1 - tile % gridWidth; -> tile % gridWidth = gridWidth - 1 - tileX;
 	// tileY = tile / gridWidth; -> tile = tileY * gridWidth + (tile % gridWidth);
 	int gridWidth = fallout::tileGetHexGridWidth();
-	    auto toTile = [gridWidth](int x, int y) {
-        return y * gridWidth + (gridWidth - 1 - x);
-    };
+	auto toTile = [gridWidth](int x, int y) {
+		return y * gridWidth + (gridWidth - 1 - x);
+	};
 
     for (int x = borders.left; x <= borders.right; ++x) {
         ck_debug_overlay_add_hex(toTile(x, borders.top), HexState::CAMERA);
@@ -215,6 +217,7 @@ static void mode_main_export() {
 				<< " | PID: " << obj->pid
 				<< " | FID: " << obj->fid
 				<< " | SID: " << obj->sid
+				<< " | data: " << obj->data.misc.map
 				<< " | Flags: 0x" << std::hex << obj->flags << std::dec << std::endl;
 
 			obj = fallout::objectFindNextAtLocation();
@@ -268,6 +271,22 @@ static void mode_main_clear_selected() {
 	gNeedsRefresh = true;
 }
 
+static void mode_main_toggle_hidden_in_rect() {
+	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
+
+	std::vector<int> selected_tiles;
+	for (auto* hex : selected_hexes) selected_tiles.push_back(hex->tile);
+
+	HexRect rect = geometry_build_rect_from_points(selected_tiles);
+	if (!rect.is_valid()) { return; }
+
+	gAreaVisibilitySwitch = !gAreaVisibilitySwitch;
+
+	ck_object_toggle_visibility_in_rect(rect, gAreaVisibilitySwitch);
+
+	gNeedsRefresh = true;
+}
+
 static void mode_main() {
 	mode_main_dude_scan();
 	mode_main_paint();
@@ -286,6 +305,11 @@ static void mode_main() {
 							   if (ck_input_shift()) mode_main_clear_selected();
 							   break;
 						   }
+		case CK_KEY_V:     {
+							   if (ck_input_shift()) mode_main_toggle_hidden_in_rect();
+							   break;
+						   }
+
 		case CK_KEY_C:     {
 							   if (ck_input_alt()) ck_toggle_camera_square();
 							   break;

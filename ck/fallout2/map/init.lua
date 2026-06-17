@@ -15,6 +15,9 @@ ffi.cdef[[
   void ck_map_create_critter_pid(int pid, int tile, int sid);
   int  ck_map_register_object(int artId, int tile);
   int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
+
+  void ck_map_remove_all_by_pid(int pid);
+  void ck_map_create_pid_at(int pid, int tile);
 ]]
 
 local C = ffi.C
@@ -39,6 +42,9 @@ map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.register_object   = C.ck_map_register_object
 map.rendering_refresh = ck.rendering.refresh
+
+map.remove_all_by_pid = C.ck_map_remove_all_by_pid
+map.create_pid_at     = C.ck_map_create_pid_at
 
 map.register_critter = function(pid, tile, meta)
   local name = ""
