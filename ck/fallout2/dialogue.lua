@@ -29,8 +29,8 @@ dialogue.exit      = ck.dialogue.exit
 -- npcId -> dialog function
 local registry = {}
 
-function dialogue.register(npc_id, fn)
-  registry[npc_id] = fn
+function dialogue.register(npc_id, fn_or_nodes)
+  registry[npc_id] = fn_or_nodes
   print("[CK Dialogue] Registered dialogue for npc: " .. tostring(npc_id))
 end
 
@@ -49,15 +49,76 @@ function dialogue.ask(text, options)
   return choice + 1  -- 1-based
 end
 
-function dialogue.start(npc_id)
-  local fn = registry[npc_id]
+--
+-- Nodes engine
+--
 
-  if not fn then
+local function run_node_dialogue(npc_id, nodes)
+  local current_node = "init"
+  local active = true
+
+  local ctx = { npcId = npc_id }
+
+  local current_options = {}
+
+  function ctx.reply(text)
+    dialogue.set_reply(text)
+    current_options = {}
+  end
+
+  function ctx.option(text, next_node_name, reaction_or_nil)
+    table.insert(current_options, next_node_name)
+
+    local r_type = reaction_or_nil or "NEUTRAL"
+    local c_reaction = dialogue.reactions[r_type] or dialogue.reactions.NEUTRAL
+
+    dialogue.add_option(text, c_reaction)
+  end
+
+  function ctx.exit()
+    active = false
+  end
+
+  while active do
+    local node_fn = nodes[current_node]
+
+    if not node_fn then
+      print(string.format("[CK Dialogue Error] Node '%s' not found for npc %s", tostring(current_node), tostring(npc_id)))
+      break
+    end
+
+    node_fn(ctx)
+
+    if not active then break end
+    if #current_options == 0 then break end
+
+    local chosen_c_index = dialogue.go()
+
+    local chosen_lua_index = chosen_c_index + 1
+    local next_node = current_options[chosen_lua_index]
+
+    if next_node then
+      current_node = next_node
+    else
+      print("[CK Dialogue] Unknown option index: " .. tostring(chosen_c_index) .. ". Exiting.")
+      active = false
+    end
+  end
+end
+
+function dialogue.start(npc_id)
+  local target = registry[npc_id]
+
+  if not target then
     print("[CK Dialogue] No dialogue registered for npc: " .. tostring(npc_id))
     return
   end
 
-  fn({ npcId = npc_id })
+  if type(target) == "table" then
+    run_node_dialogue(npc_id, target)
+  elseif type(target) == "function" then
+    target({ npcId = npc_id })
+  end
 
   dialogue.exit()
 end

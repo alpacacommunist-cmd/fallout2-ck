@@ -11,6 +11,7 @@ local events = {
     onBeforeGameLoad = {},
     onGameLoaded = {},
     onTimeAdvance = {},
+    onDialogStart = {},
     onMapEnter = {}
   },
 
@@ -98,6 +99,13 @@ end
 function ckOnTimeAdvance(hours, minutes)
   print("[CK Events] Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
   events.emit('onTimeAdvance', hours, minutes)
+end
+
+function ckOnDialogStart(id)
+  print("[CK Events] Dialog start for npc id: " .. tostring(id))
+  events.emit('onDialogStart', id)
+
+  dialogue.start(id)
 end
 
 return events
