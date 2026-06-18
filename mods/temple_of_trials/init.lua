@@ -27,13 +27,15 @@ events.on('onMapEnter', function()
     style = 2
   })
 
-  for _, scenery in ipairs(outskirts.mountainScenery) do
-    map.place(scenery.fid, scenery.tile, { mode = "draw" })
-  end
+  -- for _, scenery in ipairs(outskirts.mountainScenery) do
+  --   map.place(scenery.fid, scenery.tile, { mode = "draw" })
+  -- end
+  map.add_scenery_bulk(outskirts.mountainScenery)
+  map.add_tiles_bulk(outskirts.mountainTiles)
 
-  for _, tile in ipairs(outskirts.mountainTiles) do
-    map.place(tile.fid, tile.tile, { type = "tile" })
-  end
+  -- for _, tile in ipairs(outskirts.mountainTiles) do
+  --   map.place(tile.fid, tile.tile, { type = "tile" })
+  -- end
 
   for _, tile in ipairs(outskirts.removeBlockers) do map.remove_blocker(tile) end
   for _, tile in ipairs(outskirts.createBlockers) do map.create_blocker(tile) end

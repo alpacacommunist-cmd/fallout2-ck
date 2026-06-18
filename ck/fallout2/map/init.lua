@@ -18,6 +18,12 @@ ffi.cdef[[
 
   void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
   void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
+
+  typedef struct { int tile; int fid; const char* key; } CkFFITile;
+  typedef struct { int tile; int fid; const char* key; } CkFFIScenery;
+
+  void ck_map_bulk_add_tiles(const CkFFITile* tiles, int count);
+  void ck_map_bulk_add_scenery(const CkFFIScenery* sceneries, int count);
 ]]
 
 local C = ffi.C
@@ -82,6 +88,53 @@ function map.place(value, tile, config)
   end
 
   if config.block then map.create_blocker(tile) end
+end
+
+function map.add_tiles_bulk(tiles)
+  local count = #tiles
+  if count == 0 then return end
+
+  local tiles_array = ffi.new("CkFFITile[?]", count)
+
+  for index = 1, count do
+    local tile     = tiles[index]
+    local ffi_tile = tiles_array[index - 1]
+
+    ffi_tile.tile = tile.tile
+
+    if type(tile.fid) == "number" then
+      ffi_tile.fid = tile.fid
+      ffi_tile.key = nil
+    else
+      ffi_tile.fid = -1
+      ffi_tile.key = tile.fid
+    end
+  end
+
+  C.ck_map_bulk_add_tiles(tiles_array, count)
+end
+
+function map.add_scenery_bulk(scenery)
+  local count = #scenery
+  if count == 0 then return end
+
+  local scenery_array = ffi.new("CkFFIScenery[?]", count)
+
+  for index = 1, count do
+    local scenery     = scenery[index]
+    local ffi_scenery = scenery_array[index - 1]
+
+    ffi_scenery.tile = scenery.tile
+    if type(scenery.fid) == "number" then
+      ffi_scenery.fid = scenery.fid
+      ffi_scenery.key = nil
+    else
+      ffi_scenery.fid = -1
+      ffi_scenery.key = scenery.fid
+    end
+  end
+
+  C.ck_map_bulk_add_scenery(scenery_array, count)
 end
 
 return map

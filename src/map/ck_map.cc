@@ -92,6 +92,23 @@ void ck_map_add_tile_key(const char* key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
+void ck_map_bulk_add_tiles(const CkFFITile* tiles, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = tiles[i];
+
+        if (src.key != nullptr) ck_rendering_add_custom_tile(src.key, src.tile);
+        else ck_rendering_add_tile(src.fid, src.tile);
+    }
+}
+
+void ck_map_bulk_add_scenery(const CkFFIScenery* sceneries, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = sceneries[i];
+        if (src.key != nullptr) ck_rendering_add_custom_scenery(src.key, src.tile);
+        else ck_rendering_add_scenery(src.fid, src.tile);
+    }
+}
+
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
     gCameraBorders.enabled = true;
 
