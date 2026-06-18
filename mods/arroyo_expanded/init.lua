@@ -13,13 +13,6 @@ local dialogue = require('ck.fallout2.dialogue')
 events.on('onGameLoaded', function()
 end)
 
-function ckOnDialogStart(id)
-  print("[CK Events] Dialog start for npc id: " .. tostring(id))
-  events.emit('onDialogStart', id)
-
-  dialogue.start(id)
-end
-
 events.on('onMapEnter', function()
   local map_id = map.get_id()
 
@@ -32,9 +25,6 @@ events.on('onMapEnter', function()
     name = "Alice",
     description = "You see Alice. She knows erlang"
   })
-
-
-  local npc_meta = "";
 
   print("[CK] NPC ID: " .. tostring(npc_id))
 
@@ -104,7 +94,7 @@ events.on('onMapEnter', function()
 
     combat_trigger = function(ctx)
       ctx.exit()
-      log.print("COMBAT STARTED WITH NPC: " .. tostring(ctx.npcId))
+      log.print("COMBAT STARTED WITH NPC: " .. tostring(ctx.npc_id))
     end
 
   })

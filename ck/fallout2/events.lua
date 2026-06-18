@@ -18,6 +18,8 @@ local events = {
   current_loading_mod = nil
 }
 
+local dialogue = require('ck.fallout2.dialogue')
+
 -- Public mod API
 -- Allows mod events subscription (fallout2.events.on('onGameStart'))
 function events.on(event_name, callback)

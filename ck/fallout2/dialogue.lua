@@ -57,7 +57,7 @@ local function run_node_dialogue(npc_id, nodes)
   local current_node = "init"
   local active = true
 
-  local ctx = { npcId = npc_id }
+  local ctx = { npc_id = npc_id }
 
   local current_options = {}
 
@@ -117,7 +117,7 @@ function dialogue.start(npc_id)
   if type(target) == "table" then
     run_node_dialogue(npc_id, target)
   elseif type(target) == "function" then
-    target({ npcId = npc_id })
+    target({ npc_id = npc_id })
   end
 
   dialogue.exit()
