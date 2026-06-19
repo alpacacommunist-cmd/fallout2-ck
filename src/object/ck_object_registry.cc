@@ -1,3 +1,4 @@
+#include "ck_utils.h"
 #include "ck_ids.h"
 #include "object/ck_object_registry.h"
 #include "object.h"
@@ -70,7 +71,9 @@ void CkObjectRegistry::destroy_all() {
 
     objects.clear();
     next_id = 1;
+
     std::cout << "[CK Object Registry] Destroyed " << count << " managed objects" << std::endl;
+	ck_call_lua_hook("ckOnObjectsDestroyed");
 }
 
 void CkObjectRegistry::clear() {

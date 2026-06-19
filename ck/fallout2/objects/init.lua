@@ -18,9 +18,9 @@ local objects = {
   }
 }
 
-events.on('onMapEnter', function()
-  print("[CK Objects] Map Enter signaled! Cleared Lua objects registry.")
+function ckOnObjectsDestroyed()
   objects.registry = {}
-end)
+  print("[CK Objects] Registry cleared")
+end
 
 return objects
