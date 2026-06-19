@@ -48,7 +48,7 @@ events.on('onMapEnter', function()
   }, {
     M = { assets = {"temple_of_trials:scenery/tree10"}, block = true },
     m = { assets = {"temple_of_trials:scenery/tree11"}, block = true },
-    G = { assets = {"temple_of_trials:tiles/grass01"}, type = "tile" }
+    G = { assets = {"temple_of_trials:tiles/GRASS01"}, type = "tile" }
   })
 
   map.place("temple_of_trials:scenery/tree10", 19094)

@@ -23,12 +23,18 @@ static int ck_assets_obj_type(const std::string& name) {
 }
 
 void ck_assets_register_mod(CkAssetRegistry& reg, const std::string& modId, const std::string& basePath) {
-    reg.modPaths[modId] = basePath;
-    std::cout << "[CK Assets] Registered mod: " << modId << " -> " << basePath << std::endl;
+	std::string normalizedId = modId;
+	for (char& c : normalizedId) c = tolower(c);
+
+    reg.modPaths[normalizedId] = basePath;
+    std::cout << "[CK Assets] Registered mod: " << normalizedId << " -> " << basePath << std::endl;
 }
 
 CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
-    auto it = reg.assets.find(key);
+	std::string normalizedKey = key;
+    for (char& c : normalizedKey) c = tolower(c);
+
+    auto it = reg.assets.find(normalizedKey);
     if (it != reg.assets.end()) {
         // nullptr means we already tried and failed
         if (!it->second.frm.valid) return nullptr;
@@ -36,8 +42,8 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
     }
 
     std::string modId, assetPath;
-    if (!split_key(key, modId, assetPath)) {
-        std::cerr << "[CK Assets] Bad key format: " << key << std::endl;
+    if (!split_key(normalizedKey, modId, assetPath)) {
+        std::cerr << "[CK Assets] Bad key format: " << normalizedKey << std::endl;
         return nullptr;
     }
 
@@ -81,10 +87,10 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
 
     // puts in registry anyways even if it fails
     // next resolve will quietly return nullptr
-    reg.assets[key] = std::move(asset);
+    reg.assets[normalizedKey] = std::move(asset);
 
-    if (!reg.assets[key].frm.valid) return nullptr;
-    return &reg.assets[key].frm;
+    if (!reg.assets[normalizedKey].frm.valid) return nullptr;
+    return &reg.assets[normalizedKey].frm;
 }
 
 void ck_assets_unload_mod(CkAssetRegistry& reg, const std::string& modId) {
