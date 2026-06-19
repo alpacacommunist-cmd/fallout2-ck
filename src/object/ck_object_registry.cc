@@ -24,6 +24,20 @@ int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
     return id;
 }
 
+bool CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
+    if (ptr == nullptr) return false;
+
+    for (auto it = objects.begin(); it != objects.end(); ++it) {
+        if (it->second.alive && it->second.ptr == ptr) {
+            // it->second.alive = false;
+			objects.erase(it);
+
+            return true;
+        }
+    }
+    return false;
+}
+
 const CkManagedObject* CkObjectRegistry::get_managed(int lua_id) const {
     auto it = objects.find(lua_id);
     if (it == objects.end() || !it->second.alive) return nullptr;
@@ -63,3 +77,5 @@ void CkObjectRegistry::clear() {
     objects.clear();
     next_id = 1;
 }
+
+

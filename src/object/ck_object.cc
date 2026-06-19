@@ -1,5 +1,6 @@
 #include "ck_ids.h"
 #include "object/ck_object.h"
+#include "object/ck_object_registry.h"
 
 #include "tile.h"
 #include "proto.h"
@@ -87,6 +88,14 @@ int ck_object_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
 	return lua_id;
 }
 
+void ck_object_remove_managed(fallout::Object* obj) {
+    if (obj == nullptr) return;
+    bool found_in_registry = gObjectRegistry.remove_by_ptr(obj);
+    if (found_in_registry) { std::cout << "[CK Debug] Object removed from registry before destruction." << std::endl; }
+
+    fallout::objectDestroy(obj, nullptr);
+}
+
 void ck_object_remove_at(int tile) {
 	std::vector<fallout::Object*> to_delete;
 	fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -98,14 +107,15 @@ void ck_object_remove_at(int tile) {
 		to_delete.push_back(object); object = next_object;
 	}
 
-    for (fallout::Object* object : to_delete) { fallout::objectDestroy(object, nullptr); }
+    for (fallout::Object* object : to_delete) { ck_object_remove_managed(object); }
 }
 
 void ck_object_remove_blocker_at(int tile) {
 	fallout::Object* blocker = ck_object_blocker_at(tile);
 
-	if (blocker != nullptr && (FID_TYPE(blocker->fid) == fallout::OBJ_TYPE_SCENERY))
-		fallout::objectDestroy(blocker, nullptr);
+	if (blocker != nullptr && (FID_TYPE(blocker->fid) == fallout::OBJ_TYPE_SCENERY)) {
+		ck_object_remove_managed(blocker);
+	}
 }
 
 void ck_object_create_blocker_at(int tile) {

@@ -26,6 +26,7 @@ struct CkManagedObject {
 class CkObjectRegistry {
 public:
     int  add(fallout::Object* obj, const LuaCritterMeta& meta = {});
+	bool remove_by_ptr(fallout::Object* ptr);
 
 	const CkManagedObject* get_managed(int luaId) const;
 

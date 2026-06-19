@@ -18,8 +18,10 @@ fallout::Object* ck_object_create_critter(int pid, int tile);
 int ck_object_register_object(int pid, int tile);
 int ck_object_register_critter(int pid, int tile, const LuaCritterMeta& meta);
 
+void ck_object_remove_managed(fallout::Object* obj);
 void ck_object_remove_at(int tile);
 void ck_object_remove_blocker_at(int tile);
+
 void ck_object_create_blocker_at(int tile);
 
 #endif
