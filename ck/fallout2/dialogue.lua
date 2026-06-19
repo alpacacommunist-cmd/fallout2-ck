@@ -1,10 +1,12 @@
 -- ck/fallout2/dialogue.lua
 local ffi = require("ffi")
 ffi.cdef[[
-    void ck_dialog_set_reply(const char* text);
-    void ck_dialog_add_option(const char* text, int reaction);
-    int  ck_dialog_go();
-    void ck_dialog_exit();
+  bool ck_dialog_init_ui();
+  void ck_dialog_set_reply(const char* text);
+  void ck_dialog_add_option(const char* text, int reaction);
+  int  ck_dialog_go();
+  void ck_dialog_exit();
+  void ck_dialog_close_ui();
 ]]
 
 local C = ffi.C
@@ -13,6 +15,8 @@ ck.dialogue.set_reply    = C.ck_dialog_set_reply
 ck.dialogue.add_option   = C.ck_dialog_add_option
 ck.dialogue.go           = C.ck_dialog_go
 ck.dialogue.exit         = C.ck_dialog_exit
+ck.dialogue.init_ui      = C.ck_dialog_init_ui
+ck.dialogue.close_ui     = C.ck_dialog_close_ui
 
 local dialogue = {
   reactions = { GOOD = 49, NEUTRAL = 50, BAD = 51 }
@@ -25,8 +29,10 @@ end
 dialogue.set_reply = ck.dialogue.set_reply
 dialogue.go        = ck.dialogue.go
 dialogue.exit      = ck.dialogue.exit
+dialogue.init_ui   = ck.dialogue.init_ui
+dialogue.close_ui  = ck.dialogue.close_ui
 
--- npcId -> dialog function
+-- npc_id -> dialog function
 local registry = {}
 
 function dialogue.register(npc_id, fn_or_nodes)
@@ -114,6 +120,11 @@ function dialogue.start(npc_id)
     return
   end
 
+  if not dialogue.init_ui() then
+    print("[CK Dialogue] Failed to init dialogue UI for npc: " .. tostring(npc_id))
+    return
+  end
+
   if type(target) == "table" then
     run_node_dialogue(npc_id, target)
   elseif type(target) == "function" then
@@ -121,6 +132,7 @@ function dialogue.start(npc_id)
   end
 
   dialogue.exit()
+  dialogue.close_ui()
 end
 
 return dialogue

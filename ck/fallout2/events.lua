@@ -18,8 +18,6 @@ local events = {
   current_loading_mod = nil
 }
 
-local dialogue = require('ck.fallout2.dialogue')
-
 -- Public mod API
 -- Allows mod events subscription (fallout2.events.on('onGameStart'))
 function events.on(event_name, callback)
@@ -103,11 +101,19 @@ function ckOnTimeAdvance(hours, minutes)
   events.emit('onTimeAdvance', hours, minutes)
 end
 
-function ckOnDialogStart(id)
-  print("[CK Events] Dialog start for npc id: " .. tostring(id))
-  events.emit('onDialogStart', id)
+function ckOnProc(lua_id, proc_id)
+  local objects = require('ck.fallout2.objects')
+  local object = objects.registry[lua_id]
 
-  dialogue.start(id)
+  if not object then return false end
+  return object:_handle_proc(proc_id)
 end
+
+-- function ckOnDialogStart(id)
+--   print("[CK Events] Dialog start for npc id: " .. tostring(id))
+--   events.emit('onDialogStart', id)
+--
+--   -- dialogue.start(id)
+-- end
 
 return events

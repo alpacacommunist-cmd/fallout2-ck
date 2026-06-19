@@ -27,10 +27,12 @@ namespace ck {
 
 // ffi
 
+CK_API bool ck_dialog_init_ui();
 CK_API void ck_dialog_set_reply(const char* text);
 CK_API void ck_dialog_add_option(const char* text, int reaction);
 CK_API int  ck_dialog_go();
 CK_API void ck_dialog_exit();
+CK_API void ck_dialog_close_ui();
 
 
 #endif // CK_DIALOG_H

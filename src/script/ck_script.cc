@@ -39,47 +39,27 @@ namespace ck {
 		if (!managed) return false;
 
 		gDummyScript.scriptOverrides = 0;
+		bool handled_in_lua = ck_call_lua_hook("ckOnProc", lua_id, proc);
 
-		switch (proc) {
-			case fallout::SCRIPT_PROC_LOOK_AT:
-				if (!managed->meta.name.empty())
-					fallout::displayMonitorAddMessage(managed->meta.name.c_str());
-
-				gDummyScript.scriptOverrides = 1;
-				return true;
-
-			case fallout::SCRIPT_PROC_DESCRIPTION:
-				if (!managed->meta.description.empty()) {
-					fallout::displayMonitorAddMessage(managed->meta.description.c_str());
-				}
-
-				gDummyScript.scriptOverrides = 1;
-				return true;
-
-			case fallout::SCRIPT_PROC_TALK:
-				if (fallout::_gdialogInitFromScript(-1, 0) == -1) {
-					std::cerr << "[CK Dialog Error]: Failed to initialize Dialogue UI!" << std::endl;
-					return false;
-				}
-
-				ck_call_lua_hook("ckOnDialogStart", lua_id);
-
-				fallout::_gdialogExitFromScript();
-
-				return true;
-
-			default:
-				if (managed->meta.proto_sid != -1 && managed->ptr) {
-					int saved         = managed->ptr->sid;
-					managed->ptr->sid = managed->meta.proto_sid;
-					fallout::scriptExecProc(managed->meta.proto_sid, proc);
-					managed->ptr->sid = saved;
-
-					return true;
-				}
-
-				return false;
+		if (handled_in_lua) {
+			gDummyScript.scriptOverrides = 1;
+			return true;
 		}
+
+		if (managed->meta.proto_sid != -1 && managed->ptr) {
+			int saved = managed->ptr->sid;
+			managed->ptr->sid = managed->meta.proto_sid;
+			fallout::scriptExecProc(managed->meta.proto_sid, proc);
+			managed->ptr->sid = saved;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	int dialog_init_ui() {
+		return fallout::_gdialogInitFromScript(-1, 0);
 	}
 
 	void dialog_set_reply(const char* text) {
@@ -97,11 +77,14 @@ namespace ck {
 	}
 
 	void dialog_exit() { fallout::gameDialogExit(); }
+	void dialog_close_ui() { fallout::_gdialogExitFromScript(); }
 
 } // namespace ck
 
 // ffi
+bool ck_dialog_init_ui() { return ck::dialog_init_ui() != -1; }
 void ck_dialog_set_reply(const char* text) { ck::dialog_set_reply(text); }
 void ck_dialog_add_option(const char* text, int reaction) { ck::dialog_add_option(text, reaction); }
 int ck_dialog_go() { return ck::dialog_go(); }
 void ck_dialog_exit() { ck::dialog_exit(); }
+void ck_dialog_close_ui() { ck::dialog_close_ui(); }
