@@ -3,6 +3,7 @@
 #include "object/ck_object_registry.h"
 
 #include "tile.h"
+#include "animation.h"
 #include "proto.h"
 
 #include <ostream>
@@ -83,6 +84,13 @@ int ck_object_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
+	}
+
+	if (fallout::reg_anim_begin(0) == 0) {
+		fallout::animationRegisterMoveToTile(critter, 20913, critter->elevation, -1, 0);
+		fallout::reg_anim_end();
+	} else {
+		std::cout << "[CK Debug] FAILED to register animation" << std::endl;
 	}
 
 	return lua_id;

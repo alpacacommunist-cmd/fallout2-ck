@@ -22,8 +22,8 @@ void lua_push_args(lua_State* L, T first, Args... args) {
 }
 
 template<typename... Args>
-void ck_call_lua_hook(const char* hook_name, Args... args) {
-	if (gLuaState == nullptr) return;
+bool ck_call_lua_hook(const char* hook_name, Args... args) {
+	if (gLuaState == nullptr) return false;
 
 	lua_getglobal(gLuaState, hook_name);
 
@@ -31,15 +31,17 @@ void ck_call_lua_hook(const char* hook_name, Args... args) {
 		int args_count = sizeof...(Args);
 		lua_push_args(gLuaState, args...);
 
-		int status = lua_pcall(gLuaState, args_count, 0, 0);
+		int status = lua_pcall(gLuaState, args_count, 1, 0);
 
 		if (status != LUA_OK) {
 			std::cerr << "[CK] Hook Error (" << hook_name << "): " << lua_tostring(gLuaState, -1) << std::endl;
-			lua_pop(gLuaState, 1);
 		}
-	} else {
-		lua_pop(gLuaState, 1);
 	}
+
+	bool result = lua_toboolean(gLuaState, -1);
+	lua_pop(gLuaState, 1);
+
+	return result;
 }
 
 inline void ck_create_global_subtable(const char* global_name, const char* sub_table_name) {
