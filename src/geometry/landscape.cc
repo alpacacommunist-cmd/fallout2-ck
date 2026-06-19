@@ -37,47 +37,46 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     });
 }
 
-extern "C" {
-	int ck_proto_first_exit_grid_pid() { return FIRST_EXIT_GRID_PID; }
-	int ck_proto_last_exit_grid_pid()  { return LAST_EXIT_GRID_PID; }
+// FFI
+int ck_proto_first_exit_grid_pid() { return FIRST_EXIT_GRID_PID; }
+int ck_proto_last_exit_grid_pid()  { return LAST_EXIT_GRID_PID; }
 
-	void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid) {
-		std::vector<int> tiles = { left, right, top, bottom };
-		HexRect rect = geometry_build_rect_from_points(tiles);
+void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid) {
+	std::vector<int> tiles = { left, right, top, bottom };
+	HexRect rect = geometry_build_rect_from_points(tiles);
 
-		if (!rect.is_valid()) return;
+	if (!rect.is_valid()) return;
 
-		ck_landscape_destroy_in_rect_match(rect, [pid](int obj_pid) { return obj_pid == pid; });
-	}
-
-	void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom) {
-		std::vector<int> tiles = { left, right, top, bottom };
-		HexRect rect = geometry_build_rect_from_points(tiles);
-
-		if (!rect.is_valid()) return;
-
-		auto is_exit_grid = [](int obj_pid) {
-			return obj_pid >= FIRST_EXIT_GRID_PID && obj_pid <= LAST_EXIT_GRID_PID;
-		};
-
-		ck_landscape_destroy_in_rect_match(rect, is_exit_grid);
-	}
-
-	void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data) {
-		std::vector<int> tiles = { t1, t2, t3, t4 };
-		HexRect rect = geometry_build_rect_from_points(tiles);
-		if (!rect.is_valid()) return;
-
-		rect.for_each_tile([pid, &data](int tile) {
-				fallout::Object* obj = ck_object_create(pid, tile);
-
-				if (obj != nullptr) {
-				obj->data.misc.map       = data.target_map;
-				obj->data.misc.tile      = data.target_tile;
-				obj->data.misc.elevation = data.target_elevation;
-				obj->data.misc.rotation  = data.target_rotation;
-				}
-		});
-	}
-
+	ck_landscape_destroy_in_rect_match(rect, [pid](int obj_pid) { return obj_pid == pid; });
 }
+
+void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom) {
+	std::vector<int> tiles = { left, right, top, bottom };
+	HexRect rect = geometry_build_rect_from_points(tiles);
+
+	if (!rect.is_valid()) return;
+
+	auto is_exit_grid = [](int obj_pid) {
+		return obj_pid >= FIRST_EXIT_GRID_PID && obj_pid <= LAST_EXIT_GRID_PID;
+	};
+
+	ck_landscape_destroy_in_rect_match(rect, is_exit_grid);
+}
+
+void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data) {
+	std::vector<int> tiles = { t1, t2, t3, t4 };
+	HexRect rect = geometry_build_rect_from_points(tiles);
+	if (!rect.is_valid()) return;
+
+	rect.for_each_tile([pid, &data](int tile) {
+			fallout::Object* obj = ck_object_create(pid, tile);
+
+			if (obj != nullptr) {
+			obj->data.misc.map       = data.target_map;
+			obj->data.misc.tile      = data.target_tile;
+			obj->data.misc.elevation = data.target_elevation;
+			obj->data.misc.rotation  = data.target_rotation;
+			}
+	});
+}
+

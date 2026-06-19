@@ -27,18 +27,14 @@ events.on('onMapEnter', function()
     style = 2
   })
 
-  -- for _, scenery in ipairs(outskirts.mountainScenery) do
-  --   map.place(scenery.fid, scenery.tile, { mode = "draw" })
-  -- end
-  map.add_scenery_bulk(outskirts.mountainScenery)
-  map.add_tiles_bulk(outskirts.mountainTiles)
+  map.batch.scenery(outskirts.mountainScenery)
+  map.batch.tiles(outskirts.mountainTiles)
 
-  -- for _, tile in ipairs(outskirts.mountainTiles) do
-  --   map.place(tile.fid, tile.tile, { type = "tile" })
-  -- end
+  map.batch.clear(outskirts.removeBlockers)
+  map.batch.blockers(outskirts.createBlockers)
 
-  for _, tile in ipairs(outskirts.removeBlockers) do map.remove_blocker(tile) end
-  for _, tile in ipairs(outskirts.createBlockers) do map.create_blocker(tile) end
+  -- for _, tile in ipairs(outskirts.removeBlockers) do map.remove_blocker(tile) end
+  -- for _, tile in ipairs(outskirts.createBlockers) do map.create_blocker(tile) end
 
   map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
   map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},

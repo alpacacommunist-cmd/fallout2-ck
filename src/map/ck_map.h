@@ -45,19 +45,4 @@ CK_API void ck_map_create_critter_pid(int pid, int tile, int sid);
 CK_API int  ck_map_register_object(int artId, int tile);
 CK_API int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
 
-struct CkFFITile {
-    int tile;
-    int fid; // -1 means use key
-    const char* key; // nullptr if fid != -1
-};
-
-struct CkFFIScenery {
-    int tile;
-    int fid;
-    const char* key;
-};
-
-CK_API void ck_map_bulk_add_tiles(const CkFFITile* tiles, int count);
-CK_API void ck_map_bulk_add_scenery(const CkFFIScenery* sceneries, int count);
-
 #endif

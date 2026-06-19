@@ -87,6 +87,20 @@ int ck_object_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
 	return lua_id;
 }
 
+void ck_object_remove_at(int tile) {
+	std::vector<fallout::Object*> to_delete;
+	fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+
+	if (object == nullptr) return;
+
+	while (object != nullptr) {
+		fallout::Object* next_object = fallout::objectFindNextAtLocation();
+		to_delete.push_back(object); object = next_object;
+	}
+
+    for (fallout::Object* object : to_delete) { fallout::objectDestroy(object, nullptr); }
+}
+
 void ck_object_remove_blocker_at(int tile) {
 	fallout::Object* blocker = ck_object_blocker_at(tile);
 

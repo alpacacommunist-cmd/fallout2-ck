@@ -2,6 +2,7 @@
 #include "ck_rendering.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "map/ck_map.h"
+#include "map/ck_map_batch.h"
 #include "object/ck_object.h"
 
 #include "tile.h"
@@ -70,8 +71,6 @@ const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
 
 // ffi
 
-extern "C" {
-
 int ck_map_get_id() {
 	return fallout::mapGetCurrentMap();
 }
@@ -90,23 +89,6 @@ void ck_map_add_tile_fid(int fid, int tile) {
 
 void ck_map_add_tile_key(const char* key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
-}
-
-void ck_map_bulk_add_tiles(const CkFFITile* tiles, int count) {
-    for (int i = 0; i < count; ++i) {
-        const auto& src = tiles[i];
-
-        if (src.key != nullptr) ck_rendering_add_custom_tile(src.key, src.tile);
-        else ck_rendering_add_tile(src.fid, src.tile);
-    }
-}
-
-void ck_map_bulk_add_scenery(const CkFFIScenery* sceneries, int count) {
-    for (int i = 0; i < count; ++i) {
-        const auto& src = sceneries[i];
-        if (src.key != nullptr) ck_rendering_add_custom_scenery(src.key, src.tile);
-        else ck_rendering_add_scenery(src.fid, src.tile);
-    }
 }
 
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
@@ -147,4 +129,35 @@ int ck_map_register_critter(int pid, int tile, const char* name, const char* des
     return ck_object_register_critter(pid, tile, meta);
 }
 
+void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = tiles[i];
+
+        if (src.key != nullptr) ck_rendering_add_custom_tile(src.key, src.tile);
+        else ck_rendering_add_tile(src.fid, src.tile);
+    }
+}
+
+void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = sceneries[i];
+        if (src.key != nullptr) ck_rendering_add_custom_scenery(src.key, src.tile);
+        else ck_rendering_add_scenery(src.fid, src.tile);
+    }
+}
+
+void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = blockers[i];
+
+		if (src.tile != -1) ck_object_create_blocker_at(src.tile);
+    }
+}
+
+void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
+    for (int i = 0; i < count; ++i) {
+        const auto& src = tiles[i];
+
+		if (src.tile != -1) ck_object_remove_at(src.tile);
+    }
 }
