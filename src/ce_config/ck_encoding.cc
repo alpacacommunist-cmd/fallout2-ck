@@ -21,33 +21,50 @@ std::string utf8_to_cp1251(const std::string& utf8) {
             i++;
         } else if (c == 0xD0 && i + 1 < utf8.size()) {
             unsigned char c2 = utf8[i + 1];
-
             if (c2 == 0x81) {
                 result += (char)0xA8; // Ё
             } else if (c2 >= 0x90 && c2 <= 0xBF) {
-                // А(0x90)..я(0xBF) -> cp1251 0xC0..0xEF
-                result += (char)(c2 - 0x90 + 0xC0);
-            } else {
-                result += '?'; // unknown symbol
-            }
-
-            i += 2;
-        } else if (c == 0xD1 && i + 1 < utf8.size()) {
-            unsigned char c2 = utf8[i + 1];
-
-            if (c2 == 0x91) {
-                result += (char)0xB8; // ё
-            } else if (c2 >= 0x80 && c2 <= 0x8F) {
-                // р(0x80)..я(0x8F) -> cp1251 0xF0..0xFF
-                result += (char)(c2 - 0x80 + 0xF0);
+                result += (char)(c2 - 0x90 + 0xC0); // А..я
             } else {
                 result += '?';
             }
-
             i += 2;
+        } else if (c == 0xD1 && i + 1 < utf8.size()) {
+            unsigned char c2 = utf8[i + 1];
+            if (c2 == 0x91) {
+                result += (char)0xB8; // ё
+            } else if (c2 >= 0x80 && c2 <= 0x8F) {
+                result += (char)(c2 - 0x80 + 0xF0); // р..я
+            } else {
+                result += '?';
+            }
+            i += 2;
+        } else if (c == 0xC2 && i + 1 < utf8.size()) {
+            // Обработка символов из латиницы-1 / знаков препинания (2 байта)
+            unsigned char c2 = utf8[i + 1];
+            if (c2 == 0xAB) {
+                result += (char)0xAB; // « (Левая кавычка в CP1251)
+            } else if (c2 == 0xBB) {
+                result += (char)0xBB; // » (Правая кавычка в CP1251)
+            } else if (c2 == 0xA0) {
+                result += (char)0x20; // Неразрывный пробел -> обычный пробел
+            } else {
+                result += '?';
+            }
+            i += 2;
+        } else if (c == 0xE2 && i + 2 < utf8.size() && utf8[i + 1] == 0x80) {
+            // Обработка популярных 3-байтовых символов пунктуации (тире, многоточие)
+            unsigned char c3 = utf8[i + 2];
+            if (c3 == 0x94 || c3 == 0x93) {
+                result += (char)0x96; // Длинное/среднее тире — -> в CP1251 тире (0x96)
+            } else if (c3 == 0xA6) {
+                result += "...";       // Многоточие … -> превращаем в три точки
+            } else {
+                result += '?';
+            }
+            i += 3;
         } else {
-            // skip other multibyte symbols
-            // first bite is length
+            // Безопасный пропуск всех остальных неизвестных многобайтовых UTF-8 символов
             if ((c & 0xE0) == 0xC0)      i += 2;
             else if ((c & 0xF0) == 0xE0) i += 3;
             else if ((c & 0xF8) == 0xF0) i += 4;

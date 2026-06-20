@@ -1,5 +1,6 @@
 #include "ck_ids.h"
 #include "ck_utils.h"
+#include "ck_encoding.h"
 
 #include "scripts.h"
 #include "game_dialog.h"
@@ -63,12 +64,14 @@ namespace ck {
 	}
 
 	void dialog_set_reply(const char* text) {
-		fallout::gameDialogSetTextReply(program_get_dummy(), -4, text);
+		std::string converted = utf8_to_cp1251(text);
+		fallout::gameDialogSetTextReply(program_get_dummy(), -4, converted.c_str());
 	}
 
 	void dialog_add_option(const char* text, int reaction) {
+		std::string converted = utf8_to_cp1251(text);
 		// proc=0 — no int procedures
-		fallout::gameDialogAddTextOptionWithProc(-4, text, 0, reaction);
+		fallout::gameDialogAddTextOptionWithProc(-4, converted.c_str(), 0, reaction);
 	}
 
 	int dialog_go() {

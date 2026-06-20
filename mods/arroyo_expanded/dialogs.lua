@@ -1,60 +1,61 @@
-local log = require('ck.fallout2.log')
+local i18n = require('ck.fallout2.i18n')
+local    T = i18n.bind('arroyo_expanded')
 
 local dialogs = { alice_nodes = {}, minoc_fn = {} }
 
-dialogs.alice_nodes.en = {
+dialogs.alice_nodes = {
   init = function(ctx)
-    ctx.reply("You see a young woman typing furiously on a pip-boy-like device. She looks up. 'Hello, traveler. I'm Alice. I'm currently refactoring a distributed wasteland network. Do you happen to know Erlang?'")
+    ctx.reply(T["alice.init_reply"])
 
     if true then
-      ctx.option("Erlang? Fascinating. Are you utilizing the Actor model for concurrent message passing?", "talk_tech", "GOOD")
+      ctx.option(T["alice.init_opt_tech"], "talk_tech", "GOOD")
     else
-      ctx.option("Er... lang? Is that some kind of pre-war energy drink?", "dumb_reply", "NEUTRAL")
+      ctx.option(T["alice.init_opt_dumb"], "dumb_reply", "NEUTRAL")
     end
 
-    ctx.option("I don't care about your gibberish. Hand over your caps!", "robbery_attempt", "BAD")
-    ctx.option("Just passing through. Goodbye.", "exit_friendly")
+    ctx.option(T["alice.init_opt_rob"], "robbery_attempt", "BAD")
+    ctx.option(T["alice.init_opt_exit"], "exit_friendly")
   end,
 
   talk_tech = function(ctx)
-    ctx.reply("'Exactly! isolated processes, no shared state, pure asynchronous bliss. It's the only way to keep the wasteland's communications fault-tolerant. But the local shamans keep saying it's black magic.'")
+    ctx.reply(T["alice.talk_tech_reply"])
 
-    ctx.option("Tell me more about how you handle node failures.", "talk_nodes", "GOOD")
-    ctx.option("Sounds like a lot of work. Can I help you with anything?", "ask_quest", "NEUTRAL")
-    ctx.option("You are completely crazy. I'm leaving.", "exit_friendly")
+    ctx.option(T["alice.talk_tech_opt_nodes"], "talk_nodes", "GOOD")
+    ctx.option(T["alice.talk_tech_opt_quest"], "ask_quest", "NEUTRAL")
+    ctx.option(T["alice.talk_tech_opt_exit"], "exit_friendly")
   end,
 
   talk_nodes = function(ctx)
-    ctx.reply("'Let it crash! That's our motto. Supervisors will restart the failed processes automatically. It's much better than defensive programming.' She smiles warmly.")
+    ctx.reply(T["alice.talk_nodes_reply"])
 
-    ctx.option("Brilliant approach. Let's talk about something else.", "talk_tech", "NEUTRAL")
-    ctx.option("Alright, I must go. Keep up the good work!", "exit_friendly", "GOOD")
+    ctx.option(T["alice.talk_nodes_opt_back"], "talk_tech", "NEUTRAL")
+    ctx.option(T["alice.talk_nodes_opt_exit"], "exit_friendly", "GOOD")
   end,
 
   dumb_reply = function(ctx)
-    ctx.reply("Alice sighs deeply, looking disappointed. 'No, it's not a drink. It's a programming language. Go talk to Torr, I think you two would find a lot of common ground.'")
+    ctx.reply(T["alice.dumb_reply_reply"])
 
-    ctx.option("Me like Torr! Torr guard moomoo!", "dumb_exit", "GOOD")
-    ctx.option("Ug... drink sound better. Bye.", "dumb_exit", "NEUTRAL")
+    ctx.option(T["alice.dumb_reply_opt_torr"], "dumb_exit", "GOOD")
+    ctx.option(T["alice.dumb_reply_opt_exit"], "dumb_exit", "NEUTRAL")
   end,
 
   robbery_attempt = function(ctx)
-    ctx.reply("Alice steps back, her hand dropping near a concealed laser pistol. 'Try it, tribal. And my defense processes will terminate your lifecycle before you can even blink.'")
+    ctx.reply(T["alice.robbery_reply"])
 
-    ctx.option("Whoa, easy! I was just joking.", "talk_tech", "GOOD")
-    ctx.option("You and what army? Prepare to die!", "combat_trigger", "BAD")
+    ctx.option(T["alice.robbery_opt_easy"], "talk_tech", "GOOD")
+    ctx.option(T["alice.robbery_opt_kill"], "combat_trigger", "BAD")
   end,
 
   ask_quest = function(ctx)
-    ctx.reply("'Actually, yes. A pack of geckos chewed through my external antenna array. If you clear them out, I can reward you with some pre-war electronic scrap. Deal?'")
+    ctx.reply(T["alice.ask_quest_reply"])
 
-    ctx.option("Consider it done. I'll be back soon.", "quest_accepted", "GOOD")
-    ctx.option("No thanks, find another errand boy.", "talk_tech", "NEUTRAL")
+    ctx.option(T["alice.ask_quest_opt_yes"], "quest_accepted", "GOOD")
+    ctx.option(T["alice.ask_quest_opt_no"], "talk_tech", "NEUTRAL")
   end,
 
   quest_accepted = function(ctx)
-    ctx.reply("'Excellent. Don't let them bite you. Radiation is bad for your state.'")
-    ctx.option("[Leave]", "exit_friendly")
+    ctx.reply(T["alice.quest_acc_reply"])
+    ctx.option(T["alice.quest_acc_opt_leave"], "exit_friendly")
   end,
 
   dumb_exit = function(ctx)
@@ -62,13 +63,12 @@ dialogs.alice_nodes.en = {
   end,
 
   exit_friendly = function(ctx)
-    ctx.reply("'Safe travels. Remember: let it crash!'")
+    ctx.reply(T["alice.exit_friendly_reply"])
     ctx.exit()
   end,
 
   combat_trigger = function(ctx)
     ctx.exit()
-    log.print("COMBAT STARTED WITH NPC: " .. tostring(ctx.npc_id))
   end
 }
 
