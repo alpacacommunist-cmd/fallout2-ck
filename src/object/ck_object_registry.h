@@ -9,9 +9,6 @@ namespace fallout {
 }
 
 struct LuaCritterMeta {
-    std::string name;
-    std::string description;
-
 	int proto_sid;
 };
 

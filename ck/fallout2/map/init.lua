@@ -12,9 +12,7 @@ ffi.cdef[[
   void ck_map_create_blocker(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
-  void ck_map_create_critter_pid(int pid, int tile, int sid);
   int  ck_map_register_object(int artId, int tile);
-  int  ck_map_register_critter(int pid, int tile, const char* name, const char* description);
 
   void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
 ]]
@@ -43,18 +41,6 @@ map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.register_object   = C.ck_map_register_object
 map.rendering_refresh = ck.rendering.refresh
-
-map.register_critter = function(pid, tile, meta)
-  local name = ""
-  local description = ""
-
-  if type(meta) == "table" then
-    name        = meta.name or name
-    description = meta.description or description
-  end
-
-  return C.ck_map_register_critter(pid, tile, name, description)
-end
 
 function map.place(value, tile, config)
   config = config or {}

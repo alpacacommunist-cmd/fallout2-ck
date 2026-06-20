@@ -43,10 +43,6 @@ void ck_map_add_tile(const std::string& key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-int ck_map_register_critter(int pid, int tile, const LuaCritterMeta& meta) {
-	return ck_object_register_critter(pid, tile, meta);
-}
-
 bool ck_map_is_camera_position_allowed(int tile) {
     if (!gCameraBorders.enabled) { return false; }
 
@@ -112,21 +108,9 @@ void ck_map_create_object_fid(int fid, int tile) {
 	ck_object_create_at(fid, tile);
 }
 
-void ck_map_create_critter_pid(int pid, int tile, int sid) {
-	ck_object_create_critter(pid, tile);
-}
-
 int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
     return ck_object_register_object(fid, tile);
-}
-
-int ck_map_register_critter(int pid, int tile, const char* name, const char* description) {
-    LuaCritterMeta meta;
-    meta.name = std::string(name);
-    meta.description = std::string(description);
-
-    return ck_object_register_critter(pid, tile, meta);
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
