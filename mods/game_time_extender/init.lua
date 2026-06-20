@@ -5,7 +5,6 @@ local config = require('ck.fallout2.config')
 local log    = require('ck.fallout2.log')
 local events = require('ck.fallout2.events')
 local game_time = require('ck.fallout2.game_time')
-local respawn = require('ck.fallout2.respawn')
 
 -- we're gona use a separate config module
 -- engine doesn't do none of this yet, that's just front
@@ -32,8 +31,6 @@ events.on('onDayPassed', function()
   log.print("Is it morning time: " .. tostring(game_time.is_morning()))
   log.print("Is it day time: " .. tostring(game_time.is_day()))
   log.print("Is it evening time: " .. tostring(game_time.is_evening()))
-
-  log.print("Respawn ready after 3 days since day 0: " .. tostring(respawn.is_ready(0, 3)))
 end)
 
 events.on('onTimeAdvance', function(hours, minutes)
