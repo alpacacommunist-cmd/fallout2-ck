@@ -4,6 +4,7 @@
 
 #include "ck_scripting.h"
 #include "ck_utils.h"
+#include "ck_encoding.h"
 
 #include "ce_config/ck_config_patch.h"
 #include "ce_config/ck_message_patch.h"
@@ -170,21 +171,20 @@ void ck_call_hook(const char* name) {
     }
 }
 
-// bindings
-// C <-> Lua contract, raw -> registered -> lua api
-//
 // l_ck_log_print -> ckLogPrint -> fallout2.log.print
 int l_ck_log_print(lua_State* L) {
-	// Safely extract a string we got from Lua
-	// example: fallout2.log.print(123), LuaJIT makes it '123'
 	const char* message = luaL_checkstring(L, 1);
 
 	if (message != nullptr) {
-		// try send message to monitor
-		fallout::displayMonitorAddMessage(message);
+		if (fallout::settings.system.language != "english") {
+			std::cout << "[CK] non english string" << std::endl;
+			fallout::displayMonitorAddMessage(utf8_to_cp1251(message).c_str());
+		} else {
+			fallout::displayMonitorAddMessage(message);
+		}
 	}
 
-	return 0; // nothing to return
+	return 0;
 }
 
 static int l_ck_register_location(lua_State* L) {

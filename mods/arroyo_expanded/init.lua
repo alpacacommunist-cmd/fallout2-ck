@@ -26,7 +26,7 @@ events.on('onMapEnter', function()
 
   local alice = critters.register(16777218, 19908, {
     name = "Alice",
-    description = "You see Alice. She knows erlang"
+    description = "Привет"
   })
 
   alice
