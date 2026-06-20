@@ -22,15 +22,20 @@ local dialogue = {
   reactions = { GOOD = 49, NEUTRAL = 50, BAD = 51 }
 }
 
+dialogue.set_reply = ck.dialogue.set_reply
+dialogue.go        = ck.dialogue.go
+dialogue.init_ui   = ck.dialogue.init_ui
+dialogue.close_ui  = ck.dialogue.close_ui
+
 function dialogue.add_option(text, reaction)
   ck.dialogue.add_option(text, reaction or dialogue.reactions.NEUTRAL)
 end
 
-dialogue.set_reply = ck.dialogue.set_reply
-dialogue.go        = ck.dialogue.go
-dialogue.exit      = ck.dialogue.exit
-dialogue.init_ui   = ck.dialogue.init_ui
-dialogue.close_ui  = ck.dialogue.close_ui
+function dialogue.exit()
+  ck.dialogue.exit()
+  dialogue.close_ui()
+end
+
 
 -- npc_id -> dialog function
 local registry = {}
@@ -132,7 +137,6 @@ function dialogue.start(npc_id)
   end
 
   dialogue.exit()
-  dialogue.close_ui()
 end
 
 return dialogue
