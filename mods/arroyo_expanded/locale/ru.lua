@@ -33,6 +33,6 @@ return {
     quest_acc_reply = "«Отлично. И не давай им себя укусить. Радиация вредит твоему состоянию (state)».",
     quest_acc_opt_leave = "[Уйти]",
 
-    exit_friendly_reply = "«Безопасных дорог. И помни: let it crash!»"
+    exit_friendly_reply = "«Давай-давай, удачи. let it crash!»"
   }
 }

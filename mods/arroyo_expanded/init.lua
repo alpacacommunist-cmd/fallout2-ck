@@ -8,6 +8,7 @@ local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
 local dialogue    = require('ck.fallout2.dialogue')
 local i18n        = require('ck.fallout2.i18n')
+local player      = require('ck.fallout2.player')
 
 events.on('onGameLoaded', function()
 end)

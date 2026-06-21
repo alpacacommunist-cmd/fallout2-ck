@@ -4,6 +4,7 @@
 #include "object/ck_critter.h"
 
 #include "animation.h"
+#include "stat.h"
 
 #include <iostream>
 #include <ostream>
@@ -46,6 +47,14 @@ namespace ck {
 		}
 
 		return lua_id;
+	}
+
+	int critter_stat(fallout::Object* critter, int stat) {
+		return fallout::critterGetStat(critter, stat);
+	}
+
+	int critter_pc_stat(int stat) {
+		return fallout::pcGetStat(stat);
 	}
 
 }

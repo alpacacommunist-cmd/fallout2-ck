@@ -1,4 +1,5 @@
-local i18n = require('ck.fallout2.i18n')
+local i18n   = require('ck.fallout2.i18n')
+local player = require('ck.fallout2.player')
 local    T = i18n.bind('arroyo_expanded')
 
 local dialogs = { alice_nodes = {}, minoc_fn = {} }
@@ -7,7 +8,7 @@ dialogs.alice_nodes = {
   init = function(ctx)
     ctx.reply(T["alice.init_reply"])
 
-    if true then
+    if player.stats.intelligence > 7 then
       ctx.option(T["alice.init_opt_tech"], "talk_tech", "GOOD")
     else
       ctx.option(T["alice.init_opt_dumb"], "dumb_reply", "NEUTRAL")
