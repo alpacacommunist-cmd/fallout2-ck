@@ -5,6 +5,7 @@ local CritterClass = require("ck.fallout2.classes.critter")
 
 ffi.cdef[[
   int ck_critter_register(int pid, int tile);
+  void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 ]]
 
 local critters = {}

@@ -216,4 +216,3 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
     }
 }
 
-

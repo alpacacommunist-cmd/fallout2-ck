@@ -62,7 +62,7 @@ ffi.cdef[[
 ]]
 
 local player = {
-  id = nil
+  id = nil,
 
   stat = ffi.C.player_stat,
   pc_stat = ffi.C.player_pc_stat

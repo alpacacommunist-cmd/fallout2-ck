@@ -6,7 +6,6 @@ local log         = require('ck.fallout2.log')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
-local dialogue    = require('ck.fallout2.dialogue')
 local i18n        = require('ck.fallout2.i18n')
 local player      = require('ck.fallout2.player')
 
@@ -31,6 +30,8 @@ events.on('onMapEnter', function()
     :on('description', function(self) log.print(self.description) end)
 
   print("[CK] NPC ID: " .. tostring(alice.id))
+
+  alice:float_message("Здарова!", 2)
 
   local alice_dialogue = require('mods.arroyo_expanded.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)

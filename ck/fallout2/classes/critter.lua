@@ -1,3 +1,9 @@
+local ffi = require("ffi")
+
+ffi.cdef[[
+  void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
+]]
+
 local dialogue = require('ck.fallout2.dialogue')
 local log      = require('ck.fallout2.log')
 local objects  = require('ck.fallout2.objects')
@@ -16,10 +22,15 @@ function Critter.new(lua_id, config)
   return self
 end
 
+
 function Critter:on(event_name, callback)
   self.handlers[event_name] = callback
 
   return self
+end
+
+function Critter:float_message(text, type)
+  ffi.C.ck_critter_float_msg(self.id, text, type)
 end
 
 function Critter:_handle_proc(proc_id)

@@ -89,13 +89,7 @@ void ck_object_create_blocker_at(int tile) {
 }
 
 // ffi
-int ck_critter_register(int pid, int tile) {
-	return ck::register_critter(pid, tile);
-}
-
 int player_stat(int stat) {
-	std::cout << "[CK Debug] STAT " << stat << " value: " << ck::critter_stat(fallout::gDude, stat) << std::endl;
-	std::cout << "[CK Debug] gDude pointer address: " << fallout::gDude << std::endl;
 	return ck::critter_stat(fallout::gDude, stat);
 }
 

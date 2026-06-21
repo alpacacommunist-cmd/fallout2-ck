@@ -1,4 +1,6 @@
+#include "ck_encoding.h"
 #include "ck_ids.h"
+
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
 #include "object/ck_critter.h"
@@ -57,5 +59,44 @@ namespace ck {
 		return fallout::pcGetStat(stat);
 	}
 
+}
+
+void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
+	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	if (!managed || !managed->ptr) return;
+
+	fallout::Object* obj = managed->ptr;
+	if (obj->elevation != fallout::gElevation) return;
+
+	int color = fallout::_colorTable[32747], background_color = fallout::_colorTable[0], font = 101;
+
+	switch (msg_type) {
+		case 1: // (FLOATING_MESSAGE_TYPE_WHITE)
+			color = fallout::_colorTable[32767];
+			break;
+		case 2: // (FLOATING_MESSAGE_TYPE_RED)
+			color = fallout::_colorTable[31744];
+			break;
+		case 3: // (FLOATING_MESSAGE_TYPE_GREEN)
+			color = fallout::_colorTable[992];
+			break;
+		case 4: // (FLOATING_MESSAGE_TYPE_BLUE)
+			color = fallout::_colorTable[31];
+			break;
+		default: // YELLOW
+			color = fallout::_colorTable[32747];
+			break;
+	}
+
+	fallout::Rect rect;
+	std::string converted = utf8_to_cp1251(text);
+
+	if (fallout::textObjectAdd(obj, const_cast<char*>(converted.c_str()), font, color, background_color, &rect) != -1) {
+		fallout::tileWindowRefreshRect(&rect, obj->elevation);
+	}
+}
+
+int ck_critter_register(int pid, int tile) {
+	return ck::register_critter(pid, tile);
 }
 
