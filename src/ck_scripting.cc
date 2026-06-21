@@ -12,7 +12,6 @@
 #include "ce_config/ck_map_patch.h"
 
 // bindings
-#include "rendering/rendering_bindings.h"
 #include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
@@ -177,7 +176,6 @@ int l_ck_log_print(lua_State* L) {
 
 	if (message != nullptr) {
 		if (fallout::settings.system.language != "english") {
-			std::cout << "[CK] non english string" << std::endl;
 			fallout::displayMonitorAddMessage(utf8_to_cp1251(message).c_str());
 		} else {
 			fallout::displayMonitorAddMessage(message);
@@ -245,14 +243,12 @@ void ck_scripting_init() {
 		lua_newtable(gLuaState);               // stack: [ck]
 		lua_setglobal(gLuaState, "ck");        // stack: []
 
-		ck_requiref(gLuaState, "ck.rendering", luaopen_ck_rendering, 1);
-		lua_pop(gLuaState, 1);
-
-		// ffi test
+		// ffi
+		ck_create_global_subtable("ck", "rendering");
 		ck_create_global_subtable("ck", "game_time");
 		ck_create_global_subtable("ck", "dialogue");
 		ck_create_global_subtable("ck", "map");
-		// ffi test end
+		// ffi end
 
 		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
 		lua_pop(gLuaState, 1);

@@ -36,7 +36,6 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_asset_registry.cc
     src/ck_assets/ck_proto_cache.cc
 
-    src/rendering/rendering_bindings.cc
     src/ck_assets/assets_bindings.cc
 
     src/game_time/ck_game_time.cc
@@ -50,6 +49,7 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc
     src/ck_debug_overlay/ck_debug_overlay_render.cc
 )
+target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 
 add_dependencies(fallout2-ck luajit_project)
 

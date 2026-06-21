@@ -7,7 +7,10 @@
 // а(0x430)..я(0x44F) -> cp1251 0xE0..0xFF
 // Ё(0x401) -> 0xA8, ё(0x451) -> 0xB8
 
+std::string system_language() { return fallout::settings.system.language; }
 std::string utf8_to_cp1251(const std::string& utf8) {
+	if ((system_language()) == "english") return utf8;
+
     std::string result;
     result.reserve(utf8.size());
 
@@ -76,3 +79,4 @@ std::string utf8_to_cp1251(const std::string& utf8) {
 
     return result;
 }
+

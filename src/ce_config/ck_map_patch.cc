@@ -17,12 +17,6 @@ bool ck_map_patch_header(const std::string& mapFilePath, const std::string& mapN
         return false;
     }
 
-    // std::string cleanName = mapName;
-    // size_t dot = cleanName.find('.');
-    // if (dot != std::string::npos) {
-    //     cleanName = cleanName.substr(0, dot);
-    // }
-
     // name patch
     char nameBuf[NAME_SIZE] = {0};
     strncpy(nameBuf, mapName.c_str(), NAME_SIZE - 1);

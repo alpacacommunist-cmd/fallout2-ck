@@ -1,6 +1,7 @@
 #ifndef CK_RENDERING_H
 #define CK_RENDERING_H
 
+#include "ck_api.h"
 #include <vector>
 #include <string>
 
@@ -9,8 +10,9 @@ namespace fallout {
 }
 
 void ck_rendering_render(fallout::Rect* rect);
-void ck_rendering_clear();
-void ck_rendering_refresh();
+
+CK_API void ck_rendering_clear();
+CK_API void ck_rendering_refresh();
 
 struct CkSceneryInstance {
     int tile;

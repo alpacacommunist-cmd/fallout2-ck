@@ -40,7 +40,6 @@ map.create_object_fid = C.ck_map_create_object_fid
 map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.register_object   = C.ck_map_register_object
-map.rendering_refresh = ck.rendering.refresh
 
 function map.place(value, tile, config)
   config = config or {}

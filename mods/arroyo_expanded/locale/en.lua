@@ -1,4 +1,7 @@
 return {
+  alice_name = "You see Alice",
+  alice_description = "You see some geek-looking female. She knows erlang",
+
   alice = {
     init_reply = "You see a young woman typing furiously on a pip-boy-like device. She looks up. 'Hello, traveler. I'm Alice. I'm currently refactoring a distributed wasteland network. Do you happen to know Erlang?'",
     init_opt_tech = "Erlang? Fascinating. Are you utilizing the Actor model for concurrent message passing?",

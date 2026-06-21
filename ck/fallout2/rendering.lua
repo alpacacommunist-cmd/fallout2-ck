@@ -1,19 +1,20 @@
 -- ck/fallout2/rendering.lua
+local ffi = require("ffi")
 
-local rendering = {}
+ffi.cdef[[
+  void ck_rendering_clear();
+  void ck_rendering_refresh();
+]]
 
--- one frame draw
-function rendering.drawScenery(fid, x, y)
-  ck.rendering.draw_scenery(fid, x, y)
-end
+local C = ffi.C
 
--- clear all
-function rendering.clear()
-  ck.rendering.clear()
-end
+ck.rendering.refresh = C.ck_rendering_refresh
+ck.rendering.clear   = C.ck_rendering_clear
 
-function rendering.refresh()
-  ck.rendering.refresh()
-end
+
+local rendering = {
+  refresh = ck.rendering.refresh,
+  clear   = ck.rendering.clear
+}
 
 return rendering

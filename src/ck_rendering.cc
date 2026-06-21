@@ -215,3 +215,5 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         draw_scenery_art(fid, offsetX, offsetY, rect);
     }
 }
+
+
