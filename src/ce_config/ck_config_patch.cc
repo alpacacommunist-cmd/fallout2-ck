@@ -62,13 +62,13 @@ int ck_config_next_area_index(const std::string& filePath) {
     return last == -1 ? 0 : last + 1;
 }
 
-void ck_config_patch_add(const std::string& filePath, const std::string& section,
-                         const std::string& key, const std::string& value) {
+void ck_config_patch_add(std::string_view filePath, std::string_view section,
+                         std::string_view key, std::string_view value) {
 
-	std::string normalized_path = filePath;
+	std::string normalized_path(filePath);
 	for (char& c : normalized_path) if (c == '\\') c = '/';
 
-    gPatches.push_back({ normalized_path, section, key, value });
+    gPatches.push_back({ normalized_path, std::string(section), std::string(key), std::string(value) });
     std::cout << "[CK Config Patch] Registered: ["
               << section << "] " << key << " = " << value
               << " (" << normalized_path << ")" << std::endl;

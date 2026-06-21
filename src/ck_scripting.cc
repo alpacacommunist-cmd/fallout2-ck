@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <format>
 
 #include "ck_scripting.h"
 #include "ck_utils.h"
@@ -118,11 +119,8 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
 
     // city.txt
-    std::string worldPos = std::to_string(worldX) + "," + std::to_string(worldY);
-    std::string entrance = "On," + std::to_string(entranceX) + ","
-                         + std::to_string(entranceY) + ","
-                         + name + ",-1,"
-                         + std::to_string(entranceTile) + ",0";
+	std::string worldPos = std::format("{},{}", worldX, worldY);
+	std::string entrance = std::format("On,{},{},{},-1,{},0", entranceX, entranceY, name, entranceTile);
 
     ck_config_patch_add("data\\city.txt", areaSection, "area_name",             name);
     ck_config_patch_add("data\\city.txt", areaSection, "world_pos",             worldPos);
@@ -143,7 +141,7 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, subName);
 
     // mod map file path
-    std::string mapFilePath = "../" + mapsDir + "/" + mapFileUpper + ".MAP";
+	std::string mapFilePath = std::format("../{}/{}.MAP", mapsDir, mapFileUpper);
 
     // only patch header once
     if (mapEntryIsNew) {
