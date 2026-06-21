@@ -2,31 +2,31 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
-#include "debug.h"
+#include <string_view>
 
 static std::vector<CkMessagePatch> gMessagePatches;
 
-void ck_message_patch_add(const std::string& filePath, int num, const std::string& text) {
-    gMessagePatches.push_back({ filePath, num, text });
+void ck_message_patch_add(std::string_view file_path, int num, std::string_view text) {
+	std::string normalized_path(file_path);
+	for (char& c : normalized_path) if (c == '\\') c = '/';
+
+    gMessagePatches.push_back({ normalized_path, num, std::string(text) });
     std::cout << "[CK Message Patch] Registered: {" << num << "} = "
-              << text << " (" << filePath << ")" << std::endl;
+              << text << " (" << normalized_path << ")" << std::endl;
 }
 
-void ck_message_patch_apply(fallout::MessageList* list, const char* filePath) {
-    if (list == nullptr || filePath == nullptr) return;
+void ck_message_patch_apply(fallout::MessageList* list, const char* file_path) {
+    if (list == nullptr || file_path == nullptr) return;
 
     // normalize path
-    std::string checkPath = filePath;
-    for (char& c : checkPath) if (c == '\\') c = '/';
+	std::string check_path = file_path;
+    for (char& c : check_path) if (c == '\\') c = '/';
 
     int applied = 0;
     for (const auto& patch : gMessagePatches) {
-        std::string patchPath = patch.filePath;
-        for (char& c : patchPath) if (c == '\\') c = '/';
-
         // check the filepath end — "worldmap.msg" matches every path
-        if (checkPath.find(patchPath) != std::string::npos ||
-            patchPath.find(checkPath) != std::string::npos) {
+        if (check_path.find(patch.file_path) != std::string::npos ||
+            patch.file_path.find(check_path) != std::string::npos) {
 
             // static buffers — MessageListItem char*
             // using strdup to keep alive
@@ -34,18 +34,19 @@ void ck_message_patch_apply(fallout::MessageList* list, const char* filePath) {
             item.num   = patch.num;
             item.flags = 0;
             item.audio = const_cast<char*>("");
-            item.text  = strdup(patch.text.c_str());
+			item.text  = const_cast<char*>(patch.text.c_str());
 
             fallout::_message_addExternal(list, &item);
-			fallout::debugPrint("[CK DEBUG] Added message num=%d text=%s to list\n",
-					item.num, item.text);
+			// fallout::debugPrint("[CK DEBUG] Added message num=%d text=%s to list\n",
+			// 		item.num, item.text);
+			std::cout << "[CK DEBUG] Added message num=" << item.num << " text=" << item.text << std::endl;
             applied++;
         }
     }
 
     if (applied > 0) {
         std::cout << "[CK Message Patch] Applied " << applied
-                  << " messages to: " << filePath << std::endl;
+                  << " messages to: " << file_path << std::endl;
     }
 }
 
