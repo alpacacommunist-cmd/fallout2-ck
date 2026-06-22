@@ -3,6 +3,7 @@ local ffi = require("ffi")
 ffi.cdef[[
   int ck_object_get_tile(int lua_id);
   int ck_object_get_sid(int lua_id);
+  void* ck_object_get_ptr(int lua_id);
 ]]
 
 local objects = require('ck.fallout2.objects')
@@ -17,6 +18,7 @@ function Object.new(lua_id, config)
 
   self.id          = lua_id
   self.sid         = ffi.C.ck_object_get_sid(lua_id)
+  self.c_ptr       = ffi.C.ck_object_get_ptr(lua_id)
 
   self.name        = config.name
   self.description = config.description

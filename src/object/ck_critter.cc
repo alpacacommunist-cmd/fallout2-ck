@@ -5,11 +5,19 @@
 #include "object/ck_object_registry.h"
 #include "object/ck_critter.h"
 
-#include "animation.h"
 #include "stat.h"
 
 #include <iostream>
 #include <ostream>
+
+namespace fallout {
+    int reg_anim_begin(int requestOptions);
+    int reg_anim_end();
+    int animationIsBusy(Object* obj);
+
+    int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
+    int animationRegisterAnimate(Object* obj, int anim_id, int a3);
+}
 
 namespace ck {
 
@@ -39,13 +47,6 @@ namespace ck {
 
 			int custom_sid = ck::make_sid(lua_id);
 			critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
-		}
-
-		if (fallout::reg_anim_begin(0) == 0) {
-			fallout::animationRegisterMoveToTile(critter, 20913, critter->elevation, -1, 0);
-			fallout::reg_anim_end();
-		} else {
-			std::cout << "[CK Debug] FAILED to register animation" << std::endl;
 		}
 
 		return lua_id;
@@ -100,3 +101,29 @@ int ck_critter_register(int pid, int tile) {
 	return ck::register_critter(pid, tile);
 }
 
+int ck_anim_begin(void* ptr, int request_options) {
+	return fallout::reg_anim_begin(request_options);
+}
+
+int ck_anim_move_to(void* ptr, int tile, int elevation) {
+	if (!ptr) return -1;
+	auto* obj = static_cast<fallout::Object*>(ptr);
+	return fallout::animationRegisterMoveToTile(obj, tile, elevation, -1, 0);
+}
+
+int ck_anim_play(void* ptr, int anim_id) {
+	if (!ptr) return -1;
+	auto* obj = static_cast<fallout::Object*>(ptr);
+	return fallout::animationRegisterAnimate(obj, anim_id, 0);
+}
+
+int ck_anim_end() {
+	return fallout::reg_anim_end();
+}
+
+bool ck_critter_is_busy(void* ptr) {
+	if (!ptr) return false;
+	auto* obj = static_cast<fallout::Object*>(ptr);
+
+	return fallout::animationIsBusy(obj) == -1;
+}

@@ -111,8 +111,8 @@ function ckOnMapUpdate(ticks)
   last_update_time = ticks
 
   for _, object in pairs(objects.registry) do
-    if object.handlers and object.handlers['map_update'] then
-      local success, err = pcall(object.handlers['map_update'], object)
+    if object._handle_map_update then
+      local success, err = pcall(object._handle_map_update, object, ticks)
 
       if not success then
         print("[CK Error] Error in 'map_update' for object " .. tostring(object.id) .. ": " .. tostring(err))
@@ -132,13 +132,5 @@ function ckOnObjectsDestroyed()
   objects.registry = {}
   print("[CK Objects] Registry cleared")
 end
-
-
--- function ckOnDialogStart(id)
---   print("[CK Events] Dialog start for npc id: " .. tostring(id))
---   events.emit('onDialogStart', id)
---
---   -- dialogue.start(id)
--- end
 
 return events

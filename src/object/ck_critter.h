@@ -23,4 +23,10 @@ namespace ck {
 CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 CK_API int ck_critter_register(int pid, int tile);
 
+CK_API int ck_anim_begin(void* ptr, int weapon_ready);
+CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
+CK_API int ck_anim_play(void* ptr, int anim_id);
+CK_API bool ck_critter_is_busy(void* ptr);
+CK_API int ck_anim_end();
+
 #endif

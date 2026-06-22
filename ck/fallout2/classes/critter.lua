@@ -2,11 +2,16 @@ local ffi = require("ffi")
 
 ffi.cdef[[
   void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
+
+  int ck_anim_begin(void* ptr, int weapon_ready);
+  int ck_anim_move_to(void* ptr, int tile, int elevation);
+  int ck_anim_play(void* ptr, int anim_id);
+  bool ck_critter_is_busy(void* ptr);
+  int ck_anim_end();
 ]]
 
 local dialogue = require('ck.fallout2.dialogue')
 local log      = require('ck.fallout2.log')
--- local objects  = require('ck.fallout2.objects')
 
 local Object = require("ck.fallout2.classes.object")
 
@@ -22,12 +27,6 @@ function Critter.new(lua_id, config)
 
   return self
 end
-
--- function Critter:on(event_name, callback)
---   self.handlers[event_name] = callback
---
---   return self
--- end
 
 function Critter:float_message(text, type)
   ffi.C.ck_critter_float_msg(self.id, text, type)
@@ -63,10 +62,44 @@ function Critter:_handle_proc(proc_id)
   return false
 end
 
--- function Critter:walk_to(target_tile)
---   fallout.reg_anim_begin(0)
---   fallout.animationRegisterMoveToTile(self.id, target_tile, 0, -1, 0)
---   fallout.reg_anim_end()
--- end
+function Critter:is_busy()
+  return ffi.C.ck_critter_is_busy(self.c_ptr)
+end
+
+function Critter:animate(request_options)
+  request_options = request_options or 0
+
+  if ffi.C.ck_anim_begin(self.c_ptr, request_options) ~= 0 then
+    print("[CK Error] Failed to begin animation sequence")
+    return nil
+  end
+
+  local builder = {}
+  local obj_ptr = self.c_ptr
+
+  function builder:walk_to(target_tile, elevation)
+    ffi.C.ck_anim_move_to(obj_ptr, target_tile, elevation or 0)
+    return self
+  end
+
+  function builder:play(anim_id)
+    ffi.C.ck_anim_play(obj_ptr, anim_id)
+    return self
+  end
+
+  function builder:submit() ffi.C.ck_anim_end() end
+
+  return builder
+end
+
+function Critter:_handle_map_update(current_ticks)
+  if self.handlers['map_update'] then
+    self.handlers['map_update'](self)
+  end
+
+  if self.active_behavior then
+    self.active_behavior(self, current_ticks)
+  end
+end
 
 return Critter
