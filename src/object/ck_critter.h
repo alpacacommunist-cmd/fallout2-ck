@@ -22,7 +22,5 @@ namespace ck {
 
 CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 CK_API int ck_critter_register(int pid, int tile);
-CK_API int player_stat(int stat);
-CK_API int player_pc_stat(int stat);
 
 #endif

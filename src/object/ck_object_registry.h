@@ -13,9 +13,9 @@ struct LuaCritterMeta {
 };
 
 struct CkManagedObject {
-    fallout::Object* ptr   = nullptr;
-    int              luaId = -1;
-    bool             alive = true;
+    fallout::Object* ptr    = nullptr;
+    int              lua_id = -1;
+    bool             alive  = true;
 
 	LuaCritterMeta   meta;
 };
@@ -25,7 +25,7 @@ public:
     int  add(fallout::Object* obj, const LuaCritterMeta& meta = {});
 	bool remove_by_ptr(fallout::Object* ptr);
 
-	const CkManagedObject* get_managed(int luaId) const;
+	const CkManagedObject* get_managed(int lua_id) const;
 
     fallout::Object* get(int lua_id) const;
     int find_by_ptr(fallout::Object* ptr) const;

@@ -88,6 +88,15 @@ void ck_object_create_blocker_at(int tile) {
 	ck_object_create_at(BLOCKER_FID, tile);
 }
 
+int ck_object_get_sid_managed(int lua_id) {
+	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+
+	if (!managed || !managed->ptr) return -1;
+	if (!ck::is_ck_sid(ck::clean_sid(managed->ptr->sid))) return -1;
+
+	return ck::clean_sid(managed->ptr->sid);
+}
+
 // ffi
 int player_stat(int stat) {
 	return ck::critter_stat(fallout::gDude, stat);
@@ -96,3 +105,15 @@ int player_stat(int stat) {
 int player_pc_stat(int stat) {
 	return ck::critter_pc_stat(stat);
 }
+
+int ck_object_get_sid(int lua_id) {
+	return ck_object_get_sid_managed(lua_id);
+}
+
+int ck_object_get_tile(int lua_id) {
+	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	if (!managed || !managed->ptr) return -1;
+
+	return managed->ptr->tile;
+}
+

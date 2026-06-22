@@ -6,35 +6,35 @@ ffi.cdef[[
 
 local dialogue = require('ck.fallout2.dialogue')
 local log      = require('ck.fallout2.log')
-local objects  = require('ck.fallout2.objects')
+-- local objects  = require('ck.fallout2.objects')
+
+local Object = require("ck.fallout2.classes.object")
 
 local Critter = {}
+setmetatable(Critter, { __index = Object })
 Critter.__index = Critter
 
 function Critter.new(lua_id, config)
-  local self = setmetatable({}, Critter)
+  local self = Object.new(lua_id, config)
+  setmetatable(self, Critter)
 
-  self.id = lua_id
-  self.name = config.name
-  self.description = config.description
-  self.handlers = {}
+  self.active_behavior = nil
 
   return self
 end
 
-
-function Critter:on(event_name, callback)
-  self.handlers[event_name] = callback
-
-  return self
-end
+-- function Critter:on(event_name, callback)
+--   self.handlers[event_name] = callback
+--
+--   return self
+-- end
 
 function Critter:float_message(text, type)
   ffi.C.ck_critter_float_msg(self.id, text, type)
 end
 
 function Critter:_handle_proc(proc_id)
-  local event_name = objects.PROC_NAMES[proc_id]
+  local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
   if self.handlers[event_name] then

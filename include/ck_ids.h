@@ -10,15 +10,15 @@ static const int CK_SID_LIMIT = 10000;
 namespace ck {
 
 // ---- SID helpers ----
-inline int  make_sid(int luaId)       { return CK_SID_BASE + luaId; }
+inline int  make_sid(int lua_id)      { return CK_SID_BASE + lua_id; }
 inline bool is_ck_sid(int sid)        { return (sid >= CK_SID_BASE && sid <= CK_SID_LIMIT); }
 inline int  lua_id_from_sid(int sid)  { return sid - CK_SID_BASE; }
 inline int  make_full_sid(int scriptType, int customSid) {
     return (scriptType << 24) | (customSid & 0x00FFFFFF);
 }
 
-inline int clean_sid(int fullSid) {
-    return fullSid & 0x00FFFFFF;
+inline int clean_sid(int full_sid) {
+    return full_sid & 0x00FFFFFF;
 }
 
 // ---- PID helpers ----

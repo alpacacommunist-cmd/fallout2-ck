@@ -1,5 +1,4 @@
 local ffi     = require("ffi")
-local objects = require("ck.fallout2.objects")
 
 local CritterClass = require("ck.fallout2.classes.critter")
 
@@ -20,8 +19,6 @@ function critters.register(pid, tile, config)
   end
 
   local critter_instance = CritterClass.new(lua_id, config)
-
-  objects.registry[lua_id] = critter_instance
 
   return critter_instance
 end

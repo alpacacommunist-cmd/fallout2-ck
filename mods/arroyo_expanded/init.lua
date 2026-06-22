@@ -28,11 +28,12 @@ events.on('onMapEnter', function()
   alice
     :on('look_at', function(self) log.print(self.name) end)
     :on('description', function(self) log.print(self.description) end)
-    :on('map_update', function(self) self:float_message('hi', 1) end)
+    :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
   print("[CK] NPC ID: " .. tostring(alice.id))
 
-  alice:float_message("Здарова!", 2)
+  print(alice:tile())
+  print(alice.sid)
 
   local alice_dialogue = require('mods.arroyo_expanded.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)

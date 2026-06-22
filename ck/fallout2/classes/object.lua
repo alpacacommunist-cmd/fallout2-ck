@@ -1,26 +1,41 @@
+local ffi = require("ffi")
+
+ffi.cdef[[
+  int ck_object_get_tile(int lua_id);
+  int ck_object_get_sid(int lua_id);
+]]
+
+local objects = require('ck.fallout2.objects')
+
 local Object = {}
 Object.__index = Object
 
-function Object.new(lua_id, sid, config)
+Object.PROC_NAMES = objects.PROC_NAMES
+
+function Object.new(lua_id, config)
   local self = setmetatable({}, Object)
 
-  self.id = lua_id
-  self.sid = sid
-  self.name = config.name
+  self.id          = lua_id
+  self.sid         = ffi.C.ck_object_get_sid(lua_id)
+
+  self.name        = config.name
   self.description = config.description
+
   self.handlers = {}
 
-  Object.registry[lua_id] = self
+  objects.registry[lua_id] = self
 
   return self
 end
 
 function Object:on(event_name, callback)
   self.handlers[event_name] = callback
+
+  return self
 end
 
--- function Object:get_tile()
---     return fallout.obj_get_tile(self.id)
--- end
+function Object:tile()
+  return ffi.C.ck_object_get_tile(self.id)
+end
 
 return Object
