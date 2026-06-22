@@ -26,6 +26,9 @@ function Critter.new(lua_id, config)
   self.active_behavior = nil
   self._action_queue   = {}
 
+  self._next_behavior_tick = 0
+  self._behavior_interval  = 20
+
   return self
 end
 
@@ -113,8 +116,10 @@ function Critter:_handle_map_update(current_ticks)
     return
   end
 
-  -- 4: exec!
-  if self.active_behavior then
+  -- 4: exec behavior!
+  if self.active_behavior and current_ticks >= self._next_behavior_tick then
+    self._next_behavior_tick = current_ticks + self._behavior_interval
+
     self.active_behavior(self, current_ticks)
   end
 end

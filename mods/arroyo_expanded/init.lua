@@ -8,6 +8,7 @@ local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
 local i18n        = require('ck.fallout2.i18n')
 local player      = require('ck.fallout2.player')
+local behaviors   = require('ck.fallout2.behaviors')
 
 events.on('onGameLoaded', function()
 end)
@@ -40,6 +41,9 @@ events.on('onMapEnter', function()
     :walk_to(21116)
     :play(16)
   :submit()
+
+  -- alice.active_behavior = behaviors.wander(5)
+  alice.active_behavior = behaviors.patrol({ 16912, 17724, 18706, 20924, 21516 }, 5)
 
   local alice_dialogue = require('mods.arroyo_expanded.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
