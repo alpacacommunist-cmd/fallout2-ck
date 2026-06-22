@@ -22,7 +22,7 @@ events.on('onMapEnter', function()
 
   if map_id ~= 4 then return end
 
-  local alice = critters.register(16777218, 19908, {
+  local alice = critters.register("alice_arroyo", 16777218, 19908, {
     name        = i18n.t('arroyo_expanded', 'alice_name'),
     description = i18n.t('arroyo_expanded', 'alice_description')
   })
@@ -30,12 +30,12 @@ events.on('onMapEnter', function()
   alice
     :on('look_at', function(self) log.print(self.name) end)
     :on('description', function(self) log.print(self.description) end)
-    -- :on('map_update', function(self) self:float_message('Здарова', 2) end)
+    :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
   print("[CK] NPC ID: " .. tostring(alice.id))
-
   print(alice:tile())
   print(alice.sid)
+  print(alice.tag)
 
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)
@@ -46,14 +46,17 @@ events.on('onMapEnter', function()
     :play(16)
   :submit()
 
-  log.print("У Элис стимуляторов в кармане: " .. tostring(alice:item_count(items.PID_STIMPAK)))
+  -- log.print("У Элис стимуляторов в кармане: " .. tostring(alice:item_count(items.PID_STIMPAK)))
 
-  alice:on('look_at', function(self)
-    if self:has_item(items.PID_KNIFE) then
-      self:float_message("У меня есть нож, и я не боюсь его применить против легаси-кода!", 2)
-    end
-  end)
+  -- alice:on('description', function(self)
+  --   if self:has_item(items.PID_KNIFE) then self:float_message("У меня есть нож, падла!", 2) end
+  -- end)
 
+  local villager1 = critters.create(16777219, 21119, { name = "Житель Арройо" })
+  local villager2 = critters.create(16777220, 21716, { name = "Охотник" })
+
+  villager1.active_behavior = behaviors.wander(2)
+  villager2.active_behavior = behaviors.wander(3)
 
   -- alice.active_behavior = behaviors.wander(5)
   alice.active_behavior = behaviors.patrol({ 16912, 17724, 18706, 20924, 21516 }, 5)

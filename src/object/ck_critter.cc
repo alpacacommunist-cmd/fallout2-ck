@@ -10,14 +10,6 @@
 #include <iostream>
 #include <ostream>
 
-namespace fallout {
-    int reg_anim_begin(int requestOptions);
-    int reg_anim_end();
-    int animationIsBusy(Object* obj);
-
-    int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
-    int animationRegisterAnimate(Object* obj, int anim_id, int a3);
-}
 
 namespace ck {
 
@@ -27,7 +19,6 @@ namespace ck {
 		fallout::Object* critter = ck_object_create(pid, tile);
 
 		if (critter != nullptr) {
-			critter->flags |= fallout::OBJECT_NO_SAVE;
 			critter->sid    = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, DEFAULT_CRITTER_SID);
 
 			return critter;
@@ -36,18 +27,20 @@ namespace ck {
 		return nullptr;
 	}
 
-	int register_critter(int pid, int tile) {
+	int register_critter(int pid, int tile, const char* tag) {
 		fallout::Object* critter = create_critter(pid, tile);
+		if (critter == nullptr) return -1;
 
 		int lua_id    = -1;
-		LuaCritterMeta meta = { critter->sid };
+		LuaCritterMeta meta = {
+			critter->sid,
+			tag != nullptr ? std::string(tag) : ""
+		};
 
-		if (critter != nullptr) {
-			lua_id = gObjectRegistry.add(critter, meta);
+		lua_id = gObjectRegistry.add(critter, meta);
 
-			int custom_sid = ck::make_sid(lua_id);
-			critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
-		}
+		int custom_sid = ck::make_sid(lua_id);
+		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
 
 		return lua_id;
 	}
@@ -97,8 +90,8 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
 	}
 }
 
-int ck_critter_register(int pid, int tile) {
-	return ck::register_critter(pid, tile);
+int ck_critter_register(int pid, int tile, const char* tag) {
+	return ck::register_critter(pid, tile, tag);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

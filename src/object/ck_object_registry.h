@@ -9,7 +9,8 @@ namespace fallout {
 }
 
 struct LuaCritterMeta {
-	int proto_sid;
+	int         proto_sid;
+	std::string tag;
 };
 
 struct CkManagedObject {

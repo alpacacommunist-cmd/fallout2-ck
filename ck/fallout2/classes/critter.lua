@@ -19,9 +19,11 @@ local Critter = {}
 setmetatable(Critter, { __index = Object })
 Critter.__index = Critter
 
-function Critter.new(lua_id, config)
+function Critter.new(lua_id, config, tag)
   local self = Object.new(lua_id, config)
   setmetatable(self, Critter)
+
+  self.tag = tag
 
   self.active_behavior = nil
   self._action_queue   = {}

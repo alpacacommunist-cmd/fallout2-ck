@@ -8,6 +8,13 @@ namespace fallout {
 	int textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
 	void tileWindowRefreshRect(Rect* rect, int elevation);
 
+    int reg_anim_begin(int requestOptions);
+    int reg_anim_end();
+    int animationIsBusy(Object* obj);
+    int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
+    int animationRegisterAnimate(Object* obj, int anim_id, int a3);
+
+
 	extern int gElevation;
 	extern unsigned char _colorTable[32768];
 }
@@ -21,7 +28,7 @@ namespace ck {
 }
 
 CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
-CK_API int ck_critter_register(int pid, int tile);
+CK_API int ck_critter_register(int pid, int tile, const char* tag);
 
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
