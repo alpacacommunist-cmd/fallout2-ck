@@ -35,7 +35,11 @@ events.on('onMapEnter', function()
   print(alice:tile())
   print(alice.sid)
 
-  alice:animate():walk_to(21116):submit()
+  alice:animate()
+    :walk_to(20913)
+    :walk_to(21116)
+    :play(16)
+  :submit()
 
   local alice_dialogue = require('mods.arroyo_expanded.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)

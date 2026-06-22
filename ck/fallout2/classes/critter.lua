@@ -24,6 +24,7 @@ function Critter.new(lua_id, config)
   setmetatable(self, Critter)
 
   self.active_behavior = nil
+  self._action_queue   = {}
 
   return self
 end
@@ -66,37 +67,53 @@ function Critter:is_busy()
   return ffi.C.ck_critter_is_busy(self.c_ptr)
 end
 
-function Critter:animate(request_options)
-  request_options = request_options or 0
-
-  if ffi.C.ck_anim_begin(self.c_ptr, request_options) ~= 0 then
-    print("[CK Error] Failed to begin animation sequence")
-    return nil
-  end
-
+function Critter:animate()
   local builder = {}
-  local obj_ptr = self.c_ptr
+  local queue = self._action_queue
 
   function builder:walk_to(target_tile, elevation)
-    ffi.C.ck_anim_move_to(obj_ptr, target_tile, elevation or 0)
+    table.insert(queue, function(critter_ptr)
+      ffi.C.ck_anim_begin(critter_ptr, 0)
+      ffi.C.ck_anim_move_to(critter_ptr, target_tile, elevation or 0)
+      ffi.C.ck_anim_end()
+    end)
     return self
   end
 
   function builder:play(anim_id)
-    ffi.C.ck_anim_play(obj_ptr, anim_id)
+    table.insert(queue, function(critter_ptr)
+      ffi.C.ck_anim_begin(critter_ptr, 0)
+      ffi.C.ck_anim_play(critter_ptr, anim_id)
+      ffi.C.ck_anim_end()
+    end)
     return self
   end
 
-  function builder:submit() ffi.C.ck_anim_end() end
+  function builder:submit()
+  end
 
   return builder
 end
 
 function Critter:_handle_map_update(current_ticks)
+  -- 1: handle object's on:('map_update')
   if self.handlers['map_update'] then
     self.handlers['map_update'](self)
   end
 
+  -- 2: if called but busy - return
+  if self:is_busy() then return end
+
+  -- 3: fifo queue
+  if #self._action_queue > 0 then
+    -- FIFO
+    local next_action = table.remove(self._action_queue, 1)
+    next_action(self.c_ptr)
+
+    return
+  end
+
+  -- 4: exec!
   if self.active_behavior then
     self.active_behavior(self, current_ticks)
   end
