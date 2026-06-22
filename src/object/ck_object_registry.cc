@@ -1,7 +1,7 @@
 #include "ck_utils.h"
 #include "ck_ids.h"
 #include "object/ck_object_registry.h"
-#include "object.h"
+#include "object/ck_item.h"
 #include <iostream>
 
 CkObjectRegistry gObjectRegistry;
@@ -60,12 +60,15 @@ int CkObjectRegistry::find_by_ptr(fallout::Object* ptr) const {
 
 void CkObjectRegistry::destroy_all() {
     int count = 0;
-    for (auto& [id, managed] : objects) {
-        if (managed.ptr == nullptr || !managed.alive) continue;
 
+    for (auto& [id, managed] : objects) {
+		if (managed.ptr == nullptr || !managed.alive) continue;
+
+		ck::clear_inventory(managed.ptr);
         fallout::objectDestroy(managed.ptr, nullptr);
 
         managed.alive = false;
+		managed.ptr = nullptr;
         count++;
     }
 
@@ -80,5 +83,4 @@ void CkObjectRegistry::clear() {
     objects.clear();
     next_id = 1;
 }
-
 

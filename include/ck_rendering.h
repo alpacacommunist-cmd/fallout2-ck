@@ -11,9 +11,6 @@ namespace fallout {
 
 void ck_rendering_render(fallout::Rect* rect);
 
-CK_API void ck_rendering_clear();
-CK_API void ck_rendering_refresh();
-
 struct CkSceneryInstance {
     int tile;
     int engineFid = -1;
@@ -44,5 +41,8 @@ void ck_rendering_add_tile(int fid, int tile);
 
 int ck_rendering_build_tile_fid(int fid);
 int ck_rendering_build_scenery_fid(int fid);
+
+CK_API void ck_rendering_clear();
+CK_API void ck_rendering_refresh();
 
 #endif

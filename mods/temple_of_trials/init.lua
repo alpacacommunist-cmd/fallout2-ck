@@ -4,7 +4,7 @@ print("[Mod] Loading Temple of Trials...")
 
 local events    = require('ck.fallout2.events')
 local map       = require('ck.fallout2.map')
-local assets = require('ck.fallout2.assets')
+local assets    = require('ck.fallout2.assets')
 
 local outskirts = require('mods.temple_of_trials.outskirts')
 

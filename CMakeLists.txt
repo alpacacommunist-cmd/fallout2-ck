@@ -44,6 +44,7 @@ add_library(fallout2-ck STATIC
     src/object/ck_object.cc
     src/object/ck_object_registry.cc
     src/object/ck_critter.cc
+    src/object/ck_item.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc

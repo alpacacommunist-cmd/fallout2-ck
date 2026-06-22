@@ -14,6 +14,9 @@ ffi.cdef[[
   void ck_map_create_object_fid(int fid, int tile);
   int  ck_map_register_object(int artId, int tile);
 
+  void ck_rendering_clear();
+  void ck_rendering_refresh();
+
   void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
 ]]
 
@@ -40,6 +43,7 @@ map.create_object_fid = C.ck_map_create_object_fid
 map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.register_object   = C.ck_map_register_object
+map.rendering_refresh = C.ck_rendering_refresh
 
 function map.place(value, tile, config)
   config = config or {}

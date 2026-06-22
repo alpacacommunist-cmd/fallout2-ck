@@ -119,3 +119,4 @@ int ck_object_get_tile(int lua_id) {
 	return managed->ptr->tile;
 }
 
+
