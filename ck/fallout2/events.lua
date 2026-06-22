@@ -1,6 +1,8 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
 
+local objects = require('ck.fallout2.objects')
+
 local events = {
   -- listeners stack
   listeners = {
@@ -101,13 +103,36 @@ function ckOnTimeAdvance(hours, minutes)
   events.emit('onTimeAdvance', hours, minutes)
 end
 
+local UPDATE_INTERVAL  = 10
+local last_update_time = 0
+
+function ckOnMapUpdate(ticks)
+  if (ticks - last_update_time) < UPDATE_INTERVAL then return end
+  last_update_time = ticks
+
+  for _, object in pairs(objects.registry) do
+    if object.handlers and object.handlers['map_update'] then
+      local success, err = pcall(object.handlers['map_update'], object)
+
+      if not success then
+        print("[CK Error] Error in 'map_update' for object " .. tostring(object.id) .. ": " .. tostring(err))
+      end
+    end
+  end
+end
+
 function ckOnProc(lua_id, proc_id)
-  local objects = require('ck.fallout2.objects')
   local object = objects.registry[lua_id]
 
   if not object then return false end
   return object:_handle_proc(proc_id)
 end
+
+function ckOnObjectsDestroyed()
+  objects.registry = {}
+  print("[CK Objects] Registry cleared")
+end
+
 
 -- function ckOnDialogStart(id)
 --   print("[CK Events] Dialog start for npc id: " .. tostring(id))

@@ -31,8 +31,13 @@ namespace ck {
 		return &gDummyProgram;
 	}
 
+	void on_map_update(unsigned int ticks) {
+		ck_call_lua_hook("ckOnMapUpdate", ticks);
+	}
+
 	bool script_try_handle(int sid, int proc) {
 		if (!is_ck_sid(clean_sid(sid))) return false;
+		std::cout << "[CK DEBUG] SID: " << sid << " PROC: " << proc << std::endl;
 
 		int lua_id = lua_id_from_sid(clean_sid(sid));
 		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);

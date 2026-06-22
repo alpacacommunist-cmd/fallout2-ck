@@ -1,5 +1,3 @@
-local events = require('ck.fallout2.events')
-
 local objects = {
   registry = {},
 
@@ -8,19 +6,14 @@ local objects = {
     [4]  = "pickup",
     [6]  = "use",
     [11] = "talk",
-    [12] = "critter",
+    [12] = "critter", -- doesn't work bc gScriptsLists
     [13] = "combat",
     [14] = "damage",
     [21] = "look_at",
     [22] = "timed",
-    [23] = "map_update",
+    [23] = "map_update", -- doesn't work bc gScriptsLists
     [24] = "push"
   }
 }
-
-function ckOnObjectsDestroyed()
-  objects.registry = {}
-  print("[CK Objects] Registry cleared")
-end
 
 return objects

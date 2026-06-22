@@ -39,6 +39,7 @@ function Critter:_handle_proc(proc_id)
 
   if self.handlers[event_name] then
     if self.handlers[event_name](self) ~= false then
+      print(event_name)
       return true
     end
   end

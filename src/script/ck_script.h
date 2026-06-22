@@ -22,6 +22,7 @@ namespace ck {
 	fallout::Script*  script_get_dummy(int sid);
 	fallout::Program* program_get_dummy();
 
+	void on_map_update(unsigned int ticks);
 	bool script_try_handle(int sid, int proc);
 }
 
