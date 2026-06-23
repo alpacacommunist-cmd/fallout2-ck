@@ -168,17 +168,11 @@ void ck_call_hook(const char* name) {
     }
 }
 
-// l_ck_log_print -> ckLogPrint -> fallout2.log.print
-int l_ck_log_print(lua_State* L) {
+// l_ck_monitor_print -> ckMonitorPrint -> fallout2.log.print
+int l_ck_monitor_print(lua_State* L) {
 	const char* message = luaL_checkstring(L, 1);
 
-	if (message != nullptr) {
-		if (fallout::settings.system.language != "english") {
-			fallout::displayMonitorAddMessage(utf8_to_cp1251(message).c_str());
-		} else {
-			fallout::displayMonitorAddMessage(message);
-		}
-	}
+	if (message != nullptr) fallout::displayMonitorAddMessage(utf8_to_cp1251(message).c_str());
 
 	return 0;
 }
@@ -256,7 +250,7 @@ void ck_scripting_init() {
 		luaL_dostring(gLuaState, "package.path = package.path .. ';../?.lua;../?/init.lua'");
 
         // bindings. registers c <-> lua functions
-		lua_register(gLuaState, "ckLogPrint", l_ck_log_print);
+		lua_register(gLuaState, "ckMonitorPrint", l_ck_monitor_print);
 		lua_register(gLuaState, "ckRegisterLocation", l_ck_register_location);
 
         // bootstrap

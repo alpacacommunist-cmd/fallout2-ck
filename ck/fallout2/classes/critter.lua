@@ -11,7 +11,7 @@ ffi.cdef[[
 ]]
 
 local dialogue  = require('ck.fallout2.dialogue')
-local log       = require('ck.fallout2.log')
+local monitor   = require('ck.fallout2.monitor')
 local behaviors = require('ck.fallout2.behaviors')
 
 local Object = require("ck.fallout2.classes.object")
@@ -61,15 +61,15 @@ function Critter:_handle_proc(proc_id)
   end
 
   if event_name == "look_at" then
-    if (log and log.print and self.name) then
-      log.print(self.name)
+    if (monitor and monitor.print and self.name) then
+      monitor.print(self.name)
 
       return true
     end
 
   elseif event_name == "description" then
-    if (log and log.print and self.description) then
-      log.print(self.description)
+    if (log and monitor.print and self.description) then
+      monitor.print(self.description)
 
       return true
     end

@@ -2,7 +2,7 @@
 print("[Mod] Loading Arroyo Expanded Mod...")
 
 local events      = require('ck.fallout2.events')
-local log         = require('ck.fallout2.log')
+local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
@@ -17,8 +17,8 @@ end)
 events.on('onMapEnter', function()
   local map_id = map.get_id()
 
-  log.print("Map id: " .. tostring(map_id))
-  log.print("Entered map!")
+  monitor.print("Map id: " .. tostring(map_id))
+  monitor.print("Entered map!")
 
   if map_id ~= 4 then return end
 
@@ -28,8 +28,8 @@ events.on('onMapEnter', function()
   })
 
   alice
-    :on('look_at', function(self) log.print(self.name) end)
-    :on('description', function(self) log.print(self.description) end)
+    :on('look_at', function(self) monitor.print(self.name) end)
+    :on('description', function(self) monitor.print(self.description) end)
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
   print("[CK] NPC ID: " .. tostring(alice.id))
