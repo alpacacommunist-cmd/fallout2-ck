@@ -305,14 +305,26 @@ void ck_scripting_on_engine_ready() {
     gProtoCache.initialize("build/proto_cache.db");
 }
 
+// loadsave.cc
 void ck_scripting_on_before_game_load() {
 	gObjectRegistry.destroy_all();
 
 	ck_call_hook("ckOnBeforeGameLoad");
 }
 
+// loadsave.cc
 void ck_scripting_on_game_loaded() {
 	ck_call_hook("ckOnGameLoaded");
+}
+
+// loadsave.cc
+void ck_scripting_on_game_save(const char* path) {
+    ck_call_lua_hook("ckOnGameSave", path);
+}
+
+// loadsave.cc
+void ck_scripting_on_game_state_load(const char* path) {
+    ck_call_lua_hook("ckOnGameStateLoad", path);
 }
 
 int ck_get_config_int(const char* key, int default_value) {

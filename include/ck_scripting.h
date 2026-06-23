@@ -16,6 +16,9 @@ void ck_scripting_on_day_passed();
 void ck_scripting_on_before_game_load();
 void ck_scripting_on_game_loaded();
 void ck_on_scripts_reset();
+// state
+void ck_scripting_on_game_save(const char* path);
+void ck_scripting_on_game_state_load(const char* path);
 
 void ck_scripting_on_after_rest(int hours, int minutes);
 void ck_scripting_on_time_advance(int hours, int minutes);

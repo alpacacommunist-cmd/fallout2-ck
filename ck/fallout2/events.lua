@@ -44,6 +44,7 @@ function events.emit(event_name, ...)
 
   for index, entry in ipairs(entries) do
     local ok, err = xpcall(function()
+
       entry.fn(unpack(args))
     end, debug.traceback)
 
@@ -80,7 +81,8 @@ function ckOnBeforeGameLoad()
 end
 
 function ckOnGameLoaded()
-  log.info("Engine signaled: Game Loaded!")
+  log.info("Engine signaled: Game Loaded! Initializing Mod State...")
+
   events.emit('onGameLoaded')
 end
 

@@ -11,6 +11,9 @@ local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.behaviors')
 local items       = require('ck.fallout2.objects.items')
 
+local state = require('ck.fallout2.state')
+local log   = ck.log.new('Arroyo Expanded')
+
 events.on('onGameLoaded', function()
 end)
 
