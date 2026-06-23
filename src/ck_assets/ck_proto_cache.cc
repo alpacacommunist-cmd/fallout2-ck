@@ -1,4 +1,6 @@
 #include "ck_proto_cache.h"
+
+#ifdef USE_PROTO_CACHE
 #include "ck_proto_schema.h"
 #include "sqlite3.h"
 #include <iostream>
@@ -287,4 +289,4 @@ std::vector<CkProtoInfo> CkProtoCache::getByType(int type) const {
 	sqlite3_finalize(stmt);
 	return results;
 }
-
+#endif // USE_PROTO_CACHE

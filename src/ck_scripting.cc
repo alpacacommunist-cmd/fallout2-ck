@@ -304,9 +304,13 @@ void ck_scripting_on_game_start() {
 
 void ck_scripting_on_engine_ready() {
 	ck_scripting_set_language();
-
     log.debug("ck_scripting_on_engine_ready");
-    gProtoCache.initialize("build/proto_cache.db");
+
+#ifdef USE_PROTO_CACHE
+	gProtoCache.initialize("build/proto_cache.db");
+#else
+	log.debug("Proto Cache is disabled in this build");
+#endif
 }
 
 // loadsave.cc

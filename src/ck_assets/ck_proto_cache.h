@@ -2,6 +2,8 @@
 #define CK_PROTO_CACHE_H
 
 #include <string>
+
+#ifdef USE_PROTO_CACHE
 #include <vector>
 
 struct CkProtoInfo {
@@ -36,4 +38,6 @@ private:
 };
 
 extern CkProtoCache gProtoCache;
+#endif // USE_PROTO_CACHE
+
 #endif
