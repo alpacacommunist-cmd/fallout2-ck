@@ -2,6 +2,7 @@
 local unpack = table.unpack or unpack
 
 local objects = require('ck.fallout2.objects')
+local log     = ck.log.new('CK Events')
 
 local events = {
   -- listeners stack
@@ -24,7 +25,7 @@ local events = {
 -- Allows mod events subscription (fallout2.events.on('onGameStart'))
 function events.on(event_name, callback)
   if not events.listeners[event_name] then
-    print("[CK Warning] Attempted to subscribe to unknown event: " .. tostring(event_name))
+    log.warn("Attempted to subscribe to unknown event: " .. tostring(event_name))
     return
   end
 
@@ -47,7 +48,7 @@ function events.emit(event_name, ...)
     end, debug.traceback)
 
     if not ok then
-      print(string.format("[CK Events] ERROR in mod '%s' on event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
+      log.error(string.format("in mod '%s' on event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
     end
   end
 end
@@ -64,42 +65,42 @@ function events.clearForMod(mod_name)
 
     events.listeners[event_name] = clean_list
   end
-  print("[CK Events] Cleared listeners for mod: " .. mod_name)
+  log.info("Cleared listeners for mod: " .. mod_name)
 end
 
 -- ckHookOnGameStart (C) calls it when game started (interface initiated)
 function ckOnGameStart()
-  print("[CK Events] Engine signaled: Game Start! Firing listeners...")
+  log.info("Engine signaled: Game Start! Firing listeners...")
   events.emit('onGameStart')
 end
 
 function ckOnBeforeGameLoad()
-  print("[CK Events] Engine signaled: Game Loaded!")
+  log.info("Engine signaled: Game Loaded!")
   events.emit('onBeforeGameLoad')
 end
 
 function ckOnGameLoaded()
-  print("[CK Events] Engine signaled: Game Loaded!")
+  log.info("Engine signaled: Game Loaded!")
   events.emit('onGameLoaded')
 end
 
 function ckOnDayPassed()
-  print("[CK Events] Engine signaled: Day Passed!")
+  log.info("Engine signaled: Day Passed!")
   events.emit('onDayPassed')
 end
 
 function ckOnHourPassed()
-  print("[CK Events] Engine signaled: Hour Passed!")
+  log.info("Engine signaled: Hour Passed!")
   events.emit('onHourPassed')
 end
 
 function ckOnMapEnter()
-  print("[CK Events] Engine signaled: Map Enter!")
+  log.info("Engine signaled: Map Enter!")
   events.emit('onMapEnter')
 end
 
 function ckOnTimeAdvance(hours, minutes)
-  print("[CK Events] Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
+  log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
   events.emit('onTimeAdvance', hours, minutes)
 end
 
@@ -115,7 +116,7 @@ function ckOnMapUpdate(ticks)
       local success, err = pcall(object._handle_map_update, object, ticks)
 
       if not success then
-        print("[CK Error] Error in 'map_update' for object " .. tostring(object.id) .. ": " .. tostring(err))
+        log.error("in 'map_update' for object " .. tostring(object.id) .. ": " .. tostring(err))
       end
     end
   end
@@ -130,7 +131,7 @@ end
 
 function ckOnObjectsDestroyed()
   objects.registry = {}
-  print("[CK Objects] Registry cleared")
+  log.info("[CK Objects] Registry cleared")
 end
 
 return events

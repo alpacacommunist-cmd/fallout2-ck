@@ -68,7 +68,7 @@ function Critter:_handle_proc(proc_id)
     end
 
   elseif event_name == "description" then
-    if (log and monitor.print and self.description) then
+    if (monitor and monitor.print and self.description) then
       monitor.print(self.description)
 
       return true

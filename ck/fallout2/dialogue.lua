@@ -36,13 +36,14 @@ function dialogue.exit()
   dialogue.close_ui()
 end
 
+local log = ck.log.new('CK Dialogue')
 
 -- npc_id -> dialog function
 local registry = {}
 
 function dialogue.register(npc_id, fn_or_nodes)
   registry[npc_id] = fn_or_nodes
-  print("[CK Dialogue] Registered dialogue for npc: " .. tostring(npc_id))
+  log.info("Registered dialogue for npc: " .. tostring(npc_id))
 end
 
 function dialogue.is_registered(npc_id) return registry[npc_id] ~= nil end
@@ -96,7 +97,7 @@ local function run_node_dialogue(npc_id, nodes)
     local node_fn = nodes[current_node]
 
     if not node_fn then
-      print(string.format("[CK Dialogue Error] Node '%s' not found for npc %s", tostring(current_node), tostring(npc_id)))
+      log.error(string.format("Node '%s' not found for npc %s", tostring(current_node), tostring(npc_id)))
       break
     end
 
@@ -113,7 +114,7 @@ local function run_node_dialogue(npc_id, nodes)
     if next_node then
       current_node = next_node
     else
-      print("[CK Dialogue] Unknown option index: " .. tostring(chosen_c_index) .. ". Exiting.")
+      log.error("Unknown option index: " .. tostring(chosen_c_index) .. ". Exiting.")
       active = false
     end
   end
@@ -123,12 +124,12 @@ function dialogue.start(npc_id)
   local target = registry[npc_id]
 
   if not target then
-    print("[CK Dialogue] No dialogue registered for npc: " .. tostring(npc_id))
+    log.error("No dialogue registered for npc: " .. tostring(npc_id))
     return
   end
 
   if not dialogue.init_ui() then
-    print("[CK Dialogue] Failed to init dialogue UI for npc: " .. tostring(npc_id))
+    log.error("Failed to init dialogue UI for npc: " .. tostring(npc_id))
     return
   end
 

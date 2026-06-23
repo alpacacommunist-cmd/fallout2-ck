@@ -13,6 +13,8 @@ local i18n = {
   cache = {} -- mod_id -> { lang -> table }
 }
 
+local log = ck.log.new('CK I18n')
+
 function i18n.register(mod_id, localeDir)
   i18n.cache[mod_id] = { dir = localeDir, loaded = {} }
 end
@@ -21,7 +23,7 @@ local function load_locale(mod_id, lang)
   local mod = i18n.cache[mod_id]
 
   if not mod then
-    print("[i18n ERROR] Mod " .. tostring(mod_id) .. " is NOT registered!")
+    log.error("Mod " .. tostring(mod_id) .. " is NOT registered!")
     return nil
   end
 
@@ -31,12 +33,12 @@ local function load_locale(mod_id, lang)
   local ok, table = pcall(require, path)
 
   if ok then
-    print("[i18n] Successfully loaded locale from: " .. path)
+    log.info("Successfully loaded locale from: " .. path)
 
     mod.loaded[lang] = table
     return table
   else
-    print("[i18n ERROR] Failed to require path: " .. path .. " | Error: " .. tostring(res))
+    log.error("Failed to require path: " .. path .. " | Error: " .. tostring(res))
   end
 
   return nil
@@ -87,7 +89,7 @@ function ckSetLanguage(lang)
   local low_lang = lang:lower()
   i18n.language = LANGUAGE_MAP[low_lang] or low_lang
 
-  print("[CK i18n] System language: " .. lang .. " -> Mapped to: " .. i18n.language)
+  log.info("System language: " .. lang .. " -> Mapped to: " .. i18n.language)
 end
 
 return i18n
