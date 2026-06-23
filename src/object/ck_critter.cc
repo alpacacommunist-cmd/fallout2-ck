@@ -32,10 +32,7 @@ namespace ck {
 		if (critter == nullptr) return -1;
 
 		int lua_id    = -1;
-		LuaCritterMeta meta = {
-			critter->sid,
-			tag != nullptr ? std::string(tag) : ""
-		};
+		LuaCritterMeta meta = { critter->sid, (tag != nullptr ? std::string(tag) : std::string()) };
 
 		lua_id = gObjectRegistry.add(critter, meta);
 

@@ -10,8 +10,9 @@ ffi.cdef[[
   int ck_anim_end();
 ]]
 
-local dialogue = require('ck.fallout2.dialogue')
-local log      = require('ck.fallout2.log')
+local dialogue  = require('ck.fallout2.dialogue')
+local log       = require('ck.fallout2.log')
+local behaviors = require('ck.fallout2.behaviors')
 
 local Object = require("ck.fallout2.classes.object")
 
@@ -34,6 +35,16 @@ function Critter.new(lua_id, config, tag)
   return self
 end
 
+function Critter:set_behavior(behavior_fn, ...)
+  if type(behavior_fn) ~= "function" then
+    print("[CK Class Critter] is not a function: " .. tostring(behavior_fn))
+  else
+    self.active_behavior = behavior_fn(...)
+  end
+
+  return self
+end
+
 function Critter:float_message(text, type)
   ffi.C.ck_critter_float_msg(self.id, text, type)
 end
@@ -50,15 +61,21 @@ function Critter:_handle_proc(proc_id)
   end
 
   if event_name == "look_at" then
-    if log and log.print then log.print(self.name) end
+    if (log and log.print and self.name) then
+      log.print(self.name)
 
-    return true
+      return true
+    end
+
   elseif event_name == "description" then
-    if log and log.print then log.print(self.description) end
+    if (log and log.print and self.description) then
+      log.print(self.description)
 
-    return true
+      return true
+    end
+
   elseif event_name == "talk" then
-    if dialogue and dialogue.start then
+    if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then
       dialogue.start(self.id)
 
       return true

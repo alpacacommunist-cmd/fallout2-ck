@@ -45,6 +45,8 @@ function dialogue.register(npc_id, fn_or_nodes)
   print("[CK Dialogue] Registered dialogue for npc: " .. tostring(npc_id))
 end
 
+function dialogue.is_registered(npc_id) return registry[npc_id] ~= nil end
+
 function dialogue.say(text)
   dialogue.set_reply(text)
   dialogue.add_option("[Continue]")
