@@ -4,19 +4,21 @@
 #include "game_time/ck_game_time.h"
 #include "scripts.h"
 
-extern lua_State* gLuaState;
+namespace ck {
 
-void ck_scripting_on_day_passed() {
-	ck_call_lua_hook("ckOnDayPassed");
-}
+	void on_day_passed() {
+		ck_call_lua_hook("ckOnDayPassed");
+	}
 
-// just in case
-void ck_scripting_on_after_rest(int hours, int minutes) {
-	ck_scripting_on_time_advance(hours, minutes);
-}
+	// just in case
+	void on_after_rest(int hours, int minutes) {
+		on_time_advance(hours, minutes);
+	}
 
-void ck_scripting_on_time_advance(int hours, int minutes) {
-	ck_call_lua_hook("ckOnTimeAdvance", hours, minutes);
+	void on_time_advance(int hours, int minutes) {
+		ck_call_lua_hook("ckOnTimeAdvance", hours, minutes);
+	}
+
 }
 
 // ffi

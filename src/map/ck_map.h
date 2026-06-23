@@ -7,8 +7,14 @@
 
 #include <string>
 
-void ck_on_map_enter();
-void ck_on_before_map_enter();
+namespace ck {
+	void on_map_enter();
+	void on_before_map_enter();
+}
+
+namespace fallout {
+	int mapGetCurrentMap();
+}
 
 void ck_map_add_scenery(const std::string& key, int tile);
 void ck_map_add_scenery(int fid, int tile);

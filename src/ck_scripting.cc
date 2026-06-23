@@ -201,6 +201,7 @@ static int l_ck_register_location(lua_State* L) {
 
 // ck scripting reload mods
 void ck_reload_mods() {
+	log.info("ck_reload_mods");
     if (gLuaState == nullptr) {
 		log.error("Cannot reload mods: Lua state is null");
         return;
@@ -266,12 +267,14 @@ void ck_scripting_init() {
 }
 
 void ck_on_scripts_reset() {
+	log.info("ck_on_scripts_reset");
 	gObjectRegistry.destroy_all();
 }
 
 // Exit
 void ck_scripting_exit() {
     if (gLuaState != nullptr) {
+        log.info("ck_scripting_exit");
         log.info("Shutting down LuaJIT backend...");
         lua_close(gLuaState);
         gLuaState = nullptr;
@@ -295,35 +298,43 @@ void ck_scripting_set_language() {
 
 // this is called from fallout2-ce once interface is ready
 void ck_scripting_on_game_start() {
+    log.debug("ck_scripting_on_game_start");
 	ck_call_hook("ckOnGameStart");
 }
 
 void ck_scripting_on_engine_ready() {
 	ck_scripting_set_language();
 
-    log.info("Engine ready, initializing proto cache...");
+    log.debug("ck_scripting_on_engine_ready");
     gProtoCache.initialize("build/proto_cache.db");
 }
 
 // loadsave.cc
 void ck_scripting_on_before_game_load() {
-	gObjectRegistry.destroy_all();
+	log.debug("ck_scripting_on_before_game_load");
 
 	ck_call_hook("ckOnBeforeGameLoad");
 }
 
 // loadsave.cc
 void ck_scripting_on_game_loaded() {
+	log.info("ck_scripting_on_game_loaded");
+
+	ck::on_map_enter();
+	fallout::tileWindowRefresh();
+
 	ck_call_hook("ckOnGameLoaded");
 }
 
 // loadsave.cc
 void ck_scripting_on_game_save(const char* path) {
+	log.debug("ck_scripting_on_game_save");
     ck_call_lua_hook("ckOnGameSave", path);
 }
 
 // loadsave.cc
 void ck_scripting_on_game_state_load(const char* path) {
+	log.debug("ck_scripting_on_game_state_load");
     ck_call_lua_hook("ckOnGameStateLoad", path);
 }
 

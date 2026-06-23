@@ -25,6 +25,7 @@ add_library(fallout2-ck STATIC
 
     src/ck_scripting.cc
     src/ck_rendering.cc
+    src/ck_log.cc
 
     src/ce_config/ck_config_patch.cc
     src/ce_config/ck_message_patch.cc

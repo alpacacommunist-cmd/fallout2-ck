@@ -4,9 +4,11 @@
 
 #include "ck_api.h"
 
-void ck_scripting_on_day_passed();
-void ck_scripting_on_after_rest(int hours, int minutes);
-void ck_scripting_on_time_advance(int hours, int minutes);
+namespace ck {
+	void on_day_passed();
+	void on_after_rest(int hours, int minutes);
+	void on_time_advance(int hours, int minutes);
+}
 
 // ffi
 CK_API int ck_game_get_year();

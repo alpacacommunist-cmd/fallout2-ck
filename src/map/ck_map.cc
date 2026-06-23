@@ -5,26 +5,23 @@
 #include "map/ck_map_batch.h"
 #include "object/ck_object.h"
 
-#include "tile.h"
-
-#include <iostream>
-
 static CkCameraBorders gCameraBorders;
 
-void ck_on_map_enter() {
-	gObjectRegistry.destroy_all();
+namespace ck {
+	void on_map_enter() {
+		ck_rendering_clear();
+		ck_map_clear_camera_borders();
 
-	ck_rendering_clear();
-	ck_map_clear_camera_borders();
+		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 
-	if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
+		ck_call_lua_hook("ckOnMapEnter");
+	}
 
-	ck_call_lua_hook("ckOnMapEnter");
+	void on_before_map_enter() {
+		gObjectRegistry.destroy_all();
+	}
 }
 
-void ck_on_before_map_enter() {
-	gObjectRegistry.destroy_all();
-}
 
 
 void ck_map_add_scenery(int fid, int tile) {

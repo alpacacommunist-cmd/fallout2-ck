@@ -71,7 +71,7 @@ void CkObjectRegistry::destroy_all() {
     objects.clear();
     next_id = 1;
 
-	log.info("Destroyed {} managed objects", count);
+	if (count > 0 ) log.info("Destroyed {} managed objects", count);
 	ck_call_lua_hook("ckOnObjectsDestroyed");
 }
 

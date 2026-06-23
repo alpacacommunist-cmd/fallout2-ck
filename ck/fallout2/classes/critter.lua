@@ -78,6 +78,7 @@ function Critter:_handle_proc(proc_id)
     if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then
       dialogue.start(self.id)
 
+      self._action_queue = {}
       return true
     end
   end

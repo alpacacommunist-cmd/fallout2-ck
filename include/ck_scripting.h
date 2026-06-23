@@ -3,6 +3,14 @@
 
 #include <string>
 
+namespace ck {
+	void on_map_enter();
+}
+
+namespace fallout {
+	void tileWindowRefresh();
+}
+
 void ck_call_hook(const char* name);
 void ck_call_hook_int(const char* name, int arg);
 
@@ -12,16 +20,12 @@ void ck_scripting_exit();
 
 void ck_scripting_on_game_start();
 void ck_scripting_on_engine_ready();
-void ck_scripting_on_day_passed();
 void ck_scripting_on_before_game_load();
 void ck_scripting_on_game_loaded();
 void ck_on_scripts_reset();
 // state
 void ck_scripting_on_game_save(const char* path);
 void ck_scripting_on_game_state_load(const char* path);
-
-void ck_scripting_on_after_rest(int hours, int minutes);
-void ck_scripting_on_time_advance(int hours, int minutes);
 
 int ck_get_config_int(const char* key, int default_value);
 
