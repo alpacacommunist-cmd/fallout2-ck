@@ -31,6 +31,9 @@ extern "C" {
 #include "../../src/vendor/luajit/src/lauxlib.h"
 }
 
+#include "ck_log.h"
+static const Logger log("CK Scripting");
+
 CkAssetRegistry gAssetRegistry;
 CkMapRegistry gMapRegistry;
 
@@ -95,10 +98,10 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	std::transform(mapFileLower.begin(), mapFileLower.end(), mapFileLower.begin(), ::tolower); // "tstcv"
 
 	std::string registryKey = modId + ":" + mapFileUpper;
-	bool mapEntryIsNew = !gMapRegistry.has(registryKey);
+	bool map_entry_is_new = !gMapRegistry.has(registryKey);
 
 	auto& entry = gMapRegistry.resolve(registryKey, nextMapIdx, nextAreaIdx);
-	if (mapEntryIsNew) {
+	if (map_entry_is_new) {
 		nextMapIdx++;
 		nextAreaIdx++;
 	}
@@ -109,8 +112,7 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     std::string mapSection  = "Map "  + std::to_string(mapIdx);
     std::string areaSection = "Area " + std::to_string(areaIdx);
 
-    std::cout << "[CK] Registering location: " << name
-              << " as " << mapSection << " / " << areaSection << std::endl;
+	log.info("Registering location: {} as {} / {}", name, mapSection, areaSection);
 
     // maps.txt
     ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
@@ -144,7 +146,7 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	std::string mapFilePath = std::format("../{}/{}.MAP", mapsDir, mapFileUpper);
 
     // only patch header once
-    if (mapEntryIsNew) {
+    if (map_entry_is_new) {
 		ck_map_patch_header(mapFilePath, mapFileUpper + ".MAP", mapIdx);
     }
 
@@ -168,7 +170,7 @@ void ck_call_hook(const char* name) {
     }
 }
 
-// l_ck_monitor_print -> ckMonitorPrint -> fallout2.log.print
+// l_ck_monitor_print -> ckMonitorPrint -> fallout2.monitor.print
 int l_ck_monitor_print(lua_State* L) {
 	const char* message = luaL_checkstring(L, 1);
 
@@ -200,7 +202,7 @@ static int l_ck_register_location(lua_State* L) {
 // ck scripting reload mods
 void ck_reload_mods() {
     if (gLuaState == nullptr) {
-		std::cout << "[CK] Cannot reload mods: Lua state is null" << std::endl;
+		log.error("Cannot reload mods: Lua state is null");
         return;
     }
 
@@ -209,13 +211,13 @@ void ck_reload_mods() {
     lua_getglobal(gLuaState, "ckReloadMods");
 
     if (!lua_isfunction(gLuaState, -1)) {
-		std::cout << "[CK] ckReloadMods() is not defined" << std::endl;
+		log.error("ckReloadMods() is not defined");
         lua_pop(gLuaState, 1);
         return;
     }
 
     if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
-		std::cout << "[CK] Reload Error: " << lua_tostring(gLuaState, -1) << std::endl;
+		log.error("Reload Error: {}", lua_tostring(gLuaState, -1));
 
         lua_pop(gLuaState, 1);
 		return;
@@ -224,7 +226,7 @@ void ck_reload_mods() {
 
 // Init
 void ck_scripting_init() {
-    std::cout << "[CK] Initializing LuaJIT backend..." << std::endl;
+    log.info("Initializing LuaJIT backend...");
 
 	gLuaState = luaL_newstate();
 	if (gLuaState != nullptr) {
@@ -270,7 +272,7 @@ void ck_on_scripts_reset() {
 // Exit
 void ck_scripting_exit() {
     if (gLuaState != nullptr) {
-        std::cout << "[CK] Shutting down LuaJIT backend..." << std::endl;
+        log.info("Shutting down LuaJIT backend...");
         lua_close(gLuaState);
         gLuaState = nullptr;
     }
@@ -285,7 +287,7 @@ void ck_scripting_set_language() {
         return;
     }
 
-    std::cout << "[CK] System language: " << fallout::settings.system.language << std::endl;
+    log.info("System language: {}", fallout::settings.system.language);
 
     lua_pushstring(gLuaState, fallout::settings.system.language.c_str());
     lua_pcall(gLuaState, 1, 0, 0);
@@ -299,7 +301,7 @@ void ck_scripting_on_game_start() {
 void ck_scripting_on_engine_ready() {
 	ck_scripting_set_language();
 
-    std::cout << "[CK] Engine ready, initializing proto cache..." << std::endl;
+    log.info("Engine ready, initializing proto cache...");
     gProtoCache.initialize("build/proto_cache.db");
 }
 
@@ -340,7 +342,7 @@ int ck_get_config_int(const char* key, int default_value) {
     int result = default_value;
     if (lua_isnumber(gLuaState, -1)) {
         result = (int)lua_tointeger(gLuaState, -1);
-        std::cout << "[CK] Received new value for key " << key << ": " << result << "! " << std::endl;
+		log.info("Received new value for key {}: {}", key, result);
     }
 
     // clear out the stack

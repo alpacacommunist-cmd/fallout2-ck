@@ -6,16 +6,19 @@
 #include <string_view>
 #include <charconv>
 
+#include "ck_log.h"
+static const Logger log("CK Config Patch");
+
 namespace fallout {
     bool configSetString(Config*, const char*, const char*, const char*);
 }
 
 static std::vector<CkConfigPatch> gPatches;
 
-static int ck_find_last_index_vfs(const char* filePath, std::string_view prefix) {
-	fallout::File* f = fallout::fileOpen(filePath, "rt");
+static int ck_find_last_index_vfs(const char* file_path, std::string_view prefix) {
+	fallout::File* f = fallout::fileOpen(file_path, "rt");
     if (f == nullptr) {
-        std::cerr << "[CK Config Patch] VFS cannot open: " << filePath << std::endl;
+        log.error("[CK Config Patch] VFS cannot open: {}", file_path);
         return -1;
     }
 
@@ -28,7 +31,7 @@ static int ck_find_last_index_vfs(const char* filePath, std::string_view prefix)
     while (fileReadString(line, sizeof(line), f) != nullptr) {
         std::string_view s(line);
         // trim \r\n
-        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) { s.remove_prefix(1); }
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) { s.remove_suffix(1); }
 
         if (s.starts_with(search_prefix)) {
             size_t start = search_prefix.size();
@@ -50,34 +53,32 @@ static int ck_find_last_index_vfs(const char* filePath, std::string_view prefix)
     return last_index;
 }
 
-int ck_config_next_map_index(const std::string& filePath) {
-    int last = ck_find_last_index_vfs(filePath.c_str(), "Map");
-    std::cout << "[CK Config Patch] Last map index: " << last << std::endl;
+int ck_config_next_map_index(const std::string& file_path) {
+    int last = ck_find_last_index_vfs(file_path.c_str(), "Map");
+    log.info("Last map index: {}", last);
     return last == -1 ? 0 : last + 1;
 }
 
-int ck_config_next_area_index(const std::string& filePath) {
-    int last = ck_find_last_index_vfs(filePath.c_str(), "Area");
-    std::cout << "[CK Config Patch] Last area index: " << last << std::endl;
+int ck_config_next_area_index(const std::string& file_path) {
+    int last = ck_find_last_index_vfs(file_path.c_str(), "Area");
+    log.info("Last area index: {}", last);
     return last == -1 ? 0 : last + 1;
 }
 
-void ck_config_patch_add(std::string_view filePath, std::string_view section,
+void ck_config_patch_add(std::string_view file_path, std::string_view section,
                          std::string_view key, std::string_view value) {
 
-	std::string normalized_path(filePath);
+	std::string normalized_path(file_path);
 	for (char& c : normalized_path) if (c == '\\') c = '/';
 
     gPatches.push_back({ normalized_path, std::string(section), std::string(key), std::string(value) });
-    std::cout << "[CK Config Patch] Registered: ["
-              << section << "] " << key << " = " << value
-              << " (" << normalized_path << ")" << std::endl;
+	log.info("Registered: [{}] {} = {} ({})", section, key, value, normalized_path);
 }
 
-void ck_config_patch_apply(fallout::Config* config, const char* filePath) {
-    if (config == nullptr || filePath == nullptr) return;
+void ck_config_patch_apply(fallout::Config* config, const char* file_path) {
+    if (config == nullptr || file_path == nullptr) return;
 
-	std::string check_path = filePath;
+	std::string check_path = file_path;
 	for (char& c : check_path) if (c == '\\') c = '/';
 
     int applied = 0;
@@ -85,19 +86,18 @@ void ck_config_patch_apply(fallout::Config* config, const char* filePath) {
         // quick compare (no separation/registry)
         // "data\\city.txt" == "data/city.txt"
 
-        if (patch.filePath == check_path) {
+        if (patch.file_path == check_path) {
             fallout::configSetString(config, patch.section.c_str(), patch.key.c_str(), patch.value.c_str());
             applied++;
         }
     }
 
     if (applied > 0) {
-        std::cout << "[CK Config Patch] Applied " << applied
-                  << " patches to: " << filePath << std::endl;
+		log.info("Applied {} patches to: {}", applied, file_path);
     }
 }
 
 void ck_config_patch_clear() {
     gPatches.clear();
-    std::cout << "[CK Config Patch] Cleared all patches." << std::endl;
+    log.info("Cleared all patches.");
 }

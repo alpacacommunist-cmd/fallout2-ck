@@ -8,6 +8,8 @@ local validations = require('ck.fallout2.loader.validations')
 
 local M = {}
 
+local log = ck.log.new('CK Loader')
+
 local active_mods = {
   "game_time_extender",
   "arroyo_expanded",
@@ -24,7 +26,7 @@ local function loadManifest(mod_folder)
   local ok, manifest = pcall(require, key)
 
   if not ok or type(manifest) ~= 'table' then
-    print("[CK Loader] WARNING: no manifest for " .. mod_folder)
+    log.warn("WARNING: no manifest for " .. mod_folder)
     return nil
   end
 
@@ -65,7 +67,7 @@ local function applyManifest(manifest)
           loc.entrance.tile
         )
       else
-        print(string.format("[CK Loader] [ERROR] mod '%s' has wrong location definition: %s. Skipping.", manifest.id, err_msg))
+        log.error(string.format("mod '%s' has wrong location definition: %s. Skipping.", manifest.id, err_msg))
       end
     end
   end
@@ -82,26 +84,26 @@ local function loadAndInitMod(mod_folder)
   end)
 
   if not success then
-    print("[CK Loader] ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
+    log.error("ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
   end
 
   events.current_loading_mod = nil
 end
 
 function M.initialize()
-  print("[CK Loader] Initializing Mod Loader...")
-  print("[CK Loader] Loading active mods...")
+  log.info("Initializing Mod Loader...")
+  log.info("[CK Loader] Loading active mods...")
 
   for _, mod_folder in ipairs(active_mods) do
-    print("[CK Loader] Booting: " .. mod_folder)
+    log.info("[CK Loader] Booting: " .. mod_folder)
     loadAndInitMod(mod_folder)
   end
 
-  print("[CK Loader] All mods processed successfully!")
+  log.info("[CK Loader] All mods processed successfully!")
 end
 
 function M.reloadMods()
-  print("[CK Loader] Reloading mods...")
+  log.info("[CK Loader] Reloading mods...")
 
   rendering.clear()
 
@@ -113,20 +115,20 @@ function M.reloadMods()
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
         package.loaded[mod_name] = nil
-        print("[CK Loader] Unloaded: " .. mod_name)
+        log.info("[CK Loader] Unloaded: " .. mod_name)
       end
     end
   end
 
   for _, mod_folder in ipairs(reloadable_mods) do
-    print("[CK Loader] Reloading: " .. mod_folder)
+    log.info("[CK Loader] Reloading: " .. mod_folder)
     loadAndInitMod(mod_folder)
   end
 
   events.emit("onMapEnter")
   events.emit("onModReload")
 
-  print("[CK Loader] Reload complete!")
+  log.info("[CK Loader] Reload complete!")
 end
 
 _G["ckReloadMods"] = M.reloadMods

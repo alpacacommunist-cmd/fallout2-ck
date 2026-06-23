@@ -4,6 +4,9 @@
 #include <cstring>
 #include <string_view>
 
+#include "ck_log.h"
+static const Logger log("CK Message Patch");
+
 static std::vector<CkMessagePatch> gMessagePatches;
 
 void ck_message_patch_add(std::string_view file_path, int num, std::string_view text) {
@@ -11,8 +14,7 @@ void ck_message_patch_add(std::string_view file_path, int num, std::string_view 
 	for (char& c : normalized_path) if (c == '\\') c = '/';
 
     gMessagePatches.push_back({ normalized_path, num, std::string(text) });
-    std::cout << "[CK Message Patch] Registered: {" << num << "} = "
-              << text << " (" << normalized_path << ")" << std::endl;
+	log.info("Registered: {{{}}} = {} ({})", num, text, normalized_path);
 }
 
 void ck_message_patch_apply(fallout::MessageList* list, const char* file_path) {
@@ -37,16 +39,13 @@ void ck_message_patch_apply(fallout::MessageList* list, const char* file_path) {
 			item.text  = const_cast<char*>(patch.text.c_str());
 
             fallout::_message_addExternal(list, &item);
-			// fallout::debugPrint("[CK DEBUG] Added message num=%d text=%s to list\n",
-			// 		item.num, item.text);
-			std::cout << "[CK DEBUG] Added message num=" << item.num << " text=" << item.text << std::endl;
+			log.debug("Added message num={} text={}", item.num, item.text);
             applied++;
         }
     }
 
     if (applied > 0) {
-        std::cout << "[CK Message Patch] Applied " << applied
-                  << " messages to: " << file_path << std::endl;
+		log.info("Applied {} messages to: {}", applied, file_path);
     }
 }
 

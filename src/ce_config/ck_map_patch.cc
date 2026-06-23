@@ -2,9 +2,11 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 #include <unordered_map>
 #include <algorithm>
+
+#include "ck_log.h"
+static const Logger log("CK Map Patch");
 
 static const long NAME_OFFSET  = 4;
 static const long NAME_SIZE    = 16;
@@ -13,7 +15,7 @@ static const long INDEX_OFFSET = 52;
 bool ck_map_patch_header(const std::string& mapFilePath, const std::string& mapName, int newIndex) {
     FILE* f = fopen(mapFilePath.c_str(), "r+b");
     if (f == nullptr) {
-        std::cerr << "[CK Map Patch] Cannot open: " << mapFilePath << std::endl;
+		log.error("Cannot open map file: {}", mapFilePath);
         return false;
     }
 
@@ -36,9 +38,7 @@ bool ck_map_patch_header(const std::string& mapFilePath, const std::string& mapN
     fwrite(bytes, 1, 4, f);
     fclose(f);
 
-    std::cout << "[CK Map Patch] Patched name=" << mapName
-              << " index=" << newIndex
-              << " in " << mapFilePath << std::endl;
+	log.info("Patched name={} index={} in {}", mapName, newIndex, mapFilePath);
 
     return true;
 }
@@ -51,7 +51,7 @@ void ck_map_register_path(const std::string& mapFile, const std::string& fullPat
     std::transform(lowerKey.begin(), lowerKey.end(), lowerKey.begin(), ::tolower);
 
     gMapPaths[lowerKey] = fullPath;
-    std::cout << "[CK Map Patch] Registered path: " << lowerKey << " -> " << fullPath << std::endl;
+	log.info("Registered path: {} -> {}", lowerKey, fullPath);
 }
 
 const char* ck_map_resolve_path(const char* name) {

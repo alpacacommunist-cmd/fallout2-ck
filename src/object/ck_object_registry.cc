@@ -2,7 +2,9 @@
 #include "ck_ids.h"
 #include "object/ck_object_registry.h"
 #include "object/ck_item.h"
-#include <iostream>
+
+#include "ck_log.h"
+static const Logger log("CK Object Registry");
 
 CkObjectRegistry gObjectRegistry;
 
@@ -15,12 +17,6 @@ const LuaCritterMeta* CkObjectRegistry::get_meta(int lua_id) const {
 int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
     int id = next_id++;
     objects[id] = { obj, id, true, meta };
-
-	// std::cout << "[CK] Registering CRITTER META: name: " << meta.name << " description: " << meta.description
-	// 	<< std::endl;
-	//
-	// std::cout << "[CK] Registering CRITTER META: sid: " << ck::clean_sid(obj->sid)
-	// 	<< std::endl;
 
     return id;
 }
@@ -75,7 +71,7 @@ void CkObjectRegistry::destroy_all() {
     objects.clear();
     next_id = 1;
 
-    std::cout << "[CK Object Registry] Destroyed " << count << " managed objects" << std::endl;
+	log.info("Destroyed {} managed objects", count);
 	ck_call_lua_hook("ckOnObjectsDestroyed");
 }
 

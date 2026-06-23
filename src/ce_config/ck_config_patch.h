@@ -10,7 +10,7 @@ namespace fallout {
 }
 
 struct CkConfigPatch {
-    std::string filePath;
+    std::string file_path;
     std::string section;
     std::string key;
     std::string value;
@@ -19,12 +19,12 @@ struct CkConfigPatch {
 int ck_config_next_map_index(const std::string& mapsFilePath);
 int ck_config_next_area_index(const std::string& cityFilePath);
 
-void ck_config_patch_add(std::string_view filePath,
+void ck_config_patch_add(std::string_view file_path,
                          std::string_view section,
                          std::string_view key,
                          std::string_view value);
 
-void ck_config_patch_apply(fallout::Config* config, const char* filePath);
+void ck_config_patch_apply(fallout::Config* config, const char* file_path);
 void ck_config_patch_clear();
 
 #endif
