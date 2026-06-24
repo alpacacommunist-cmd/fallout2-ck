@@ -138,7 +138,7 @@ function M.reloadMods()
   for _, mod_folder in ipairs(reloadable_mods) do
     local target_prefix = "mods." .. mod_folder
 
-    events.clearForMod(mod_folder)
+    events.clear_for_mod(mod_folder)
     objects.clear_for_mod(mod_folder)
     state.clear_tracked_objects()
 
@@ -155,10 +155,10 @@ function M.reloadMods()
   for _, mod_folder in ipairs(reloadable_mods) do
     log.info("[CK Loader] Reloading: " .. mod_folder)
     loadAndInitMod(mod_folder)
-  end
 
-  events.emit("onMapEnter")
-  events.emit("onModReload")
+    events.emit_for_mod(mod_folder, "onMapEnter")
+    events.emit_for_mod(mod_folder, "onModReload")
+  end
 
   log.info("[CK Loader] Reload complete!")
 end

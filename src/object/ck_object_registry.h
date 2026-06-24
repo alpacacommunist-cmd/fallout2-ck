@@ -6,6 +6,7 @@
 
 namespace fallout {
     struct Object;
+	int reg_anim_clear(Object* a1);
 }
 
 struct LuaCritterMeta {

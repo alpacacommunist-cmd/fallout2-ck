@@ -54,7 +54,7 @@ function events.emit(event_name, ...)
   end
 end
 
-function events.clearForMod(mod_name)
+function events.clear_for_mod(mod_name)
   for event_name, entries in pairs(events.listeners) do
     local clean_list = {}
 
@@ -143,6 +143,25 @@ function ckOnObjectsDestroyed()
 
   log.info("[CK Objects] Registry cleared")
   log.info("[CK State] Tracked objects cleared")
+end
+
+function events.emit_for_mod(mod_name, event_name, ...)
+  local entries = events.listeners[event_name]
+  if not entries then return end
+
+  local args = { ... }
+
+  for index, entry in ipairs(entries) do
+    if entry.mod == mod_name then
+      local ok, err = xpcall(function()
+        entry.fn(unpack(args))
+      end, debug.traceback)
+
+      if not ok then
+        log.error(string.format("in mod '%s' on localized event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
+      end
+    end
+  end
 end
 
 return events

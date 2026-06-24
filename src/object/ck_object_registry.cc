@@ -34,6 +34,7 @@ void CkObjectRegistry::destroy_objects_for_mod(const char* target_mod_id) {
         if (it->second.alive && it->second.meta.mod_id == mod_id_str && it->second.ptr != nullptr) {
             // ck_scripting_on_object_destroyed gets triggered in engine (inside objectDestroy)
             // and calls remove_by_ptr.
+			fallout::reg_anim_clear(it->second.ptr);
             fallout::objectDestroy(it->second.ptr, nullptr);
 
             it = objects.begin();
