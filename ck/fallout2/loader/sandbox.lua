@@ -1,13 +1,16 @@
 -- ck/fallout2/loader/sandbox.lua
-local core_events = require('ck.fallout2.events')
-local i18n        = require('ck.fallout2.i18n')
+local core_events   = require('ck.fallout2.events')
+local i18n          = require('ck.fallout2.i18n')
+local core_critters = require('ck.fallout2.objects.critters')
 
 local log = ck.log.new('CK Events Sandbox')
 
 local M = {}
 
-function M.create_env(mod_folder)
+function M.create_env(mod_folder, manifest_table)
   local env = setmetatable({}, { __index = _G })
+
+  env.manifest = manifest_table
 
   ---------------------------------------------------------------
   ------ require
@@ -15,8 +18,22 @@ function M.create_env(mod_folder)
   function env.require(mod_name)
     local target_name = mod_name
 
+    -- relative requires (as in require('.outskirts') instead of require('temple_of_trials.outskirts')
     if mod_name:sub(1, 1) == "." then
       target_name = "mods." .. mod_folder .. mod_name
+    end
+
+    -- smart proxies instead of system modules
+    if target_name == "ck.fallout2.objects.critters" then
+      return {
+        register = function(tag, pid, tile, config)
+          config = config or {}
+          config.mod_id = manifest_table.id
+          return core_critters.register(tag, pid, tile, config)
+        end,
+
+        create = core_critters.create
+      }
     end
 
     -- check if module is loaded
@@ -52,7 +69,7 @@ function M.create_env(mod_folder)
   ------ context log
   ---------------------------------------------------------------
 
-  env.log = ck.log.new(mod_folder)
+  env.log = ck.log.new(manifest_table.name)
 
   ---------------------------------------------------------------
   ------ events
@@ -86,7 +103,6 @@ function M.create_env(mod_folder)
   end
 
   ---------------------------------------------------------------------
-  -- env.critters = ...
   -- env.state = ...
   ---------------------------------------------------------------------
 

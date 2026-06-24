@@ -1,6 +1,7 @@
 local ffi     = require("ffi")
 
 local CritterClass = require("ck.fallout2.classes.critter")
+local log = ck.log.new('objects/critters.lua')
 
 ffi.cdef[[
   int ck_critter_register(int pid, int tile, const char* tag);
@@ -11,8 +12,14 @@ local critters = {}
 function critters.register(tag, pid, tile, config)
   local lua_id = ffi.C.ck_critter_register(pid, tile, tag)
   if lua_id == -1 then
-    print("[CK Error] Failed to register critter (FFI)!")
+    log.error("Failed to register critter (FFI)!")
     return nil
+  end
+
+  if (config.mod_id) then
+    log.info("mod_id: " .. config.mod_id)
+  else
+    log.info("config.mod_id nil")
   end
 
   local critter_instance = CritterClass.new(lua_id, config, tag)
@@ -23,7 +30,7 @@ end
 function critters.create(pid, tile, config)
   local lua_id = ffi.C.ck_critter_register(pid, tile, nil)
   if lua_id == -1 then
-    print("[CK Error] Failed to create critter (FFI)!")
+    log.error("Failed to create critter (FFI)!")
     return nil
   end
 

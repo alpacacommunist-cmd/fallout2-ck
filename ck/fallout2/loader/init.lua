@@ -97,7 +97,7 @@ local function loadAndInitMod(mod_folder)
     return
   end
 
-  local mod_env = sandbox.create_env(mod_folder)
+  local mod_env = sandbox.create_env(mod_folder, manifest)
   setfenv(mod_init_fn, mod_env)
 
 
