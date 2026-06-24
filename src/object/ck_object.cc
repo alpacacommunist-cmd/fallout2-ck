@@ -16,10 +16,8 @@ static fallout::Object* ck_object_blocker_at(int tile) {
 	return fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
 }
 
-void ck_object_remove_managed(fallout::Object* obj) {
+void ck_object_remove(fallout::Object* obj) {
     if (obj == nullptr) return;
-    bool found_in_registry = gObjectRegistry.remove_by_ptr(obj);
-    if (found_in_registry) { std::cout << "[CK Debug] Object removed from registry before destruction." << std::endl; }
 
     fallout::objectDestroy(obj, nullptr);
 }
@@ -73,14 +71,14 @@ void ck_object_remove_at(int tile) {
 		to_delete.push_back(object); object = next_object;
 	}
 
-    for (fallout::Object* object : to_delete) { ck_object_remove_managed(object); }
+    for (fallout::Object* object : to_delete) { ck_object_remove(object); }
 }
 
 void ck_object_remove_blocker_at(int tile) {
 	fallout::Object* blocker = ck_object_blocker_at(tile);
 
 	if (blocker != nullptr && (FID_TYPE(blocker->fid) == fallout::OBJ_TYPE_SCENERY)) {
-		ck_object_remove_managed(blocker);
+		ck_object_remove(blocker);
 	}
 }
 

@@ -16,7 +16,7 @@ fallout::Object* ck_object_create_at(int fid, int tile);
 
 int ck_object_register_object(int pid, int tile);
 
-void ck_object_remove_managed(fallout::Object* obj);
+void ck_object_remove(fallout::Object* obj);
 void ck_object_remove_at(int tile);
 void ck_object_remove_blocker_at(int tile);
 

@@ -61,7 +61,7 @@ bool CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
 
 			log.debug("Engine destroyed object [ID: {}, Tag: '{}']. Managed registry size: {}",
 					deleted_id,
-					obj_tag.empty() ? "mass_npc" : obj_tag,
+					obj_tag.empty() ? "mass_object (untagged)" : obj_tag,
 					objects.size());
 
             return true;

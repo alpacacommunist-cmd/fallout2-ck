@@ -1,4 +1,3 @@
-local i18n   = require('ck.fallout2.i18n')
 local player = require('ck.fallout2.player')
 local    T = i18n.bind('arroyo_expanded')
 

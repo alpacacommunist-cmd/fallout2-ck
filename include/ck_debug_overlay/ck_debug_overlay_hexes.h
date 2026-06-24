@@ -32,11 +32,11 @@ struct ckDebugHex {
     HexState state;
 	DebugHexColor customColor{0, 0};
 
-    void switchTo(HexState newState) {
+    void switch_to(HexState newState) {
         state = newState;
     }
 
-	void switchToCustom(DebugHexColor color) {
+	void switch_to_custom(DebugHexColor color) {
 		state = HexState::CUSTOM;
 		customColor = color;
 	}

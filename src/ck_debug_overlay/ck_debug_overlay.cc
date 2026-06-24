@@ -175,16 +175,16 @@ static void mode_main_paint() {
 		}
 
 		switch (hex->state) {
-			case HexState::BLOCKER:  hex->switchTo(HexState::TRANSITION); break;
-			case HexState::WALKABLE: hex->switchTo(HexState::SELECTED);   break;
+			case HexState::BLOCKER:  hex->switch_to(HexState::TRANSITION); break;
+			case HexState::WALKABLE: hex->switch_to(HexState::SELECTED);   break;
 			default: break;
 		}
 	}
 	// CTRL + LMB: clear selection
 	else if (isCtrl && hex != nullptr) {
 		switch (hex->state) {
-			case HexState::TRANSITION: hex->switchTo(HexState::BLOCKER); break;
-			case HexState::SELECTED: hex->switchTo(ck_hex_state_for_tile(hex->tile)); break;
+			case HexState::TRANSITION: hex->switch_to(HexState::BLOCKER); break;
+			case HexState::SELECTED: hex->switch_to(ck_hex_state_for_tile(hex->tile)); break;
 
 			default: break;
 		}
@@ -233,7 +233,7 @@ static void mode_main_create_blockers() {
 	std::cout << "[CK DEBUG] --- Creating blockers --- Count: " << selectedHexes.size() << std::endl;
 	for (ckDebugHex* hex : selectedHexes) {
 		ck_object_create_blocker_at(hex->tile);
-		hex->switchTo(HexState::BLOCKER);
+		hex->switch_to(HexState::BLOCKER);
 	}
 	std::cout << "[CK DEBUG] --- Creating blockers COMPLETE ---" << std::endl;
 
@@ -242,13 +242,13 @@ static void mode_main_create_blockers() {
 	fallout::soundPlayFile("iisxxxx1");
 }
 
-static void mode_main_remove_selected_blockers() {
-	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
+static void mode_main_remove_selected() {
+	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
 
-	std::cout << "[CK DEBUG] --- Removing blockers started --- Count: " << selectedHexes.size() << std::endl;
-	for (ckDebugHex* hex : selectedHexes) {
-		ck_object_remove_blocker_at(hex->tile);
-		hex->switchTo(ck_hex_state_for_tile(hex->tile));
+	std::cout << "[CK DEBUG] --- Removing blockers started --- Count: " << selected_hexes.size() << std::endl;
+	for (ckDebugHex* hex : selected_hexes) {
+		ck_object_remove_at(hex->tile);
+		hex->switch_to(ck_hex_state_for_tile(hex->tile));
 	}
 	std::cout << "[CK DEBUG] --- Removing blockers complete ---" << std::endl;
 
@@ -316,7 +316,7 @@ static void mode_main() {
 							   break;
 						   }
 		case CK_KEY_MINUS: {
-							   if (ck_input_ctrl()) mode_main_remove_selected_blockers();
+							   if (ck_input_ctrl()) mode_main_remove_selected();
 							   break;
 					       }
 		case CK_KEY_EQUALS: {

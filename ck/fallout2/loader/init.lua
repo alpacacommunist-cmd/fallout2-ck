@@ -140,7 +140,9 @@ function M.reloadMods()
 
     events.clear_for_mod(mod_folder)
     objects.clear_for_mod(mod_folder)
-    state.clear_tracked_objects()
+    state.clear_for_mod(mod_folder)
+
+    -- state.clear_tracked_objects()
 
     ffi.C.ck_registry_destroy_objects_for_mod(mod_folder)
 

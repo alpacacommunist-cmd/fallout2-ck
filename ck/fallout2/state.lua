@@ -39,8 +39,7 @@ end
 function state.update_tracked_objects(current_ticks)
   local current_map_id = map.get_id()
 
-  if current_map_id == -1 then return end
-  if tracked_object == nil then return end
+  if current_map_id  == -1 then return end
 
   for lua_id, entry in pairs(tracked_objects) do
     if current_ticks >= entry.next_tick then
@@ -57,6 +56,16 @@ function state.update_tracked_objects(current_ticks)
       -- if entry.obj.type == "critter" then ... в зависимости от класса
     end
   end
+end
+
+function state.clear_for_mod(mod_name)
+  for lua_id, entry in pairs(tracked_objects) do
+    if entry.mod_id == mod_name then
+      tracked_objects[lua_id] = nil
+    end
+  end
+
+  log.info("Cleared tracked objects cache for mod: " .. mod_name)
 end
 
 function state.clear_tracked_objects()
@@ -121,10 +130,10 @@ local function print_table(t, indent)
     for k, v in pairs(t) do
         local formatting = string.rep("  ", indent) .. k .. ": "
         if type(v) == "table" then
-            print(formatting)
+            log.debug(formatting)
             print_table(v, indent + 1)
         else
-            print(formatting .. tostring(v))
+            log.debug(formatting .. tostring(v))
         end
     end
 end
