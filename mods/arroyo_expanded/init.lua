@@ -1,5 +1,5 @@
 -- mods/arroyo_expanded/init.lua
-print("[Mod] Loading Arroyo Expanded Mod...")
+log.info("Loading Arroyo Expanded Mod...")
 
 local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
@@ -33,10 +33,10 @@ events.on('onMapEnter', function()
     :on('description', function(self) monitor.print(self.description) end)
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
-  print("[CK] NPC ID: " .. tostring(alice.id))
-  print(alice:tile())
-  print(alice.sid)
-  print(alice.tag)
+  log.info("NPC ID: " .. tostring(alice.id))
+  log.info("Alice tile: " .. alice:tile())
+  log.info("Alice sid: " .. alice.sid)
+  log.info("Alice tag: " .. alice.tag)
 
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)
@@ -57,6 +57,6 @@ events.on('onMapEnter', function()
 
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
-  local alice_dialogue = require('mods.arroyo_expanded.dialogs').alice_nodes
+  local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
 end)

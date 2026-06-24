@@ -1,11 +1,11 @@
 -- mods/temple_of_trials/init.lua
 
-print("[Mod] Loading Temple of Trials...")
+log.info("Loading Temple of Trials...")
 
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 
-local outskirts = require('mods.temple_of_trials.outskirts')
+local outskirts = require('.outskirts')
 
 events.on('onModReload', function()
   map.rendering_refresh()
@@ -49,5 +49,5 @@ events.on('onMapEnter', function()
 
   map.place("temple_of_trials:scenery/tree10", 19094)
 
-  print("[Temple] Temple of Trials loaded.")
+  log.info("Temple of Trials loaded.")
 end)

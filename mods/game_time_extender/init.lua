@@ -1,5 +1,5 @@
 -- mods/game_time_extender/init.lua
-print("[Mod] Loading Game Time Extender...")
+log.info("Loading Game Time Extender...")
 
 local config    = require('ck.fallout2.config')
 local monitor   = require('ck.fallout2.monitor')

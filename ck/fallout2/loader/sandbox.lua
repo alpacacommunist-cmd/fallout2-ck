@@ -13,13 +13,19 @@ function M.create_env(mod_folder)
   ------ require
   ---------------------------------------------------------------
   function env.require(mod_name)
+    local target_name = mod_name
+
+    if mod_name:sub(1, 1) == "." then
+      target_name = "mods." .. mod_folder .. mod_name
+    end
+
     -- check if module is loaded
-    if package.loaded[mod_name] then
-      return package.loaded[mod_name]
+    if package.loaded[target_name] then
+      return package.loaded[target_name]
     end
 
     -- search in standard path
-    local loader_fn, err = package.searchpath(mod_name, package.path)
+    local loader_fn, err = package.searchpath(target_name, package.path)
     if not loader_fn then
       -- sandboxed require found nothing, try global
       return _G.require(mod_name)
@@ -38,9 +44,15 @@ function M.create_env(mod_folder)
 
     -- exec and cache the result
     local result = chunk()
-    package.loaded[mod_name] = result or true
-    return package.loaded[mod_name]
+    package.loaded[target_name] = result or true
+    return package.loaded[target_name]
   end
+
+  ---------------------------------------------------------------
+  ------ context log
+  ---------------------------------------------------------------
+
+  env.log = ck.log.new(mod_folder)
 
   ---------------------------------------------------------------
   ------ events
