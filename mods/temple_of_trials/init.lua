@@ -4,12 +4,27 @@ log.info("Loading Temple of Trials...")
 
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
+local critters    = require('ck.fallout2.objects.critters')
+local behaviors    = require('ck.fallout2.behaviors')
 
 local outskirts = require('.outskirts')
 
 events.on('onModReload', function()
   map.rendering_refresh()
 end)
+
+-- events.on('onMapEnter', function()
+--   local map_id = map.get_id()
+--
+--   if map_id ~= 4 then return end
+--
+--   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
+--     name        = 'Ralph',
+--     description = 'Ralph the Wanderer'
+--   })
+--   ralph:set_behavior(behaviors.wander, 3)
+--   state.track(ralph, { save_interval_seconds = 5 })
+-- end)
 
 events.on('onMapEnter', function()
   if map.get_id() ~= 126 then return end
