@@ -1,19 +1,30 @@
-local ffi     = require("ffi")
+local ffi = require("ffi")
+ffi.cdef[[
+  int ck_critter_register(int pid, int tile, const char* tag, const char* mod_id);
+]]
+
+local log = ck.log.new('objects/critters.lua')
 
 local CritterClass = require("ck.fallout2.classes.critter")
 local map          = require('ck.fallout2.map')
 local state        = require('ck.fallout2.state')
 
-local log = ck.log.new('objects/critters.lua')
-
-ffi.cdef[[
-  int ck_critter_register(int pid, int tile, const char* tag, const char* mod_id);
-]]
-
 local critters = {}
 
-function critters.register(tag, pid, tile, config, mod_id)
-  mod_id = mod_id or "unknown"
+-- better than sandboxing critters. No idea how to deal with this
+local function get_caller_mod_id()
+  for level = 2, 5 do
+    local  success, env = pcall(getfenv, level)
+    if not success or not env then break end
+
+    if env.mod_id then return env.mod_id end
+  end
+
+  return "unknown"
+end
+
+function critters.register(tag, pid, tile, config)
+  mod_id = get_caller_mod_id()
 
   local current_map = map.get_id()
   local stored_data = state.get_stored_object_data(mod_id, current_map, tag)
@@ -32,8 +43,8 @@ function critters.register(tag, pid, tile, config, mod_id)
   return critter_instance
 end
 
-function critters.create(pid, tile, config, mod_id)
-  mod_id = mod_id or "unknown"
+function critters.create(pid, tile, config)
+  mod_id = get_caller_mod_id()
 
   local lua_id = ffi.C.ck_critter_register(pid, tile, nil, mod_id)
   if lua_id == -1 then

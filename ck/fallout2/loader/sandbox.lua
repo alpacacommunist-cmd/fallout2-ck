@@ -1,9 +1,6 @@
 -- ck/fallout2/loader/sandbox.lua
 local core_events   = require('ck.fallout2.events')
 local i18n          = require('ck.fallout2.i18n')
-local core_critters = require('ck.fallout2.objects.critters')
-local core_state    = require('ck.fallout2.state')
-local core_quests   = require('ck.fallout2.quests')
 
 local log = ck.log.new('CK Events Sandbox')
 
@@ -13,6 +10,7 @@ function M.create_env(mod_folder, manifest_table)
   local env = setmetatable({}, { __index = _G })
 
   env.manifest = manifest_table
+  env.mod_id   = manifest_table.id
 
   ---------------------------------------------------------------
   ------ require
@@ -26,13 +24,8 @@ function M.create_env(mod_folder, manifest_table)
     end
 
     -- replace explicit require from mod to proxied version
-    if target_name == "ck.fallout2.state" then return env.state end
     if target_name == "ck.fallout2.events" then return env.events end
-
-    -- smart proxies instead of system modules
-    if target_name == "ck.fallout2.objects.critters" then
-      return env.critters
-    end
+    if target_name == "ck.fallout2.i18n"   then return env.i18n end
 
     -- check if module is loaded
     if package.loaded[target_name] then
@@ -77,7 +70,7 @@ function M.create_env(mod_folder, manifest_table)
 
   function env.events.on(event_name, callback)
     if not core_events.listeners[event_name] then
-      log.warn(string.format("[CK Sandbox] [%s] Warning: unknown event '%s'", mod_folder, tostring(event_name)))
+      log.warn(string.format("[%s] Warning: unknown event '%s'", mod_folder, tostring(event_name)))
       return
     end
 
@@ -98,47 +91,6 @@ function M.create_env(mod_folder, manifest_table)
       return i18n.t(mod_folder, key, ...)
     end
     return i18n.t(key, ...)
-  end
-
-  ---------------------------------------------------------------------
-  -- env.state
-  ---------------------------------------------------------------------
-
-  env.state = setmetatable({}, { __index = core_state })
-
-  function env.state.track(object_instance, options)
-    options = options or {}
-
-    return core_state.track_internal(manifest_table.id, object_instance, options)
-  end
-
-  ---------------------------------------------------------------------
-  -- env.critters
-  ---------------------------------------------------------------------
-
-  env.critters = setmetatable({}, { __index = core_critters })
-
-  function env.critters.register(tag, pid, tile, config)
-    return core_critters.register(tag, pid, tile, config, manifest_table.id)
-  end
-  function env.critters.create(pid, tile, config)
-    return core_critters.create(pid, tile, config, manifest_table.id)
-  end
-
-  ---------------------------------------------------------------------
-  -- env.quests
-  ---------------------------------------------------------------------
-
-  env.quests = setmetatable({}, { __index = core_quests })
-
-  function env.quests.register(quest_id, config)
-    return core_quests.register_internal(manifest_table.id, quest_id, config)
-  end
-  function env.quests.set(quest_id, status_value)
-    return core_quests.set_internal(manifest_table.id, quest_id, status_value)
-  end
-  function env.quests.get(quest_id)
-    return core_quests.get_internal(manifest_table.id, quest_id)
   end
 
   return env

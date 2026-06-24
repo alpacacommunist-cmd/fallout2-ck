@@ -13,18 +13,32 @@ quests.status = {
 
 quests.definitions = {}
 
-function quests.register_internal(mod_id, quest_id, config)
+local function get_caller_mod_id()
+  for level = 2, 5 do
+    local  success, env = pcall(getfenv, level)
+    if not success or not env then break end
+
+    if env.mod_id then return env.mod_id end
+  end
+
+  return "unknown"
+end
+
+function quests.register(quest_id, config)
+  local mod_id = get_caller_mod_id()
+
   quests.definitions[mod_id] = quests.definitions[mod_id] or {}
   quests.definitions[mod_id][quest_id] = config
 end
 
--- is overriden in sandbox env
-function quests.set_internal(mod_id, quest_id, status_value)
+function quests.set(quest_id, status_value)
+  local mod_id = get_caller_mod_id()
+
   state.set_global(mod_id, "quests", quest_id, status_value)
 end
 
--- is overriden in sandbox env
-function quests.get_internal(mod_id, quest_id)
+function quests.get(quest_id)
+  local mod_id = get_caller_mod_id()
   local value = state.get_global(mod_id, "quests", quest_id)
 
   return value or quests.status.NOT_STARTED

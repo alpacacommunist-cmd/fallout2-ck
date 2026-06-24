@@ -13,6 +13,19 @@ local db = {
 local last_save_path  = nil
 local tracked_objects = {}
 
+-- gets mod_id of the caller
+local function get_caller_mod_id()
+  for level = 2, 5 do
+    local success, env = pcall(getfenv, level)
+
+    if not success or not env then break end
+
+    if env.mod_id then return env.mod_id end
+  end
+
+  return "unknown"
+end
+
 -- helper function for printing nested stuff
 local function print_table(t, indent)
   indent = indent or 0
@@ -77,7 +90,15 @@ function ckOnGameStateLoad(path)
   state.load_from_cache()
 end
 
-function state.track_internal(mod_id, object_instance, options)
+function state.track(object_instance, options)
+  mod_id = get_caller_mod_id()
+
+  if mod_id == "unknown" then
+    log.error("Unknown mod_id, can't track object")
+
+    return
+  end
+
   if not object_instance or not object_instance.tag then
     log.error("Cannot track object without a valid instance or tag!")
 

@@ -5,13 +5,19 @@ local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
+local state       = require('ck.fallout2.state')
 local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.behaviors')
 local items       = require('ck.fallout2.objects.items')
+local quests      = require('ck.fallout2.quests')
 
 local log   = ck.log.new('Arroyo Expanded')
 
 events.on('onGameLoaded', function()
+end)
+
+events.on('onModReload', function()
+  log.warn('reloaded!')
 end)
 
 events.on('onMapEnter', function()
