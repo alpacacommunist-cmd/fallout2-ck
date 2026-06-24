@@ -50,8 +50,6 @@ function behaviors.patrol(waypoints_table, delay_seconds)
       return
     end
 
-    if critter._is_moving then return end
-
     critter._is_moving = true
     critter:animate():walk_to(target_tile):submit()
   end

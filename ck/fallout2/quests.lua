@@ -14,16 +14,18 @@ quests.status = {
 quests.definitions = {}
 
 function quests.register_internal(mod_id, quest_id, config)
-  M.definitions[mod_id] = M.definitions[mod_id] or {}
-  M.definitions[mod_id][quest_id] = config
+  quests.definitions[mod_id] = quests.definitions[mod_id] or {}
+  quests.definitions[mod_id][quest_id] = config
 end
 
+-- is overriden in sandbox env
 function quests.set_internal(mod_id, quest_id, status_value)
-  state.set_global_value(mod_id, "quests", quest_id, status_value)
+  state.set_global(mod_id, "quests", quest_id, status_value)
 end
 
+-- is overriden in sandbox env
 function quests.get_internal(mod_id, quest_id)
-  local value = state.get_global_value(mod_id, "quests", quest_id)
+  local value = state.get_global(mod_id, "quests", quest_id)
 
   return value or quests.status.NOT_STARTED
 end

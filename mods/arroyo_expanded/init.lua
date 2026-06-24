@@ -32,6 +32,10 @@ events.on('onMapEnter', function()
     :on('description', function(self) monitor.print(self.description) end)
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
+  state.track(alice, { save_interval_seconds = 5 })
+
+  alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
+
   log.debug("NPC ID: " .. tostring(alice.id))
   log.debug("Alice tile: " .. alice:tile())
   log.debug("Alice sid: " .. alice.sid)
@@ -42,6 +46,12 @@ events.on('onMapEnter', function()
 
   alice:on('dialogue_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
+
+    if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
+      quests.set("erlang_refactoring", quests.status.ACTIVE)
+
+      log.info("Accepted quest!")
+    end
   end)
 
   alice:animate()
@@ -58,10 +68,7 @@ events.on('onMapEnter', function()
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 2)
 
-  state.track(alice, { save_interval_seconds = 5 })
-  alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
-
 end)

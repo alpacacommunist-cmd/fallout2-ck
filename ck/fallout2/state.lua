@@ -13,6 +13,70 @@ local db = {
 local last_save_path  = nil
 local tracked_objects = {}
 
+-- helper function for printing nested stuff
+local function print_table(t, indent)
+  indent = indent or 0
+  for k, v in pairs(t) do
+    local formatting = string.rep("  ", indent) .. k .. ": "
+    if type(v) == "table" then
+      log.debug(formatting)
+      print_table(v, indent + 1)
+    else
+      log.debug(formatting .. tostring(v))
+    end
+  end
+end
+
+-- serialize
+local function serialize(val)
+  local t = type(val)
+  if t == "number"  then return tostring(val) end
+  if t == "boolean" then return tostring(val) end
+  if t == "string"  then return string.format("%q", val) end
+  if t == "table" then
+    local parts = {}
+    for k, v in pairs(val) do
+      if type(v) ~= "function" and type(v) ~= "userdata" and type(v) ~= "cdata" then
+        local key = type(k) == "string" and string.format("[%q]", k) or (type(k) == "number" and "[" .. tostring(k) .. "]")
+        if key then table.insert(parts, key .. "=" .. serialize(v)) end
+      end
+    end
+    return "{" .. table.concat(parts, ",") .. "}"
+  end
+  return "nil"
+end
+
+-- global callbacks - onGameSave
+function ckOnGameSave(path)
+  local current_map_id = map.get_id()
+
+  if current_map_id ~= -1 then
+    for lua_id, entry in pairs(tracked_objects) do
+      local tile = entry.obj:tile()
+      db.maps[current_map_id] = db.maps[current_map_id] or {}
+      db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
+      db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
+      db.maps[current_map_id][entry.mod_id][entry.tag].tile = tile
+    end
+  end
+
+  path = path:gsub("\\", "/")
+  last_save_path = path
+  local file = io.open(path, "w")
+  if not file then return end
+  file:write("return " .. serialize(db) .. "\n")
+  file:close()
+  log.info("Saved database to: " .. path)
+end
+
+-- global callbacks - onGameLoad
+function ckOnGameStateLoad(path)
+  last_save_path = path:gsub("\\", "/")
+  log.info("Cached save game state path: " .. last_save_path)
+
+  state.load_from_cache()
+end
+
 function state.track_internal(mod_id, object_instance, options)
   if not object_instance or not object_instance.tag then
     log.error("Cannot track object without a valid instance or tag!")
@@ -37,23 +101,23 @@ function state.track_internal(mod_id, object_instance, options)
 end
 
 function state.update_tracked_objects(current_ticks)
-  local current_map_id = map.get_id()
+  local map_id = map.get_id()
 
-  if current_map_id  == -1 then return end
+  if map_id  == -1 then return end
 
   for lua_id, entry in pairs(tracked_objects) do
     if current_ticks >= entry.next_tick then
       entry.next_tick = current_ticks + entry.interval
 
-      local current_tile = entry.obj:tile()
+      local tile = entry.obj:tile()
 
-      db.maps[current_map_id] = db.maps[current_map_id] or {}
-      db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
-      db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
+      db.maps[map_id] = db.maps[map_id] or {}
+      db.maps[map_id][entry.mod_id] = db.maps[map_id][entry.mod_id] or {}
+      db.maps[map_id][entry.mod_id][entry.tag] = db.maps[map_id][entry.mod_id][entry.tag] or {}
 
-      db.maps[current_map_id][entry.mod_id][entry.tag].tile = current_tile
+      db.maps[map_id][entry.mod_id][entry.tag].tile = tile
 
-      -- if entry.obj.type == "critter" then ... в зависимости от класса
+      -- if entry.obj.type == "critter" then ...
     end
   end
 end
@@ -76,14 +140,14 @@ end
 function state.load_from_cache()
   if not last_save_path then return false end
 
-  local f = io.open(last_save_path, "r")
-  if not f then
+  local file = io.open(last_save_path, "r")
+  if not file then
     log.info("No state file found in cache path (New game?): " .. last_save_path)
     return false
   end
 
-  local content = f:read("*a")
-  f:close()
+  local content = file:read("*a")
+  file:close()
 
   local fn, err = load(content)
   if fn then
@@ -99,17 +163,18 @@ function state.load_from_cache()
 end
 
 local function get_mod_storage(section, mod_id)
-  local m_id = mod_id or current_mod_id
-  if not m_id then return nil end
+  if not mod_id then return nil end
+  local map_id = map.get_id()
 
   if section == "global" then
-    db.global[m_id] = db.global[m_id] or {}
-    return db.global[m_id]
+    db.global[mod_id] = db.global[mod_id] or {}
+
+    return db.global[mod_id]
   elseif section == "maps" then
-    local target_map = current_map_id
-    if target_map == -1 then return nil end
-    db.maps[target_map] = db.maps[target_map] or {}
-    db.maps[target_map][m_id] = db.maps[target_map][m_id] or {}
+    if map_id == -1 then return nil end
+
+    db.maps[map_id] = db.maps[map_id] or {}
+    db.maps[map_id][mod_id] = db.maps[map_id][mod_id] or {}
     return db.maps[target_map][m_id]
   end
 end
@@ -125,64 +190,17 @@ function state.get_local(key, default, mod_id)
   return default
 end
 
-local function print_table(t, indent)
-    indent = indent or 0
-    for k, v in pairs(t) do
-        local formatting = string.rep("  ", indent) .. k .. ": "
-        if type(v) == "table" then
-            log.debug(formatting)
-            print_table(v, indent + 1)
-        else
-            log.debug(formatting .. tostring(v))
-        end
-    end
+function state.set_global(mod_id, sub_section, key, value)
+  db.global[mod_id] = db.global[mod_id] or {}
+  db.global[mod_id][sub_section] = db.global[mod_id][sub_section] or {}
+  db.global[mod_id][sub_section][key] = value
 end
 
-local function serialize(val)
-  local t = type(val)
-  if t == "number"  then return tostring(val) end
-  if t == "boolean" then return tostring(val) end
-  if t == "string"  then return string.format("%q", val) end
-  if t == "table" then
-    local parts = {}
-    for k, v in pairs(val) do
-      if type(v) ~= "function" and type(v) ~= "userdata" and type(v) ~= "cdata" then
-        local key = type(k) == "string" and string.format("[%q]", k) or (type(k) == "number" and "[" .. tostring(k) .. "]")
-        if key then table.insert(parts, key .. "=" .. serialize(v)) end
-      end
-    end
-    return "{" .. table.concat(parts, ",") .. "}"
+function state.get_global(mod_id, sub_section, key)
+  if db.global[mod_id] and db.global[mod_id][sub_section] then
+    return db.global[mod_id][sub_section][key]
   end
-  return "nil"
-end
-
-function ckOnGameSave(path)
-  local current_map_id = map.get_id()
-
-  if current_map_id ~= -1 then
-    for lua_id, entry in pairs(tracked_objects) do
-      local current_tile = entry.obj:tile()
-      db.maps[current_map_id] = db.maps[current_map_id] or {}
-      db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
-      db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
-      db.maps[current_map_id][entry.mod_id][entry.tag].tile = current_tile
-    end
-  end
-
-  path = path:gsub("\\", "/")
-  last_save_path = path
-  local file = io.open(path, "w")
-  if not file then return end
-  file:write("return " .. serialize(db) .. "\n")
-  file:close()
-  log.info("Saved database to: " .. path)
-end
-
-function ckOnGameStateLoad(path)
-  last_save_path = path:gsub("\\", "/")
-  log.info("Cached save game state path: " .. last_save_path)
-
-  state.load_from_cache()
+  return nil
 end
 
 function state.get_stored_object_data(mod_id, map_id, tag)
