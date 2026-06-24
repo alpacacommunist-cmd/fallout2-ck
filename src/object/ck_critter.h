@@ -10,6 +10,7 @@ namespace fallout {
 
     int reg_anim_begin(int requestOptions);
     int reg_anim_end();
+	int reg_anim_clear(Object* a1);
     int animationIsBusy(Object* obj);
     int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
     int animationRegisterAnimate(Object* obj, int anim_id, int a3);
@@ -32,7 +33,8 @@ CK_API int ck_critter_register(int pid, int tile, const char* tag, const char* m
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
 CK_API int ck_anim_play(void* ptr, int anim_id);
-CK_API bool ck_critter_is_busy(void* ptr);
+CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
+CK_API bool ck_critter_is_busy(void* ptr);
 
 #endif

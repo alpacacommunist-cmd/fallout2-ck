@@ -6,8 +6,9 @@ ffi.cdef[[
   int ck_anim_begin(void* ptr, int weapon_ready);
   int ck_anim_move_to(void* ptr, int tile, int elevation);
   int ck_anim_play(void* ptr, int anim_id);
-  bool ck_critter_is_busy(void* ptr);
+  int ck_anim_clear(void* ptr);
   int ck_anim_end();
+  bool ck_critter_is_busy(void* ptr);
 ]]
 
 local dialogue  = require('ck.fallout2.dialogue')
@@ -78,7 +79,7 @@ function Critter:_handle_proc(proc_id)
     if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then
       dialogue.start(self.id)
 
-      self._action_queue = {}
+      self:clear_animations()
       return true
     end
   end
@@ -88,6 +89,16 @@ end
 
 function Critter:is_busy()
   return ffi.C.ck_critter_is_busy(self.c_ptr)
+end
+
+function Critter:clear_animations()
+  ffi.C.ck_anim_clear(self.c_ptr)
+
+  self._action_queue   = {}
+  self._next_behavior_tick = 0
+  self._behavior_interval  = 20
+
+  return self
 end
 
 function Critter:animate()

@@ -109,6 +109,12 @@ int ck_anim_play(void* ptr, int anim_id) {
 	return fallout::animationRegisterAnimate(obj, anim_id, 0);
 }
 
+int ck_anim_clear(void* ptr) {
+	if (!ptr) return -1;
+	auto* obj = static_cast<fallout::Object*>(ptr);
+	return fallout::reg_anim_clear(obj);
+}
+
 int ck_anim_end() {
 	return fallout::reg_anim_end();
 }
