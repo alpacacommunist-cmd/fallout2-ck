@@ -3,7 +3,6 @@ print("[Mod] Loading Game Time Extender...")
 
 local config    = require('ck.fallout2.config')
 local monitor   = require('ck.fallout2.monitor')
-local events    = require('ck.fallout2.events')
 local game_time = require('ck.fallout2.game_time')
 
 -- we're gona use a separate config module

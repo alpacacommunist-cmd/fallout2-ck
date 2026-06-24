@@ -9,9 +9,6 @@ ffi.cdef[[
 local critters = {}
 
 function critters.register(tag, pid, tile, config)
-  -- local name = config.name
-  -- local desc = config.description
-
   local lua_id = ffi.C.ck_critter_register(pid, tile, tag)
   if lua_id == -1 then
     print("[CK Error] Failed to register critter (FFI)!")

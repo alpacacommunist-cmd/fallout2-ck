@@ -3,6 +3,7 @@ local rendering = require('ck.fallout2.rendering')
 local events    = require('ck.fallout2.events')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
+local sandbox   = require('ck.fallout2.loader.sandbox')
 
 local validations = require('ck.fallout2.loader.validations')
 
@@ -74,20 +75,37 @@ local function applyManifest(manifest)
 end
 
 local function loadAndInitMod(mod_folder)
-  events.current_loading_mod = mod_folder
-
   local manifest = loadManifest(mod_folder)
   applyManifest(manifest)
 
-  local success, err = pcall(function()
-    require('mods.' .. mod_folder .. ".init")
-  end)
 
-  if not success then
-    log.error("ERROR loading mod '" .. mod_folder .. "': " .. tostring(err))
+  local mod_key = 'mods.' .. mod_folder .. ".init"
+  local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
+
+  local file = io.open(file_path, "r")
+  if not file then
+    log.error("Cannot open mod file: " .. file_path)
+    return
+  end
+  local content = file:read("*a")
+  file:close()
+
+  -- compile file into function
+  local mod_init_fn, err = loadstring(content, "@" .. file_path)
+  if not mod_init_fn then
+    log.error("compiling mod '" .. mod_folder .. "': " .. tostring(err))
+    return
   end
 
-  events.current_loading_mod = nil
+  local mod_env = sandbox.create_env(mod_folder)
+  setfenv(mod_init_fn, mod_env)
+
+
+  -- exec mod
+  local success, run_err = pcall(mod_init_fn)
+  if not success then
+    log.error("running mod '" .. mod_folder .. "': " .. tostring(run_err))
+  end
 end
 
 function M.initialize()

@@ -2,7 +2,6 @@
 
 print("[Mod] Loading Temple of Trials...")
 
-local events    = require('ck.fallout2.events')
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 
@@ -33,9 +32,6 @@ events.on('onMapEnter', function()
   map.batch.clear(outskirts.removeBlockers)
   map.batch.blockers(outskirts.createBlockers)
 
-  -- for _, tile in ipairs(outskirts.removeBlockers) do map.remove_blocker(tile) end
-  -- for _, tile in ipairs(outskirts.createBlockers) do map.create_blocker(tile) end
-
   map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
   map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
     { type = "tile" })
@@ -54,5 +50,4 @@ events.on('onMapEnter', function()
   map.place("temple_of_trials:scenery/tree10", 19094)
 
   print("[Temple] Temple of Trials loaded.")
-  -- print("[Temple] scenery count: " .. tostring(#outskirts.scenery))
 end)

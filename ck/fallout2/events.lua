@@ -16,9 +16,7 @@ local events = {
     onTimeAdvance = {},
     onDialogStart = {},
     onMapEnter = {}
-  },
-
-  current_loading_mod = nil
+  }
 }
 
 -- Public mod API
@@ -28,11 +26,6 @@ function events.on(event_name, callback)
     log.warn("Attempted to subscribe to unknown event: " .. tostring(event_name))
     return
   end
-
-  table.insert(events.listeners[event_name], {
-    mod = events.current_loading_mod or "unknown",
-    fn  = callback
-  })
 end
 
 function events.emit(event_name, ...)
