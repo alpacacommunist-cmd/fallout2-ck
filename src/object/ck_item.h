@@ -8,6 +8,7 @@
 
 namespace fallout {
     int itemAdd(Object* owner, Object* itemToAdd, int quantity);
+	int _obj_disconnect(Object* obj, Rect* rect);
 }
 
 namespace ck {

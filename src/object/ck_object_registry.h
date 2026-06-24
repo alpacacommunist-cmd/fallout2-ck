@@ -11,6 +11,7 @@ namespace fallout {
 struct LuaCritterMeta {
 	int         proto_sid;
 	std::string tag;
+	std::string mod_id;
 };
 
 struct CkManagedObject {
@@ -24,6 +25,7 @@ struct CkManagedObject {
 class CkObjectRegistry {
 public:
     int  add(fallout::Object* obj, const LuaCritterMeta& meta = {});
+	void destroy_objects_for_mod(const char* target_mod_id);
 	bool remove_by_ptr(fallout::Object* ptr);
 
 	const CkManagedObject* get_managed(int lua_id) const;

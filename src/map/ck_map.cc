@@ -18,7 +18,7 @@ namespace ck {
 	}
 
 	void on_before_map_enter() {
-		gObjectRegistry.destroy_all();
+		// gObjectRegistry.destroy_all();
 	}
 }
 

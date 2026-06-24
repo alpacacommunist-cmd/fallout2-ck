@@ -21,13 +21,47 @@ int CkObjectRegistry::add(fallout::Object* obj, const LuaCritterMeta& meta) {
     return id;
 }
 
+void CkObjectRegistry::destroy_objects_for_mod(const char* target_mod_id) {
+	log.info("Hot Reload: Looking for {} objects", target_mod_id);
+
+    if (target_mod_id == nullptr) return;
+    std::string mod_id_str(target_mod_id);
+
+    int count = 0;
+
+    auto it = objects.begin();
+    while (it != objects.end()) {
+        if (it->second.alive && it->second.meta.mod_id == mod_id_str && it->second.ptr != nullptr) {
+            // ck_scripting_on_object_destroyed gets triggered in engine (inside objectDestroy)
+            // and calls remove_by_ptr.
+            fallout::objectDestroy(it->second.ptr, nullptr);
+
+            it = objects.begin();
+            count++;
+        } else { ++it; }
+    }
+
+    if (count > 0) {
+        log.info("Hot Reload: Physicaly destroyed {} objects belonging to mod '{}'", count, mod_id_str);
+    }
+}
+
 bool CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
     if (ptr == nullptr) return false;
 
     for (auto it = objects.begin(); it != objects.end(); ++it) {
         if (it->second.alive && it->second.ptr == ptr) {
-            // it->second.alive = false;
+            it->second.alive = false;
+
+            std::string obj_tag = it->second.meta.tag;
+            int deleted_id      = it->second.lua_id;
+
 			objects.erase(it);
+
+			log.debug("Engine destroyed object [ID: {}, Tag: '{}']. Managed registry size: {}",
+					deleted_id,
+					obj_tag.empty() ? "mass_npc" : obj_tag,
+					objects.size());
 
             return true;
         }
@@ -80,3 +114,6 @@ void CkObjectRegistry::clear() {
     next_id = 1;
 }
 
+void ck_registry_clear() {
+	gObjectRegistry.clear();
+}

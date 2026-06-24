@@ -1,9 +1,18 @@
 -- ck/fallout2/loader.lua
+local ffi = require("ffi")
+
+ffi.cdef[[
+  void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
+  void ck_registry_clear();
+]]
+
 local rendering = require('ck.fallout2.rendering')
 local events    = require('ck.fallout2.events')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
+local state     = require('ck.fallout2.state')
 local sandbox   = require('ck.fallout2.loader.sandbox')
+local objects   = require('ck.fallout2.objects')
 
 local validations = require('ck.fallout2.loader.validations')
 
@@ -18,6 +27,7 @@ local active_mods = {
 }
 
 local reloadable_mods = {
+  "arroyo_expanded",
   "temple_of_trials"
 }
 
@@ -129,6 +139,10 @@ function M.reloadMods()
     local target_prefix = "mods." .. mod_folder
 
     events.clearForMod(mod_folder)
+    objects.clear_for_mod(mod_folder)
+    state.clear_tracked_objects()
+
+    ffi.C.ck_registry_destroy_objects_for_mod(mod_folder)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then

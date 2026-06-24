@@ -23,29 +23,33 @@ namespace ck {
 }
 
 bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
-	if (!container_ptr || count < 1) return false;
-	auto* owner = static_cast<fallout::Object*>(container_ptr);
+    if (!container_ptr || count < 1) return false;
+    auto* owner = static_cast<fallout::Object*>(container_ptr);
 
-	fallout::Proto* proto = nullptr;
-	if (fallout::protoGetProto(item_pid, &proto) == -1 || !proto) {
-		return false;
-	}
+    fallout::Proto* proto = nullptr;
+    if (fallout::protoGetProto(item_pid, &proto) == -1 || !proto) {
+        return false;
+    }
 
-	fallout::Object* new_item = nullptr;
-	if (fallout::objectCreateWithFidPid(&new_item, proto->fid, item_pid) == -1 || !new_item) {
-		return false;
-	}
+    fallout::Object* new_item = nullptr;
+    if (fallout::objectCreateWithFidPid(&new_item, proto->fid, item_pid) == -1 || !new_item) {
+        return false;
+    }
 
-	// new_item->flags |= fallout::OBJECT_NO_SAVE;
+    new_item->flags |= fallout::OBJECT_NO_SAVE;
 
-	fallout::objectSetLocation(new_item, 0, 0, nullptr);
+    fallout::objectSetLocation(new_item, 0, 0, nullptr);
 
-	if (fallout::itemAdd(owner, new_item, count) != 0) {
-		return false;
-	}
+    if (fallout::itemAdd(owner, new_item, count) != 0) {
+        fallout::objectDestroy(new_item, nullptr);
+        return false;
+    }
 
-	return true;
+    fallout::_obj_disconnect(new_item, nullptr);
+
+    return true;
 }
+
 
 int ck_inventory_count(void* container_ptr, int item_pid) {
 	if (!container_ptr) return 0;

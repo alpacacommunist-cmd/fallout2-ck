@@ -207,8 +207,6 @@ void ck_reload_mods() {
         return;
     }
 
-	gObjectRegistry.destroy_all();
-
     lua_getglobal(gLuaState, "ckReloadMods");
 
     if (!lua_isfunction(gLuaState, -1)) {
@@ -223,6 +221,10 @@ void ck_reload_mods() {
         lua_pop(gLuaState, 1);
 		return;
     }
+}
+
+void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
+	gObjectRegistry.destroy_objects_for_mod(target_mod_id);
 }
 
 // Init
@@ -268,7 +270,6 @@ void ck_scripting_init() {
 
 void ck_on_scripts_reset() {
 	log.info("ck_on_scripts_reset");
-	gObjectRegistry.destroy_all();
 }
 
 // Exit
@@ -312,6 +313,11 @@ void ck_scripting_on_engine_ready() {
 	log.debug("Proto Cache is disabled in this build");
 #endif
 }
+
+void ck_scripting_on_object_destroyed(fallout::Object* object) {
+	gObjectRegistry.remove_by_ptr(object);
+}
+void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
 void ck_scripting_on_before_game_load() {

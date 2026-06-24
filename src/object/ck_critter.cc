@@ -27,12 +27,14 @@ namespace ck {
 		return nullptr;
 	}
 
-	int register_critter(int pid, int tile, const char* tag) {
+	int register_critter(int pid, int tile, const char* tag, const char* mod_id) {
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return -1;
 
 		int lua_id    = -1;
-		LuaCritterMeta meta = { critter->sid, (tag != nullptr ? std::string(tag) : std::string()) };
+		LuaCritterMeta meta = { critter->sid,
+			(tag != nullptr ? std::string(tag) : std::string()),
+			(mod_id != nullptr ? std::string(mod_id) : std::string("unknown")) };
 
 		lua_id = gObjectRegistry.add(critter, meta);
 
@@ -87,8 +89,8 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
 	}
 }
 
-int ck_critter_register(int pid, int tile, const char* tag) {
-	return ck::register_critter(pid, tile, tag);
+int ck_critter_register(int pid, int tile, const char* tag, const char* mod_id) {
+	return ck::register_critter(pid, tile, tag, mod_id);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

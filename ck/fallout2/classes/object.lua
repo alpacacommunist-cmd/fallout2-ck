@@ -14,10 +14,11 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id, config)
+function Object.new(lua_id, config, mod_id)
   local self = setmetatable({}, Object)
 
   self.id          = lua_id
+  self.mod_id      = mod_id or "unknown"
   self.sid         = ffi.C.ck_object_get_sid(lua_id)
   self.c_ptr       = ffi.C.ck_object_get_ptr(lua_id)
 

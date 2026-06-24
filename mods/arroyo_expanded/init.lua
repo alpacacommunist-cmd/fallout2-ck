@@ -9,7 +9,6 @@ local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.behaviors')
 local items       = require('ck.fallout2.objects.items')
 
-local state = require('ck.fallout2.state')
 local log   = ck.log.new('Arroyo Expanded')
 
 events.on('onGameLoaded', function()
@@ -55,6 +54,7 @@ events.on('onMapEnter', function()
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 2)
 
+  state.track(alice, { save_interval_seconds = 5 })
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
   local alice_dialogue = require('.dialogs').alice_nodes

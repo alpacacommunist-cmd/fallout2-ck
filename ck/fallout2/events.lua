@@ -1,7 +1,14 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
 
+local ffi = require("ffi")
+
+ffi.cdef[[
+    void ck_registry_clear();
+]]
+
 local objects = require('ck.fallout2.objects')
+local state   = require('ck.fallout2.state')
 local log     = ck.log.new('CK Events')
 
 local events = {
@@ -90,6 +97,10 @@ function ckOnHourPassed()
 end
 
 function ckOnMapEnter()
+  state.clear_tracked_objects() -- clears state-tracker
+  objects.clear_registry()      -- clears lua pointers
+  ffi.C.ck_registry_clear()     -- reset C registry
+
   log.info("Engine signaled: Map Enter!")
   events.emit('onMapEnter')
 end
@@ -115,6 +126,8 @@ function ckOnMapUpdate(ticks)
       end
     end
   end
+
+  state.update_tracked_objects(ticks)
 end
 
 function ckOnProc(lua_id, proc_id)
@@ -125,8 +138,11 @@ function ckOnProc(lua_id, proc_id)
 end
 
 function ckOnObjectsDestroyed()
-  objects.registry = {}
+  state.clear_tracked_objects()
+  objects.clear_registry()
+
   log.info("[CK Objects] Registry cleared")
+  log.info("[CK State] Tracked objects cleared")
 end
 
 return events

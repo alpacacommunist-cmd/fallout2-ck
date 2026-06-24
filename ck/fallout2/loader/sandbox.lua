@@ -2,6 +2,7 @@
 local core_events   = require('ck.fallout2.events')
 local i18n          = require('ck.fallout2.i18n')
 local core_critters = require('ck.fallout2.objects.critters')
+local core_state    = require('ck.fallout2.state')
 
 local log = ck.log.new('CK Events Sandbox')
 
@@ -23,17 +24,13 @@ function M.create_env(mod_folder, manifest_table)
       target_name = "mods." .. mod_folder .. mod_name
     end
 
+    -- replace explicit require from mod to proxied version
+    if target_name == "ck.fallout2.state" then return env.state end
+    if target_name == "ck.fallout2.events" then return env.events end
+
     -- smart proxies instead of system modules
     if target_name == "ck.fallout2.objects.critters" then
-      return {
-        register = function(tag, pid, tile, config)
-          config = config or {}
-          config.mod_id = manifest_table.id
-          return core_critters.register(tag, pid, tile, config)
-        end,
-
-        create = core_critters.create
-      }
+      return env.critters
     end
 
     -- check if module is loaded
@@ -103,8 +100,28 @@ function M.create_env(mod_folder, manifest_table)
   end
 
   ---------------------------------------------------------------------
-  -- env.state = ...
+  -- env.state
   ---------------------------------------------------------------------
+
+  env.state = setmetatable({}, { __index = core_state })
+
+  function env.state.track(object_instance, options)
+    options = options or {}
+
+    return core_state.track_internal(manifest_table.id, object_instance, options)
+  end
+
+  ---------------------------------------------------------------------
+  -- env.critters
+  ---------------------------------------------------------------------
+
+  env.critters = setmetatable({}, { __index = core_critters })
+  function env.critters.register(tag, pid, tile, config)
+    return core_critters.register(tag, pid, tile, config, manifest_table.id)
+  end
+  function env.critters.create(pid, tile, config)
+    return core_critters.create(pid, tile, config, manifest_table.id)
+  end
 
   return env
 end

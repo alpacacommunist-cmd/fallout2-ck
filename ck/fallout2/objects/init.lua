@@ -16,4 +16,16 @@ local objects = {
   }
 }
 
+function objects.clear_for_mod(mod_name)
+  for lua_id, object_instance in pairs(objects.registry) do
+    if object_instance.mod_id == mod_name then
+      objects.registry[lua_id] = nil
+    end
+  end
+end
+
+function objects.clear_registry()
+  objects.registry = {}
+end
+
 return objects
