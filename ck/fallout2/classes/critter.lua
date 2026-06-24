@@ -11,6 +11,8 @@ ffi.cdef[[
   bool ck_critter_is_busy(void* ptr);
 ]]
 
+local log = ck.log.new('classes/critter')
+
 local dialogue  = require('ck.fallout2.dialogue')
 local monitor   = require('ck.fallout2.monitor')
 local behaviors = require('ck.fallout2.behaviors')
@@ -28,6 +30,8 @@ function Critter.new(lua_id, config, tag, mod_id)
   self.tag = tag
 
   self.active_behavior = nil
+
+  self._is_moving = false
   self._action_queue   = {}
 
   self._next_behavior_tick = 0
@@ -38,7 +42,7 @@ end
 
 function Critter:set_behavior(behavior_fn, ...)
   if type(behavior_fn) ~= "function" then
-    print("[CK Class Critter] is not a function: " .. tostring(behavior_fn))
+    log.error("is not a function: " .. tostring(behavior_fn))
   else
     self.active_behavior = behavior_fn(...)
   end
@@ -56,7 +60,7 @@ function Critter:_handle_proc(proc_id)
 
   if self.handlers[event_name] then
     if self.handlers[event_name](self) ~= false then
-      print(event_name)
+      log.debug(event_name)
       return true
     end
   end
@@ -97,6 +101,7 @@ function Critter:clear_animations()
   self._action_queue   = {}
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
+  self._is_moving = false
 
   return self
 end

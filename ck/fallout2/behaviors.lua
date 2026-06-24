@@ -18,7 +18,9 @@ function behaviors.wander(radius)
     if #available_tiles > 1 then
       local target_tile = available_tiles[math.random(1, #available_tiles)]
 
+      critter._is_moving = true
       critter:animate():walk_to(target_tile):submit()
+      critter._is_moving = false
     end
   end
 end
@@ -27,7 +29,6 @@ function behaviors.patrol(waypoints_table, delay_seconds)
   local current_idx = 1
   local ticks_to_wait = 0
   local interval_ticks = delay_seconds * 10
-  local is_moving_to_target = false
 
   return function(critter, current_ticks)
     if current_ticks < ticks_to_wait then
@@ -38,7 +39,7 @@ function behaviors.patrol(waypoints_table, delay_seconds)
     local target_tile = waypoints_table[current_idx]
 
     if critter_tile == target_tile then
-      is_moving_to_target = false
+      critter._is_moving = false
 
       current_idx = current_idx + 1
       if current_idx > #waypoints_table then
@@ -49,9 +50,9 @@ function behaviors.patrol(waypoints_table, delay_seconds)
       return
     end
 
-    if is_moving_to_target then return end
+    if critter._is_moving then return end
 
-    is_moving_to_target = true
+    critter._is_moving = true
     critter:animate():walk_to(target_tile):submit()
   end
 end
