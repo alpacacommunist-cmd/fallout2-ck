@@ -3,6 +3,7 @@ local core_events   = require('ck.fallout2.events')
 local i18n          = require('ck.fallout2.i18n')
 local core_critters = require('ck.fallout2.objects.critters')
 local core_state    = require('ck.fallout2.state')
+local core_quests   = require('ck.fallout2.quests')
 
 local log = ck.log.new('CK Events Sandbox')
 
@@ -116,11 +117,28 @@ function M.create_env(mod_folder, manifest_table)
   ---------------------------------------------------------------------
 
   env.critters = setmetatable({}, { __index = core_critters })
+
   function env.critters.register(tag, pid, tile, config)
     return core_critters.register(tag, pid, tile, config, manifest_table.id)
   end
   function env.critters.create(pid, tile, config)
     return core_critters.create(pid, tile, config, manifest_table.id)
+  end
+
+  ---------------------------------------------------------------------
+  -- env.quests
+  ---------------------------------------------------------------------
+
+  env.quests = setmetatable({}, { __index = core_quests })
+
+  function env.quests.register(quest_id, config)
+    return core_quests.register_internal(manifest_table.id, quest_id, config)
+  end
+  function env.quests.set(quest_id, status_value)
+    return core_quests.set_internal(manifest_table.id, quest_id, status_value)
+  end
+  function env.quests.get(quest_id)
+    return core_quests.get_internal(manifest_table.id, quest_id)
   end
 
   return env

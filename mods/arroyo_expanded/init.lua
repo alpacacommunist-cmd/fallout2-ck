@@ -32,13 +32,17 @@ events.on('onMapEnter', function()
     :on('description', function(self) monitor.print(self.description) end)
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
-  log.info("NPC ID: " .. tostring(alice.id))
-  log.info("Alice tile: " .. alice:tile())
-  log.info("Alice sid: " .. alice.sid)
-  log.info("Alice tag: " .. alice.tag)
+  log.debug("NPC ID: " .. tostring(alice.id))
+  log.debug("Alice tile: " .. alice:tile())
+  log.debug("Alice sid: " .. alice.sid)
+  log.debug("Alice tag: " .. alice.tag)
 
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)
+
+  alice:on('dialogue_finished', function(self)
+    log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
+  end)
 
   alice:animate()
     :walk_to(20913)
@@ -59,4 +63,5 @@ events.on('onMapEnter', function()
 
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
+
 end)

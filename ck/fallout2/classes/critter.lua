@@ -84,6 +84,7 @@ function Critter:_handle_proc(proc_id)
       dialogue.start(self.id)
 
       self:clear_animations()
+        :emit('dialogue_finished')
       return true
     end
   end

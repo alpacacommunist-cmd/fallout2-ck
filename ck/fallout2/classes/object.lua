@@ -6,6 +6,8 @@ ffi.cdef[[
   void* ck_object_get_ptr(int lua_id);
 ]]
 
+local log = ck.log.new('classes/object')
+
 local objects = require('ck.fallout2.objects')
 local items   = require('ck.fallout2.objects.items')
 
@@ -34,6 +36,17 @@ end
 
 function Object:on(event_name, callback)
   self.handlers[event_name] = callback
+
+  return self
+end
+
+function Object:emit(event_name, ...)
+  if self.handlers[event_name] then
+    local ok, err = xpcall(self.handlers[event_name], debug.traceback, self, ...)
+    if not ok then
+      log.error(string.format("in object '%s' on event '%s':\n%s", tostring(self.tag), event_name, err))
+    end
+  end
 
   return self
 end
