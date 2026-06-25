@@ -18,10 +18,8 @@ namespace ck {
 	}
 
 	void on_before_map_enter() {
-		// gObjectRegistry.destroy_all();
 	}
 }
-
 
 
 void ck_map_add_scenery(int fid, int tile) {
@@ -105,9 +103,11 @@ void ck_map_create_object_fid(int fid, int tile) {
 	ck_object_create_at(fid, tile);
 }
 
-int ck_map_register_object(int artId, int tile) {
+int ck_map_register_object(int artId, int tile, const char* mod_id) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-    return ck_object_register_object(fid, tile);
+	const LuaMeta& meta  = { {}, {}, (mod_id != nullptr ? std::string(mod_id) : std::string("unknown")) };
+
+    return ck_object_register_object(fid, tile, meta);
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {

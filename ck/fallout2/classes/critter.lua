@@ -141,8 +141,6 @@ function Critter:_handle_map_update(current_ticks)
     self.handlers['map_update'](self)
   end
 
-  if self:is_busy() then print("NPC IS BUSY: " .. tostring(self.id)) end
-
   -- 2: if called but busy - return
   if self:is_busy() then return end
 

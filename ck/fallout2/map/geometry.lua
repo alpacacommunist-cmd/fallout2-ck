@@ -3,27 +3,27 @@
 
 local geometry = {}
 
-function geometry.gridWidth()
+function geometry.grid_width()
   return 200
 end
 
-function geometry.tileToXY(tile)
-  local w = geometry.gridWidth()
+function geometry.tile_to_xy(tile)
+  local w = geometry.grid_width()
   return w - 1 - (tile % w), math.floor(tile / w)
 end
 
-function geometry.xyToTile(x, y)
-  local w = geometry.gridWidth()
+function geometry.xy_to_tile(x, y)
+  local w = geometry.grid_width()
   return (w - 1 - x) + (y * w)
 end
 
-function geometry.isValid(tile)
-  local w = geometry.gridWidth()
+function geometry.is_valid(tile)
+  local w = geometry.grid_width()
   return tile >= 0 and tile < (w * w)
 end
 
 function geometry.neighbour(tile, direction)
-  local w  = geometry.gridWidth()
+  local w  = geometry.grid_width()
   local tx = w - 1 - (tile % w)
   local odd = (tx % 2 ~= 0)
 
@@ -37,15 +37,15 @@ function geometry.neighbour(tile, direction)
 end
 
 -- BFS — all tiles in radius
-function geometry.tilesInRadius(centerTile, radius)
+function geometry.tiles_in_radius(center_tile, radius)
   local visited   = {}
   local queue     = {}
   local distances = {}
-  local w = geometry.gridWidth()
+  local w = geometry.grid_width()
 
-  visited[centerTile]   = true
-  distances[centerTile] = 0
-  table.insert(queue, centerTile)
+  visited[center_tile]   = true
+  distances[center_tile] = 0
+  table.insert(queue, center_tile)
 
   local head = 1
   while head <= #queue do
@@ -56,7 +56,7 @@ function geometry.tilesInRadius(centerTile, radius)
       for dir = 0, 5 do
         local nb = geometry.neighbour(current, dir)
 
-        if geometry.isValid(nb) then
+        if geometry.is_valid(nb) then
           local cx = w - 1 - (current % w)
           local nx = w - 1 - (nb % w)
 
@@ -73,9 +73,9 @@ function geometry.tilesInRadius(centerTile, radius)
   return queue
 end
 
-function geometry.distance(tileA, tileB)
-  local x1, y1 = geometry.tileToXY(tileA)
-  local x2, y2 = geometry.tileToXY(tileB)
+function geometry.distance(tile_a, tile_b)
+  local x1, y1 = geometry.tile_to_xy(tile_a)
+  local x2, y2 = geometry.tile_to_xy(tile_b)
 
   local z1 = y1 - math.floor(x1 / 2)
   local z2 = y2 - math.floor(x2 / 2)
@@ -87,32 +87,32 @@ function geometry.distance(tileA, tileB)
   return math.max(math.abs(dx), math.abs(dy), math.abs(dz))
 end
 
-function geometry.tilesInRect(left, right, top, bottom)
+function geometry.tiles_in_rect(left, right, top, bottom)
   local tiles = {}
   for y = top, bottom do
     for x = left, right do
       if x >= 0 and x < 200 and y >= 0 and y < 200 then
-        table.insert(tiles, geometry.xyToTile(x, y))
+        table.insert(tiles, geometry.xy_to_tile(x, y))
       end
     end
   end
   return tiles
 end
 
-function geometry.line(tileA, tileB)
-  local dist = geometry.distance(tileA, tileB)
+function geometry.line(tile_a, tile_b)
+  local dist = geometry.distance(tile_a, tile_b)
   local list = {}
-  if dist == 0 then return {tileA} end
+  if dist == 0 then return {tile_a} end
 
-  local x1, y1 = geometry.tileToXY(tileA)
-  local x2, y2 = geometry.tileToXY(tileB)
+  local x1, y1 = geometry.tile_to_xy(tile_a)
+  local x2, y2 = geometry.tile_to_xy(tile_b)
 
   for i = 0, dist do
     local t = i / dist
     -- line interpolation xy
     local cx = math.floor(x1 + (x2 - x1) * t + 0.5)
     local cy = math.floor(y1 + (y2 - y1) * t + 0.5)
-    table.insert(list, geometry.xyToTile(cx, cy))
+    table.insert(list, geometry.xy_to_tile(cx, cy))
   end
   return list
 end

@@ -14,7 +14,7 @@ quests.status = {
 quests.definitions = {}
 
 local function get_caller_mod_id()
-  for level = 2, 5 do
+  for level = 2, 10 do
     local  success, env = pcall(getfenv, level)
     if not success or not env then break end
 

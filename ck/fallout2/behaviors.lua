@@ -14,7 +14,7 @@ function behaviors.wander(radius)
       return
     end
 
-    local available_tiles = geometry.tilesInRadius(home_tile, radius)
+    local available_tiles = geometry.tiles_in_radius(home_tile, radius)
     if #available_tiles > 1 then
       local target_tile = available_tiles[math.random(1, #available_tiles)]
 

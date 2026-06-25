@@ -9,7 +9,7 @@ namespace fallout {
 	int reg_anim_clear(Object* a1);
 }
 
-struct LuaCritterMeta {
+struct LuaMeta {
 	int         proto_sid;
 	std::string tag;
 	std::string mod_id;
@@ -20,12 +20,12 @@ struct CkManagedObject {
     int              lua_id = -1;
     bool             alive  = true;
 
-	LuaCritterMeta   meta;
+	LuaMeta   meta;
 };
 
 class CkObjectRegistry {
 public:
-    int  add(fallout::Object* obj, const LuaCritterMeta& meta = {});
+    int  add(fallout::Object* obj, const LuaMeta& meta = {});
 	void destroy_objects_for_mod(const char* target_mod_id);
 	bool remove_by_ptr(fallout::Object* ptr);
 
@@ -33,7 +33,7 @@ public:
 
     fallout::Object* get(int lua_id) const;
     int find_by_ptr(fallout::Object* ptr) const;
-	const LuaCritterMeta* get_meta(int lua_id) const;
+	const LuaMeta* get_meta(int lua_id) const;
 
     void destroy_all();
     void clear();

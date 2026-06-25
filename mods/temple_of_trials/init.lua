@@ -41,17 +41,17 @@ events.on('onMapEnter', function()
     style = 2
   })
 
-  map.batch.scenery(outskirts.mountainScenery)
-  map.batch.tiles(outskirts.mountainTiles)
+  map.batch.scenery(outskirts.mountain_scenery)
+  map.batch.tiles(outskirts.mountain_tiles)
 
-  map.batch.clear(outskirts.removeBlockers)
-  map.batch.blockers(outskirts.createBlockers)
+  map.batch.clear(outskirts.remove_blockers)
+  map.batch.blockers(outskirts.create_blockers)
 
-  map.tools.spawnBrush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
-  map.tools.spawnBrush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
+  map.tools.spawn_brush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
+  map.tools.spawn_brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
     { type = "tile" })
 
-  map.tools.spawnMask(17516, {
+  map.tools.spawn_mask(17516, {
     "M MMM  MM  M",
     "  MM   MMM  ",
     "   mm  mm   ",

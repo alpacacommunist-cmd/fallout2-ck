@@ -47,6 +47,6 @@ CK_API void ck_map_remove_blocker(int tile);
 CK_API void ck_map_create_blocker(int tile);
 CK_API void ck_map_create_object(int artId, int tile);
 CK_API void ck_map_create_object_fid(int fid, int tile);
-CK_API int  ck_map_register_object(int artId, int tile);
+CK_API int  ck_map_register_object(int artId, int tile, const char* mod_id);
 
 #endif

@@ -32,7 +32,7 @@ namespace ck {
 		if (critter == nullptr) return -1;
 
 		int lua_id    = -1;
-		LuaCritterMeta meta = { critter->sid,
+		LuaMeta meta = { critter->sid,
 			(tag != nullptr ? std::string(tag) : std::string()),
 			(mod_id != nullptr ? std::string(mod_id) : std::string("unknown")) };
 

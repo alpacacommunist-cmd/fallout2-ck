@@ -12,7 +12,7 @@ ffi.cdef[[
   void ck_map_create_blocker(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
-  int  ck_map_register_object(int artId, int tile);
+  int  ck_map_register_object(int artId, int tile, const char* mod_id);
 
   void ck_rendering_clear();
   void ck_rendering_refresh();
@@ -42,8 +42,24 @@ map.create_object     = C.ck_map_create_object
 map.create_object_fid = C.ck_map_create_object_fid
 map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
-map.register_object   = C.ck_map_register_object
 map.rendering_refresh = C.ck_rendering_refresh
+
+local function get_caller_mod_id()
+  for level = 2, 10 do
+    local  success, env = pcall(getfenv, level)
+    if not success or not env then break end
+
+    if env.mod_id then return env.mod_id end
+  end
+
+  return "unknown"
+end
+
+function map.register_object(value, tile)
+  mod_id = get_caller_mod_id()
+
+  C.ck_map_register_object(value, tile, mod_id)
+end
 
 function map.place(value, tile, config)
   config = config or {}

@@ -7,6 +7,8 @@ namespace fallout {
     struct Object;
 	struct Script;
     struct Program;
+
+	void displayMonitorAddMessage(const char* str);
 }
 
 namespace ck {

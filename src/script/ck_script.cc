@@ -4,12 +4,10 @@
 
 #include "scripts.h"
 #include "game_dialog.h"
-#include "display_monitor.h"
 
 #include "script/ck_script.h"
 #include "object/ck_object_registry.h"
 
-#include <iostream>
 #include <string>
 
 namespace ck {
@@ -37,7 +35,6 @@ namespace ck {
 
 	bool script_try_handle(int sid, int proc) {
 		if (!is_ck_sid(clean_sid(sid))) return false;
-		std::cout << "[CK DEBUG] SID: " << sid << " PROC: " << proc << std::endl;
 
 		int lua_id = lua_id_from_sid(clean_sid(sid));
 		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);

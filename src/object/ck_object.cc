@@ -6,8 +6,8 @@
 #include "tile.h"
 #include "proto.h"
 
-#include <ostream>
-#include <iostream>
+#include "ck_log.h"
+static const Logger log("CK Object");
 
 const int BLOCKER_PID=0x2000158;  // dummy collision object
 const int BLOCKER_FID=0x02000015;
@@ -52,10 +52,10 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 	return object;
 }
 
-int ck_object_register_object(int pid, int tile) {
+int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create_at(pid, tile);
 
-	if (object != nullptr) return gObjectRegistry.add(object);
+	if (object != nullptr) return gObjectRegistry.add(object, meta);
 
 	return -1;
 }
