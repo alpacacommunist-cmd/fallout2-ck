@@ -7,13 +7,12 @@
 #include "object/ck_object.h"
 #include "map/ck_map.h"
 
-#include <iostream>
 #include <unordered_set>
 
-#include "display_monitor.h"
 #include "game_sound.h"
-#include "mouse.h"
-#include "tile.h"
+
+#include "ck_log.h"
+static const Logger log("CK DBG");
 
 static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
@@ -60,10 +59,8 @@ static void mode_palette() {
 			? hex->customColor
 			: ck_debug_get_color_for_state(hex->state);
 
-		std::cout << "[CK PALETTE] tile=" << currentMouseTile
-			<< ", state=" << (int)hex->state
-			<< ", color= edge: " << (int)color.edge << ", inner: " << (int)color.inner
-			<< std::endl;
+		log.debug("tile={}, state={}, color= edge: {}, inner: {}", currentMouseTile, (int)hex->state,
+				(int)color.edge, (int)color.inner);
 	} else {
 		if (!isShift) return;
 
@@ -195,16 +192,16 @@ static void mode_main_export() {
 	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
 	int gridWidth = fallout::tileGetHexGridWidth();
 
-	std::cout << "[CK DEBUG] --- START DUMP --- Count: " << selectedHexes.size() << std::endl;
+	log.info("--- START DUMP --- Count: {}", selectedHexes.size());
 	for (ckDebugHex* hex : selectedHexes) {
 		int tile = hex->tile;
 		int tileX = gridWidth - 1 - tile % gridWidth;
 		int tileY = tile / gridWidth;
 
-		std::cout << "[CK DEBUG] SELECTED tile=" << tile << " (" << tileX << "," << tileY << ")" << std::endl;
+		log.info("SELECTED tile={} ({}, {})", tile, tileX, tileY);
 
 		if (fallout::isExitGridAt(tile, fallout::gElevation)) {
-			std::cout << "  [SYSTEM ALERT] EXIT GRID DETECTED BY ENGINE!" << std::endl;
+			log.warn("EXIT GRID ON TILE");
 		}
 
 		fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -213,29 +210,25 @@ static void mode_main_export() {
 		while (obj != nullptr) {
 			int objType = FID_TYPE(obj->fid);
 
-			std::cout << "  [OBJ #" << objIndex++ << "] Name: " << fallout::objectGetName(obj)
-				<< " | Type: " << objType
-				<< " | PID: " << obj->pid
-				<< " | FID: " << obj->fid
-				<< " | SID: " << obj->sid
-				<< " | data: " << obj->data.misc.map
-				<< " | Flags: 0x" << std::hex << obj->flags << std::dec << std::endl;
+			log.debug("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, data: {}, Flags: {:#x}",
+					objIndex, fallout::objectGetName(obj), objType, obj->pid, obj->fid, obj->sid,
+					obj->data.misc.map, static_cast<unsigned int>(obj->flags));
 
 			obj = fallout::objectFindNextAtLocation();
 		}
 	}
-	std::cout << "[CK DEBUG] --- END DUMP ---" << std::endl;
+	log.info("--- END DUMP --- ", selectedHexes.size());
 }
 
 static void mode_main_create_blockers() {
-	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
+	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
 
-	std::cout << "[CK DEBUG] --- Creating blockers --- Count: " << selectedHexes.size() << std::endl;
-	for (ckDebugHex* hex : selectedHexes) {
+	log.debug(" --- Creating blockers --- Count: {}", selected_hexes.size());
+	for (ckDebugHex* hex : selected_hexes) {
 		ck_object_create_blocker_at(hex->tile);
 		hex->switch_to(HexState::BLOCKER);
 	}
-	std::cout << "[CK DEBUG] --- Creating blockers COMPLETE ---" << std::endl;
+	log.debug(" --- Creating blockers DONE ---");
 
 	gNeedsRefresh = true;
 
@@ -245,12 +238,12 @@ static void mode_main_create_blockers() {
 static void mode_main_remove_selected() {
 	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
 
-	std::cout << "[CK DEBUG] --- Removing blockers started --- Count: " << selected_hexes.size() << std::endl;
+	log.debug(" --- Removing blockers --- Count: {}", selected_hexes.size());
 	for (ckDebugHex* hex : selected_hexes) {
 		ck_object_remove_at(hex->tile);
 		hex->switch_to(ck_hex_state_for_tile(hex->tile));
 	}
-	std::cout << "[CK DEBUG] --- Removing blockers complete ---" << std::endl;
+	log.debug(" --- Removing blockers DONE --- ");
 
 	gNeedsRefresh = true;
 
@@ -331,6 +324,8 @@ static void mode_main() {
 
 
 void ck_debug_overlay_render(fallout::Rect* rect) {
+	// if (showDialogBox(title, nullptr, 0, 169, 131, _colorTable[32328], nullptr, _colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
+
 	if (!gDebugOverlayEnabled) return;
 
 	ck_debug_overlay_persistent_hexes(rect);
