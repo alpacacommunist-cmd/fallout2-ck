@@ -7,17 +7,21 @@
 
 static CkCameraBorders gCameraBorders;
 
+#include "ck_log.h"
+static const Logger log("CK Map");
+
 namespace ck {
 	void on_map_enter() {
 		ck_rendering_clear();
 		ck_map_clear_camera_borders();
-
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 
 		ck_call_lua_hook("ckOnMapEnter");
+		ck_rendering_refresh();
 	}
 
 	void on_before_map_enter() {
+		log.debug("on_before_map_enter");
 	}
 }
 

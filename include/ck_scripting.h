@@ -10,7 +10,9 @@ namespace ck {
 
 namespace fallout {
     struct Object;
+
 	void tileWindowRefresh();
+	void animationStop();
 }
 
 void ck_call_hook(const char* name);
@@ -24,12 +26,11 @@ void ck_scripting_on_object_destroyed(fallout::Object* object);
 
 void ck_scripting_on_game_start();
 void ck_scripting_on_engine_ready();
-void ck_scripting_on_before_game_load();
+void ck_scripting_on_before_game_load(const char* path);
 void ck_scripting_on_game_loaded();
 void ck_on_scripts_reset();
 // state
 void ck_scripting_on_game_save(const char* path);
-void ck_scripting_on_game_state_load(const char* path);
 
 int ck_get_config_int(const char* key, int default_value);
 

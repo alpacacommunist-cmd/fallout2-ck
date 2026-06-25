@@ -138,11 +138,15 @@ end
 function Critter:_handle_map_update(current_ticks)
   -- 1: handle object's on:('map_update')
   if self.handlers['map_update'] then
+    log.debug("NPC map update: " .. tostring(self.id))
     self.handlers['map_update'](self)
   end
 
   -- 2: if called but busy - return
-  if self:is_busy() then return end
+  if self:is_busy() then
+    log.debug("NPC is busy: " .. tostring(self.id))
+    return
+  end
 
   -- 3: fifo queue
   if #self._action_queue > 0 then
@@ -155,6 +159,7 @@ function Critter:_handle_map_update(current_ticks)
 
   -- 4: exec behavior!
   if self.active_behavior and current_ticks >= self._next_behavior_tick then
+    log.debug("NPC behivor update: " .. tostring(self.id))
     self._next_behavior_tick = current_ticks + self._behavior_interval
 
     self.active_behavior(self, current_ticks)

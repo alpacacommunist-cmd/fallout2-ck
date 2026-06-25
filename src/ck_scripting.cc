@@ -320,18 +320,15 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
-void ck_scripting_on_before_game_load() {
+void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
 
-	ck_call_hook("ckOnBeforeGameLoad");
+    ck_call_lua_hook("ckOnGameStateLoad", path);
 }
 
 // loadsave.cc
 void ck_scripting_on_game_loaded() {
 	log.info("ck_scripting_on_game_loaded");
-
-	ck::on_map_enter();
-	fallout::tileWindowRefresh();
 
 	ck_call_hook("ckOnGameLoaded");
 }
@@ -343,10 +340,6 @@ void ck_scripting_on_game_save(const char* path) {
 }
 
 // loadsave.cc
-void ck_scripting_on_game_state_load(const char* path) {
-	log.debug("ck_scripting_on_game_state_load");
-    ck_call_lua_hook("ckOnGameStateLoad", path);
-}
 
 int ck_get_config_int(const char* key, int default_value) {
     if (gLuaState == nullptr) return default_value;

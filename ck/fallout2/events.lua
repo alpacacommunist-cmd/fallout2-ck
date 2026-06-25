@@ -26,6 +26,9 @@ local events = {
   }
 }
 
+local MAP_UPDATE_INTERVAL  = 10
+local last_update_time = 0
+
 -- Public mod API
 -- Allows mod events subscription (fallout2.events.on('onGameStart'))
 function events.on(event_name, callback)
@@ -76,12 +79,12 @@ function ckOnGameStart()
 end
 
 function ckOnBeforeGameLoad()
-  log.info("Engine signaled: Game Loaded!")
   events.emit('onBeforeGameLoad')
 end
 
 function ckOnGameLoaded()
-  log.info("Engine signaled: Game Loaded! Initializing Mod State...")
+  log.info("last_update_time: " .. tostring(last_update_time))
+  last_update_time = 0
 
   events.emit('onGameLoaded')
 end
@@ -101,7 +104,6 @@ function ckOnMapEnter()
   objects.clear_registry()      -- clears lua pointers
   ffi.C.ck_registry_clear()     -- reset C registry
 
-  log.info("Engine signaled: Map Enter!")
   events.emit('onMapEnter')
 end
 
@@ -110,11 +112,9 @@ function ckOnTimeAdvance(hours, minutes)
   events.emit('onTimeAdvance', hours, minutes)
 end
 
-local UPDATE_INTERVAL  = 10
-local last_update_time = 0
 
 function ckOnMapUpdate(ticks)
-  if (ticks - last_update_time) < UPDATE_INTERVAL then return end
+  if (ticks - last_update_time) < MAP_UPDATE_INTERVAL then return end
   last_update_time = ticks
 
   for _, object in pairs(objects.registry) do
@@ -138,11 +138,6 @@ function ckOnProc(lua_id, proc_id)
 end
 
 function ckOnObjectsDestroyed()
-  state.clear_tracked_objects()
-  objects.clear_registry()
-
-  log.info("[CK Objects] Registry cleared")
-  log.info("[CK State] Tracked objects cleared")
 end
 
 function events.emit_for_mod(mod_name, event_name, ...)
