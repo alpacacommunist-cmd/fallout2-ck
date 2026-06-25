@@ -9,8 +9,8 @@ local M = {}
 function M.create_env(mod_folder, manifest_table)
   local env = setmetatable({}, { __index = _G })
 
-  env.manifest = manifest_table
-  env.mod_id   = manifest_table.id
+  env.__manifest = manifest_table
+  env.__mod_id   = manifest_table.id
 
   ---------------------------------------------------------------
   ------ require
@@ -70,12 +70,12 @@ function M.create_env(mod_folder, manifest_table)
 
   function env.events.on(event_name, callback)
     if not core_events.listeners[event_name] then
-      log.warn(string.format("[%s] Warning: unknown event '%s'", mod_folder, tostring(event_name)))
+      log.warn(string.format("[%s] Warning: unknown event '%s'", manifest_table.id, tostring(event_name)))
       return
     end
 
     table.insert(core_events.listeners[event_name], {
-      mod = mod_folder,
+      mod = manifest_table.id,
       fn  = callback
     })
   end

@@ -88,7 +88,6 @@ local function loadAndInitMod(mod_folder)
   local manifest = loadManifest(mod_folder)
   applyManifest(manifest)
 
-
   local mod_key = 'mods.' .. mod_folder .. ".init"
   local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
 
@@ -116,6 +115,8 @@ local function loadAndInitMod(mod_folder)
   if not success then
     log.error("running mod '" .. mod_folder .. "': " .. tostring(run_err))
   end
+
+  return manifest
 end
 
 function M.initialize()
@@ -156,10 +157,10 @@ function M.reloadMods()
 
   for _, mod_folder in ipairs(reloadable_mods) do
     log.info("[CK Loader] Reloading: " .. mod_folder)
-    loadAndInitMod(mod_folder)
+    manifest = loadAndInitMod(mod_folder)
 
-    events.emit_for_mod(mod_folder, "onMapEnter")
-    events.emit_for_mod(mod_folder, "onModReload")
+    events.emit_for_mod(manifest.id, "onMapEnter")
+    events.emit_for_mod(manifest.id, "onModReload")
   end
 
   log.info("[CK Loader] Reload complete!")

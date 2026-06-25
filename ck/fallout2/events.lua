@@ -23,7 +23,9 @@ local events = {
     onTimeAdvance = {},
     onDialogStart = {},
     onMapEnter = {}
-  }
+  },
+
+  current_active_mod = nil
 }
 
 local MAP_UPDATE_INTERVAL  = 10
@@ -46,6 +48,8 @@ function events.emit(event_name, ...)
   local args = { ... }
 
   for index, entry in ipairs(entries) do
+    events.current_active_mod = entry.mod
+
     local ok, err = xpcall(function()
 
       entry.fn(unpack(args))
@@ -55,6 +59,8 @@ function events.emit(event_name, ...)
       log.error(string.format("in mod '%s' on event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
     end
   end
+
+  events.current_active_mod = nil
 end
 
 function events.clear_for_mod(mod_name)
@@ -148,6 +154,8 @@ function events.emit_for_mod(mod_name, event_name, ...)
 
   for index, entry in ipairs(entries) do
     if entry.mod == mod_name then
+      events.current_active_mod = mod_name
+
       local ok, err = xpcall(function()
         entry.fn(unpack(args))
       end, debug.traceback)
@@ -157,6 +165,8 @@ function events.emit_for_mod(mod_name, event_name, ...)
       end
     end
   end
+
+  events.current_active_mod = nil
 end
 
 return events

@@ -13,32 +13,21 @@ quests.status = {
 
 quests.definitions = {}
 
-local function get_caller_mod_id()
-  for level = 2, 10 do
-    local  success, env = pcall(getfenv, level)
-    if not success or not env then break end
-
-    if env.mod_id then return env.mod_id end
-  end
-
-  return "unknown"
-end
-
 function quests.register(quest_id, config)
-  local mod_id = get_caller_mod_id()
+  local mod_id = events.current_active_mod or "unknown"
 
   quests.definitions[mod_id] = quests.definitions[mod_id] or {}
   quests.definitions[mod_id][quest_id] = config
 end
 
 function quests.set(quest_id, status_value)
-  local mod_id = get_caller_mod_id()
+  local mod_id = events.current_active_mod or "unknown"
 
   state.set_global(mod_id, "quests", quest_id, status_value)
 end
 
 function quests.get(quest_id)
-  local mod_id = get_caller_mod_id()
+  local mod_id = events.current_active_mod or "unknown"
   local value = state.get_global(mod_id, "quests", quest_id)
 
   return value or quests.status.NOT_STARTED

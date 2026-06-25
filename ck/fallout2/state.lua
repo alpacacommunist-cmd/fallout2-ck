@@ -13,19 +13,6 @@ local db = {
 local last_save_path  = nil
 local tracked_objects = {}
 
--- gets mod_id of the caller
-local function get_caller_mod_id()
-  for level = 2, 10 do
-    local success, env = pcall(getfenv, level)
-
-    if not success or not env then break end
-
-    if env.mod_id then return env.mod_id end
-  end
-
-  return "unknown"
-end
-
 -- helper function for printing nested stuff
 local function print_table(t, indent)
   indent = indent or 0
@@ -91,13 +78,7 @@ function ckOnGameStateLoad(path)
 end
 
 function state.track(object_instance, options)
-  mod_id = get_caller_mod_id()
-
-  if mod_id == "unknown" then
-    log.error("Unknown mod_id, can't track object")
-
-    return
-  end
+  options = options or {}
 
   if not object_instance or not object_instance.tag then
     log.error("Cannot track object without a valid instance or tag!")
@@ -105,9 +86,15 @@ function state.track(object_instance, options)
     return
   end
 
+  local mod_id = object_instance.mod_id
+
+  if not mod_id or mod_id == "unknown" then
+    log.error(string.format("Object '%s' has an unknown mod_id, can't track!", object_instance.tag))
+    return
+  end
+
   local lua_id = object_instance.id
   local interval_seconds = options.save_interval_seconds or 5
-
   local interval_ticks = interval_seconds * 10
 
   tracked_objects[lua_id] = {
