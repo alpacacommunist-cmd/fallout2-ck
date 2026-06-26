@@ -50,10 +50,7 @@ function events.emit(event_name, ...)
   for index, entry in ipairs(entries) do
     events.current_active_mod = entry.mod
 
-    local ok, err = xpcall(function()
-
-      entry.fn(unpack(args))
-    end, debug.traceback)
+    local ok, err = xpcall(function() entry.fn(unpack(args)) end, debug.traceback)
 
     if not ok then
       log.error(string.format("in mod '%s' on event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
@@ -68,9 +65,7 @@ function events.clear_for_mod(mod_name)
     local clean_list = {}
 
     for _, entry in ipairs(entries) do
-      if entry.mod ~= mod_name then
-        table.insert(clean_list, entry)
-      end
+      if entry.mod ~= mod_name then table.insert(clean_list, entry) end
     end
 
     events.listeners[event_name] = clean_list
@@ -156,9 +151,7 @@ function events.emit_for_mod(mod_name, event_name, ...)
     if entry.mod == mod_name then
       events.current_active_mod = mod_name
 
-      local ok, err = xpcall(function()
-        entry.fn(unpack(args))
-      end, debug.traceback)
+      local ok, err = xpcall(function() entry.fn(unpack(args)) end, debug.traceback)
 
       if not ok then
         log.error(string.format("in mod '%s' on localized event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
