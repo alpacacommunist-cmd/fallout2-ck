@@ -1,20 +1,22 @@
 -- ck/bootstrap.lua
 
-print("[CK] Bootstrapping Construction Kit...")
-
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
 ck.log    = require('ck.fallout2.log')
 local log = ck.log.new("CK Bootstrap")
 
--- core systems
-require('ck.fallout2.events')
-require('ck.fallout2.config')
+-- mod IDS
+local active_mods = {
+  "game_time_extender",
+  "arroyo_expanded",
+  "temple_of_trials"
+}
+
+log.info("Bootstrapping Construction Kit...")
 
 -- mod loader
 local loader = require('ck.fallout2.loader')
 
--- boot active mods
-loader.initialize()
+for _, mod_folder in ipairs(active_mods) do loader.load_and_init_mod(mod_folder) end
 
 log.info("Bootstrap complete!")
