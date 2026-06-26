@@ -44,19 +44,14 @@ map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.rendering_refresh = C.ck_rendering_refresh
 
-local function get_caller_mod_id()
-  for level = 2, 10 do
-    local  success, env = pcall(getfenv, level)
-    if not success or not env then break end
-
-    if env.mod_id then return env.mod_id end
-  end
-
-  return "unknown"
-end
+local core_events_cache = nil
 
 function map.register_object(value, tile)
-  mod_id = get_caller_mod_id()
+  if not core_events_cache then
+    core_events_cache = require('ck.system.events')
+  end
+
+  local mod_id = core_events_cache.current_active_mod or "unknown"
 
   C.ck_map_register_object(value, tile, mod_id)
 end

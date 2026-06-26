@@ -108,6 +108,17 @@ function state.track(object_instance, options)
   log.info(string.format("Started tracking object '%s' for mod '%s'", object_instance.tag, mod_id))
 end
 
+function state.untrack(lua_id)
+  if tracked_objects[lua_id] then
+    local tag = tracked_objects[lua_id].tag
+    local mod_id = tracked_objects[lua_id].mod_id
+
+    tracked_objects[lua_id] = nil
+
+    log.info(string.format("Stopped tracking object '%s' for mod '%s' (Object Destroyed)", tostring(tag), tostring(mod_id)))
+  end
+end
+
 function state.update_tracked_objects(current_ticks)
   local map_id = map.get_id()
 

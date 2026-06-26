@@ -7,11 +7,11 @@ class Logger {
 private:
     std::string m_prefix;
 
+public:
     void print_log(std::string_view tag, std::string_view tag_color, std::string_view message) const;
     void print_error_log(std::string_view message) const;
     void print_debug_log(std::string_view message) const;
 
-public:
     explicit Logger(std::string_view prefix) : m_prefix(prefix) {}
 
     inline static bool debug_enabled = true;

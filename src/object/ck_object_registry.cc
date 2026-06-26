@@ -47,7 +47,7 @@ void CkObjectRegistry::destroy_objects_for_mod(const char* target_mod_id) {
     }
 }
 
-bool CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
+int CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
     if (ptr == nullptr) return false;
 
     for (auto it = objects.begin(); it != objects.end(); ++it) {
@@ -64,10 +64,11 @@ bool CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
 					obj_tag.empty() ? "mass_object (untagged)" : obj_tag,
 					objects.size());
 
-            return true;
+            return deleted_id;
         }
     }
-    return false;
+
+    return -1;
 }
 
 const CkManagedObject* CkObjectRegistry::get_managed(int lua_id) const {

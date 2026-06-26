@@ -255,10 +255,32 @@ void ck_scripting_init() {
 		lua_register(gLuaState, "ckRegisterLocation", l_ck_register_location);
 
         // bootstrap
-        int status = luaL_dofile(gLuaState, "../ck/system/bootstrap.lua");
-        if (status != 0) {
-            std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
-        }
+		int status = luaL_loadfile(gLuaState, "../ck/system/bootstrap.lua");
+
+		if (status == LUA_OK) {
+			lua_getglobal(gLuaState, "debug");
+			lua_getfield(gLuaState, -1, "traceback");
+			lua_remove(gLuaState, -2);
+
+			int err_handler_idx = lua_gettop(gLuaState) - 1;
+			lua_insert(gLuaState, err_handler_idx);
+
+			status = lua_pcall(gLuaState, 0, LUA_MULTRET, err_handler_idx);
+
+			if (status != LUA_OK) {
+				static const Logger c_log("CK Scripting");
+				c_log.error("Bootstrap Error:\n{}", lua_tostring(gLuaState, -1));
+
+				lua_pop(gLuaState, 2);
+			} else {
+				lua_pop(gLuaState, 1);
+			}
+		} else {
+			static const Logger c_log("CK Scripting");
+			c_log.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
+
+			lua_pop(gLuaState, 1);
+		}
     } else {
         std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
 	}

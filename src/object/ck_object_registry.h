@@ -27,7 +27,7 @@ class CkObjectRegistry {
 public:
     int  add(fallout::Object* obj, const LuaMeta& meta = {});
 	void destroy_objects_for_mod(const char* target_mod_id);
-	bool remove_by_ptr(fallout::Object* ptr);
+	int remove_by_ptr(fallout::Object* ptr);
 
 	const CkManagedObject* get_managed(int lua_id) const;
 

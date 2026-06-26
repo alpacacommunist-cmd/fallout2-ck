@@ -73,9 +73,7 @@ function events.clear_for_mod(mod_name)
   log.info("Cleared listeners for mod: " .. mod_name)
 end
 
--- ckHookOnGameStart (C) calls it when game started (interface initiated)
 function ckOnGameStart()
-  log.info("Engine signaled: Game Start! Firing listeners...")
   events.emit('onGameStart')
 end
 
@@ -91,12 +89,10 @@ function ckOnGameLoaded()
 end
 
 function ckOnDayPassed()
-  log.info("Engine signaled: Day Passed!")
   events.emit('onDayPassed')
 end
 
 function ckOnHourPassed()
-  log.info("Engine signaled: Hour Passed!")
   events.emit('onHourPassed')
 end
 
@@ -112,7 +108,6 @@ function ckOnTimeAdvance(hours, minutes)
   log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
   events.emit('onTimeAdvance', hours, minutes)
 end
-
 
 function ckOnMapUpdate(ticks)
   if (ticks - last_update_time) < MAP_UPDATE_INTERVAL then return end
