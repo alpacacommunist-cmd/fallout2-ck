@@ -250,16 +250,12 @@ void ck_scripting_init() {
 		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
 		lua_pop(gLuaState, 1);
 
-        // expand path to include fallout2-ck/ck/fallout2
-        // Tells lua to search .lua files in ck/ (which is fallout2-ce/../ck)
-		luaL_dostring(gLuaState, "package.path = package.path .. ';../?.lua;../?/init.lua'");
-
         // bindings. registers c <-> lua functions
 		lua_register(gLuaState, "ckMonitorPrint", l_ck_monitor_print);
 		lua_register(gLuaState, "ckRegisterLocation", l_ck_register_location);
 
         // bootstrap
-        int status = luaL_dofile(gLuaState, "../ck/fallout2/bootstrap.lua");
+        int status = luaL_dofile(gLuaState, "../ck/system/bootstrap.lua");
         if (status != 0) {
             std::cerr << "[CK] Lua Error: " << lua_tostring(gLuaState, -1) << std::endl;
         }

@@ -1,5 +1,5 @@
 -- ck/fallout2/loader/sandbox.lua
-local core_events   = require('ck.fallout2.events')
+local core_events   = require('ck.system.events')
 local i18n          = require('ck.fallout2.i18n')
 
 local log = ck.log.new('CK Events Sandbox')

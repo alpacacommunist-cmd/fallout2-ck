@@ -6,12 +6,13 @@ ffi.cdef[[
   void ck_registry_clear();
 ]]
 
+local sandbox   = require('ck.system.loader.sandbox')
+local events    = require('ck.system.events')
+
 local rendering = require('ck.fallout2.rendering')
-local events    = require('ck.fallout2.events')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
 local state     = require('ck.fallout2.state')
-local sandbox   = require('ck.fallout2.loader.sandbox')
 local objects   = require('ck.fallout2.objects')
 
 local log = ck.log.new('CK Loader')
