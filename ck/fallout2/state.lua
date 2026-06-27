@@ -3,6 +3,7 @@ local ffi = require("ffi")
 
 ffi.cdef[[
     bool ck_state_load(const char* path);
+    void ck_state_save(const char* path);
 ]]
 
 local map = require('ck.fallout2.map')
@@ -12,7 +13,7 @@ local state = {}
 local log   = ck.log.new('CK State')
 local utils = require('ck.system.utils')
 
-local db = {
+db = {
   global = {},
   maps   = {}
 }
@@ -20,71 +21,36 @@ local db = {
 local last_save_path  = nil
 local tracked_objects = {}
 
--- helper function for printing nested stuff
-
--- serialize
-local function serialize(val)
-  local t = type(val)
-  if t == "number"  then return tostring(val) end
-  if t == "boolean" then return tostring(val) end
-  if t == "string"  then return string.format("%q", val) end
-  if t == "table" then
-    local parts = {}
-    for k, v in pairs(val) do
-      if type(v) ~= "function" and type(v) ~= "userdata" and type(v) ~= "cdata" then
-        local key = type(k) == "string" and string.format("[%q]", k) or (type(k) == "number" and "[" .. tostring(k) .. "]")
-        if key then table.insert(parts, key .. "=" .. serialize(v)) end
-      end
-    end
-    return "{" .. table.concat(parts, ",") .. "}"
-  end
-  return "nil"
-end
-
--- global callbacks - onGameSave
 function ckOnGameSave(path)
   local current_map_id = map.get_id()
 
   if current_map_id ~= -1 then
+    db.maps[current_map_id] = db.maps[current_map_id] or {}
+
     for lua_id, entry in pairs(tracked_objects) do
-      local tile = entry.obj:tile()
-      db.maps[current_map_id] = db.maps[current_map_id] or {}
+      local tile = entry.object:tile()
       db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag].tile = tile
     end
   end
 
-  path = path:gsub("\\", "/")
-  last_save_path = path
-  local file = io.open(path, "w")
-  if not file then return end
-  file:write("return " .. serialize(db) .. "\n")
-  file:close()
-  log.info("Saved database to: " .. path)
+  ffi.C.ck_state_save(path)
 end
 
--- global callbacks - onGameLoad
--- function ckOnGameStateLoad(path)
---   last_save_path = path:gsub("\\", "/")
---   log.info("Cached save game state path: " .. last_save_path)
---
---   state.load_from_cache()
--- end
-
 function ckOnGameStateLoad(path)
-  log.info("Forwarding load to C++ PicoJSON backend: " .. tostring(path))
+  log.info("Forwarding load to backend: " .. tostring(path))
 
   local success = ffi.C.ck_state_load(path)
 
   if success then
-    log.info("State database initialized by C++ engine successfully!")
+    log.info("State database initialized successfully!")
 
     db = _G.db or { global = {}, maps = {} }
     db.global = db.global or {}
     db.maps = db.maps or {}
   else
-    log.error("C++ PicoJSON backend failed to process state file!")
+    log.error("PicoJSON backend failed to process state file!")
   end
 end
 
@@ -109,11 +75,8 @@ function state.track(object_instance, options)
   local interval_ticks = interval_seconds * 10
 
   tracked_objects[lua_id] = {
-    mod_id = mod_id,
-    tag = object_instance.tag,
-    obj = object_instance,
-    interval = interval_ticks,
-    next_tick = 0
+    mod_id = mod_id, tag = object_instance.tag, object = object_instance,
+    interval = interval_ticks, next_tick = 0
   }
 
   log.info(string.format("Started tracking object '%s' for mod '%s'", object_instance.tag, mod_id))
@@ -139,7 +102,7 @@ function state.update_tracked_objects(current_ticks)
     if current_ticks >= entry.next_tick then
       entry.next_tick = current_ticks + entry.interval
 
-      local tile = entry.obj:tile()
+      local tile = entry.object:tile()
 
       db.maps[map_id] = db.maps[map_id] or {}
       db.maps[map_id][entry.mod_id] = db.maps[map_id][entry.mod_id] or {}
@@ -165,31 +128,6 @@ end
 function state.clear_tracked_objects()
   tracked_objects = {}
   log.info("Tracked objects registry cleared")
-end
-
-function state.load_from_cache()
-  if not last_save_path then return false end
-
-  local file = io.open(last_save_path, "r")
-  if not file then
-    log.info("No state file found in cache path (New game?): " .. last_save_path)
-    return false
-  end
-
-  local content = file:read("*a")
-  file:close()
-
-  local fn, err = load(content)
-  if fn then
-    db = fn() or { global = {}, maps = {} }
-    db.global = db.global or {}
-    db.maps = db.maps or {}
-    log.info("Data loaded and initialized from cache path!")
-    return true
-  else
-    log.error("Error parsing cached state file: " .. tostring(err))
-    return false
-  end
 end
 
 local function get_mod_storage(section, mod_id)

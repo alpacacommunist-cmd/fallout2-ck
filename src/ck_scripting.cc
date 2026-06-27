@@ -338,13 +338,6 @@ void ck_scripting_on_game_loaded() {
 // loadsave.cc
 void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
-    ck_call_lua_hook("ckOnGameStateLoad", path);
-
-	// std::string json_path = std::string(path);
-	// size_t dot_pos = json_path.find_last_of('.');
-	// if (dot_pos != std::string::npos) {
-	// 	json_path = json_path.substr(0, dot_pos) + ".json";
-	// }
 
 	ck_state_load(path);
 }
@@ -352,15 +345,8 @@ void ck_scripting_on_before_game_load(const char* path) {
 // loadsave.cc
 void ck_scripting_on_game_save(const char* path) {
 	log.debug("ck_scripting_on_game_save");
-    ck_call_lua_hook("ckOnGameSave", path);
 
-	std::string json_path = std::string(path);
-	size_t dot_pos = json_path.find_last_of('.');
-	if (dot_pos != std::string::npos) {
-		json_path = json_path.substr(0, dot_pos) + ".json";
-	}
-
-	ck_state_save(json_path.c_str());
+	ck_state_save(path);
 }
 
 // loadsave.cc

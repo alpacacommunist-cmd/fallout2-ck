@@ -23,15 +23,9 @@ void dump_json_to_log(const picojson::value& val, int indent = 0) {
 				state_log.info("{}}}", spaces);
 			}
 
-			else if (value.is<double>()) {
-				state_log.info("{}{}: {} (number)", spaces, key, value.get<double>());
-			}
-			else if (value.is<std::string>()) {
-				state_log.info("{}{}: \"{}\"", spaces, key, value.get<std::string>());
-			}
-			else if (value.is<bool>()) {
-				state_log.info("{}{}: {}", spaces, key, value.get<bool>() ? "true" : "false");
-			}
+			else if (value.is<double>()) state_log.info("{}{}: {} (number)", spaces, key, value.get<double>());
+			else if (value.is<std::string>()) state_log.info("{}{}: \"{}\"", spaces, key, value.get<std::string>());
+			else if (value.is<bool>()) state_log.info("{}{}: {}", spaces, key, value.get<bool>() ? "true" : "false");
 		}
 	}
 }
@@ -64,17 +58,42 @@ void picojson_to_lua(lua_State* L, const picojson::value& val) {
 	}
 }
 
+picojson::value lua_to_picojson(lua_State* L, int idx) {
+	int t = lua_type(L, idx);
+
+	if (t == LUA_TNUMBER) {
+		return picojson::value(static_cast<double>(lua_tonumber(L, idx)));
+	} else if (t == LUA_TBOOLEAN) {
+		return picojson::value((bool)lua_toboolean(L, idx));
+	} else if (t == LUA_TSTRING) {
+		return picojson::value(std::string(lua_tostring(L, idx)));
+	} else if (t == LUA_TTABLE) {
+		picojson::object obj;
+
+		lua_pushnil(L);
+		while (lua_next(L, idx < 0 ? idx - 1 : idx) != 0) {
+			std::string key;
+			if (lua_type(L, -2) == LUA_TNUMBER) {
+				key = std::to_string(lua_tointeger(L, -2));
+			} else {
+				key = lua_tostring(L, -2);
+			}
+
+			obj[key] = lua_to_picojson(L, -1);
+
+			lua_pop(L, 1);
+		}
+		return picojson::value(obj);
+	}
+
+	return picojson::value();
+}
+
 bool ck_state_load(const char* path) {
 	if (path == nullptr || gLuaState == nullptr) return false;
 
 	std::string clean_path(path);
-	for (char& c : clean_path) {
-		if (c == '\\') c = '/';
-	}
-	size_t dot_pos = clean_path.find_last_of('.');
-	if (dot_pos != std::string::npos) {
-		clean_path = clean_path.substr(0, dot_pos) + ".json";
-	}
+	for (char& c : clean_path) if (c == '\\') c = '/';
 
 	std::ifstream file(clean_path);
 	if (!file.is_open()) {
@@ -105,11 +124,34 @@ bool ck_state_load(const char* path) {
 
 	lua_setglobal(gLuaState, "db");
 
-	state_log.info("C++ successfully injected state table into _G.db");
+	state_log.info("successfully injected state table into _G.db");
 	return true;
 }
 
 void ck_state_save(const char* path) {
-	if (path == nullptr) return;
-	state_log.info("PicoJSON: C++ triggered ck_state_save for path: {}", path);
+    if (path == nullptr || gLuaState == nullptr) return;
+
+    std::string clean_path(path);
+    for (char& c : clean_path) if (c == '\\') c = '/';
+
+    lua_getglobal(gLuaState, "db");
+    if (!lua_istable(gLuaState, -1)) {
+        state_log.error("PicoJSON Save: Global '_G.db' is not a valid Lua table!");
+        lua_pop(gLuaState, 1);
+        return;
+    }
+
+    picojson::value save_data = lua_to_picojson(gLuaState, -1);
+    lua_pop(gLuaState, 1);
+
+    std::ofstream file(clean_path);
+    if (!file.is_open()) {
+        state_log.error("PicoJSON: Failed to open file for writing: {}", clean_path);
+        return;
+    }
+
+    file << save_data.serialize(true);
+    file.close();
+
+    state_log.info("Game state successfully serialized and saved to: {}", clean_path);
 }
