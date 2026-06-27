@@ -24,13 +24,13 @@ local reloadable_mods = {
 
 local loader = { MODS = {} }
 
-local function load_manifest(mod_folder)
-  local key = 'mods.' .. mod_folder .. '.mod'
+local function load_manifest(mod_id)
+  local key = 'mods.' .. mod_id .. '.mod'
 
   local ok, manifest = pcall(require, key)
 
   if not ok or type(manifest) ~= 'table' then
-    log.warn("WARNING: no manifest for " .. mod_folder)
+    log.warn("WARNING: no manifest for " .. mod_id)
     return nil
   end
 
@@ -65,11 +65,11 @@ local function apply_manifest(manifest)
   end
 end
 
-function loader.load_and_init_mod(mod_folder)
-  local manifest = load_manifest(mod_folder)
+function loader.load_and_init_mod(mod_id)
+  local manifest = load_manifest(mod_id)
   apply_manifest(manifest)
 
-  local mod_key = 'mods.' .. mod_folder .. ".init"
+  local mod_key = 'mods.' .. mod_id .. ".init"
   local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
 
   local file = io.open(file_path, "r")
@@ -83,17 +83,17 @@ function loader.load_and_init_mod(mod_folder)
   -- compile file into function
   local mod_init_fn, err = loadstring(content, "@" .. file_path)
   if not mod_init_fn then
-    log.error("compiling mod '" .. mod_folder .. "': " .. tostring(err))
+    log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
     return
   end
 
-  local mod_env = sandbox.create_env(mod_folder, manifest)
+  local mod_env = sandbox.create_env(mod_id, manifest)
   setfenv(mod_init_fn, mod_env)
 
   -- exec mod
   local success, run_err = pcall(mod_init_fn)
   if not success then
-    log.error("running mod '" .. mod_folder .. "': " .. tostring(run_err))
+    log.error("running mod '" .. mod_id .. "': " .. tostring(run_err))
   end
 
   return manifest
@@ -104,26 +104,26 @@ function loader.reload_mods()
 
   rendering.clear()
 
-  for _, mod_folder in ipairs(reloadable_mods) do
-    local target_prefix = "mods." .. mod_folder
+  for _, mod_id in ipairs(reloadable_mods) do
+    local target_prefix = "mods." .. mod_id
 
-    events.clear_for_mod(mod_folder)
-    objects.clear_for_mod(mod_folder)
-    state.clear_for_mod(mod_folder)
+    events.clear_for_mod(mod_id)
+    objects.clear_for_mod(mod_id)
+    state.clear_for_mod(mod_id)
 
-    ffi.C.ck_registry_destroy_objects_for_mod(mod_folder)
+    ffi.C.ck_registry_destroy_objects_for_mod(mod_id)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
         package.loaded[mod_name] = nil
-        log.info("[CK Loader] Unloaded: " .. mod_name)
+        log.info("Unloaded: " .. mod_name)
       end
     end
   end
 
-  for _, mod_folder in ipairs(reloadable_mods) do
-    log.info("[CK Loader] Reloading: " .. mod_folder)
-    manifest = loader.load_and_init_mod(mod_folder)
+  for _, mod_id in ipairs(reloadable_mods) do
+    log.info("[CK Loader] Reloading: " .. mod_id)
+    manifest = loader.load_and_init_mod(mod_id)
 
     events.emit_for_mod(manifest.id, "onMapEnter")
     events.emit_for_mod(manifest.id, "onModReload")

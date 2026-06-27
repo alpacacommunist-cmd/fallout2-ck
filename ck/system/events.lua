@@ -10,68 +10,79 @@ ffi.cdef[[
 local objects = require('ck.fallout2.objects')
 local state   = require('ck.fallout2.state')
 local log     = ck.log.new('CK Events')
+local utils   = require('ck.system.utils')
 
 local events = {
   -- listeners stack
-  listeners = {
-    onModReload = {},
-    onGameStart = {},
-    onDayPassed = {},
-    onHourPassed = {},
-    onBeforeGameLoad = {},
-    onGameLoaded = {},
-    onTimeAdvance = {},
-    onDialogStart = {},
-    onMapEnter = {}
+  available_listeners = { 'onGameStart', 'onModReload',
+    'onDayPassed', 'onHourPassed', 'onTimeAdvance',
+    'onBeforeGameLoad', 'onGameLoaded',
+    'onDialogStart',
+    'onMapEnter'
   },
 
+  listeners = {},
   current_active_mod = nil
 }
+
+function events.init_mod(mod_id)
+  events.listeners[mod_id] = {}
+  for index, listener in ipairs(events.available_listeners) do
+    events.listeners[mod_id][listener] = {}
+  end
+end
+
+function events.register(mod_id, event_name, callback)
+  if not events.listeners[mod_id] then events.init_mod(mod_id) end
+
+  if not events.listeners[mod_id][event_name] then
+    log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
+    return false
+  end
+
+  table.insert(events.listeners[mod_id][event_name], callback)
+end
+
+function events.emit(event_name, ...)
+  for mod_id, _ in pairs(events.listeners) do events.emit_for_mod(mod_id, event_name, ...) end
+end
+
+function events.emit_for_mod(mod_id, event_name, ...)
+  local mod_entries = events.listeners[mod_id]
+  if not mod_entries then return end
+
+  local callbacks = mod_entries[event_name]
+  if not callbacks or #callbacks == 0 then return end
+
+  local args = { ... }
+
+  log.info(mod_id)
+  utils.print_table(callbacks, log)
+
+  previous_context = events.current_active_mod
+  events.current_active_mod = mod_id
+  for index, callback in ipairs(callbacks) do
+    local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)
+
+    if not ok then
+      log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
+    end
+  end
+  events.current_active_mod = previous_context
+end
+
+function events.clear_for_mod(mod_id)
+  events.listeners[mod_id] = nil
+  log.info("Cleared listeners for mod: " .. mod_id)
+end
 
 local MAP_UPDATE_INTERVAL  = 10
 local last_update_time = 0
 
--- Public mod API
--- Allows mod events subscription (fallout2.events.on('onGameStart'))
+-- Public mod API, mod gets sandboxed version from sandbox.lua
 function events.on(event_name, callback)
-  if not events.listeners[event_name] then
-    log.warn("Attempted to subscribe to unknown event: " .. tostring(event_name))
-    return
-  end
 end
 
-function events.emit(event_name, ...)
-  local entries = events.listeners[event_name]
-
-  if not entries then return end
-
-  local args = { ... }
-
-  for index, entry in ipairs(entries) do
-    events.current_active_mod = entry.mod
-
-    local ok, err = xpcall(function() entry.fn(unpack(args)) end, debug.traceback)
-
-    if not ok then
-      log.error(string.format("in mod '%s' on event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
-    end
-  end
-
-  events.current_active_mod = nil
-end
-
-function events.clear_for_mod(mod_name)
-  for event_name, entries in pairs(events.listeners) do
-    local clean_list = {}
-
-    for _, entry in ipairs(entries) do
-      if entry.mod ~= mod_name then table.insert(clean_list, entry) end
-    end
-
-    events.listeners[event_name] = clean_list
-  end
-  log.info("Cleared listeners for mod: " .. mod_name)
-end
 
 function ckOnGameStart()
   events.emit('onGameStart')
@@ -134,27 +145,6 @@ function ckOnProc(lua_id, proc_id)
 end
 
 function ckOnObjectsDestroyed()
-end
-
-function events.emit_for_mod(mod_name, event_name, ...)
-  local entries = events.listeners[event_name]
-  if not entries then return end
-
-  local args = { ... }
-
-  for index, entry in ipairs(entries) do
-    if entry.mod == mod_name then
-      events.current_active_mod = mod_name
-
-      local ok, err = xpcall(function() entry.fn(unpack(args)) end, debug.traceback)
-
-      if not ok then
-        log.error(string.format("in mod '%s' on localized event '%s' (#%d):\n%s", entry.mod, event_name, index, err))
-      end
-    end
-  end
-
-  events.current_active_mod = nil
 end
 
 return events

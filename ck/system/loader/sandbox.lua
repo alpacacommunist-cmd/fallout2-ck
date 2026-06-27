@@ -12,6 +12,8 @@ function M.create_env(mod_folder, manifest_table)
   env.__manifest = manifest_table
   env.__mod_id   = manifest_table.id
 
+  env.log = ck.log.new(manifest_table.name)
+
   ---------------------------------------------------------------
   ------ require
   ---------------------------------------------------------------
@@ -57,27 +59,13 @@ function M.create_env(mod_folder, manifest_table)
   end
 
   ---------------------------------------------------------------
-  ------ context log
-  ---------------------------------------------------------------
-
-  env.log = ck.log.new(manifest_table.name)
-
-  ---------------------------------------------------------------
   ------ events
   ---------------------------------------------------------------
 
   env.events = setmetatable({}, { __index = core_events })
 
   function env.events.on(event_name, callback)
-    if not core_events.listeners[event_name] then
-      log.warn(string.format("[%s] Warning: unknown event '%s'", manifest_table.id, tostring(event_name)))
-      return
-    end
-
-    table.insert(core_events.listeners[event_name], {
-      mod = manifest_table.id,
-      fn  = callback
-    })
+    core_events.register(manifest_table.id, event_name, callback)
   end
 
   ---------------------------------------------------------------

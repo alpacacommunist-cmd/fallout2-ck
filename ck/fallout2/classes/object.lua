@@ -42,7 +42,12 @@ end
 
 function Object:emit(event_name, ...)
   if self.handlers[event_name] then
+    local previous_context = events.current_active_mod
+
+    events.current_active_mod = self.mod_id
     local ok, err = xpcall(self.handlers[event_name], debug.traceback, self, ...)
+    events.current_active_mod = previous_context
+
     if not ok then
       log.error(string.format("in object '%s' on event '%s':\n%s", tostring(self.tag), event_name, err))
     end

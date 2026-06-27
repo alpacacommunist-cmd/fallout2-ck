@@ -157,18 +157,7 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     gMapRegistry.save("../ck_registry.json");
 }
 
-void ck_call_hook(const char* name);
 void ck_call_hook_int(const char* name, int arg);
-
-void ck_call_hook(const char* name) {
-    if (gLuaState == nullptr) return;
-    lua_getglobal(gLuaState, name);
-    if (!lua_isfunction(gLuaState, -1)) { lua_pop(gLuaState, 1); return; }
-    if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
-        std::cerr << "[CK] Hook Error (" << name << "): " << lua_tostring(gLuaState, -1) << std::endl;
-        lua_pop(gLuaState, 1);
-    }
-}
 
 // l_ck_monitor_print -> ckMonitorPrint -> fallout2.monitor.print
 int l_ck_monitor_print(lua_State* L) {
@@ -318,7 +307,7 @@ void ck_scripting_set_language() {
 // this is called from fallout2-ce once interface is ready
 void ck_scripting_on_game_start() {
     log.debug("ck_scripting_on_game_start");
-	ck_call_hook("ckOnGameStart");
+	ck_call_lua_hook("ckOnGameStart");
 }
 
 void ck_scripting_on_engine_ready() {
@@ -348,7 +337,7 @@ void ck_scripting_on_before_game_load(const char* path) {
 void ck_scripting_on_game_loaded() {
 	log.info("ck_scripting_on_game_loaded");
 
-	ck_call_hook("ckOnGameLoaded");
+	ck_call_lua_hook("ckOnGameLoaded");
 }
 
 // loadsave.cc

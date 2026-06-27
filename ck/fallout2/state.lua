@@ -3,7 +3,8 @@ local map = require('ck.fallout2.map')
 
 local state = {}
 
-local log = ck.log.new('CK State')
+local log   = ck.log.new('CK State')
+local utils = require('ck.system.utils')
 
 local db = {
   global = {},
@@ -14,18 +15,6 @@ local last_save_path  = nil
 local tracked_objects = {}
 
 -- helper function for printing nested stuff
-local function print_table(t, indent)
-  indent = indent or 0
-  for k, v in pairs(t) do
-    local formatting = string.rep("  ", indent) .. k .. ": "
-    if type(v) == "table" then
-      log.debug(formatting)
-      print_table(v, indent + 1)
-    else
-      log.debug(formatting .. tostring(v))
-    end
-  end
-end
 
 -- serialize
 local function serialize(val)
@@ -223,7 +212,8 @@ function state.get_global(mod_id, sub_section, key)
 end
 
 function state.get_stored_object_data(mod_id, map_id, tag)
-  print_table(db)
+  utils.print_table(db, log)
+
   if db.maps[map_id] and db.maps[map_id][mod_id] and db.maps[map_id][mod_id][tag] then
     return db.maps[map_id][mod_id][tag]
   end
