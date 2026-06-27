@@ -26,6 +26,7 @@ add_library(fallout2-ck STATIC
     src/ck_scripting.cc
     src/ck_rendering.cc
     src/ck_log.cc
+    src/ck_state/ck_state.cc
 
     src/ce_config/ck_config_patch.cc
     src/ce_config/ck_message_patch.cc
@@ -55,11 +56,12 @@ target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
 
 target_include_directories(fallout2-ck PUBLIC 
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/"
     "${LUAJIT_INCLUDE}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src/"
 )
 
 if(ENABLE_PROTO_CACHE)
@@ -73,7 +75,6 @@ if(ENABLE_PROTO_CACHE)
 	)
 
 	target_compile_definitions(fallout2-ck PRIVATE USE_PROTO_CACHE)
-
 	target_link_libraries(fallout2-ck PUBLIC pthread)
 
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

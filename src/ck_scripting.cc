@@ -22,6 +22,8 @@
 #include "ck_assets/ck_asset_registry.h"
 #include "ck_assets/ck_proto_cache.h"
 
+#include "ck_state/ck_state.h"
+
 #include "display_monitor.h"
 #include "settings.h"
 
@@ -327,13 +329,6 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
-void ck_scripting_on_before_game_load(const char* path) {
-	log.debug("ck_scripting_on_before_game_load");
-
-    ck_call_lua_hook("ckOnGameStateLoad", path);
-}
-
-// loadsave.cc
 void ck_scripting_on_game_loaded() {
 	log.info("ck_scripting_on_game_loaded");
 
@@ -341,9 +336,31 @@ void ck_scripting_on_game_loaded() {
 }
 
 // loadsave.cc
+void ck_scripting_on_before_game_load(const char* path) {
+	log.debug("ck_scripting_on_before_game_load");
+    ck_call_lua_hook("ckOnGameStateLoad", path);
+
+	// std::string json_path = std::string(path);
+	// size_t dot_pos = json_path.find_last_of('.');
+	// if (dot_pos != std::string::npos) {
+	// 	json_path = json_path.substr(0, dot_pos) + ".json";
+	// }
+
+	ck_state_load(path);
+}
+
+// loadsave.cc
 void ck_scripting_on_game_save(const char* path) {
 	log.debug("ck_scripting_on_game_save");
     ck_call_lua_hook("ckOnGameSave", path);
+
+	std::string json_path = std::string(path);
+	size_t dot_pos = json_path.find_last_of('.');
+	if (dot_pos != std::string::npos) {
+		json_path = json_path.substr(0, dot_pos) + ".json";
+	}
+
+	ck_state_save(json_path.c_str());
 }
 
 // loadsave.cc

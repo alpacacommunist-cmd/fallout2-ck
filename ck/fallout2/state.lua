@@ -1,4 +1,10 @@
 -- ck/fallout2/state.lua
+local ffi = require("ffi")
+
+ffi.cdef[[
+    bool ck_state_load(const char* path);
+]]
+
 local map = require('ck.fallout2.map')
 
 local state = {}
@@ -35,7 +41,6 @@ local function serialize(val)
   return "nil"
 end
 
-
 -- global callbacks - onGameSave
 function ckOnGameSave(path)
   local current_map_id = map.get_id()
@@ -60,11 +65,27 @@ function ckOnGameSave(path)
 end
 
 -- global callbacks - onGameLoad
-function ckOnGameStateLoad(path)
-  last_save_path = path:gsub("\\", "/")
-  log.info("Cached save game state path: " .. last_save_path)
+-- function ckOnGameStateLoad(path)
+--   last_save_path = path:gsub("\\", "/")
+--   log.info("Cached save game state path: " .. last_save_path)
+--
+--   state.load_from_cache()
+-- end
 
-  state.load_from_cache()
+function ckOnGameStateLoad(path)
+  log.info("Forwarding load to C++ PicoJSON backend: " .. tostring(path))
+
+  local success = ffi.C.ck_state_load(path)
+
+  if success then
+    log.info("State database initialized by C++ engine successfully!")
+
+    db = _G.db or { global = {}, maps = {} }
+    db.global = db.global or {}
+    db.maps = db.maps or {}
+  else
+    log.error("C++ PicoJSON backend failed to process state file!")
+  end
 end
 
 function state.track(object_instance, options)
@@ -223,6 +244,7 @@ function state.get_stored_object_data(mod_id, map_id, tag)
 end
 
 function ckGetStoredTile(mod_id, map_id, tag)
+  log.info(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
   data = state.get_stored_object_data(mod_id, map_id, tag)
 
   if data then return data.tile else return -1 end
