@@ -14,6 +14,10 @@ const LuaMeta* CkObjectRegistry::get_meta(int lua_id) const {
     return &it->second.meta;
 }
 
+const char* ck_get_current_mod_id() {
+	return gObjectRegistry.current_mod_id.c_str();
+}
+
 void ck_set_mod_context(const char* mod_id) {
 	gObjectRegistry.current_mod_id = (mod_id != nullptr) ? std::string(mod_id) : std::string("unknown");
 }

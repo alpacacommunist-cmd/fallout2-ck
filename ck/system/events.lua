@@ -57,11 +57,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
 
   local args = { ... }
 
-  log.info(mod_id)
-  utils.print_table(callbacks, log)
-
-  previous_context = events.current_active_mod
-  events.current_active_mod = mod_id
+  local previous_context = ffi.C.ck_get_current_mod_id()
   ffi.C.ck_set_mod_context(mod_id)
   for index, callback in ipairs(callbacks) do
     local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)
@@ -70,8 +66,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
       log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
     end
   end
-  events.current_active_mod = previous_context
-  ffi.C.ck_set_mod_context("unknown")
+  ffi.C.ck_set_mod_context(previous_context)
 end
 
 function events.clear_for_mod(mod_id)

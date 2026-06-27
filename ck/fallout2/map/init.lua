@@ -12,7 +12,7 @@ ffi.cdef[[
   void ck_map_create_blocker(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
-  int  ck_map_register_object(int artId, int tile, const char* mod_id);
+  int  ck_map_register_object(int artId, int tile);
 
   void ck_rendering_clear();
   void ck_rendering_refresh();
@@ -44,16 +44,9 @@ map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.rendering_refresh = C.ck_rendering_refresh
 
-local core_events_cache = nil
 
 function map.register_object(value, tile)
-  if not core_events_cache then
-    core_events_cache = require('ck.system.events')
-  end
-
-  local mod_id = core_events_cache.current_active_mod or "unknown"
-
-  C.ck_map_register_object(value, tile, mod_id)
+  C.ck_map_register_object(value, tile)
 end
 
 function map.place(value, tile, config)

@@ -31,6 +31,7 @@ public:
 	void destroy_objects_for_mod(const char* target_mod_id);
 	int remove_by_ptr(fallout::Object* ptr);
 	void ck_set_mod_context(const char* mod_id);
+	const char* get_current_mod_id();
 
 	const CkManagedObject* get_managed(int lua_id) const;
 
@@ -51,5 +52,6 @@ private:
 extern CkObjectRegistry gObjectRegistry;
 
 CK_API void ck_set_mod_context(const char* mod_id);
+CK_API const char* ck_get_current_mod_id();
 
 #endif

@@ -107,9 +107,9 @@ void ck_map_create_object_fid(int fid, int tile) {
 	ck_object_create_at(fid, tile);
 }
 
-int ck_map_register_object(int artId, int tile, const char* mod_id) {
+int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	const LuaMeta& meta  = { {}, {}, (mod_id != nullptr ? std::string(mod_id) : std::string("unknown")) };
+	const LuaMeta& meta  = { {}, {}, (gObjectRegistry.current_mod_id) };
 
     return ck_object_register_object(fid, tile, meta);
 }
