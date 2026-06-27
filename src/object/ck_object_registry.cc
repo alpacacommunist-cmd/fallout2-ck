@@ -14,6 +14,10 @@ const LuaMeta* CkObjectRegistry::get_meta(int lua_id) const {
     return &it->second.meta;
 }
 
+void ck_set_mod_context(const char* mod_id) {
+	gObjectRegistry.current_mod_id = (mod_id != nullptr) ? std::string(mod_id) : std::string("unknown");
+}
+
 int CkObjectRegistry::add(fallout::Object* obj, const LuaMeta& meta) {
     int id = next_id++;
     objects[id] = { obj, id, true, meta };

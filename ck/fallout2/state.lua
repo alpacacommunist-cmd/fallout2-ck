@@ -35,6 +35,7 @@ local function serialize(val)
   return "nil"
 end
 
+
 -- global callbacks - onGameSave
 function ckOnGameSave(path)
   local current_map_id = map.get_id()
@@ -219,6 +220,12 @@ function state.get_stored_object_data(mod_id, map_id, tag)
   end
 
   return nil
+end
+
+function ckGetStoredTile(mod_id, map_id, tag)
+  data = state.get_stored_object_data(mod_id, map_id, tag)
+
+  if data then return data.tile else return -1 end
 end
 
 return state

@@ -1,5 +1,6 @@
 #include "ck_encoding.h"
 #include "ck_ids.h"
+#include "ck_utils.h"
 
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
@@ -7,9 +8,8 @@
 
 #include "stat.h"
 
-#include <iostream>
-#include <ostream>
-
+#include "ck_log.h"
+static const Logger log("CK Critter");
 
 namespace ck {
 
@@ -27,21 +27,26 @@ namespace ck {
 		return nullptr;
 	}
 
-	int register_critter(int pid, int tile, const char* tag, const char* mod_id) {
-		fallout::Object* critter = create_critter(pid, tile);
-		if (critter == nullptr) return -1;
+	CritterLua register_critter(int pid, int tile, const char* tag) {
+		std::string mod_id  = gObjectRegistry.current_mod_id;
+		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
+		int map_id          = fallout::mapGetCurrentMap();
+		int target_tile     = ck_call_lua_hook_with_return<int>("ckGetStoredTile", mod_id, map_id, lua_tag);
 
-		int lua_id    = -1;
-		LuaMeta meta = { critter->sid,
-			(tag != nullptr ? std::string(tag) : std::string()),
-			(mod_id != nullptr ? std::string(mod_id) : std::string("unknown")) };
+		if (target_tile != -1) tile = target_tile;
+
+		fallout::Object* critter = create_critter(pid, tile);
+		if (critter == nullptr) return { -1, gObjectRegistry.current_mod_id.c_str() };
+
+		int lua_id = -1;
+		LuaMeta meta = { critter->sid, lua_tag, mod_id };
 
 		lua_id = gObjectRegistry.add(critter, meta);
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
 
-		return lua_id;
+		return { lua_id, gObjectRegistry.current_mod_id.c_str() };
 	}
 
 	int critter_stat(fallout::Object* critter, int stat) {
@@ -89,8 +94,8 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
 	}
 }
 
-int ck_critter_register(int pid, int tile, const char* tag, const char* mod_id) {
-	return ck::register_critter(pid, tile, tag, mod_id);
+CritterLua ck_critter_register(int pid, int tile, const char* tag) {
+	return ck::register_critter(pid, tile, tag);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

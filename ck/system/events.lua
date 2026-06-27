@@ -5,6 +5,7 @@ local ffi = require("ffi")
 
 ffi.cdef[[
     void ck_registry_clear();
+    void ck_set_mod_context(const char* mod_id);
 ]]
 
 local objects = require('ck.fallout2.objects')
@@ -61,6 +62,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
 
   previous_context = events.current_active_mod
   events.current_active_mod = mod_id
+  ffi.C.ck_set_mod_context(mod_id)
   for index, callback in ipairs(callbacks) do
     local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)
 
@@ -69,6 +71,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
     end
   end
   events.current_active_mod = previous_context
+  ffi.C.ck_set_mod_context("unknown")
 end
 
 function events.clear_for_mod(mod_id)

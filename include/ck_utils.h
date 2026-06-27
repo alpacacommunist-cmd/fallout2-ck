@@ -45,8 +45,7 @@ bool ck_call_lua_hook(const char* hook_name, Args... args) {
 	int status = lua_pcall(gLuaState, args_count, 1, err_handler_idx);
 
 	if (status != LUA_OK) {
-		static const Logger c_log("CK Scripting");
-
+		static const Logger c_log("CK Utils");
 		c_log.error("Hook Error ({}):\n{}", hook_name, lua_tostring(gLuaState, -1));
 
 		lua_pop(gLuaState, 2);
@@ -55,6 +54,54 @@ bool ck_call_lua_hook(const char* hook_name, Args... args) {
 
 	bool result = lua_toboolean(gLuaState, -1);
 	lua_pop(gLuaState, 2);
+
+	return result;
+}
+
+template<typename ReturnType, typename... Args>
+ReturnType ck_call_lua_hook_with_return(const char* hook_name, Args... args) {
+	if (gLuaState == nullptr) return ReturnType{};
+
+	lua_getglobal(gLuaState, "debug");
+	lua_getfield(gLuaState, -1, "traceback");
+	lua_remove(gLuaState, -2);
+	int err_handler_idx = lua_gettop(gLuaState);
+
+	lua_getglobal(gLuaState, hook_name);
+
+	if (!lua_isfunction(gLuaState, -1)) {
+		lua_pop(gLuaState, 2);
+		return ReturnType{};
+	}
+
+	int args_count = sizeof...(Args);
+	lua_push_args(gLuaState, args...);
+
+	int status = lua_pcall(gLuaState, args_count, 1, err_handler_idx);
+
+	if (status != LUA_OK) {
+		static const Logger c_log("CK Utils");
+		c_log.error("Hook Error ({}):\n{}", hook_name, lua_tostring(gLuaState, -1));
+
+		lua_pop(gLuaState, 2);
+		return ReturnType{};
+	}
+
+	ReturnType result{};
+
+	if constexpr (std::is_same_v<ReturnType, int>) {
+		result = static_cast<int>(lua_tointeger(gLuaState, -1));
+	} else if constexpr (std::is_same_v<ReturnType, bool>) {
+		result = lua_toboolean(gLuaState, -1);
+	} else if constexpr (std::is_same_v<ReturnType, std::string>) {
+		if (lua_isstring(gLuaState, -1)) {
+			result = std::string(lua_tostring(gLuaState, -1));
+		}
+	} else if constexpr (std::is_floating_point_v<ReturnType>) {
+		result = static_cast<ReturnType>(lua_tonumber(gLuaState, -1));
+	}
+
+	lua_pop(gLuaState, 2); 
 
 	return result;
 }
