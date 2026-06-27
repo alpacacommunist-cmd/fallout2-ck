@@ -13,15 +13,20 @@ local state = {}
 local log   = ck.log.new('CK State')
 local utils = require('ck.system.utils')
 
-db = {
+local db = {
   global = {},
   maps   = {}
 }
 
-local last_save_path  = nil
 local tracked_objects = {}
 
-function ckOnGameSave(path)
+function ck_state_sync_load(loaded_db)
+  db = loaded_db or { global = {}, maps = {} }
+  db.global = db.global or {}
+  db.maps = db.maps or {}
+end
+
+function ck_state_sync_save()
   local current_map_id = map.get_id()
 
   if current_map_id ~= -1 then
@@ -29,29 +34,21 @@ function ckOnGameSave(path)
 
     for lua_id, entry in pairs(tracked_objects) do
       local tile = entry.object:tile()
+
       db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag].tile = tile
     end
   end
 
-  ffi.C.ck_state_save(path)
+  return db
 end
 
-function ckOnGameStateLoad(path)
-  log.info("Forwarding load to backend: " .. tostring(path))
+function ck_get_state_tile(mod_id, map_id, tag)
+  log.debug(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
+  data = state.get_stored_object_data(mod_id, map_id, tag)
 
-  local success = ffi.C.ck_state_load(path)
-
-  if success then
-    log.info("State database initialized successfully!")
-
-    db = _G.db or { global = {}, maps = {} }
-    db.global = db.global or {}
-    db.maps = db.maps or {}
-  else
-    log.error("PicoJSON backend failed to process state file!")
-  end
+  if data then return data.tile else return -1 end
 end
 
 function state.track(object_instance, options)
@@ -179,13 +176,6 @@ function state.get_stored_object_data(mod_id, map_id, tag)
   end
 
   return nil
-end
-
-function ckGetStoredTile(mod_id, map_id, tag)
-  log.info(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
-  data = state.get_stored_object_data(mod_id, map_id, tag)
-
-  if data then return data.tile else return -1 end
 end
 
 return state

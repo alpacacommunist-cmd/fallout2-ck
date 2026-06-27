@@ -35,13 +35,10 @@ bool is_number(const std::string& s) {
 }
 
 void picojson_to_lua(lua_State* L, const picojson::value& val) {
-	if (val.is<double>()) {
-		lua_pushnumber(L, val.get<double>());
-	} else if (val.is<bool>()) {
-		lua_pushboolean(L, val.get<bool>());
-	} else if (val.is<std::string>()) {
-		lua_pushstring(L, val.get<std::string>().c_str());
-	} else if (val.is<picojson::object>()) {
+	if (val.is<double>()) lua_pushnumber(L, val.get<double>());
+	else if (val.is<bool>()) lua_pushboolean(L, val.get<bool>());
+	else if (val.is<std::string>()) lua_pushstring(L, val.get<std::string>().c_str());
+	else if (val.is<picojson::object>()) {
 		lua_newtable(L);
 		const picojson::object& obj = val.get<picojson::object>();
 
@@ -100,8 +97,6 @@ bool ck_state_load(const char* path) {
 		state_log.warn("PicoJSON: No file found at: {}. Initializing empty _G.db", clean_path);
 		g_game_state = picojson::value(picojson::object());
 
-		lua_newtable(gLuaState);
-		lua_setglobal(gLuaState, "db");
 		return true;
 	}
 
@@ -110,48 +105,58 @@ bool ck_state_load(const char* path) {
 
 	std::string err;
 	picojson::parse(g_game_state, json_str.begin(), json_str.end(), &err);
-
-	if (!err.empty()) {
-		state_log.error("PicoJSON Parse Error: {}", err);
-		return false;
-	}
-
-	state_log.info("--- PicoJSON successfully parsed data from {} ---", clean_path);
-	dump_json_to_log(g_game_state);
-	state_log.info("-------------------------------------------------------");
+	if (!err.empty()) return false;
 
 	picojson_to_lua(gLuaState, g_game_state);
 
-	lua_setglobal(gLuaState, "db");
+	lua_getglobal(gLuaState, "ck_state_sync_load");
 
-	state_log.info("successfully injected state table into _G.db");
+	if (lua_isfunction(gLuaState, -1)) {
+		lua_insert(gLuaState, -2);
+
+		if (lua_pcall(gLuaState, 1, 0, 0) != LUA_OK) {
+			state_log.error("Lua Load Hook Error: {}", lua_tostring(gLuaState, -1));
+			lua_pop(gLuaState, 1);
+		}
+	} else {
+		lua_pop(gLuaState, 2);
+	}
+
 	return true;
 }
 
 void ck_state_save(const char* path) {
-    if (path == nullptr || gLuaState == nullptr) return;
+	if (path == nullptr || gLuaState == nullptr) return;
 
-    std::string clean_path(path);
-    for (char& c : clean_path) if (c == '\\') c = '/';
+	std::string clean_path(path);
+	for (char& c : clean_path) if (c == '\\') c = '/';
 
-    lua_getglobal(gLuaState, "db");
-    if (!lua_istable(gLuaState, -1)) {
-        state_log.error("PicoJSON Save: Global '_G.db' is not a valid Lua table!");
-        lua_pop(gLuaState, 1);
-        return;
-    }
+	lua_getglobal(gLuaState, "ck_state_sync_save");
 
-    picojson::value save_data = lua_to_picojson(gLuaState, -1);
-    lua_pop(gLuaState, 1);
+	if (!lua_isfunction(gLuaState, -1)) {
+		lua_pop(gLuaState, 1);
+		return;
+	}
 
-    std::ofstream file(clean_path);
-    if (!file.is_open()) {
-        state_log.error("PicoJSON: Failed to open file for writing: {}", clean_path);
-        return;
-    }
+	if (lua_pcall(gLuaState, 0, 1, 0) != LUA_OK) {
+		state_log.error("Lua Sync Hook Error: {}", lua_tostring(gLuaState, -1));
+		lua_pop(gLuaState, 1);
+		return;
+	}
 
-    file << save_data.serialize(true);
-    file.close();
+	if (!lua_istable(gLuaState, -1)) {
+		state_log.error("PicoJSON Save: Lua hook did not return a valid state table!");
+		lua_pop(gLuaState, 1);
+		return;
+	}
 
-    state_log.info("Game state successfully serialized and saved to: {}", clean_path);
+	picojson::value save_data = lua_to_picojson(gLuaState, -1);
+	lua_pop(gLuaState, 1);
+
+	std::ofstream file(clean_path);
+	if (file.is_open()) {
+		file << save_data.serialize(true);
+		file.close();
+		state_log.info("Game state successfully saved to: {}", clean_path);
+	}
 }

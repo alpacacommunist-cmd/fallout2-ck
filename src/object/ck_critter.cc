@@ -31,7 +31,7 @@ namespace ck {
 		std::string mod_id  = gObjectRegistry.current_mod_id;
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		int map_id          = fallout::mapGetCurrentMap();
-		int target_tile     = ck_call_lua_hook_with_return<int>("ckGetStoredTile", mod_id, map_id, lua_tag);
+		int target_tile     = ck_call_lua_hook_with_return<int>("ck_get_state_tile", mod_id, map_id, lua_tag);
 
 		if (target_tile != -1) tile = target_tile;
 
