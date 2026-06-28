@@ -9,6 +9,8 @@ struct CritterLua {
     const char* mod_id;
 };
 
+extern "C" const char* ck_get_current_mod_id();
+
 namespace fallout {
 	int mapGetCurrentMap();
 

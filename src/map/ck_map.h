@@ -7,6 +7,9 @@
 
 #include <string>
 
+extern "C" const char* ck_get_current_mod_id();
+void ck_dispatcher_on_map_enter();
+
 namespace ck {
 	void on_map_enter();
 	void on_before_map_enter();

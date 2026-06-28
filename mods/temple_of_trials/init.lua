@@ -65,6 +65,4 @@ events.on('onMapEnter', function()
   })
 
   map.place("temple_of_trials:scenery/tree10", 19094)
-
-  log.info("Temple of Trials loaded.")
 end)

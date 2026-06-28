@@ -28,7 +28,7 @@ namespace ck {
 	}
 
 	CritterLua register_critter(int pid, int tile, const char* tag) {
-		std::string mod_id  = gObjectRegistry.current_mod_id;
+		std::string mod_id  = ck_get_current_mod_id();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		int map_id          = fallout::mapGetCurrentMap();
 		int target_tile     = ck_call_lua_hook_with_return<int>("ck_get_state_tile", mod_id, map_id, lua_tag);
@@ -36,7 +36,7 @@ namespace ck {
 		if (target_tile != -1) tile = target_tile;
 
 		fallout::Object* critter = create_critter(pid, tile);
-		if (critter == nullptr) return { -1, gObjectRegistry.current_mod_id.c_str() };
+		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
 		int lua_id = -1;
 		LuaMeta meta = { critter->sid, lua_tag, mod_id };
@@ -46,7 +46,7 @@ namespace ck {
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
 
-		return { lua_id, gObjectRegistry.current_mod_id.c_str() };
+		return { lua_id, ck_get_current_mod_id() };
 	}
 
 	int critter_stat(fallout::Object* critter, int stat) {

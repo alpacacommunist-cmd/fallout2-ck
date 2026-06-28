@@ -4,13 +4,13 @@ local unpack = table.unpack or unpack
 local ffi = require("ffi")
 
 ffi.cdef[[
-    void ck_registry_clear();
-    void ck_set_mod_context(const char* mod_id);
+  void ck_dispatcher_emit(const char* event_name);
 ]]
+
 
 local objects = require('ck.fallout2.objects')
 local state   = require('ck.fallout2.state')
-local log     = ck.log.new('CK Events')
+local log     = ck.log.new('events.lua')
 local utils   = require('ck.system.utils')
 
 local events = {
@@ -23,7 +23,8 @@ local events = {
   },
 
   listeners = {},
-  current_active_mod = nil
+  map_update_interval  = 10,
+  last_update_time     = 0
 }
 
 function events.init_mod(mod_id)
@@ -57,8 +58,6 @@ function events.emit_for_mod(mod_id, event_name, ...)
 
   local args = { ... }
 
-  local previous_context = ffi.C.ck_get_current_mod_id()
-  ffi.C.ck_set_mod_context(mod_id)
   for index, callback in ipairs(callbacks) do
     local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)
 
@@ -66,7 +65,6 @@ function events.emit_for_mod(mod_id, event_name, ...)
       log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
     end
   end
-  ffi.C.ck_set_mod_context(previous_context)
 end
 
 function events.clear_for_mod(mod_id)
@@ -74,53 +72,9 @@ function events.clear_for_mod(mod_id)
   log.info("Cleared listeners for mod: " .. mod_id)
 end
 
-local MAP_UPDATE_INTERVAL  = 10
-local last_update_time = 0
-
--- Public mod API, mod gets sandboxed version from sandbox.lua
-function events.on(event_name, callback)
-end
-
-
-function ckOnGameStart()
-  events.emit('onGameStart')
-end
-
-function ckOnBeforeGameLoad()
-  events.emit('onBeforeGameLoad')
-end
-
-function ckOnGameLoaded()
-  log.info("last_update_time: " .. tostring(last_update_time))
-  last_update_time = 0
-
-  events.emit('onGameLoaded')
-end
-
-function ckOnDayPassed()
-  events.emit('onDayPassed')
-end
-
-function ckOnHourPassed()
-  events.emit('onHourPassed')
-end
-
-function ckOnMapEnter()
-  state.clear_tracked_objects() -- clears state-tracker
-  objects.clear_registry()      -- clears lua pointers
-  ffi.C.ck_registry_clear()     -- reset C registry
-
-  events.emit('onMapEnter')
-end
-
-function ckOnTimeAdvance(hours, minutes)
-  log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
-  events.emit('onTimeAdvance', hours, minutes)
-end
-
-function ckOnMapUpdate(ticks)
-  if (ticks - last_update_time) < MAP_UPDATE_INTERVAL then return end
-  last_update_time = ticks
+function events.ck_on_map_update(ticks)
+  if (ticks - events.last_update_time) < events.map_update_interval then return end
+  events.last_update_time = ticks
 
   for _, object in pairs(objects.registry) do
     if object._handle_map_update then
@@ -135,11 +89,47 @@ function ckOnMapUpdate(ticks)
   state.update_tracked_objects(ticks)
 end
 
-function ckOnProc(lua_id, proc_id)
+function events.ck_on_proc(lua_id, proc_id)
   local object = objects.registry[lua_id]
 
   if not object then return false end
   return object:_handle_proc(proc_id)
+end
+
+-- Public mod API, mod gets sandboxed version from sandbox.lua
+function events.on(event_name, callback)
+end
+
+function ckOnGameStart()
+  events.emit('onGameStart')
+end
+
+function ckOnBeforeGameLoad()
+  events.emit('onBeforeGameLoad')
+end
+
+function ckOnGameLoaded()
+  log.info("last_update_time: " .. tostring(last_update_time))
+  events.last_update_time = 0
+
+  events.emit('onGameLoaded')
+end
+
+function ckOnDayPassed()
+  events.emit('onDayPassed')
+end
+
+function ckOnHourPassed()
+  events.emit('onHourPassed')
+end
+
+function ckOnMapEnter()
+  -- events.emit('onMapEnter')
+end
+
+function ckOnTimeAdvance(hours, minutes)
+  log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
+  events.emit('onTimeAdvance', hours, minutes)
 end
 
 function ckOnObjectsDestroyed()

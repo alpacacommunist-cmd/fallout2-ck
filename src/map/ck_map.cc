@@ -16,7 +16,7 @@ namespace ck {
 		ck_map_clear_camera_borders();
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 
-		ck_call_lua_hook("ckOnMapEnter");
+		ck_dispatcher_on_map_enter();
 		ck_rendering_refresh();
 	}
 
@@ -109,7 +109,7 @@ void ck_map_create_object_fid(int fid, int tile) {
 
 int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	const LuaMeta& meta  = { {}, {}, (gObjectRegistry.current_mod_id) };
+	const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
 
     return ck_object_register_object(fid, tile, meta);
 }

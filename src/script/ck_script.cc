@@ -30,7 +30,7 @@ namespace ck {
 	}
 
 	void on_map_update(unsigned int ticks) {
-		ck_call_lua_hook("ckOnMapUpdate", ticks);
+		ck_dispatcher_on_map_update(ticks);
 	}
 
 	bool script_try_handle(int sid, int proc) {
@@ -42,7 +42,7 @@ namespace ck {
 		if (!managed) return false;
 
 		gDummyScript.scriptOverrides = 0;
-		bool handled_in_lua = ck_call_lua_hook("ckOnProc", lua_id, proc);
+		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, managed->meta.mod_id.c_str());
 
 		if (handled_in_lua) {
 			gDummyScript.scriptOverrides = 1;

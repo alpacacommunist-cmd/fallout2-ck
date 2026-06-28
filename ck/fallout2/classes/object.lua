@@ -44,9 +44,7 @@ function Object:emit(event_name, ...)
   if self.handlers[event_name] then
     local previous_context = ffi.C.ck_get_current_mod_id()
 
-    ffi.C.ck_set_mod_context(self.mod_id)
     local ok, err = xpcall(self.handlers[event_name], debug.traceback, self, ...)
-    ffi.C.ck_set_mod_context(previous_context)
 
     if not ok then
       log.error(string.format("in object '%s' on event '%s':\n%s", tostring(self.tag), event_name, err))

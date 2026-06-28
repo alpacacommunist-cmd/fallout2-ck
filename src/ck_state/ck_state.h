@@ -1,6 +1,6 @@
 // src/ck_state/ck_state.h
-#ifndef CK_SCRIPTING_MAP_H
-#define CK_SCRIPTING_MAP_H
+#ifndef CK_STATE_H
+#define CK_STATE_H
 
 #include "ck_api.h"
 

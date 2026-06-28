@@ -23,6 +23,7 @@
 #include "ck_assets/ck_proto_cache.h"
 
 #include "ck_state/ck_state.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 
 #include "display_monitor.h"
 #include "settings.h"
@@ -259,17 +260,14 @@ void ck_scripting_init() {
 			status = lua_pcall(gLuaState, 0, LUA_MULTRET, err_handler_idx);
 
 			if (status != LUA_OK) {
-				static const Logger c_log("CK Scripting");
-				c_log.error("Bootstrap Error:\n{}", lua_tostring(gLuaState, -1));
-
+				log.error("Bootstrap Error:\n{}", lua_tostring(gLuaState, -1));
 				lua_pop(gLuaState, 2);
 			} else {
+				ck_dispatcher_init(gLuaState);
 				lua_pop(gLuaState, 1);
 			}
 		} else {
-			static const Logger c_log("CK Scripting");
-			c_log.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
-
+			log.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
 			lua_pop(gLuaState, 1);
 		}
     } else {
@@ -283,6 +281,7 @@ void ck_on_scripts_reset() {
 
 // Exit
 void ck_scripting_exit() {
+	ck_dispatcher_shutdown();
     if (gLuaState != nullptr) {
         log.info("ck_scripting_exit");
         log.info("Shutting down LuaJIT backend...");
@@ -308,8 +307,7 @@ void ck_scripting_set_language() {
 
 // this is called from fallout2-ce once interface is ready
 void ck_scripting_on_game_start() {
-    log.debug("ck_scripting_on_game_start");
-	ck_call_lua_hook("ckOnGameStart");
+	ck_dispatcher_on_game_start();
 }
 
 void ck_scripting_on_engine_ready() {
@@ -330,9 +328,7 @@ void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
 void ck_scripting_on_game_loaded() {
-	log.info("ck_scripting_on_game_loaded");
-
-	ck_call_lua_hook("ckOnGameLoaded");
+	ck_dispatcher_on_game_loaded();
 }
 
 // loadsave.cc

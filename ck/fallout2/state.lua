@@ -10,7 +10,7 @@ local map = require('ck.fallout2.map')
 
 local state = {}
 
-local log   = ck.log.new('CK State')
+local log   = ck.log.new('state.lua')
 local utils = require('ck.system.utils')
 
 local db = {

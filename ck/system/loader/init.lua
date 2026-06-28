@@ -3,6 +3,11 @@ local ffi = require("ffi")
 
 ffi.cdef[[
   void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
+
+  void ck_dispatcher_register_mod(const char* mod_id);
+  void ck_dispatcher_remove_mod(const char* mod_id);
+  void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
+
   void ck_registry_clear();
 ]]
 
@@ -96,6 +101,8 @@ function loader.load_and_init_mod(mod_id)
     log.error("running mod '" .. mod_id .. "': " .. tostring(run_err))
   end
 
+  ffi.C.ck_dispatcher_register_mod(mod_id)
+
   return manifest
 end
 
@@ -112,6 +119,7 @@ function loader.reload_mods()
     state.clear_for_mod(mod_id)
 
     ffi.C.ck_registry_destroy_objects_for_mod(mod_id)
+    ffi.C.ck_dispatcher_remove_mod(mod_id)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
@@ -122,11 +130,11 @@ function loader.reload_mods()
   end
 
   for _, mod_id in ipairs(reloadable_mods) do
-    log.info("[CK Loader] Reloading: " .. mod_id)
+    log.info("Reloading: " .. mod_id)
     manifest = loader.load_and_init_mod(mod_id)
 
-    events.emit_for_mod(manifest.id, "onMapEnter")
-    events.emit_for_mod(manifest.id, "onModReload")
+    ffi.C.ck_dispatcher_emit_for_mod(manifest.id, "onMapEnter")
+    ffi.C.ck_dispatcher_emit_for_mod(manifest.id, "onModReload")
   end
 
   log.info("Reload complete!")
