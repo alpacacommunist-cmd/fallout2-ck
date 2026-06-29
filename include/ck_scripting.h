@@ -13,10 +13,8 @@ namespace fallout {
 
 	void tileWindowRefresh();
 	void animationStop();
+	void displayMonitorAddMessage(const char* str);
 }
-
-void ck_call_hook(const char* name);
-void ck_call_hook_int(const char* name, int arg);
 
 void ck_reload_mods();
 void ck_scripting_init();

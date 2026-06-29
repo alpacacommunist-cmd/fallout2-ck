@@ -23,6 +23,7 @@ add_library(fallout2-ck STATIC
     src/geometry/geometry.cc
     src/geometry/landscape.cc
 
+    src/ck_ffi_manifest.cc
     src/ck_scripting.cc
     src/ck_rendering.cc
     src/ck_log.cc
@@ -43,7 +44,8 @@ add_library(fallout2-ck STATIC
     src/script/ck_script.cc
     src/object/ck_object.cc
     src/object/ck_object_registry.cc
-    src/object/ck_critter.cc
+    src/object/critter/ck_critter.cc
+    src/object/critter/ck_stats.cc
     src/object/ck_item.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc

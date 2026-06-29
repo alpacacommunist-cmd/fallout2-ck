@@ -1,7 +1,6 @@
 #include "ck_ids.h"
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
-#include "object/ck_critter.h"
 #include "object/ck_item.h"
 
 #include "tile.h"
@@ -88,13 +87,6 @@ void ck_object_create_blocker_at(int tile) {
 }
 
 // ffi
-int player_stat(int stat) {
-	return ck::critter_stat(fallout::gDude, stat);
-}
-
-int player_pc_stat(int stat) {
-	return ck::critter_pc_stat(stat);
-}
 
 int ck_object_get_sid(int lua_id) {
 	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);

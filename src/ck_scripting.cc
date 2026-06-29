@@ -21,8 +21,9 @@
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
-#include "display_monitor.h"
 #include "settings.h"
+
+#include "object/critter/ck_stats.h"
 
 extern "C" {
 #include "../../src/vendor/luajit/src/lua.h"
@@ -123,8 +124,6 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     // save registry after each registration
     gMapRegistry.save("../ck_registry.json");
 }
-
-void ck_call_hook_int(const char* name, int arg);
 
 // l_ck_monitor_print -> ckMonitorPrint -> fallout2.monitor.print
 int l_ck_monitor_print(lua_State* L) {
@@ -311,40 +310,3 @@ void ck_scripting_on_game_save(const char* path) {
 	ck_state_save(path);
 }
 
-// loadsave.cc
-
-int ck_get_config_int(const char* key, int default_value) {
-    if (gLuaState == nullptr) return default_value;
-
-    // Search our global LUA function for managing configs
-    lua_getglobal(gLuaState, "ckOnGetConfig");
-
-    if (!lua_isfunction(gLuaState, -1)) {
-        lua_pop(gLuaState, 1); // clear stack if function not found
-        return default_value;
-    }
-
-    // Push arguments to stack
-    lua_pushstring(gLuaState, key);
-    lua_pushinteger(gLuaState, default_value);
-
-    // call function: 2 arguments, 1 return
-    int status = lua_pcall(gLuaState, 2, 1, 0);
-    if (status != 0) {
-        log.error("Config Error (Int): {}", lua_tostring(gLuaState, -1));
-        lua_pop(gLuaState, 1); // clears out an error
-        return default_value;
-    }
-
-    // Grab the result from stack
-    int result = default_value;
-    if (lua_isnumber(gLuaState, -1)) {
-        result = (int)lua_tointeger(gLuaState, -1);
-		log.info("Received new value for key {}: {}", key, result);
-    }
-
-    // clear out the stack
-    lua_pop(gLuaState, 1);
-
-    return result;
-}

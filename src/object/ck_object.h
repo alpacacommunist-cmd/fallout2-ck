@@ -1,6 +1,6 @@
 // src/object/ck_object.h
-#ifndef CK_SCRIPTING_OBJECT_H
-#define CK_SCRIPTING_OBJECT_H
+#ifndef CK_OBJECT_H
+#define CK_OBJECT_H
 
 #include "ck_api.h"
 #include "geometry/geometry.h"
@@ -25,7 +25,5 @@ void ck_object_create_blocker_at(int tile);
 CK_API int ck_object_get_tile(int lua_id);
 CK_API int ck_object_get_sid(int lua_id);
 CK_API void* ck_object_get_ptr(int lua_id);
-CK_API int player_stat(int stat);
-CK_API int player_pc_stat(int stat);
 
 #endif

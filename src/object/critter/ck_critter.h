@@ -32,11 +32,7 @@ namespace fallout {
 namespace ck {
 	fallout::Object* create_critter(int pid, int tile);
 	CritterLua register_critter(int pid, int tile, const char* tag);
-
-	int critter_stat(fallout::Object* critter, int stat);
-	int critter_pc_stat(int stat);
 }
-
 
 int ck_map_get_id();
 

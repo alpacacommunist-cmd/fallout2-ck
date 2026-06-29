@@ -3,9 +3,7 @@
 
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
-#include "object/ck_critter.h"
-
-#include "stat.h"
+#include "object/critter/ck_critter.h"
 
 #include "ck_log.h"
 static const Logger log("CK Critter");
@@ -46,14 +44,6 @@ namespace ck {
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
 
 		return { lua_id, ck_get_current_mod_id() };
-	}
-
-	int critter_stat(fallout::Object* critter, int stat) {
-		return fallout::critterGetStat(critter, stat);
-	}
-
-	int critter_pc_stat(int stat) {
-		return fallout::pcGetStat(stat);
 	}
 
 }
@@ -129,3 +119,4 @@ bool ck_critter_is_busy(void* ptr) {
 
 	return fallout::animationIsBusy(obj) == -1;
 }
+

@@ -1,6 +1,4 @@
 -- mods/arroyo_expanded/init.lua
-log.info("Loading Arroyo Expanded Mod...")
-
 local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
