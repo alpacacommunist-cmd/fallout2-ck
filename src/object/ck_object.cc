@@ -2,6 +2,7 @@
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
 #include "object/ck_critter.h"
+#include "object/ck_item.h"
 
 #include "tile.h"
 #include "proto.h"
@@ -115,5 +116,9 @@ int ck_object_get_tile(int lua_id) {
 	if (!managed || !managed->ptr) return -1;
 
 	return managed->ptr->tile;
+}
+
+bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
+	return ck::inventory_add(container_ptr, item_pid, count);
 }
 

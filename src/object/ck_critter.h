@@ -10,6 +10,7 @@ struct CritterLua {
 };
 
 extern "C" const char* ck_get_current_mod_id();
+int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 
 namespace fallout {
 	int mapGetCurrentMap();

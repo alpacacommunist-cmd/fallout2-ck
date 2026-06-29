@@ -1,4 +1,5 @@
 #include "ck_dispatcher.h"
+#include "ck_utils.h"
 
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
@@ -12,6 +13,7 @@ static int g_on_proc_ref       = LUA_NOREF;
 static int g_clear_tracked_objects_ref = LUA_NOREF;
 static int g_clear_registry_ref = LUA_NOREF;
 static int g_load_and_init_mod_ref = LUA_NOREF;
+static int g_get_state_tile_ref = LUA_NOREF;
 
 static std::vector<std::string> g_active_mods;
 static const char* g_current_mod_id = "unknown";
@@ -90,6 +92,7 @@ void ck_dispatcher_init(lua_State* L) {
 	g_on_map_update_ref         = cache_module_function(g_L, "ck.system.events", "ck_on_map_update");
 	g_on_proc_ref               = cache_module_function(g_L, "ck.system.events", "ck_on_proc");
 	g_clear_tracked_objects_ref = cache_module_function(g_L, "ck.fallout2.state",  "clear_tracked_objects");
+	g_get_state_tile_ref        = cache_module_function(g_L, "ck.fallout2.state", "get_state_tile");
 	g_clear_registry_ref        = cache_module_function(g_L, "ck.fallout2.objects", "clear_registry");
 
 	log.info("Dispatcher successfully initialized and cached Lua hooks.");
@@ -102,6 +105,8 @@ void ck_dispatcher_shutdown() {
 		if (g_on_proc_ref != LUA_NOREF)       luaL_unref(g_L, LUA_REGISTRYINDEX, g_on_proc_ref);
 		if (g_clear_tracked_objects_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_clear_tracked_objects_ref);
 		if (g_clear_registry_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_clear_registry_ref);
+		if (g_load_and_init_mod_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_load_and_init_mod_ref);
+		if (g_get_state_tile_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_get_state_tile_ref);
 
 
 		g_emit_for_mod_ref = LUA_NOREF;
@@ -109,10 +114,35 @@ void ck_dispatcher_shutdown() {
 		g_on_proc_ref = LUA_NOREF;
 		g_clear_tracked_objects_ref = LUA_NOREF;
 		g_clear_registry_ref = LUA_NOREF;
+		g_load_and_init_mod_ref = LUA_NOREF;
+		g_get_state_tile_ref = LUA_NOREF;
 	}
 
 	g_active_mods.clear();
 	g_L = nullptr;
+}
+
+template<typename ReturnType, typename... Args>
+ReturnType ck_dispatcher_call(int func_ref, Args... args) {
+	if (!g_L || func_ref == LUA_NOREF) return ReturnType{};
+
+	lua_rawgeti(g_L, LUA_REGISTRYINDEX, func_ref);
+	(lua_push_arg(g_L, args), ...);
+
+	int total_args = sizeof...(Args);
+	if (!safe_pcall_with_traceback(g_L, total_args, 1)) {
+		log.error("Runtime error during dispatcher call");
+		lua_pop(g_L, 1);
+		return ReturnType{};
+	}
+
+	ReturnType result{};
+	if constexpr (std::is_same_v<ReturnType, int>) result = static_cast<int>(lua_tointeger(g_L, -1));
+	else if constexpr (std::is_same_v<ReturnType, bool>) result = lua_toboolean(g_L, -1);
+	else if constexpr (std::is_same_v<ReturnType, std::string>) { if (lua_isstring(g_L, -1)) result = lua_tostring(g_L, -1); }
+
+	lua_pop(g_L, 1);
+	return result;
 }
 
 template<typename... Args>
@@ -205,6 +235,10 @@ void ck_dispatcher_on_map_enter() {
 
 // ffi
 
+int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag) {
+	return ck_dispatcher_call<int>(g_get_state_tile_ref, g_current_mod_id, map_id, lua_tag);
+}
+
 bool ck_dispatcher_load_mod(const char* mod_id) {
 	log.info("mod_id: {}", mod_id);
 	if (!g_L || g_load_and_init_mod_ref == LUA_NOREF || !mod_id) return false;
@@ -238,19 +272,6 @@ bool ck_dispatcher_load_mod(const char* mod_id) {
 
 	ck_set_mod_context(previous_context.c_str());
 	return true;
-}
-
-void ck_dispatcher_register_mod(const char* mod_id) {
-	if (mod_id) g_active_mods.push_back(mod_id);
-}
-
-void ck_dispatcher_remove_mod(const char* mod_id) {
-	if (!mod_id) return;
-
-	std::string target_mod(mod_id);
-	std::erase(g_active_mods, std::string(mod_id));
-
-	log.info("Removed mod from dispatcher: {}", mod_id);
 }
 
 const char* ck_get_current_mod_id() {

@@ -26,9 +26,9 @@ void ck_dispatcher_on_time_advance(int hours, int minutes);
 void ck_dispatcher_on_map_update(int ticks);
 bool ck_dispatcher_on_proc(int lua_id, int proc_id, const char* object_mod_id);
 
+int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
+
 CK_API bool ck_dispatcher_load_mod(const char* mod_id);
-CK_API void ck_dispatcher_register_mod(const char* mod_id);
-CK_API void ck_dispatcher_remove_mod(const char* mod_id);
 CK_API const char* ck_get_current_mod_id();
 CK_API void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 

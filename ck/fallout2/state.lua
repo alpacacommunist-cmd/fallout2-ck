@@ -44,12 +44,6 @@ function ck_state_sync_save()
   return db
 end
 
-function ck_get_state_tile(mod_id, map_id, tag)
-  log.debug(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
-  data = state.get_stored_object_data(mod_id, map_id, tag)
-
-  if data then return data.tile else return -1 end
-end
 
 function state.track(object_instance, options)
   options = options or {}
@@ -177,5 +171,13 @@ function state.get_stored_object_data(mod_id, map_id, tag)
 
   return nil
 end
+
+function state.get_state_tile(mod_id, map_id, tag)
+  log.debug(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
+  data = state.get_stored_object_data(mod_id, map_id, tag)
+
+  if data then return data.tile else return -1 end
+end
+
 
 return state

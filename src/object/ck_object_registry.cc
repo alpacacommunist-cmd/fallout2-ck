@@ -90,27 +90,6 @@ int CkObjectRegistry::find_by_ptr(fallout::Object* ptr) const {
     return -1;
 }
 
-void CkObjectRegistry::destroy_all() {
-    int count = 0;
-
-    for (auto& [id, managed] : objects) {
-		if (managed.ptr == nullptr || !managed.alive) continue;
-
-		ck::clear_inventory(managed.ptr);
-        fallout::objectDestroy(managed.ptr, nullptr);
-
-        managed.alive = false;
-		managed.ptr = nullptr;
-        count++;
-    }
-
-    objects.clear();
-    next_id = 1;
-
-	if (count > 0 ) log.info("Destroyed {} managed objects", count);
-	ck_call_lua_hook("ckOnObjectsDestroyed");
-}
-
 void CkObjectRegistry::clear() {
     objects.clear();
     next_id = 1;

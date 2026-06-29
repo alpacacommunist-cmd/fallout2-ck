@@ -13,6 +13,7 @@ namespace fallout {
 
 namespace ck {
 	void clear_inventory(fallout::Object* object);
+	bool inventory_add(void* container_ptr, int item_pid, int count);
 }
 
 CK_API bool ck_inventory_add(void* container_ptr, int item_pid, int count);
