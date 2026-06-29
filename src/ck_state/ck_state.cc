@@ -1,10 +1,14 @@
 #include "picojson.h"
-#include "ck_utils.h"
 #include "ck_state/ck_state.h"
+#include "ck_utils.h"
 
 #include <fstream>
 #include <string>
 #include <algorithm>
+
+extern "C" {
+#include "../../src/vendor/luajit/src/lauxlib.h"
+}
 
 static picojson::value g_game_state;
 
@@ -107,20 +111,17 @@ bool ck_state_load(const char* path) {
 	picojson::parse(g_game_state, json_str.begin(), json_str.end(), &err);
 	if (!err.empty()) return false;
 
-	picojson_to_lua(gLuaState, g_game_state);
+	int func_ref = ck_dispatcher_get_sync_load_ref();
+    if (func_ref == LUA_NOREF) return false;
 
-	lua_getglobal(gLuaState, "ck_state_sync_load");
+    lua_rawgeti(gLuaState, LUA_REGISTRYINDEX, func_ref);
+    picojson_to_lua(gLuaState, g_game_state);
 
-	if (lua_isfunction(gLuaState, -1)) {
-		lua_insert(gLuaState, -2);
-
-		if (lua_pcall(gLuaState, 1, 0, 0) != LUA_OK) {
-			state_log.error("Lua Load Hook Error: {}", lua_tostring(gLuaState, -1));
-			lua_pop(gLuaState, 1);
-		}
-	} else {
-		lua_pop(gLuaState, 2);
-	}
+    if (!safe_pcall_with_traceback(gLuaState, 1, 0)) {
+        state_log.error("Lua Load Hook Error: {}", lua_tostring(gLuaState, -1));
+        lua_pop(gLuaState, 1);
+        return false;
+    }
 
 	return true;
 }
@@ -131,14 +132,11 @@ void ck_state_save(const char* path) {
 	std::string clean_path(path);
 	for (char& c : clean_path) if (c == '\\') c = '/';
 
-	lua_getglobal(gLuaState, "ck_state_sync_save");
+	int func_ref = ck_dispatcher_get_sync_save_ref();
+	if (func_ref == LUA_NOREF) return;
 
-	if (!lua_isfunction(gLuaState, -1)) {
-		lua_pop(gLuaState, 1);
-		return;
-	}
-
-	if (lua_pcall(gLuaState, 0, 1, 0) != LUA_OK) {
+	lua_rawgeti(gLuaState, LUA_REGISTRYINDEX, func_ref);
+	if (!safe_pcall_with_traceback(gLuaState, 0, 1)) {
 		state_log.error("Lua Sync Hook Error: {}", lua_tostring(gLuaState, -1));
 		lua_pop(gLuaState, 1);
 		return;

@@ -20,13 +20,13 @@ local db = {
 
 local tracked_objects = {}
 
-function ck_state_sync_load(loaded_db)
+function state.sync_load(loaded_db)
   db = loaded_db or { global = {}, maps = {} }
   db.global = db.global or {}
   db.maps = db.maps or {}
 end
 
-function ck_state_sync_save()
+function state.sync_save()
   local current_map_id = map.get_id()
 
   if current_map_id ~= -1 then
@@ -43,7 +43,6 @@ function ck_state_sync_save()
 
   return db
 end
-
 
 function state.track(object_instance, options)
   options = options or {}

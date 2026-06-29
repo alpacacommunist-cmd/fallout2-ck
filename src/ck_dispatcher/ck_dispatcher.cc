@@ -14,6 +14,8 @@ static int g_clear_tracked_objects_ref = LUA_NOREF;
 static int g_clear_registry_ref = LUA_NOREF;
 static int g_load_and_init_mod_ref = LUA_NOREF;
 static int g_get_state_tile_ref = LUA_NOREF;
+static int g_state_sync_load_ref = LUA_NOREF;
+static int g_state_sync_save_ref = LUA_NOREF;
 
 static std::vector<std::string> g_active_mods;
 static const char* g_current_mod_id = "unknown";
@@ -93,6 +95,8 @@ void ck_dispatcher_init(lua_State* L) {
 	g_on_proc_ref               = cache_module_function(g_L, "ck.system.events", "ck_on_proc");
 	g_clear_tracked_objects_ref = cache_module_function(g_L, "ck.fallout2.state",  "clear_tracked_objects");
 	g_get_state_tile_ref        = cache_module_function(g_L, "ck.fallout2.state", "get_state_tile");
+	g_state_sync_save_ref       = cache_module_function(g_L, "ck.fallout2.state", "sync_save");
+	g_state_sync_load_ref       = cache_module_function(g_L, "ck.fallout2.state", "sync_load");
 	g_clear_registry_ref        = cache_module_function(g_L, "ck.fallout2.objects", "clear_registry");
 
 	log.info("Dispatcher successfully initialized and cached Lua hooks.");
@@ -107,6 +111,8 @@ void ck_dispatcher_shutdown() {
 		if (g_clear_registry_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_clear_registry_ref);
 		if (g_load_and_init_mod_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_load_and_init_mod_ref);
 		if (g_get_state_tile_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_get_state_tile_ref);
+		if (g_state_sync_load_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_state_sync_load_ref);
+		if (g_state_sync_save_ref != LUA_NOREF) luaL_unref(g_L, LUA_REGISTRYINDEX, g_state_sync_save_ref);
 
 
 		g_emit_for_mod_ref = LUA_NOREF;
@@ -116,6 +122,8 @@ void ck_dispatcher_shutdown() {
 		g_clear_registry_ref = LUA_NOREF;
 		g_load_and_init_mod_ref = LUA_NOREF;
 		g_get_state_tile_ref = LUA_NOREF;
+		g_state_sync_save_ref = LUA_NOREF;
+		g_state_sync_load_ref = LUA_NOREF;
 	}
 
 	g_active_mods.clear();
@@ -232,6 +240,9 @@ void ck_dispatcher_on_map_enter() {
 
 	ck_dispatcher_emit("onMapEnter");
 }
+
+int ck_dispatcher_get_sync_load_ref() { return g_state_sync_load_ref; }
+int ck_dispatcher_get_sync_save_ref() { return g_state_sync_save_ref; }
 
 // ffi
 
