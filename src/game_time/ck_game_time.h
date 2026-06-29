@@ -4,6 +4,9 @@
 
 #include "ck_api.h"
 
+void ck_dispatcher_on_day_passed();
+void ck_dispatcher_on_time_advance(int hours, int minutes);
+
 namespace ck {
 	void on_day_passed();
 	void on_after_rest(int hours, int minutes);

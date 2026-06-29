@@ -7,7 +7,7 @@
 namespace ck {
 
 	void on_day_passed() {
-		ck_call_lua_hook("ckOnDayPassed");
+		ck_dispatcher_on_day_passed();
 	}
 
 	// just in case
@@ -16,7 +16,7 @@ namespace ck {
 	}
 
 	void on_time_advance(int hours, int minutes) {
-		ck_call_lua_hook("ckOnTimeAdvance", hours, minutes);
+		ck_dispatcher_on_time_advance(hours, minutes);
 	}
 
 }

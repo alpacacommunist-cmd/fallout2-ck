@@ -53,12 +53,29 @@ static void clear_lua_registry(int ref, const char* name) {
     }
 }
 
-static void invoke_lua_emit(const char* mod_id, const char* event_name) {
+static void lua_push_arg(lua_State* L, int val) { lua_pushinteger(L, val); }
+static void lua_push_arg(lua_State* L, unsigned int val) { lua_pushinteger(L, val); }
+static void lua_push_arg(lua_State* L, double val) { lua_pushnumber(L, val); }
+static void lua_push_arg(lua_State* L, const char* val) { lua_pushstring(L, val); }
+static void lua_push_arg(lua_State* L, const std::string& val) { lua_pushstring(L, val.c_str()); }
+static void lua_push_arg(lua_State* L, bool val) { lua_pushboolean(L, val); }
+
+template<typename... Args>
+static void lua_push_args_chain(lua_State* L, Args... args) {
+    (lua_push_arg(L, args), ...);
+}
+
+template<typename... Args>
+static void invoke_lua_emit(const char* mod_id, const char* event_name, Args... args) {
     lua_rawgeti(g_L, LUA_REGISTRYINDEX, g_emit_for_mod_ref);
     lua_pushstring(g_L, mod_id);
     lua_pushstring(g_L, event_name);
 
-    if (lua_pcall(g_L, 2, 0, 0) != LUA_OK) {
+    lua_push_args_chain(g_L, args...);
+
+    int total_args = 2 + sizeof...(Args);
+
+    if (lua_pcall(g_L, total_args, 0, 0) != LUA_OK) {
         log.error("Error routing event '{}:{}': {}", mod_id, event_name, lua_tostring(g_L, -1));
         lua_pop(g_L, 1);
     }
@@ -97,7 +114,8 @@ void ck_dispatcher_shutdown() {
 	g_L = nullptr;
 }
 
-void ck_dispatcher_emit(const char* event_name) {
+template<typename... Args>
+void ck_dispatcher_emit(const char* event_name, Args... args) {
 	if (!g_L || g_emit_for_mod_ref == LUA_NOREF || !event_name) return;
 
 	std::string previous_context = g_current_mod_id;
@@ -106,7 +124,8 @@ void ck_dispatcher_emit(const char* event_name) {
 		log.info("Emit event {} for {}", event_name, mod_id);
 
 		ck_set_mod_context(mod_id.c_str());
-		invoke_lua_emit(mod_id.c_str(), event_name);
+
+		invoke_lua_emit(mod_id.c_str(), event_name, args...);
 	}
 
 	ck_set_mod_context(previous_context.c_str());
@@ -163,6 +182,14 @@ void ck_dispatcher_on_game_loaded() {
 	log.debug("ck_dispatcher_on_game_loaded");
 	ck_dispatcher_emit("onGameLoaded");
 }
+
+void ck_dispatcher_on_time_advance(int hours, int minutes) {
+	ck_dispatcher_emit("onTimeAdvance", hours, minutes);
+};
+
+void ck_dispatcher_on_day_passed() {
+	ck_dispatcher_emit("onDayPassed");
+};
 
 void ck_dispatcher_on_map_enter() {
 	log.debug("ck_dispatcher_on_map_enter");

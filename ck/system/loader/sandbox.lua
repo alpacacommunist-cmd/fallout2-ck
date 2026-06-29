@@ -12,7 +12,7 @@ function M.create_env(mod_folder, manifest_table)
   env.__manifest = manifest_table
   env.__mod_id   = manifest_table.id
 
-  env.log = ck.log.new(manifest_table.name)
+  env.log = ck.log.new("MOD: " .. manifest_table.name)
 
   ---------------------------------------------------------------
   ------ require

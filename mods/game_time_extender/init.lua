@@ -33,5 +33,5 @@ events.on('onDayPassed', function()
 end)
 
 events.on('onTimeAdvance', function(hours, minutes)
-  log.print("[MOD Lua] Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
+  log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
 end)

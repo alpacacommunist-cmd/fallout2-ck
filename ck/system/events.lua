@@ -100,39 +100,4 @@ end
 function events.on(event_name, callback)
 end
 
-function ckOnGameStart()
-  events.emit('onGameStart')
-end
-
-function ckOnBeforeGameLoad()
-  events.emit('onBeforeGameLoad')
-end
-
-function ckOnGameLoaded()
-  log.info("last_update_time: " .. tostring(last_update_time))
-  events.last_update_time = 0
-
-  events.emit('onGameLoaded')
-end
-
-function ckOnDayPassed()
-  events.emit('onDayPassed')
-end
-
-function ckOnHourPassed()
-  events.emit('onHourPassed')
-end
-
-function ckOnMapEnter()
-  -- events.emit('onMapEnter')
-end
-
-function ckOnTimeAdvance(hours, minutes)
-  log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
-  events.emit('onTimeAdvance', hours, minutes)
-end
-
-function ckOnObjectsDestroyed()
-end
-
 return events
