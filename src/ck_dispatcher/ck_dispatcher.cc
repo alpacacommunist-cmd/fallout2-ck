@@ -17,6 +17,10 @@ static int g_get_state_tile_ref = LUA_NOREF;
 static int g_state_sync_load_ref = LUA_NOREF;
 static int g_state_sync_save_ref = LUA_NOREF;
 
+// map update intervals
+static int g_last_update_ticks = 0;
+static const int MAP_UPDATE_INTERVAL_TICKS = 10;
+
 static std::vector<std::string> g_active_mods;
 static const char* g_current_mod_id = "unknown";
 
@@ -173,6 +177,9 @@ void ck_dispatcher_emit(const char* event_name, Args... args) {
 void ck_dispatcher_on_map_update(int ticks) {
 	if (!g_L || g_on_map_update_ref == LUA_NOREF) return;
 
+	if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
+	g_last_update_ticks = ticks;
+
 	lua_rawgeti(g_L, LUA_REGISTRYINDEX, g_on_map_update_ref);
 
 	lua_pushinteger(g_L, ticks);
@@ -237,6 +244,8 @@ void ck_dispatcher_on_map_enter() {
 
 	clear_lua_registry(g_clear_tracked_objects_ref, "state.clear_tracked_objects");
 	clear_lua_registry(g_clear_registry_ref, "objects.clear_registry");
+
+	g_last_update_ticks = 0;
 
 	ck_dispatcher_emit("onMapEnter");
 }

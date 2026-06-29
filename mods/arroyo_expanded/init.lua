@@ -11,8 +11,6 @@ local behaviors   = require('ck.fallout2.behaviors')
 local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
 
-local log   = ck.log.new('Arroyo Expanded')
-
 events.on('onGameLoaded', function()
 end)
 
@@ -41,11 +39,6 @@ events.on('onMapEnter', function()
   state.track(alice, { save_interval_seconds = 5 })
 
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
-
-  log.debug("NPC ID: " .. tostring(alice.id))
-  log.debug("Alice tile: " .. alice:tile())
-  log.debug("Alice sid: " .. alice.sid)
-  log.debug("Alice tag: " .. alice.tag)
 
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)

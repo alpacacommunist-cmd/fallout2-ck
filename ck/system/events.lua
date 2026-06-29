@@ -1,17 +1,9 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
 
-local ffi = require("ffi")
-
-ffi.cdef[[
-  void ck_dispatcher_emit(const char* event_name);
-]]
-
-
 local objects = require('ck.fallout2.objects')
 local state   = require('ck.fallout2.state')
 local log     = ck.log.new('events.lua')
-local utils   = require('ck.system.utils')
 
 local events = {
   -- listeners stack
@@ -73,9 +65,6 @@ function events.clear_for_mod(mod_id)
 end
 
 function events.ck_on_map_update(ticks)
-  if (ticks - events.last_update_time) < events.map_update_interval then return end
-  events.last_update_time = ticks
-
   for _, object in pairs(objects.registry) do
     if object._handle_map_update then
       local success, err = pcall(object._handle_map_update, object, ticks)
