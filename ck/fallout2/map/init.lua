@@ -54,7 +54,7 @@ function map.place(value, tile, config)
   local mode = config.mode or "place"
 
   local asset = (type(value) == "string") and map.assets.resolve(value) or nil
-  local is_tile = (config.type == "tile") or (asset and asset.isTile)
+  local is_tile = (config.type == "tile") or (asset and asset.is_tile)
 
   -- render
   if mode == "draw" or is_tile then
@@ -67,8 +67,8 @@ function map.place(value, tile, config)
   else
     if type(value) == "number" then
       map.register_object(value, tile)
-    elseif asset and asset.artId then
-      map.register_object(asset.artId, tile)
+    elseif asset and asset.art_id then
+      map.register_object(asset.art_id, tile)
     else
       map.add_scenery_key(value, tile)
     end

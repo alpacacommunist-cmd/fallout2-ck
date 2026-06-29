@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cstring>
 #include <algorithm>
 #include <format>
@@ -11,9 +10,6 @@
 #include "ce_config/ck_message_patch.h"
 #include "ce_config/ck_map_registry.h"
 #include "ce_config/ck_map_patch.h"
-
-// bindings
-#include "ck_assets/assets_bindings.h"
 
 #include "game_time/ck_game_time.h"
 #include "object/ck_object_registry.h"
@@ -241,12 +237,9 @@ void ck_scripting_init() {
     lua_newtable(gLuaState);
     lua_setglobal(gLuaState, "ck");
 
-    for (const char* subtable : {"rendering", "game_time", "dialogue", "map"}) {
+    for (const char* subtable : {"assets", "rendering", "game_time", "dialogue", "map"}) {
         ck_create_global_subtable("ck", subtable);
     }
-
-    ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
-    lua_pop(gLuaState, 1);
 
 	lua_pushvalue(gLuaState, LUA_GLOBALSINDEX);
     luaL_setfuncs(gLuaState, CK_GLOBAL_FUNCTIONS, 0);
@@ -369,7 +362,7 @@ int ck_get_config_int(const char* key, int default_value) {
     // call function: 2 arguments, 1 return
     int status = lua_pcall(gLuaState, 2, 1, 0);
     if (status != 0) {
-        std::cerr << "[CK] Config Error (Int): " << lua_tostring(gLuaState, -1) << std::endl;
+        log.error("Config Error (Int): {}", lua_tostring(gLuaState, -1));
         lua_pop(gLuaState, 1); // clears out an error
         return default_value;
     }

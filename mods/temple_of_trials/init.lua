@@ -1,7 +1,5 @@
 -- mods/temple_of_trials/init.lua
 
-log.info("Loading Temple of Trials...")
-
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 local critters  = require('ck.fallout2.objects.critters')
@@ -42,6 +40,8 @@ events.on('onMapEnter', function()
     rotation = 1,
     style = 2
   })
+
+  local asset = assets.resolve('temple_of_trials:scenery/tree10')
 
   map.batch.scenery(outskirts.mountain_scenery)
   map.batch.tiles(outskirts.mountain_tiles)

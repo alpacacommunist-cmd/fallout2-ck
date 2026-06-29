@@ -175,7 +175,7 @@ static void ck_rendering_tiles(fallout::Rect* rect) {
         tileToScreenXY(tileInstance.tile, &screenX, &screenY);
 
 		if (tileInstance.isCustomAsset()) {
-			CkFrm* frm = ck_assets_resolve(gAssetRegistry, tileInstance.assetKey);
+			CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, tileInstance.assetKey);
 			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
 			continue;
 		}
@@ -191,7 +191,7 @@ static void ck_rendering_scenery(fallout::Rect* rect) {
         tileToScreenXY(scenery.tile, &screenX, &screenY);
 
 		if (scenery.isCustomAsset()) {
-			CkFrm* frm = ck_assets_resolve(gAssetRegistry, scenery.assetKey);
+			CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, scenery.assetKey);
 			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
 			continue;
 		}

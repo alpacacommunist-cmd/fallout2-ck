@@ -1,5 +1,9 @@
 #include "ck_assets/ck_asset_registry.h"
-#include <iostream>
+
+extern CkAssetRegistry gAssetRegistry;
+
+#include "ck_log.h"
+static const Logger log("CK Assets");
 
 // breaks "temple_of_trials:scenery/tree10" -> { "temple_of_trials", "scenery/tree10" }
 // returns false if format's wrong
@@ -22,15 +26,8 @@ static int ck_assets_obj_type(const std::string& name) {
     return -1;
 }
 
-void ck_assets_register_mod(CkAssetRegistry& reg, const std::string& modId, const std::string& basePath) {
-	std::string normalizedId = modId;
-	for (char& c : normalizedId) c = tolower(c);
 
-    reg.modPaths[normalizedId] = basePath;
-    std::cout << "[CK Assets] Registered mod: " << normalizedId << " -> " << basePath << std::endl;
-}
-
-CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
+CkFrm* ck_assets_resolve_frm(CkAssetRegistry& reg, const std::string& key) {
 	std::string normalizedKey = key;
     for (char& c : normalizedKey) c = tolower(c);
 
@@ -43,13 +40,13 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
 
     std::string modId, assetPath;
     if (!split_key(normalizedKey, modId, assetPath)) {
-        std::cerr << "[CK Assets] Bad key format: " << normalizedKey << std::endl;
+        log.error("Bad key format: {}", normalizedKey);
         return nullptr;
     }
 
     auto modIt = reg.modPaths.find(modId);
     if (modIt == reg.modPaths.end()) {
-        std::cerr << "[CK Assets] Unknown mod: " << modId << std::endl;
+        log.error("Unknown mod: {}", modId);
         return nullptr;
     }
 
@@ -78,7 +75,7 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
 
 				asset.pid   = (objectType << 24) | artId;
 
-				std::cout << "[CK Assets] Found art: " << artId << " -> " << artName.c_str() << std::endl;
+				log.info("Found art: {} -> {}", artId, artName.c_str());
 			} else {
 				asset.lookupFailed = true;
 			}
@@ -93,6 +90,14 @@ CkFrm* ck_assets_resolve(CkAssetRegistry& reg, const std::string& key) {
     return &reg.assets[normalizedKey].frm;
 }
 
+void ck_assets_register_mod(CkAssetRegistry& reg, const std::string& modId, const std::string& basePath) {
+	std::string normalizedId = modId;
+	for (char& c : normalizedId) c = tolower(c);
+
+    reg.modPaths[normalizedId] = basePath;
+    log.info("Registered mod: {} -> {}", normalizedId, basePath);
+}
+
 void ck_assets_unload_mod(CkAssetRegistry& reg, const std::string& modId) {
     // clear mods assets
     auto it = reg.assets.begin();
@@ -105,10 +110,43 @@ void ck_assets_unload_mod(CkAssetRegistry& reg, const std::string& modId) {
     }
 
     reg.modPaths.erase(modId);
-    std::cout << "[CK Assets] Unloaded mod: " << modId << std::endl;
+    log.info("Unloaded mod: {}", modId);
+}
+
+CkAssetFFI ck_assets_resolve_asset(CkAssetRegistry& reg, const char* key) {
+    CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, key);
+
+    auto it = gAssetRegistry.assets.find(key);
+    if  (it == gAssetRegistry.assets.end()) return CkAssetFFI{};
+
+    const CkAsset& asset = it->second;
+
+	return { asset.frm.valid, asset.artId, asset.fid, asset.pid, asset.objectType,
+		asset.objectType == fallout::OBJ_TYPE_TILE, asset.lookupFailed };
 }
 
 void ck_assets_clear(CkAssetRegistry& reg) {
     reg.assets.clear();
     reg.modPaths.clear();
 }
+
+// ffi
+//
+
+void ck_assets_register(const char* mod_id, const char* base_path) {
+    ck_assets_register_mod(gAssetRegistry, mod_id, std::string("../") + base_path);
+}
+
+CkAssetFFI ck_assets_resolve(const char* key) {
+	return ck_assets_resolve_asset(gAssetRegistry, key);
+}
+
+const char* ck_asset_file_path(const char* key) {
+	std::string normalized_key = key;
+    for (char& c : normalized_key) c = tolower(c);
+
+    auto it = gAssetRegistry.assets.find(normalized_key);
+    if (it != gAssetRegistry.assets.end()) return it->second.filePath.c_str();
+    return nullptr;
+}
+
