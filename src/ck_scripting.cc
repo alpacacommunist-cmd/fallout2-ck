@@ -39,38 +39,6 @@ CkMapRegistry gMapRegistry;
 // lua state global pointer, lives as long as game lives
 lua_State* gLuaState = nullptr;
 
-static void ck_requiref(lua_State* L, const char* modname, lua_CFunction openf, int gl) {
-    lua_pushcfunction(L, openf);
-    lua_pushstring(L, modname); // push modname as argument for openf
-    // call openf(modname). returns module table on stck
-    lua_call(L, 1, 1);
-
-	// package.loaded
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "loaded"); // stack: [module, package, loaded]
-
-	// package.loaded[modname] = module
-	lua_pushvalue(L, -3);
-	lua_setfield(L, -2, modname);
-
-	// -package -loaded
-	lua_pop(L, 2); // stack: [module]
-
-	// if gl == true register module as global in ck
-	if (gl) {
-		lua_getglobal(L, "ck"); // stack: [module, ck]
-
-		// name after dot
-		const char* dot = strchr(modname, '.');
-		const char* subname = dot ? dot + 1 : modname;
-
-		lua_pushvalue(L, -2); // copy module on top of stack
-		lua_setfield(L, -2, subname); // ck[subname] = module
-
-		lua_pop(L, 1); // -ck
-	}
-}
-
 void ck_scripting_register_location(const std::string& modId, const std::string& mapsDir,
         const std::string& name, const std::string& subName, const std::string& mapFile,
         const std::string& music, int worldX, int worldY, const std::string& size,
@@ -279,6 +247,7 @@ void ck_on_scripts_reset() {
 // Exit
 void ck_scripting_exit() {
 	ck_dispatcher_shutdown();
+
     if (gLuaState != nullptr) {
         log.info("ck_scripting_exit");
         log.info("Shutting down LuaJIT backend...");
