@@ -11,11 +11,11 @@ ffi.cdef[[
   bool ck_critter_is_busy(void* ptr);
 ]]
 
-local log = ck.log.new('classes/critter')
+local log = ck.log.new('classes/critter.lua')
 
 local dialogue  = require('ck.fallout2.dialogue')
 local monitor   = require('ck.fallout2.monitor')
-local behaviors = require('ck.fallout2.behaviors')
+local behaviors = require('ck.fallout2.objects.critters.behaviors')
 
 local Object = require("ck.fallout2.classes.object")
 

@@ -7,7 +7,7 @@ local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
 local state       = require('ck.fallout2.state')
 local player      = require('ck.fallout2.player')
-local behaviors   = require('ck.fallout2.behaviors')
+local behaviors   = require('ck.fallout2.objects.critters.behaviors')
 local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
 

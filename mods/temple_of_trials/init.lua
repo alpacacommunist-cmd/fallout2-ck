@@ -4,7 +4,7 @@ local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 local critters  = require('ck.fallout2.objects.critters')
 local state     = require('ck.fallout2.state')
-local behaviors = require('ck.fallout2.behaviors')
+local behaviors = require('ck.fallout2.objects.critters.behaviors')
 
 local outskirts = require('.outskirts')
 
