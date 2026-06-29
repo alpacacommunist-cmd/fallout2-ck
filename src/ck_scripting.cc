@@ -219,60 +219,64 @@ void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
 	gObjectRegistry.destroy_objects_for_mod(target_mod_id);
 }
 
+static const luaL_Reg CK_GLOBAL_FUNCTIONS[] = {
+    {"ckMonitorPrint",     l_ck_monitor_print},
+    {"ckRegisterLocation", l_ck_register_location},
+    {nullptr,              nullptr}
+};
+
 // Init
+
 void ck_scripting_init() {
     log.info("Initializing LuaJIT backend...");
 
-	gLuaState = luaL_newstate();
-	if (gLuaState != nullptr) {
-		// Init global lua state
-		luaL_openlibs(gLuaState);
+    gLuaState = luaL_newstate();
+    if (!gLuaState) {
+        log.error("Failed to initialize LuaJIT state!");
+        return;
+    }
 
-		// create global ck module
-		lua_newtable(gLuaState);               // stack: [ck]
-		lua_setglobal(gLuaState, "ck");        // stack: []
+    luaL_openlibs(gLuaState);
 
-		// ffi
-		ck_create_global_subtable("ck", "rendering");
-		ck_create_global_subtable("ck", "game_time");
-		ck_create_global_subtable("ck", "dialogue");
-		ck_create_global_subtable("ck", "map");
-		// ffi end
+    lua_newtable(gLuaState);
+    lua_setglobal(gLuaState, "ck");
 
-		ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
-		lua_pop(gLuaState, 1);
+    for (const char* subtable : {"rendering", "game_time", "dialogue", "map"}) {
+        ck_create_global_subtable("ck", subtable);
+    }
 
-        // bindings. registers c <-> lua functions
-		lua_register(gLuaState, "ckMonitorPrint", l_ck_monitor_print);
-		lua_register(gLuaState, "ckRegisterLocation", l_ck_register_location);
+    ck_requiref(gLuaState, "ck.assets", luaopen_ck_assets, 1);
+    lua_pop(gLuaState, 1);
 
-        // bootstrap
-		int status = luaL_loadfile(gLuaState, "../ck/system/bootstrap.lua");
+	lua_pushvalue(gLuaState, LUA_GLOBALSINDEX);
+    luaL_setfuncs(gLuaState, CK_GLOBAL_FUNCTIONS, 0);
+    lua_pop(gLuaState, 1);
 
-		if (status == LUA_OK) {
-			lua_getglobal(gLuaState, "debug");
-			lua_getfield(gLuaState, -1, "traceback");
-			lua_remove(gLuaState, -2);
+    if (luaL_loadfile(gLuaState, "../ck/system/bootstrap.lua") != LUA_OK) {
+        log.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
+        lua_pop(gLuaState, 1);
+        return;
+    }
 
-			int err_handler_idx = lua_gettop(gLuaState) - 1;
-			lua_insert(gLuaState, err_handler_idx);
+    if (!safe_pcall_with_traceback(gLuaState, 0, 0)) {
+        log.error("Bootstrap Runtime Error:\n{}", lua_tostring(gLuaState, -1));
+        lua_pop(gLuaState, 1);
+        return;
+    }
 
-			status = lua_pcall(gLuaState, 0, LUA_MULTRET, err_handler_idx);
+    ck_dispatcher_init(gLuaState);
 
-			if (status != LUA_OK) {
-				log.error("Bootstrap Error:\n{}", lua_tostring(gLuaState, -1));
-				lua_pop(gLuaState, 2);
-			} else {
-				ck_dispatcher_init(gLuaState);
-				lua_pop(gLuaState, 1);
-			}
-		} else {
-			log.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
-			lua_pop(gLuaState, 1);
-		}
-    } else {
-        std::cerr << "[CK] Failed to initialize LuaJIT state!" << std::endl;
-	}
+    lua_getglobal(gLuaState, "ckBootstrapMods");
+    if (!lua_isfunction(gLuaState, -1)) {
+        log.error("Global function 'ckBootstrapMods' not found!");
+        lua_pop(gLuaState, 1);
+        return;
+    }
+
+    if (!safe_pcall_with_traceback(gLuaState, 0, 0)) {
+        log.error("Runtime error during mod bootstrapping:\n{}", lua_tostring(gLuaState, -1));
+        lua_pop(gLuaState, 1);
+    }
 }
 
 void ck_on_scripts_reset() {

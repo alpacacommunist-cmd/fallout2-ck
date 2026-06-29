@@ -1,5 +1,4 @@
 #include "ck_dispatcher.h"
-#include "ck_utils.h"
 
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
@@ -11,7 +10,8 @@ static int g_emit_for_mod_ref  = LUA_NOREF;
 static int g_on_map_update_ref = LUA_NOREF;
 static int g_on_proc_ref       = LUA_NOREF;
 static int g_clear_tracked_objects_ref = LUA_NOREF;
-static int g_clear_registry_ref         = LUA_NOREF;
+static int g_clear_registry_ref = LUA_NOREF;
+static int g_load_and_init_mod_ref = LUA_NOREF;
 
 static std::vector<std::string> g_active_mods;
 static const char* g_current_mod_id = "unknown";
@@ -85,6 +85,7 @@ void ck_dispatcher_init(lua_State* L) {
 	g_L = L;
 	g_current_mod_id = "unknown";
 
+	g_load_and_init_mod_ref     = cache_module_function(g_L, "ck.system.loader", "load_and_init_mod");
 	g_emit_for_mod_ref          = cache_module_function(g_L, "ck.system.events", "emit_for_mod");
 	g_on_map_update_ref         = cache_module_function(g_L, "ck.system.events", "ck_on_map_update");
 	g_on_proc_ref               = cache_module_function(g_L, "ck.system.events", "ck_on_proc");
@@ -203,6 +204,42 @@ void ck_dispatcher_on_map_enter() {
 }
 
 // ffi
+
+bool ck_dispatcher_load_mod(const char* mod_id) {
+	log.info("mod_id: {}", mod_id);
+	if (!g_L || g_load_and_init_mod_ref == LUA_NOREF || !mod_id) return false;
+
+	std::string target_mod(mod_id);
+	auto it = std::find(g_active_mods.begin(), g_active_mods.end(), target_mod);
+	if (it == g_active_mods.end()) {
+		g_active_mods.push_back(target_mod);
+	}
+
+	std::string previous_context = g_current_mod_id;
+	ck_set_mod_context(mod_id);
+
+	lua_rawgeti(g_L, LUA_REGISTRYINDEX, g_load_and_init_mod_ref);
+	lua_pushstring(g_L, mod_id);
+
+	if (lua_pcall(g_L, 1, LUA_MULTRET, 0) != LUA_OK) {
+        log.error("Critical LuaJIT compilation error in mod '{}': {}", mod_id, lua_tostring(g_L, -1));
+        lua_pop(g_L, 1);
+
+        g_active_mods.erase(
+            std::remove(g_active_mods.begin(), g_active_mods.end(), target_mod),
+            g_active_mods.end()
+        );
+
+        ck_set_mod_context(previous_context.c_str());
+        return false;
+    }
+
+	lua_pop(g_L, 1);
+
+	ck_set_mod_context(previous_context.c_str());
+	return true;
+}
+
 void ck_dispatcher_register_mod(const char* mod_id) {
 	if (mod_id) g_active_mods.push_back(mod_id);
 }

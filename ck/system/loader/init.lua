@@ -1,14 +1,12 @@
--- ck/fallout2/loader.lua
+-- ck/system/loader/init.lua
 local ffi = require("ffi")
 
 ffi.cdef[[
   void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
-
-  void ck_dispatcher_register_mod(const char* mod_id);
-  void ck_dispatcher_remove_mod(const char* mod_id);
-  void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
-
   void ck_registry_clear();
+
+  bool ck_dispatcher_load_mod(const char* mod_id);
+  void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 ]]
 
 local sandbox   = require('ck.system.loader.sandbox')
@@ -27,7 +25,7 @@ local reloadable_mods = {
   "temple_of_trials"
 }
 
-local loader = { MODS = {} }
+local loader = {}
 
 local function load_manifest(mod_id)
   local key = 'mods.' .. mod_id .. '.mod'
@@ -101,8 +99,6 @@ function loader.load_and_init_mod(mod_id)
     log.error("running mod '" .. mod_id .. "': " .. tostring(run_err))
   end
 
-  ffi.C.ck_dispatcher_register_mod(mod_id)
-
   return manifest
 end
 
@@ -119,7 +115,6 @@ function loader.reload_mods()
     state.clear_for_mod(mod_id)
 
     ffi.C.ck_registry_destroy_objects_for_mod(mod_id)
-    ffi.C.ck_dispatcher_remove_mod(mod_id)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
@@ -131,10 +126,12 @@ function loader.reload_mods()
 
   for _, mod_id in ipairs(reloadable_mods) do
     log.info("Reloading: " .. mod_id)
-    manifest = loader.load_and_init_mod(mod_id)
+    local success = ffi.C.ck_dispatcher_load_mod(mod_id)
 
-    ffi.C.ck_dispatcher_emit_for_mod(manifest.id, "onMapEnter")
-    ffi.C.ck_dispatcher_emit_for_mod(manifest.id, "onModReload")
+    if success then
+      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onMapEnter")
+      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
+    end
   end
 
   log.info("Reload complete!")
