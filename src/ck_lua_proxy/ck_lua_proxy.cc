@@ -3,7 +3,7 @@
 #include <lua.hpp>
 
 #include "ck_log.h"
-static const Logger log("CK Dispatcher");
+static const Logger log("CK Lua Proxy");
 
 extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
