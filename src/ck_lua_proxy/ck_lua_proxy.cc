@@ -43,6 +43,19 @@ static int cache_module_function(const char* module_name, const char* function_n
 	return ref;
 }
 
+static bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
+    int func_idx = lua_gettop(L) - nargs;
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    lua_remove(L, -2);
+    lua_insert(L, func_idx);
+
+    int err_handler_idx = func_idx;
+    int status = lua_pcall(L, nargs, nresults, err_handler_idx);
+    lua_remove(L, err_handler_idx);
+    return status == LUA_OK;
+}
+
 void ck_lua_proxy_init() {
     using namespace ck::proxy;
 
@@ -88,17 +101,45 @@ void ck_lua_proxy_shutdown() {
 namespace ck::proxy {
     bool is_ready() { return gLuaState != nullptr; }
 
-    void execute_map_update(int ticks) {
-        if (ck::proxy::on_map_update == LUA_NOREF) return;
+	void push_arg(int val)               { lua_pushinteger(gLuaState, val); }
+	void push_arg(unsigned int val)      { lua_pushinteger(gLuaState, val); }
+	void push_arg(double val)            { lua_pushnumber(gLuaState, val); }
+	void push_arg(const char* val)       { lua_pushstring(gLuaState, val); }
+	void push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
+	void push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
 
-        lua_rawgeti(gLuaState, LUA_REGISTRYINDEX, ck::proxy::on_map_update);
-        lua_pushinteger(gLuaState, ticks);
+	bool internal_call_start(int func_ref) {
+		if (!gLuaState || func_ref == LUA_NOREF) return false;
+		lua_rawgeti(gLuaState, LUA_REGISTRYINDEX, func_ref);
+		return true;
+	}
 
-        if (lua_pcall(gLuaState, 1, 0, 0) != LUA_OK) {
-            log.error("Error in ck_on_map_update: {}", lua_tostring(gLuaState, -1));
-            lua_pop(gLuaState, 1);
-        }
-    }
+	bool internal_call_execute(int nargs, int nresults) {
+		if (!safe_pcall_with_traceback(gLuaState, nargs, nresults)) {
+			log.error("Runtime error during Lua proxy execution");
+			lua_pop(gLuaState, 1);
+			return false;
+		}
+		return true;
+	}
+
+	int internal_pop_int() {
+		int res = static_cast<int>(lua_tointeger(gLuaState, -1));
+		lua_pop(gLuaState, 1);
+		return res;
+	}
+
+	bool internal_pop_bool() {
+		bool res = lua_toboolean(gLuaState, -1);
+		lua_pop(gLuaState, 1);
+		return res;
+	}
+
+	std::string internal_pop_string() {
+		std::string res = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "";
+		lua_pop(gLuaState, 1);
+		return res;
+	}
 
     int execute_get_state_tile(int map_id, const std::string& lua_tag) {
         if (ck::proxy::get_state_tile == LUA_NOREF) return -1;

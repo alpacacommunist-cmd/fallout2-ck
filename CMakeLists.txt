@@ -30,6 +30,8 @@ add_library(fallout2-ck STATIC
     src/ck_state/ck_state.cc
     src/ck_dispatcher/ck_dispatcher.cc
     src/ck_lua_proxy/ck_lua_proxy.cc
+    src/ck_lua_proxy/ck_lua_proxy_dispatcher.cc
+    src/ck_lua_proxy/ck_lua_proxy_state.cc
 
     src/ce_config/ck_config_patch.cc
     src/ce_config/ck_message_patch.cc
