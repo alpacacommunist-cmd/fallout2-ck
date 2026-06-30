@@ -20,10 +20,7 @@ static void ck_set_mod_context(const char* mod_id) {
 namespace ck::proxy::detail {
     extern int clear_tracked_objects;
     extern int clear_registry;
-    extern int state_sync_load;
-    extern int state_sync_save;
 }
-
 
 template<typename... Args>
 void ck_dispatcher_emit(const char* event_name, Args... args) {
@@ -43,8 +40,6 @@ void ck_dispatcher_emit(const char* event_name, Args... args) {
 }
 
 void ck_dispatcher_on_map_update(int ticks) {
-	if (!ck::proxy::is_ready()) return;
-
 	if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
 	g_last_update_ticks = ticks;
 
@@ -52,8 +47,6 @@ void ck_dispatcher_on_map_update(int ticks) {
 }
 
 bool ck_dispatcher_on_proc(int lua_id, int proc_id, const char* object_mod_id) {
-	if (!ck::proxy::is_ready()) return false;
-
 	const char* previous_context = g_current_mod_id;
 	ck_set_mod_context(object_mod_id);
 
@@ -90,9 +83,6 @@ void ck_dispatcher_on_map_enter() {
 	g_last_update_ticks = 0;
 	ck_dispatcher_emit("onMapEnter");
 }
-
-int ck_dispatcher_get_sync_load_ref() { return ck::proxy::detail::state_sync_load; }
-int ck_dispatcher_get_sync_save_ref() { return ck::proxy::detail::state_sync_save; }
 
 // ffi
 

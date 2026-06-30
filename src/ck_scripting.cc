@@ -21,6 +21,7 @@
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
+#include <lua.hpp>
 #include "ck_lua_proxy/ck_lua_proxy.h"
 lua_State* gLuaState = nullptr;
 

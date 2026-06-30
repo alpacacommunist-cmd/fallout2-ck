@@ -7,7 +7,7 @@
 #include "object/critter/ck_critter.h"
 
 #include "ck_log.h"
-static const Logger log("CK Critter");
+static const Logger critter_log("CK Critter");
 
 namespace ck {
 

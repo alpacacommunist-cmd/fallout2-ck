@@ -29,13 +29,6 @@ namespace ck::proxy {
         return true;
 	}
 
-    void proxy_push_arg(int val)               { lua_pushinteger(gLuaState, val); }
-    void proxy_push_arg(unsigned int val)      { lua_pushinteger(gLuaState, val); }
-    void proxy_push_arg(double val)            { lua_pushnumber(gLuaState, val); }
-    void proxy_push_arg(const char* val)       { lua_pushstring(gLuaState, val); }
-    void proxy_push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
-    void proxy_push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
-
     void proxy_emit_end(const char* mod_id, const char* event_name, int total_args) {
         if (lua_pcall(gLuaState, total_args, 0, 0) != LUA_OK) {
             log.error("Error routing event '{}:{}': {}", mod_id, event_name, lua_tostring(gLuaState, -1));
