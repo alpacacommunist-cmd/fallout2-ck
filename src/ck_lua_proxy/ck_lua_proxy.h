@@ -16,6 +16,15 @@ namespace ck::proxy {
 	void push_arg(const std::string& val);
 	void push_arg(bool val);
 
+	struct LuaStackGuard {
+		int initial_top;
+		LuaStackGuard();
+		~LuaStackGuard();
+
+		LuaStackGuard(const LuaStackGuard&) = delete;
+		LuaStackGuard& operator=(const LuaStackGuard&) = delete;
+	};
+
 	bool internal_call_start(int func_ref);
 	bool internal_call_execute(int nargs, int nresults);
 

@@ -12,6 +12,8 @@ namespace ck::proxy {
 
 	template<typename... Args>
 	void emit_for_mod(const char* mod_id, const char* event_name, Args... args) {
+		LuaStackGuard stack_guard;
+
 		if (!proxy_emit_start(mod_id, event_name)) return;
 
 		(push_arg(args), ...);

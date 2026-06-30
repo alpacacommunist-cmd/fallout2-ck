@@ -43,19 +43,6 @@ static int cache_module_function(const char* module_name, const char* function_n
 	return ref;
 }
 
-bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
-    int func_idx = lua_gettop(L) - nargs;
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
-    lua_insert(L, func_idx);
-
-    int err_handler_idx = func_idx;
-    int status = lua_pcall(L, nargs, nresults, err_handler_idx);
-    lua_remove(L, err_handler_idx);
-    return status == LUA_OK;
-}
-
 void ck_lua_proxy_init() {
     using namespace ck::proxy::detail;
 
@@ -99,6 +86,16 @@ void ck_lua_proxy_shutdown() {
 }
 
 namespace ck::proxy {
+    LuaStackGuard::LuaStackGuard() {
+        initial_top = gLuaState ? lua_gettop(gLuaState) : 0;
+    }
+
+    LuaStackGuard::~LuaStackGuard() {
+        if (gLuaState) {
+            lua_settop(gLuaState, initial_top);
+        }
+    }
+
     bool is_ready() { return gLuaState != nullptr; }
 
 	void push_arg(int val)               { lua_pushinteger(gLuaState, val); }
@@ -107,6 +104,19 @@ namespace ck::proxy {
 	void push_arg(const char* val)       { lua_pushstring(gLuaState, val); }
 	void push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
 	void push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
+
+	bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
+		int func_idx = lua_gettop(L) - nargs;
+		lua_getglobal(L, "debug");
+		lua_getfield(L, -1, "traceback");
+		lua_remove(L, -2);
+		lua_insert(L, func_idx);
+
+		int err_handler_idx = func_idx;
+		int status = lua_pcall(L, nargs, nresults, err_handler_idx);
+		lua_remove(L, err_handler_idx);
+		return status == LUA_OK;
+	}
 
 	bool internal_call_start(int func_ref) {
 		if (!gLuaState || func_ref == LUA_NOREF) return false;
