@@ -45,7 +45,10 @@ namespace ck::proxy {
         return execute_proxy_call<bool>(detail::load_and_init_mod, mod_id);
     }
 
-    void clear_registry_fn(int func_ref) {
-        execute_proxy_call<bool>(func_ref);
-    }
+	void clear_tracked_objects() {
+		execute_proxy_call<bool>(detail::clear_tracked_objects);
+	}
+	void clear_registry() {
+		execute_proxy_call<bool>(detail::clear_registry);
+	}
 }

@@ -23,7 +23,8 @@ namespace ck::proxy {
 	bool on_proc(int lua_id, int proc_id, const char* object_mod_id);
     bool load_mod(const char* mod_id);
 
-    void clear_registry_fn(int func_ref);
+	void clear_tracked_objects();
+	void clear_registry();
 }
 
 #endif

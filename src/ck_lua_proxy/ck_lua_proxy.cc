@@ -43,7 +43,7 @@ static int cache_module_function(const char* module_name, const char* function_n
 	return ref;
 }
 
-static bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
+bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
     int func_idx = lua_gettop(L) - nargs;
     lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
