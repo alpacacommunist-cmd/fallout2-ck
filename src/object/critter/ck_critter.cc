@@ -1,5 +1,6 @@
 #include "ck_encoding.h"
 #include "ck_ids.h"
+#include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
@@ -28,7 +29,7 @@ namespace ck {
 		std::string mod_id  = ck_get_current_mod_id();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		int map_id          = fallout::mapGetCurrentMap();
-		int target_tile     = ck_dispatcher_get_state_tile(map_id, lua_tag.c_str());
+		int target_tile     = ck::proxy::execute_get_state_tile(map_id, lua_tag);
 
 		if (target_tile != -1) tile = target_tile;
 

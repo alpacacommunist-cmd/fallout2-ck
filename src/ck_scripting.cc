@@ -21,24 +21,16 @@
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
+#include "ck_lua_proxy/ck_lua_proxy.h"
+lua_State* gLuaState = nullptr;
+
 #include "settings.h"
-
-#include "object/critter/ck_stats.h"
-
-extern "C" {
-#include "../../src/vendor/luajit/src/lua.h"
-#include "../../src/vendor/luajit/src/lualib.h"
-#include "../../src/vendor/luajit/src/lauxlib.h"
-}
 
 #include "ck_log.h"
 static const Logger log("CK Scripting");
 
 CkAssetRegistry gAssetRegistry;
 CkMapRegistry gMapRegistry;
-
-// lua state global pointer, lives as long as game lives
-lua_State* gLuaState = nullptr;
 
 void ck_scripting_register_location(const std::string& modId, const std::string& mapsDir,
         const std::string& name, const std::string& subName, const std::string& mapFile,
@@ -224,7 +216,7 @@ void ck_scripting_init() {
         return;
     }
 
-    ck_dispatcher_init(gLuaState);
+    ck_lua_proxy_init();
 
     lua_getglobal(gLuaState, "ckBootstrapMods");
     if (!lua_isfunction(gLuaState, -1)) {
@@ -245,7 +237,7 @@ void ck_on_scripts_reset() {
 
 // Exit
 void ck_scripting_exit() {
-	ck_dispatcher_shutdown();
+	ck_lua_proxy_shutdown();
 
     if (gLuaState != nullptr) {
         log.info("ck_scripting_exit");
