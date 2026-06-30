@@ -10,6 +10,10 @@ local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
 
 events.on('onGameLoaded', function()
+  log.info(player.stats.strength)
+  log.info(player.stats.intelligence)
+  log.info(player.gender)
+  log.info(player.level)
 end)
 
 events.on('onModReload', function()
@@ -23,6 +27,7 @@ events.on('onMapEnter', function()
   monitor.print("Entered map!")
 
   if map_id ~= 4 then return end
+
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
     name        = i18n.t('arroyo_expanded', 'alice_name'),
