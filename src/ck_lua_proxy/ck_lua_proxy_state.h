@@ -5,7 +5,7 @@
 #include <string>
 
 namespace ck::proxy {
-    int execute_get_state_tile(const std::string& mod_id, int map_id, const std::string& lua_tag);
+    int get_state_tile(const int map_id, const std::string& lua_tag);
 }
 
 #endif

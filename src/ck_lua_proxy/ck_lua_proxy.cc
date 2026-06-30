@@ -8,7 +8,7 @@ static const Logger log("CK Dispatcher");
 extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
 
-namespace ck::proxy {
+namespace ck::proxy::detail {
     int emit_for_mod          = LUA_NOREF;
     int on_map_update         = LUA_NOREF;
     int on_proc               = LUA_NOREF;
@@ -57,7 +57,7 @@ static bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
 }
 
 void ck_lua_proxy_init() {
-    using namespace ck::proxy;
+    using namespace ck::proxy::detail;
 
     load_and_init_mod     = cache_module_function("ck.system.loader", "load_and_init_mod");
     emit_for_mod          = cache_module_function("ck.system.events", "emit_for_mod");
@@ -73,7 +73,7 @@ void ck_lua_proxy_init() {
 }
 
 void ck_lua_proxy_shutdown() {
-    using namespace ck::proxy;
+    using namespace ck::proxy::detail;
 
     if (gLuaState) {
         if (emit_for_mod != LUA_NOREF)          luaL_unref(gLuaState, LUA_REGISTRYINDEX, emit_for_mod);
@@ -140,25 +140,4 @@ namespace ck::proxy {
 		lua_pop(gLuaState, 1);
 		return res;
 	}
-
-    int execute_get_state_tile(int map_id, const std::string& lua_tag) {
-        if (ck::proxy::get_state_tile == LUA_NOREF) return -1;
-
-        lua_rawgeti(gLuaState, LUA_REGISTRYINDEX, ck::proxy::get_state_tile);
-        lua_pushstring(gLuaState, g_current_mod_id);
-        lua_pushinteger(gLuaState, map_id);
-        lua_pushstring(gLuaState, lua_tag.c_str());
-
-        int tile = -1;
-        if (lua_pcall(gLuaState, 3, 1, 0) == LUA_OK) {
-            if (lua_isnumber(gLuaState, -1)) {
-                tile = (int)lua_tointeger(gLuaState, -1);
-            }
-            lua_pop(gLuaState, 1);
-        } else {
-            log.error("Error in get_state_tile: {}", lua_tostring(gLuaState, -1));
-            lua_pop(gLuaState, 1);
-        }
-        return tile;
-    }
 }
