@@ -25,6 +25,9 @@ namespace fallout {
     int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
     int animationRegisterAnimate(Object* obj, int anim_id, int a3);
 
+	int critterGetHitPoints(Object* critter);
+	int critterAdjustHitPoints(Object* critter, int hp);
+
 	extern int gElevation;
 	extern unsigned char _colorTable[32768];
 }

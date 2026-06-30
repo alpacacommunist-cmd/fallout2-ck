@@ -13,6 +13,7 @@ extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
     extern int get_state_tile;
+    extern int get_state_data;
 
 	extern int state_sync_load;
     extern int state_sync_save;
@@ -77,6 +78,25 @@ namespace ck::proxy {
         return execute_proxy_call<int>(detail::get_state_tile, g_current_mod_id, map_id, lua_tag);
     }
 
+	ObjectState get_object_state(int map_id, const std::string& lua_tag) {
+		LuaStackGuard guard;
+		ObjectState state;
+
+		if (!internal_call_start(detail::get_state_data)) return state;
+
+		push_arg(g_current_mod_id);
+		push_arg(map_id);
+		push_arg(lua_tag);
+
+		if (!internal_call_execute(3, 1)) return state;
+
+		if (lua_istable(gLuaState, -1)) {
+			state.tile = read_table_int("tile", -1);
+			state.hp   = read_table_int("hp", -1);
+		}
+
+		return state;
+	}
 
 	bool sync_state_load(const picojson::value& state_data) {
         if (!internal_call_start(detail::state_sync_load)) return false;

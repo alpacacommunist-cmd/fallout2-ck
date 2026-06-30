@@ -7,7 +7,10 @@
 namespace picojson { class value; }
 
 namespace ck::proxy {
+	struct ObjectState { int tile = -1; int hp = -1; };
+
     int get_state_tile(const int map_id, const std::string& lua_tag);
+	ObjectState get_object_state(int map_id, const std::string& lua_tag);
 
 	bool sync_state_load(const picojson::value& state_data);
     picojson::value sync_state_save();

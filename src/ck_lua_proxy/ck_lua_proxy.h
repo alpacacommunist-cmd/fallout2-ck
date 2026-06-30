@@ -16,6 +16,10 @@ namespace ck::proxy {
 	void push_arg(const std::string& val);
 	void push_arg(bool val);
 
+	int         read_table_int(const char* key, int default_val = -1);
+	bool        read_table_bool(const char* key, bool default_val = false);
+	std::string read_table_string(const char* key, const std::string& default_val = "");
+
 	struct LuaStackGuard {
 		int initial_top;
 		LuaStackGuard();
@@ -34,6 +38,7 @@ namespace ck::proxy {
 
 	template<typename ReturnType, typename... Args>
 	ReturnType execute_proxy_call(int func_ref, Args... args) {
+		LuaStackGuard guard;
 		if (!internal_call_start(func_ref)) return ReturnType{};
 
 		(push_arg(args), ...);

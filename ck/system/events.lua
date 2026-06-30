@@ -64,7 +64,7 @@ function events.clear_for_mod(mod_id)
   log.info("Cleared listeners for mod: " .. mod_id)
 end
 
-function events.ck_on_map_update(ticks)
+function events.on_map_update(ticks)
   for _, object in pairs(objects.registry) do
     if object._handle_map_update then
       local success, err = pcall(object._handle_map_update, object, ticks)
@@ -78,7 +78,7 @@ function events.ck_on_map_update(ticks)
   state.update_tracked_objects(ticks)
 end
 
-function events.ck_on_proc(lua_id, proc_id)
+function events.on_proc(lua_id, proc_id)
   local object = objects.registry[lua_id]
 
   if not object then return false end

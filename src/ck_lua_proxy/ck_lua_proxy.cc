@@ -1,6 +1,7 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include <lua.hpp>
+#include <array>
 
 #include "ck_log.h"
 static const Logger log("CK Lua Proxy");
@@ -8,6 +9,7 @@ static const Logger log("CK Lua Proxy");
 extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
 
+struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
 namespace ck::proxy::detail {
     int emit_for_mod          = LUA_NOREF;
     int on_map_update         = LUA_NOREF;
@@ -16,6 +18,7 @@ namespace ck::proxy::detail {
     int clear_registry        = LUA_NOREF;
     int load_and_init_mod     = LUA_NOREF;
     int get_state_tile        = LUA_NOREF;
+    int get_state_data        = LUA_NOREF;
     int state_sync_load       = LUA_NOREF;
     int state_sync_save       = LUA_NOREF;
 }
@@ -46,15 +49,24 @@ static int cache_module_function(const char* module_name, const char* function_n
 void ck_lua_proxy_init() {
     using namespace ck::proxy::detail;
 
-    load_and_init_mod     = cache_module_function("ck.system.loader", "load_and_init_mod");
-    emit_for_mod          = cache_module_function("ck.system.events", "emit_for_mod");
-    on_map_update         = cache_module_function("ck.system.events", "ck_on_map_update");
-    on_proc               = cache_module_function("ck.system.events", "ck_on_proc");
-    clear_tracked_objects = cache_module_function("ck.fallout2.state",  "clear_tracked_objects");
-    get_state_tile        = cache_module_function("ck.fallout2.state", "get_state_tile");
-    state_sync_save       = cache_module_function("ck.fallout2.state", "sync_save");
-    state_sync_load       = cache_module_function("ck.fallout2.state", "sync_load");
-    clear_registry        = cache_module_function("ck.fallout2.objects", "clear_registry");
+	const std::array<LuaHookBinding, 10> hooks = {{
+		{ "ck.system.events",    "emit_for_mod",          &emit_for_mod },
+		{ "ck.system.events",    "on_map_update",         &on_map_update },
+		{ "ck.system.events",    "on_proc",               &on_proc },
+		{ "ck.fallout2.state",   "clear_tracked_objects", &clear_tracked_objects },
+		{ "ck.fallout2.objects", "clear_registry",        &clear_registry },
+		{ "ck.system.loader",    "load_and_init_mod",     &load_and_init_mod },
+		{ "ck.fallout2.state",   "get_state_tile",        &get_state_tile },
+		{ "ck.fallout2.state",   "get_state_data",        &get_state_data },
+		{ "ck.fallout2.state",   "sync_load",             &state_sync_load },
+		{ "ck.fallout2.state",   "sync_save",             &state_sync_save }
+	}};
+
+	for (const auto& hook : hooks) {
+		*hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
+
+		if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
+	}
 
     log.info("successfully initialized and cached Lua hooks.");
 }
@@ -62,26 +74,24 @@ void ck_lua_proxy_init() {
 void ck_lua_proxy_shutdown() {
     using namespace ck::proxy::detail;
 
-    if (gLuaState) {
-        if (emit_for_mod != LUA_NOREF)          luaL_unref(gLuaState, LUA_REGISTRYINDEX, emit_for_mod);
-        if (on_map_update != LUA_NOREF)         luaL_unref(gLuaState, LUA_REGISTRYINDEX, on_map_update);
-        if (on_proc != LUA_NOREF)               luaL_unref(gLuaState, LUA_REGISTRYINDEX, on_proc);
-        if (clear_tracked_objects != LUA_NOREF) luaL_unref(gLuaState, LUA_REGISTRYINDEX, clear_tracked_objects);
-        if (clear_registry != LUA_NOREF)        luaL_unref(gLuaState, LUA_REGISTRYINDEX, clear_registry);
-        if (load_and_init_mod != LUA_NOREF)     luaL_unref(gLuaState, LUA_REGISTRYINDEX, load_and_init_mod);
-        if (get_state_tile != LUA_NOREF)        luaL_unref(gLuaState, LUA_REGISTRYINDEX, get_state_tile);
-        if (state_sync_load != LUA_NOREF)       luaL_unref(gLuaState, LUA_REGISTRYINDEX, state_sync_load);
-        if (state_sync_save != LUA_NOREF)       luaL_unref(gLuaState, LUA_REGISTRYINDEX, state_sync_save);
+	    const std::array<int*, 10> refs = {
+        &emit_for_mod,
+        &on_map_update,
+        &on_proc,
+        &clear_tracked_objects,
+        &clear_registry,
+        &load_and_init_mod,
+        &get_state_tile,
+        &get_state_data,
+        &state_sync_load,
+        &state_sync_save
+    };
 
-        emit_for_mod          = LUA_NOREF;
-        on_map_update         = LUA_NOREF;
-        on_proc               = LUA_NOREF;
-        clear_tracked_objects = LUA_NOREF;
-        clear_registry        = LUA_NOREF;
-        load_and_init_mod     = LUA_NOREF;
-        get_state_tile        = LUA_NOREF;
-        state_sync_save       = LUA_NOREF;
-        state_sync_load       = LUA_NOREF;
+    for (int* ref_ptr : refs) {
+        if (*ref_ptr != LUA_NOREF) {
+            luaL_unref(gLuaState, LUA_REGISTRYINDEX, *ref_ptr);
+            *ref_ptr = LUA_NOREF;
+        }
     }
 }
 
@@ -147,6 +157,36 @@ namespace ck::proxy {
 
 	std::string internal_pop_string() {
 		std::string res = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "";
+		lua_pop(gLuaState, 1);
+		return res;
+	}
+
+	int read_table_int(const char* key, int default_val) {
+		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+
+		int res = default_val;
+		lua_getfield(gLuaState, -1, key);
+		if (lua_isnumber(gLuaState, -1)) res = static_cast<int>(lua_tointeger(gLuaState, -1));
+		lua_pop(gLuaState, 1);
+		return res;
+	}
+
+	bool read_table_bool(const char* key, bool default_val) {
+		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+
+		bool res = default_val;
+		lua_getfield(gLuaState, -1, key);
+		if (lua_isboolean(gLuaState, -1)) res = lua_toboolean(gLuaState, -1);
+		lua_pop(gLuaState, 1);
+		return res;
+	}
+
+	std::string read_table_string(const char* key, const std::string& default_val) {
+		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+
+		std::string res = default_val;
+		lua_getfield(gLuaState, -1, key);
+		if (lua_isstring(gLuaState, -1)) res = lua_tostring(gLuaState, -1);
 		lua_pop(gLuaState, 1);
 		return res;
 	}

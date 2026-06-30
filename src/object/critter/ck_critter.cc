@@ -29,9 +29,9 @@ namespace ck {
 		std::string mod_id  = ck_get_current_mod_id();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		int map_id          = fallout::mapGetCurrentMap();
-		int target_tile     = ck::proxy::get_state_tile(map_id, lua_tag);
+		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
 
-		if (target_tile != -1) tile = target_tile;
+		if (state.tile != -1) tile = state.tile;
 
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
