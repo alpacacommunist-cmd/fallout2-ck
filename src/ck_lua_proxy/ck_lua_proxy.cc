@@ -131,51 +131,41 @@ namespace ck::proxy {
 		return true;
 	}
 
-	int internal_pop_int() {
-		int res = static_cast<int>(lua_tointeger(gLuaState, -1));
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+	template<typename T>
+    static T internal_pop() {
+        T res{};
+        if constexpr (std::is_same_v<T, int>) res = static_cast<int>(lua_tointeger(gLuaState, -1));
+        else if constexpr (std::is_same_v<T, bool>) res = lua_toboolean(gLuaState, -1);
+        else if constexpr (std::is_same_v<T, std::string>) res = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "";
 
-	bool internal_pop_bool() {
-		bool res = lua_toboolean(gLuaState, -1);
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+        lua_pop(gLuaState, 1);
+        return res;
+    }
 
-	std::string internal_pop_string() {
-		std::string res = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "";
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+	template<typename T>
+	static T read_table_value(const char* key, T default_val) {
+        if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
 
-	int read_table_int(const char* key, int default_val) {
-		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+        lua_getfield(gLuaState, -1, key);
 
-		int res = default_val;
-		lua_getfield(gLuaState, -1, key);
-		if (lua_isnumber(gLuaState, -1)) res = static_cast<int>(lua_tointeger(gLuaState, -1));
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+        bool type_ok = false;
+        if constexpr (std::is_same_v<T, int>)              type_ok = lua_isnumber(gLuaState, -1);
+        else if constexpr (std::is_same_v<T, bool>)        type_ok = lua_isboolean(gLuaState, -1);
+        else if constexpr (std::is_same_v<T, std::string>) type_ok = lua_isstring(gLuaState, -1);
 
-	bool read_table_bool(const char* key, bool default_val) {
-		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+        if (type_ok) return internal_pop<T>();
 
-		bool res = default_val;
-		lua_getfield(gLuaState, -1, key);
-		if (lua_isboolean(gLuaState, -1)) res = lua_toboolean(gLuaState, -1);
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+        lua_pop(gLuaState, 1);
+        return default_val;
+    }
 
-	std::string read_table_string(const char* key, const std::string& default_val) {
-		if (!gLuaState || !lua_istable(gLuaState, -1)) return default_val;
+	int         internal_pop_int()    { return internal_pop<int>(); }
+	bool        internal_pop_bool()   { return internal_pop<bool>(); }
+	std::string internal_pop_string() { return internal_pop<std::string>(); }
 
-		std::string res = default_val;
-		lua_getfield(gLuaState, -1, key);
-		if (lua_isstring(gLuaState, -1)) res = lua_tostring(gLuaState, -1);
-		lua_pop(gLuaState, 1);
-		return res;
-	}
+    int  read_table_int(const char* key, int default_val)   { return read_table_value<int>(key, default_val); }
+    bool read_table_bool(const char* key, bool default_val) { return read_table_value<bool>(key, default_val); }
+    std::string read_table_string(const char* key, const std::string& default_val) {
+        return read_table_value<std::string>(key, default_val);
+    }
 }

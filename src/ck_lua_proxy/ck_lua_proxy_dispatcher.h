@@ -3,6 +3,8 @@
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include <string>
+#include <initializer_list>
+#include <variant>
 
 namespace ck::proxy {
 	void on_map_update(int ticks);
@@ -10,16 +12,13 @@ namespace ck::proxy {
 	bool proxy_emit_start(const char* mod_id, const char* event_name);
 	void proxy_emit_end(const char* mod_id, const char* event_name, int total_args);
 
+	using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool>;
+    void  emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args);
+
 	template<typename... Args>
 	void emit_for_mod(const char* mod_id, const char* event_name, Args... args) {
 		LuaStackGuard stack_guard;
-
-		if (!proxy_emit_start(mod_id, event_name)) return;
-
-		(push_arg(args), ...);
-
-		int total_args = 2 + sizeof...(Args);
-		proxy_emit_end(mod_id, event_name, total_args);
+		emit_event(mod_id, event_name, { ProxyArg(args)... });
 	}
 
 	bool on_proc(int lua_id, int proc_id, const char* object_mod_id);

@@ -111,6 +111,8 @@ namespace ck::proxy {
     }
 
     picojson::value sync_state_save() {
+		LuaStackGuard guard;
+
         picojson::value result{picojson::object()};
 
         if (!internal_call_start(detail::state_sync_save)) return result;

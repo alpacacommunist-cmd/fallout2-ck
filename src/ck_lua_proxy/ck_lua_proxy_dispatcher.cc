@@ -21,22 +21,21 @@ namespace ck::proxy {
 		execute_proxy_call<bool>(detail::on_map_update, ticks);
     }
 
-	// emit for mod
-	bool proxy_emit_start(const char* mod_id, const char* event_name) {
-		if (!internal_call_start(detail::emit_for_mod)) return false;
-        push_arg(mod_id);
-        push_arg(event_name);
-        return true;
-	}
+	void emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args) {
+		if (!internal_call_start(detail::emit_for_mod)) return;
 
-    void proxy_emit_end(const char* mod_id, const char* event_name, int total_args) {
-		if (!safe_pcall_with_traceback(total_args, 0)) {
-			log.error("Error routing event '{}:{}': {}", mod_id, event_name, lua_tostring(gLuaState, -1));
+		push_arg(mod_id);
+		push_arg(event_name);
 
+		for (const auto& arg : args) std::visit([](const auto& val) { push_arg(val); }, arg);
+		int total_args = 2 + args.size();
+
+		if (!internal_call_execute(total_args, 0)) {
+			std::string error_msg = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "Unknown error";
+			log.error("Error routing event '{}:{}': {}", mod_id, event_name, error_msg);
 			lua_pop(gLuaState, 1);
 		}
-    }
-	// emit for mod end
+	}
 
     bool on_proc(int lua_id, int proc_id, const char* object_mod_id) {
         return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id);

@@ -18,6 +18,10 @@ namespace ck::proxy {
 
 	bool safe_pcall_with_traceback(int nargs, int nresults);
 
+	int         internal_pop_int();
+	bool        internal_pop_bool();
+	std::string internal_pop_string();
+
 	int         read_table_int(const char* key, int default_val = -1);
 	bool        read_table_bool(const char* key, bool default_val = false);
 	std::string read_table_string(const char* key, const std::string& default_val = "");
@@ -33,10 +37,6 @@ namespace ck::proxy {
 
 	bool internal_call_start(int func_ref);
 	bool internal_call_execute(int nargs, int nresults);
-
-	int         internal_pop_int();
-	bool        internal_pop_bool();
-	std::string internal_pop_string();
 
 	template<typename ReturnType, typename... Args>
 	ReturnType execute_proxy_call(int func_ref, Args... args) {
