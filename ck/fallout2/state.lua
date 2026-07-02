@@ -20,12 +20,14 @@ local db = {
 
 local tracked_objects = {}
 
+-- gets marshalld json -> lua from backend
 function state.sync_load(loaded_db)
   db = loaded_db or { global = {}, maps = {} }
   db.global = db.global or {}
-  db.maps = db.maps or {}
+  db.maps   = db.maps or {}
 end
 
+-- returns lua, backend marshalls it to json and saves
 function state.sync_save()
   local current_map_id = map.get_id()
 
@@ -44,10 +46,6 @@ function state.sync_save()
 
       if entry.object.hp then
         db.maps[current_map_id][entry.mod_id][entry.tag].hp = entry.object:hp()
-      end
-
-      if entry.object.stats then
-        current_data.base_stats = entry.object:stats()
       end
     end
   end

@@ -37,12 +37,7 @@ namespace ck {
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
-		for (int i = 0; i < 7; ++i) {
-			if (state.base_stats[i] != -1) ck::critter_set_base_stat(critter, i, state.base_stats[i]);
-		}
-
-		int target_hp = (state.hp != -1) ? state.hp : ck::critter_get_max_hp(critter);
-		ck::critter_adjust_hp(critter, target_hp);
+		if (state.hp != -1) ck::critter_adjust_hp(critter, state.hp);
 
 		int lua_id = -1;
 		LuaMeta meta = { critter->sid, lua_tag, mod_id };

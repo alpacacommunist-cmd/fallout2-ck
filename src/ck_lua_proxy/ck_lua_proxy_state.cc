@@ -86,18 +86,6 @@ namespace ck::proxy {
         if (lua_istable(gLuaState, -1)) {
             result.tile = read_table_int("tile", -1);
             result.hp   = read_table_int("hp", -1);
-
-			lua_getfield(gLuaState, -1, "base_stats");
-			if (lua_istable(gLuaState, -1)) {
-				result.base_stats[0] = read_table_int("strength", -1);
-				result.base_stats[1] = read_table_int("perception", -1);
-				result.base_stats[2] = read_table_int("endurance", -1);
-				result.base_stats[3] = read_table_int("charisma", -1);
-				result.base_stats[4] = read_table_int("intelligence", -1);
-				result.base_stats[5] = read_table_int("agility", -1);
-				result.base_stats[6] = read_table_int("luck", -1);
-			}
-			lua_pop(gLuaState, 1);
         }
 
         return result;
