@@ -9,7 +9,6 @@ static const Logger log("CK Lua Proxy");
 extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
 
-struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
 namespace ck::proxy::detail {
     int emit_for_mod          = LUA_NOREF;
     int on_map_update         = LUA_NOREF;
@@ -22,6 +21,20 @@ namespace ck::proxy::detail {
     int state_sync_load       = LUA_NOREF;
     int state_sync_save       = LUA_NOREF;
 }
+
+struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
+const std::array<LuaHookBinding, 10> hooks = {{
+	{ "ck.system.events",    "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
+	{ "ck.system.events",    "on_map_update",         &ck::proxy::detail::on_map_update },
+	{ "ck.system.events",    "on_proc",               &ck::proxy::detail::on_proc },
+	{ "ck.fallout2.state",   "clear_tracked_objects", &ck::proxy::detail::clear_tracked_objects },
+	{ "ck.fallout2.objects", "clear_registry",        &ck::proxy::detail::clear_registry },
+	{ "ck.system.loader",    "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
+	{ "ck.fallout2.state",   "get_state_tile",        &ck::proxy::detail::get_state_tile },
+	{ "ck.fallout2.state",   "get_state_data",        &ck::proxy::detail::get_state_data },
+	{ "ck.fallout2.state",   "sync_load",             &ck::proxy::detail::state_sync_load },
+	{ "ck.fallout2.state",   "sync_save",             &ck::proxy::detail::state_sync_save }
+}};
 
 static int cache_module_function(const char* module_name, const char* function_name) {
 	lua_getglobal(gLuaState, "require");
@@ -47,47 +60,19 @@ static int cache_module_function(const char* module_name, const char* function_n
 }
 
 void ck_lua_proxy_init() {
-    using namespace ck::proxy::detail;
+    for (const auto& hook : hooks) {
+        *hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
 
-	const std::array<LuaHookBinding, 10> hooks = {{
-		{ "ck.system.events",    "emit_for_mod",          &emit_for_mod },
-		{ "ck.system.events",    "on_map_update",         &on_map_update },
-		{ "ck.system.events",    "on_proc",               &on_proc },
-		{ "ck.fallout2.state",   "clear_tracked_objects", &clear_tracked_objects },
-		{ "ck.fallout2.objects", "clear_registry",        &clear_registry },
-		{ "ck.system.loader",    "load_and_init_mod",     &load_and_init_mod },
-		{ "ck.fallout2.state",   "get_state_tile",        &get_state_tile },
-		{ "ck.fallout2.state",   "get_state_data",        &get_state_data },
-		{ "ck.fallout2.state",   "sync_load",             &state_sync_load },
-		{ "ck.fallout2.state",   "sync_save",             &state_sync_save }
-	}};
-
-	for (const auto& hook : hooks) {
-		*hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
-
-		if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
-	}
+        if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
+    }
 
     log.info("successfully initialized and cached Lua hooks.");
 }
 
 void ck_lua_proxy_shutdown() {
-    using namespace ck::proxy::detail;
+    for (const auto& hook : hooks) {
+        int* ref_ptr = hook.target_ref;
 
-	    const std::array<int*, 10> refs = {
-        &emit_for_mod,
-        &on_map_update,
-        &on_proc,
-        &clear_tracked_objects,
-        &clear_registry,
-        &load_and_init_mod,
-        &get_state_tile,
-        &get_state_data,
-        &state_sync_load,
-        &state_sync_save
-    };
-
-    for (int* ref_ptr : refs) {
         if (*ref_ptr != LUA_NOREF) {
             luaL_unref(gLuaState, LUA_REGISTRYINDEX, *ref_ptr);
             *ref_ptr = LUA_NOREF;
@@ -101,9 +86,7 @@ namespace ck::proxy {
     }
 
     LuaStackGuard::~LuaStackGuard() {
-        if (gLuaState) {
-            lua_settop(gLuaState, initial_top);
-        }
+        if (gLuaState) lua_settop(gLuaState, initial_top);
     }
 
     bool is_ready() { return gLuaState != nullptr; }
