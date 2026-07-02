@@ -19,17 +19,25 @@ namespace fallout {
 namespace ck {
 	int critter_stat(fallout::Object* critter, int stat);
 	int critter_pc_stat(int stat);
+
+	int critter_get_hp(fallout::Object* critter);
+	int critter_get_max_hp(fallout::Object* critter);
+
 	int critter_set_base_stat(fallout::Object* critter, int stat, int value);
+	int critter_adjust_hp(fallout::Object* critter, int target_hp);
 }
+
+CK_API void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
+CK_API void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
 
 CK_API int player_stat(int stat);
 CK_API int player_pc_stat(int stat);
 
-CK_API bool ck_critter_set_base_stat(void* ptr, int stat, int value);
-CK_API int ck_critter_get_stat(void* ptr, int stat_id);
-CK_API void ck_critter_set_current_hp(void* ptr, int target_hp);
+CK_API int  ck_critter_get_stat(void* ptr, int stat_id);
+CK_API int  ck_critter_get_hp(void* ptr);
+CK_API int  ck_critter_get_max_hp(void* ptr);
 
-CK_API void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
-CK_API void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
+CK_API bool ck_critter_set_base_stat(void* ptr, int stat, int value);
+CK_API void ck_critter_set_current_hp(void* ptr, int target_hp);
 
 #endif

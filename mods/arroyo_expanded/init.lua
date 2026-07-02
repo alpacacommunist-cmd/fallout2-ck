@@ -45,6 +45,7 @@ events.on('onMapEnter', function()
 
   log.info("Alice endurance: " .. tostring(alice.base_stats.endurance))
   log.info("Alice hp: " .. tostring(alice:hp()))
+  log.info("Alice max hp: " .. tostring(alice:max_hp()))
 
   alice
     :on('look_at', function(self) monitor.print(self.name) end)

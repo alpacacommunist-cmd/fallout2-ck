@@ -44,6 +44,5 @@ CK_API int ck_anim_play(void* ptr, int anim_id);
 CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
 CK_API bool ck_critter_is_busy(void* ptr);
-CK_API int ck_critter_get_hp(void* ptr);
 
 #endif

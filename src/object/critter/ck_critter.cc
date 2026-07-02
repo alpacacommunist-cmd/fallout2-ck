@@ -41,13 +41,8 @@ namespace ck {
 			if (state.base_stats[i] != -1) ck::critter_set_base_stat(critter, i, state.base_stats[i]);
 		}
 
-		int current_hp = fallout::critterGetHitPoints(critter);
-		int max_hp     = fallout::critterGetStat(critter, fallout::STAT_MAXIMUM_HIT_POINTS);
-
-		if (state.hp != -1) fallout::critterAdjustHitPoints(critter, state.hp - current_hp);
-		else {
-			if (current_hp < max_hp) fallout::critterAdjustHitPoints(critter, max_hp - current_hp);
-		}
+		int target_hp = (state.hp != -1) ? state.hp : ck::critter_get_max_hp(critter);
+		ck::critter_adjust_hp(critter, target_hp);
 
 		int lua_id = -1;
 		LuaMeta meta = { critter->sid, lua_tag, mod_id };
@@ -106,21 +101,20 @@ int ck_anim_begin(void* ptr, int request_options) {
 }
 
 int ck_anim_move_to(void* ptr, int tile, int elevation) {
-	if (!ptr) return -1;
-	auto* obj = static_cast<fallout::Object*>(ptr);
-	return fallout::animationRegisterMoveToTile(obj, tile, elevation, -1, 0);
+	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
+
+	return fallout::animationRegisterMoveToTile(object, tile, elevation, -1, 0);
 }
 
 int ck_anim_play(void* ptr, int anim_id) {
-	if (!ptr) return -1;
-	auto* obj = static_cast<fallout::Object*>(ptr);
-	return fallout::animationRegisterAnimate(obj, anim_id, 0);
+	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
+
+	return fallout::animationRegisterAnimate(object, anim_id, 0);
 }
 
 int ck_anim_clear(void* ptr) {
-	if (!ptr) return -1;
-	auto* obj = static_cast<fallout::Object*>(ptr);
-	return fallout::reg_anim_clear(obj);
+	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
+	return fallout::reg_anim_clear(object);
 }
 
 int ck_anim_end() {
@@ -128,16 +122,8 @@ int ck_anim_end() {
 }
 
 bool ck_critter_is_busy(void* ptr) {
-	if (!ptr) return false;
-	auto* obj = static_cast<fallout::Object*>(ptr);
+	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
 
 	return fallout::animationIsBusy(obj) == -1;
-}
-
-int ck_critter_get_hp(void* ptr) {
-	if (!ptr) return false;
-	auto* critter = static_cast<fallout::Object*>(ptr);
-
-	return fallout::critterGetHitPoints(critter);
 }
 

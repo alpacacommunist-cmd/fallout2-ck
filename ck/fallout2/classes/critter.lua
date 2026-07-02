@@ -3,16 +3,18 @@ local ffi = require("ffi")
 ffi.cdef[[
   void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 
-  int ck_anim_begin(void* ptr, int weapon_ready);
-  int ck_anim_move_to(void* ptr, int tile, int elevation);
-  int ck_anim_play(void* ptr, int anim_id);
-  int ck_anim_clear(void* ptr);
-  int ck_anim_end();
+  int  ck_anim_begin(void* ptr, int weapon_ready);
+  int  ck_anim_move_to(void* ptr, int tile, int elevation);
+  int  ck_anim_play(void* ptr, int anim_id);
+  int  ck_anim_clear(void* ptr);
+  int  ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
 
   int  ck_critter_get_stat(void* ptr, int stat_id);
-  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   int  ck_critter_get_hp(void* ptr);
+  int  ck_critter_get_max_hp(void* ptr);
+
+  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   void ck_critter_set_current_hp(void* ptr, int target_hp);
 ]]
 
@@ -97,13 +99,8 @@ function Critter:__newindex(key, value)
   end
 end
 
-function Critter:hp()
-  return ffi.C.ck_critter_get_hp(self.c_ptr)
-end
-
-function Critter:stats()
-  return self._base_stats_pending
-end
+function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
+function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end
 
 function Critter:set_behavior(behavior_fn, ...)
   if type(behavior_fn) ~= "function" then
