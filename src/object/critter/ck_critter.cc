@@ -7,7 +7,7 @@
 #include "object/critter/ck_critter.h"
 
 #include "ck_log.h"
-static const Logger critter_log("CK Critter");
+static const Logger log("CK Critter");
 
 namespace ck {
 
@@ -119,5 +119,12 @@ bool ck_critter_is_busy(void* ptr) {
 	auto* obj = static_cast<fallout::Object*>(ptr);
 
 	return fallout::animationIsBusy(obj) == -1;
+}
+
+int ck_critter_get_hp(void* ptr) {
+	if (!ptr) return false;
+	auto* critter = static_cast<fallout::Object*>(ptr);
+
+	return fallout::critterGetHitPoints(critter);
 }
 

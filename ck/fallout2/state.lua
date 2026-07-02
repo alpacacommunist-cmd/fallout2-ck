@@ -38,6 +38,10 @@ function state.sync_save()
       db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
       db.maps[current_map_id][entry.mod_id][entry.tag].tile = tile
+
+      if entry.object.hp then
+        db.maps[current_map_id][entry.mod_id][entry.tag].hp = entry.object:hp()
+      end
     end
   end
 

@@ -74,31 +74,34 @@ static picojson::value lua_to_picojson(lua_State* L, int idx) {
 }
 
 namespace ck::proxy {
+	template<typename... Args>
+    ObjectState execute_proxy_call_state(int func_ref, Args... args) {
+        LuaStackGuard guard;
+        ObjectState result;
+
+        if (!internal_call_start(func_ref)) return result;
+        (push_arg(args), ...);
+        if (!internal_call_execute(sizeof...(Args), 1)) return result;
+
+        if (lua_istable(gLuaState, -1)) {
+            result.tile = read_table_int("tile", -1);
+            result.hp   = read_table_int("hp", -1);
+        }
+
+        return result;
+    }
+
     int get_state_tile(int map_id, const std::string& lua_tag) {
         return execute_proxy_call<int>(detail::get_state_tile, g_current_mod_id, map_id, lua_tag);
     }
 
 	ObjectState get_object_state(int map_id, const std::string& lua_tag) {
-		LuaStackGuard guard;
-		ObjectState state;
-
-		if (!internal_call_start(detail::get_state_data)) return state;
-
-		push_arg(g_current_mod_id);
-		push_arg(map_id);
-		push_arg(lua_tag);
-
-		if (!internal_call_execute(3, 1)) return state;
-
-		if (lua_istable(gLuaState, -1)) {
-			state.tile = read_table_int("tile", -1);
-			state.hp   = read_table_int("hp", -1);
-		}
-
-		return state;
+		return execute_proxy_call_state(detail::get_state_data, g_current_mod_id, map_id, lua_tag);
 	}
 
 	bool sync_state_load(const picojson::value& state_data) {
+		LuaStackGuard guard;
+
         if (!internal_call_start(detail::state_sync_load)) return false;
         picojson_to_lua(gLuaState, state_data);
 

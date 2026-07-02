@@ -17,9 +17,6 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::proxy {
-	// ck_lua_proxy.cc
-	extern bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults);
-
     void on_map_update(int ticks) {
 		execute_proxy_call<bool>(detail::on_map_update, ticks);
     }
@@ -33,7 +30,7 @@ namespace ck::proxy {
 	}
 
     void proxy_emit_end(const char* mod_id, const char* event_name, int total_args) {
-		if (!safe_pcall_with_traceback(gLuaState, total_args, 0)) {
+		if (!safe_pcall_with_traceback(total_args, 0)) {
 			log.error("Error routing event '{}:{}': {}", mod_id, event_name, lua_tostring(gLuaState, -1));
 
 			lua_pop(gLuaState, 1);

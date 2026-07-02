@@ -9,6 +9,7 @@ ffi.cdef[[
   int ck_anim_clear(void* ptr);
   int ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
+  int ck_critter_get_hp(void* ptr);
 ]]
 
 local log = ck.log.new('classes/critter.lua')
@@ -38,6 +39,10 @@ function Critter.new(lua_id, config, tag, mod_id)
   self._behavior_interval  = 20
 
   return self
+end
+
+function Critter:hp()
+  return ffi.C.ck_critter_get_hp(self.c_ptr)
 end
 
 function Critter:set_behavior(behavior_fn, ...)

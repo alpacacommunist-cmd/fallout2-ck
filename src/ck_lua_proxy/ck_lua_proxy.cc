@@ -115,16 +115,16 @@ namespace ck::proxy {
 	void push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
 	void push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
 
-	bool safe_pcall_with_traceback(lua_State* L, int nargs, int nresults) {
-		int func_idx = lua_gettop(L) - nargs;
-		lua_getglobal(L, "debug");
-		lua_getfield(L, -1, "traceback");
-		lua_remove(L, -2);
-		lua_insert(L, func_idx);
+	bool safe_pcall_with_traceback(int nargs, int nresults) {
+		int func_idx = lua_gettop(gLuaState) - nargs;
+		lua_getglobal(gLuaState, "debug");
+		lua_getfield(gLuaState, -1, "traceback");
+		lua_remove(gLuaState, -2);
+		lua_insert(gLuaState, func_idx);
 
 		int err_handler_idx = func_idx;
-		int status = lua_pcall(L, nargs, nresults, err_handler_idx);
-		lua_remove(L, err_handler_idx);
+		int status = lua_pcall(gLuaState, nargs, nresults, err_handler_idx);
+		lua_remove(gLuaState, err_handler_idx);
 		return status == LUA_OK;
 	}
 
@@ -135,11 +135,16 @@ namespace ck::proxy {
 	}
 
 	bool internal_call_execute(int nargs, int nresults) {
-		if (!safe_pcall_with_traceback(gLuaState, nargs, nresults)) {
-			log.error("Runtime error during Lua proxy execution");
+		if (!safe_pcall_with_traceback(nargs, nresults)) {
+			std::string error_msg = "Unknown Lua error";
+			if (lua_isstring(gLuaState, -1)) error_msg = lua_tostring(gLuaState, -1);
+
+			log.error("Runtime error during Lua proxy execution:\n{}", error_msg);
+
 			lua_pop(gLuaState, 1);
 			return false;
 		}
+
 		return true;
 	}
 

@@ -14,6 +14,9 @@ namespace ck::proxy {
 
 	bool sync_state_load(const picojson::value& state_data);
     picojson::value sync_state_save();
+
+	template<typename... Args>
+    ObjectState execute_proxy_call_state(int func_ref, Args... args);
 }
 
 #endif
