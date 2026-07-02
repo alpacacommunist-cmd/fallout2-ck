@@ -27,12 +27,12 @@ function stats.create_proxy(read_stat_fn)
   setmetatable(proxy, {
     __index = function(_, key)
       local c_stat = STATS_MAP[key]
-      if c_stat then
-        return read_stat_fn(c_stat)
-      end
+      if    c_stat then return read_stat_fn(c_stat) end
+
       return nil
     end
   })
+
   return proxy
 end
 

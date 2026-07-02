@@ -44,6 +44,10 @@ function Critter.new(lua_id, config, tag, mod_id)
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
+  self.stats = stats.create_proxy(function(stat_id)
+    return ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+  end)
+
   if config and config.base_stats then
     self.base_stats = config.base_stats
   end
