@@ -27,7 +27,6 @@ local Object = require("ck.fallout2.classes.object")
 
 local Critter = {}
 setmetatable(Critter, { __index = Object })
-Critter.__index = Critter
 
 function Critter.new(lua_id, config, tag, mod_id)
   local self = Object.new(lua_id, config, mod_id)
@@ -43,7 +42,19 @@ function Critter.new(lua_id, config, tag, mod_id)
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
+  if config and config.base_stats then
+    self.base_stats = config.base_stats
+  end
+
   return self
+end
+
+function Critter:__index(key)
+  if key == "base_stats" then
+    return self._base_stats_pending or {}
+  end
+
+  return Critter[key]
 end
 
 function Critter:__newindex(key, value)
@@ -57,17 +68,26 @@ function Critter:__newindex(key, value)
       local previous_max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
       local previous_hp     = ffi.C.ck_critter_get_stat(self.c_ptr, hp_id)
 
+      local stats_changed = false
+
       for stat_name, stat_value in pairs(value) do
         local stat_id = stats.MAP[stat_name]
-        if stat_id then ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, stat_value) end
+        if stat_id then
+          local backend_value = ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+
+          if backend_value ~= stat_value then
+            ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, stat_value)
+            stats_changed = true
+          end
+        end
       end
 
-      local max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
-
-      if max_hp > previous_max_hp then
-        local hp_delta = max_hp - previous_max_hp
-
-        ffi.C.ck_critter_set_current_hp(self.c_ptr, previous_hp + hp_delta)
+      if stats_changed then
+        local max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
+        if max_hp > previous_max_hp then
+          local hp_delta = max_hp - previous_max_hp
+          ffi.C.ck_critter_set_current_hp(self.c_ptr, previous_hp + hp_delta)
+        end
       end
     end
 
