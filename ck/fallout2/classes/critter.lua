@@ -53,7 +53,19 @@ end
 
 function Critter:__index(key)
   if key == "base_stats" then
-    return self._base_stats_pending or {}
+    if self._base_stats_pending then return self._base_stats_pending end
+
+    local current_stats = {}
+
+    if self.c_ptr then
+      for stat_name, stat_id in pairs(stats.MAP) do
+        if stat_id >= 0 and stat_id <= 6 then
+          current_stats[stat_name] = ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+        end
+      end
+    end
+
+    return current_stats
   end
 
   return Critter[key]
