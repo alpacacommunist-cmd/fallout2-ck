@@ -5,6 +5,7 @@
 #include "object/ck_object.h"
 #include "object/ck_object_registry.h"
 #include "object/critter/ck_critter.h"
+#include "object/critter/ck_stats.h"
 
 #include "ck_log.h"
 static const Logger log("CK Critter");
@@ -35,6 +36,18 @@ namespace ck {
 
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
+
+		for (int i = 0; i < 7; ++i) {
+			if (state.base_stats[i] != -1) ck::critter_set_base_stat(critter, i, state.base_stats[i]);
+		}
+
+		int current_hp = fallout::critterGetHitPoints(critter);
+		int max_hp     = fallout::critterGetStat(critter, fallout::STAT_MAXIMUM_HIT_POINTS);
+
+		if (state.hp != -1) fallout::critterAdjustHitPoints(critter, state.hp - current_hp);
+		else {
+			if (current_hp < max_hp) fallout::critterAdjustHitPoints(critter, max_hp - current_hp);
+		}
 
 		int lua_id = -1;
 		LuaMeta meta = { critter->sid, lua_tag, mod_id };

@@ -34,6 +34,16 @@ events.on('onMapEnter', function()
     description = i18n.t('arroyo_expanded', 'alice_description')
   })
 
+  alice.base_stats = {
+    strength     = 8,
+    perception   = 7,
+    endurance    = 6,
+    charisma     = 5,
+    intelligence = 9,
+    agility      = 8,
+    luck         = 5
+  }
+
   alice
     :on('look_at', function(self) monitor.print(self.name) end)
     :on('description', function(self) monitor.print(self.description) end)

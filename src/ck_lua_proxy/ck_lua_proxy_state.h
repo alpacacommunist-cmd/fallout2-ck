@@ -7,7 +7,7 @@
 namespace picojson { class value; }
 
 namespace ck::proxy {
-	struct ObjectState { int tile = -1; int hp = -1; };
+	struct ObjectState { int tile = -1; int hp = -1; int base_stats[7] = { -1, -1, -1, -1, -1, -1, -1 }; };
 
     int get_state_tile(const int map_id, const std::string& lua_tag);
 	ObjectState get_object_state(int map_id, const std::string& lua_tag);

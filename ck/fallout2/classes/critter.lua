@@ -9,7 +9,11 @@ ffi.cdef[[
   int ck_anim_clear(void* ptr);
   int ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
-  int ck_critter_get_hp(void* ptr);
+
+  int  ck_critter_get_stat(void* ptr, int stat_id);
+  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
+  int  ck_critter_get_hp(void* ptr);
+  void ck_critter_set_current_hp(void* ptr, int target_hp);
 ]]
 
 local log = ck.log.new('classes/critter.lua')
@@ -17,6 +21,7 @@ local log = ck.log.new('classes/critter.lua')
 local dialogue  = require('ck.fallout2.dialogue')
 local monitor   = require('ck.fallout2.monitor')
 local behaviors = require('ck.fallout2.objects.critters.behaviors')
+local stats     = require('ck.fallout2.objects.critters.stats')
 
 local Object = require("ck.fallout2.classes.object")
 
@@ -41,8 +46,43 @@ function Critter.new(lua_id, config, tag, mod_id)
   return self
 end
 
+function Critter:__newindex(key, value)
+  if key == "base_stats" then
+    self._base_stats_pending = value
+
+    if self.c_ptr and type(value) == "table" then
+      local max_hp_id = stats.MAP.max_hp
+      local hp_id     = stats.MAP.hp
+
+      local previous_max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
+      local previous_hp     = ffi.C.ck_critter_get_stat(self.c_ptr, hp_id)
+
+      for stat_name, stat_value in pairs(value) do
+        local stat_id = stats.MAP[stat_name]
+        if stat_id then ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, stat_value) end
+      end
+
+      local max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
+
+      if max_hp > previous_max_hp then
+        local hp_delta = max_hp - previous_max_hp
+
+        ffi.C.ck_critter_set_current_hp(self.c_ptr, previous_hp + hp_delta)
+      end
+    end
+
+    return self
+  else
+    rawset(self, key, value)
+  end
+end
+
 function Critter:hp()
   return ffi.C.ck_critter_get_hp(self.c_ptr)
+end
+
+function Critter:stats()
+  return self._base_stats_pending
 end
 
 function Critter:set_behavior(behavior_fn, ...)
