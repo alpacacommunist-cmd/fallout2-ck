@@ -10,12 +10,17 @@ ffi.cdef[[
   int  ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
 
-  int  ck_critter_get_stat(void* ptr, int stat_id);
+  int ck_critter_get_base_stat(void* ptr, int stat_id);
+  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
+  int ck_critter_get_bonus_stat(void* ptr, int stat);
+  bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+  int player_stat(int stat);
+  int player_pc_stat(int stat);
+
   int  ck_critter_get_hp(void* ptr);
   int  ck_critter_get_max_hp(void* ptr);
-
-  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   void ck_critter_set_current_hp(void* ptr, int target_hp);
+  int  ck_critter_set_full_hp(void* ptr);
 ]]
 
 local log = ck.log.new('classes/critter.lua')
@@ -45,7 +50,7 @@ function Critter.new(lua_id, config, tag, mod_id)
   self._behavior_interval  = 20
 
   self.stats = stats.create_proxy(function(stat_id)
-    return ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+    return ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
   end)
 
   if config and config.base_stats then
@@ -64,7 +69,7 @@ function Critter:__index(key)
     if self.c_ptr then
       for stat_name, stat_id in pairs(stats.MAP) do
         if stat_id >= 0 and stat_id <= 6 then
-          current_stats[stat_name] = ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+          current_stats[stat_name] = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
         end
       end
     end
@@ -83,15 +88,15 @@ function Critter:__newindex(key, value)
       local max_hp_id = stats.MAP.max_hp
       local hp_id     = stats.MAP.hp
 
-      local previous_max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
-      local previous_hp     = ffi.C.ck_critter_get_stat(self.c_ptr, hp_id)
+      local previous_max_hp = ffi.C.ck_critter_get_base_stat(self.c_ptr, max_hp_id)
+      local previous_hp     = ffi.C.ck_critter_get_base_stat(self.c_ptr, hp_id)
 
       local stats_changed = false
 
       for stat_name, stat_value in pairs(value) do
         local stat_id = stats.MAP[stat_name]
         if stat_id then
-          local backend_value = ffi.C.ck_critter_get_stat(self.c_ptr, stat_id)
+          local backend_value = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
 
           if backend_value ~= stat_value then
             ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, stat_value)
@@ -100,13 +105,7 @@ function Critter:__newindex(key, value)
         end
       end
 
-      if stats_changed then
-        local max_hp = ffi.C.ck_critter_get_stat(self.c_ptr, max_hp_id)
-        if max_hp > previous_max_hp then
-          local hp_delta = max_hp - previous_max_hp
-          ffi.C.ck_critter_set_current_hp(self.c_ptr, previous_hp + hp_delta)
-        end
-      end
+      if stats_changed then ffi.C.ck_critter_set_full_hp(self.c_ptr) end
     end
 
     return self
