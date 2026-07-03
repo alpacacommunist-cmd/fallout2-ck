@@ -18,6 +18,9 @@ namespace fallout {
 	int proto_new(int* pid, int type);
 	int proto_copy_proto(int srcPid, int dstPid);
 
+	void critterKill(Object* critter, int anim, bool refreshRect);
+	void _combat_delete_critter(Object* obj);
+
 	int textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
 	void tileWindowRefreshRect(Rect* rect, int elevation);
 
@@ -35,6 +38,8 @@ namespace fallout {
 namespace ck {
 	fallout::Object* create_critter(int pid, int tile);
 	CritterLua register_critter(int pid, int tile, const char* tag);
+
+	bool critter_kill(int lua_id);
 }
 
 int ck_map_get_id();
@@ -47,5 +52,6 @@ CK_API int ck_anim_play(void* ptr, int anim_id);
 CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
 CK_API bool ck_critter_is_busy(void* ptr);
+CK_API bool ck_critter_kill(int lua_id);
 
 #endif

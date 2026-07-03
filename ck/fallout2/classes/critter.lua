@@ -19,8 +19,9 @@ ffi.cdef[[
 
   int  ck_critter_get_hp(void* ptr);
   int  ck_critter_get_max_hp(void* ptr);
-  void ck_critter_set_current_hp(void* ptr, int target_hp);
+  int  ck_critter_set_current_hp(void* ptr, int target_hp);
   int  ck_critter_set_full_hp(void* ptr);
+  bool ck_critter_kill(int lua_id);
 ]]
 
 local log = ck.log.new('classes/critter.lua')
@@ -116,6 +117,13 @@ function Critter:_handle_proc(proc_id)
 
       return true
     end
+
+  elseif event_name == "destroy" then
+    log.info('destroyed npc: ' .. tostring(self.id))
+    ffi.C.ck_critter_kill(self.id)
+
+    return true
+
 
   elseif event_name == "talk" then
     if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then

@@ -15,6 +15,7 @@ struct LuaMeta {
 	int         proto_sid;
 	std::string tag;
 	std::string mod_id;
+	int         source_pid;
 };
 
 struct CkManagedObject {

@@ -29,13 +29,10 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 
 namespace ck {
 
-	int DEFAULT_CRITTER_SID = 13;
-
 	fallout::Object* create_critter(int pid, int tile) {
 		fallout::Object* critter = ck_object_create(pid, tile);
 
 		if (critter != nullptr) {
-			critter->sid    = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, DEFAULT_CRITTER_SID);
 
 			return critter;
 		}
@@ -51,9 +48,10 @@ namespace ck {
 
 		if (state.tile != -1) tile = state.tile;
 
+		int  source_pid = pid;
+
 		if (!lua_tag.empty()) {
 			int unique_pid = allocate_unique_proto(pid, lua_tag);
-
 			if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
 
 			pid = unique_pid;
@@ -62,10 +60,10 @@ namespace ck {
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
-		if (state.hp != -1) ck::critter_adjust_hp(critter, state.hp);
+		if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
 		int lua_id = -1;
-		LuaMeta meta = { critter->sid, lua_tag, mod_id };
+		LuaMeta meta = { critter->sid, lua_tag, mod_id, source_pid };
 
 		lua_id = gObjectRegistry.add(critter, meta);
 
@@ -75,6 +73,20 @@ namespace ck {
 		return { lua_id, ck_get_current_mod_id() };
 	}
 
+	bool critter_kill(int lua_id) {
+		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+		if (!managed || !managed->ptr) return false;
+
+		managed->ptr->pid = managed->meta.source_pid;
+		managed->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+		_combat_delete_critter(managed->ptr);
+
+		if (fallout::gDude->data.critter.combat.whoHitMe == managed->ptr) {
+			fallout::gDude->data.critter.combat.whoHitMe = nullptr;
+		}
+
+		return true;
+	}
 }
 
 void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
@@ -145,5 +157,9 @@ bool ck_critter_is_busy(void* ptr) {
 	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
 
 	return fallout::animationIsBusy(obj) == -1;
+}
+
+bool ck_critter_kill(int lua_id) {
+	return ck::critter_kill(lua_id);
 }
 

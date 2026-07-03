@@ -22,6 +22,8 @@ events.on('onMapEnter', function()
     description = 'Ralph the Wanderer'
   })
 
+  ralph.stats = { max_hp = 10, hp = 1 }
+
   ralph:set_behavior(behaviors.wander, 3)
   state.track(ralph, { save_interval_seconds = 5 })
 end)
