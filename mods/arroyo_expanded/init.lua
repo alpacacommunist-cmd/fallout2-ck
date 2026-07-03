@@ -29,12 +29,14 @@ events.on('onMapEnter', function()
   if map_id ~= 4 then return end
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
-    base_stats = { strength = 8, endurance = 8, agility = 8, perception = 7 },
+    -- stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
     name        = i18n.t('arroyo_expanded', 'alice_name'),
     description = i18n.t('arroyo_expanded', 'alice_description')
   })
 
-  log.info("Alice endurance: " .. tostring(alice.base_stats.endurance))
+  alice.stats = { max_hp = 55, hp = 55 }
+
+  log.info("Alice endurance: " .. tostring(alice.stats.endurance))
   log.info("Alice hp: " .. tostring(alice:hp()))
   log.info("Alice max hp: " .. tostring(alice:max_hp()))
   log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))

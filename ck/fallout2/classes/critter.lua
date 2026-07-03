@@ -49,57 +49,63 @@ function Critter.new(lua_id, config, tag, mod_id)
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
-  self.stats = stats.create_proxy(function(stat_id)
-    return ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+  self._stats_proxy = stats.create_proxy(function(stat_id)
+    local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+    local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+    return base + bonus
   end)
 
-  if config and config.base_stats then
-    self.base_stats = config.base_stats
-  end
+  if config and config.stats then self.stats = config.stats end
 
   return self
 end
 
 function Critter:__index(key)
-  if key == "base_stats" then
-    if self._base_stats_pending then return self._base_stats_pending end
-
-    local current_stats = {}
-
-    if self.c_ptr then
-      for stat_name, stat_id in pairs(stats.MAP) do
-        if stat_id >= 0 and stat_id <= 6 then
-          current_stats[stat_name] = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-        end
-      end
-    end
-
-    return current_stats
-  end
+  if key == "stats" then return self._stats_proxy end
 
   return Critter[key]
 end
 
 function Critter:__newindex(key, value)
-  if key == "base_stats" then
-    self._base_stats_pending = value
+  if key == "stats" then
+    self._stats_pending = value
 
     if self.c_ptr and type(value) == "table" then
-      local max_hp_id = stats.MAP.max_hp
-      local hp_id     = stats.MAP.hp
-
-      local previous_max_hp = ffi.C.ck_critter_get_base_stat(self.c_ptr, max_hp_id)
-      local previous_hp     = ffi.C.ck_critter_get_base_stat(self.c_ptr, hp_id)
-
       local stats_changed = false
 
-      for stat_name, stat_value in pairs(value) do
-        local stat_id = stats.MAP[stat_name]
-        if stat_id then
-          local backend_value = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+      ffi.C.ck_critter_set_bonus_stat(self.c_ptr, stats.MAP.max_hp, 0)
+      ffi.C.ck_critter_set_bonus_stat(self.c_ptr, stats.MAP.carry_weight, 0)
 
-          if backend_value ~= stat_value then
-            ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, stat_value)
+      for stat_name, target_value in pairs(value) do
+        local stat_id = stats.MAP[stat_name]
+
+        if stat_id then
+          local current_base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+          local current_bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+          local current_total = current_base + current_bonus
+
+          if current_total ~= target_value then
+            local target_base = target_value
+            local target_bonus = 0
+
+            if stat_id >= 0 and stat_id <= 6 and target_value > 10 then
+              target_base = 10
+              target_bonus = target_value - 10
+            end
+
+            ffi.C.ck_critter_set_base_stat(self.c_ptr, stat_id, target_base)
+            ffi.C.ck_critter_set_bonus_stat(self.c_ptr, stat_id, target_bonus)
+
+            if stat_id == stats.MAP.endurance and target_bonus > 0 then
+              local hp_bonus = target_bonus * 2
+              ffi.C.ck_critter_set_bonus_stat(self.c_ptr, stats.MAP.max_hp, hp_bonus)
+            end
+
+            if stat_id == stats.MAP.strength and target_bonus > 0 then
+              local weight_bonus = target_bonus * 25
+              ffi.C.ck_critter_set_bonus_stat(self.c_ptr, stats.MAP.carry_weight, weight_bonus)
+            end
+
             stats_changed = true
           end
         end
@@ -107,8 +113,6 @@ function Critter:__newindex(key, value)
 
       if stats_changed then ffi.C.ck_critter_set_full_hp(self.c_ptr) end
     end
-
-    return self
   else
     rawset(self, key, value)
   end

@@ -45,8 +45,7 @@ CK_API int player_pc_stat(int stat);
 
 CK_API int  ck_critter_get_hp(void* ptr);
 CK_API int  ck_critter_get_max_hp(void* ptr);
-CK_API void ck_critter_set_current_hp(void* ptr, int target_hp);
+CK_API int  ck_critter_set_current_hp(void* ptr, int target_hp);
 CK_API int  ck_critter_set_full_hp(void* ptr);
-
 
 #endif
