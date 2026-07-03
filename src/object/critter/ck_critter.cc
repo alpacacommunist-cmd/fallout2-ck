@@ -10,6 +10,23 @@
 #include "ck_log.h"
 static const Logger log("CK Critter");
 
+static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
+	int unique_pid = 0;
+
+	if (fallout::proto_new(&unique_pid, fallout::OBJ_TYPE_CRITTER) != 0) {
+		log.error("Couldn't allocate new prototype for '{}'", lua_tag);
+		return -1;
+	}
+
+	if (fallout::proto_copy_proto(base_pid, unique_pid) != 0) {
+		log.error("Couldn't copy prototype data for '{}'", lua_tag);
+		return -1;
+	}
+
+	log.info("Created unique prototype for '{}' с PID: {}", lua_tag, unique_pid);
+	return unique_pid;
+}
+
 namespace ck {
 
 	int DEFAULT_CRITTER_SID = 13;
@@ -33,6 +50,14 @@ namespace ck {
 		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
 
 		if (state.tile != -1) tile = state.tile;
+
+		if (!lua_tag.empty()) {
+			int unique_pid = allocate_unique_proto(pid, lua_tag);
+
+			if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
+
+			pid = unique_pid;
+		}
 
 		fallout::Object* critter = create_critter(pid, tile);
 		if (critter == nullptr) return { -1, ck_get_current_mod_id() };

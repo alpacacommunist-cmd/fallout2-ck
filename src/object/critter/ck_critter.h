@@ -15,6 +15,9 @@ int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 namespace fallout {
 	int mapGetCurrentMap();
 
+	int proto_new(int* pid, int type);
+	int proto_copy_proto(int srcPid, int dstPid);
+
 	int textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
 	void tileWindowRefreshRect(Rect* rect, int elevation);
 
