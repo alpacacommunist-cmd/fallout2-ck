@@ -14,15 +14,15 @@ int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 
 namespace fallout {
 	int mapGetCurrentMap();
+
 	extern unsigned int gCombatState;
 
 	int proto_new(int* pid, int type);
 	int proto_copy_proto(int srcPid, int dstPid);
 
 	void critterKill(Object* critter, int anim, bool refreshRect);
-	void _combat_delete_critter(Object* obj);
 
-	int textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
+	int  textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
 	void tileWindowRefreshRect(Rect* rect, int elevation);
 
     int reg_anim_begin(int requestOptions);
@@ -45,6 +45,7 @@ namespace ck {
 
 int ck_map_get_id();
 
+CK_API bool ck_in_combat();
 CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag);
 CK_API bool ck_critter_in_combat();

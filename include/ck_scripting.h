@@ -4,6 +4,8 @@
 #include <string>
 #include "ck_api.h"
 
+extern "C" bool ck_in_combat();
+
 namespace ck {
 	void on_map_enter();
 }
@@ -42,6 +44,7 @@ void ck_scripting_register_location(
 		const std::string& size,
 		int entranceX, int entranceY, int entranceTile
 );
+
 
 CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
 CK_API void ck_registry_clear();

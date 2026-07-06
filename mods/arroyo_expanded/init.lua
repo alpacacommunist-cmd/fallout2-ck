@@ -79,7 +79,6 @@ events.on('onMapEnter', function()
 
   villager1.stats = { max_hp = 10, hp = 1 }
 
-
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
 end)

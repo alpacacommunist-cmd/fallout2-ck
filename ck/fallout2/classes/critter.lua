@@ -3,13 +3,14 @@ local ffi = require("ffi")
 ffi.cdef[[
   void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 
+  bool ck_in_combat();
+
   int  ck_anim_begin(void* ptr, int weapon_ready);
   int  ck_anim_move_to(void* ptr, int tile, int elevation);
   int  ck_anim_play(void* ptr, int anim_id);
   int  ck_anim_clear(void* ptr);
   int  ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
-  bool ck_critter_in_combat();
 
   int ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
@@ -58,6 +59,8 @@ function Critter.new(lua_id, config, tag, mod_id)
   end)
 
   if config and config.stats then self.stats = config.stats end
+
+  self.in_combat = false
 
   return self
 end
@@ -124,6 +127,10 @@ function Critter:_handle_proc(proc_id)
     ffi.C.ck_critter_kill(self.id)
 
     return true
+  elseif event_name == "damage" then
+    log.info('damage npc: ' .. tostring(self.id))
+
+    return true
 
 
   elseif event_name == "talk" then
@@ -183,7 +190,7 @@ function Critter:animate()
 end
 
 function Critter:_handle_map_update(current_ticks)
-  if ffi.C.ck_critter_in_combat() then return end
+  if ffi.C.ck_in_combat() then return end
 
   -- 1: handle object's on:('map_update')
   if self.handlers['map_update'] then

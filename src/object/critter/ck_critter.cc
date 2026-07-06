@@ -23,7 +23,7 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 		return -1;
 	}
 
-	log.info("Created unique prototype for '{}' с PID: {}", lua_tag, unique_pid);
+	log.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
 	return unique_pid;
 }
 
@@ -124,12 +124,12 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
 	}
 }
 
-CritterLua ck_critter_register(int pid, int tile, const char* tag) {
-	return ck::register_critter(pid, tile, tag);
+bool ck_in_combat() {
+	return (fallout::gCombatState & fallout::COMBAT_STATE_0x01) != 0;
 }
 
-bool ck_critter_in_combat() {
-	return (fallout::gCombatState & fallout::COMBAT_STATE_0x01) != 0;
+CritterLua ck_critter_register(int pid, int tile, const char* tag) {
+	return ck::register_critter(pid, tile, tag);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {
