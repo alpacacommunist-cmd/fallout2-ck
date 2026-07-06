@@ -285,9 +285,6 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
-void ck_scripting_on_game_loaded() {
-	ck_dispatcher_on_game_loaded();
-}
 
 // loadsave.cc
 void ck_scripting_on_before_game_load(const char* path) {
@@ -296,10 +293,15 @@ void ck_scripting_on_before_game_load(const char* path) {
 	ck_state_load(path);
 }
 
-// loadsave.cc
-void ck_scripting_on_game_save(const char* path) {
-	log.debug("ck_scripting_on_game_save");
-
-	ck_state_save(path);
+void ck_scripting_on_game_loaded() {
+	ck_dispatcher_on_game_loaded();
 }
 
+void ck_scripting_on_before_game_save() {
+	// gObjectRegistry.ck_combat_purify_before_save();
+}
+
+void ck_scripting_on_game_save(const char* path) {
+    log.debug("ck_scripting_on_game_save");
+	ck_state_save(path);
+}

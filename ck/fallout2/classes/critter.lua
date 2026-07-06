@@ -9,6 +9,7 @@ ffi.cdef[[
   int  ck_anim_clear(void* ptr);
   int  ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
+  bool ck_critter_in_combat();
 
   int ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
@@ -182,6 +183,8 @@ function Critter:animate()
 end
 
 function Critter:_handle_map_update(current_ticks)
+  if ffi.C.ck_critter_in_combat() then return end
+
   -- 1: handle object's on:('map_update')
   if self.handlers['map_update'] then
     self.handlers['map_update'](self)

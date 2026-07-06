@@ -14,6 +14,7 @@ int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 
 namespace fallout {
 	int mapGetCurrentMap();
+	extern unsigned int gCombatState;
 
 	int proto_new(int* pid, int type);
 	int proto_copy_proto(int srcPid, int dstPid);
@@ -46,6 +47,7 @@ int ck_map_get_id();
 
 CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag);
+CK_API bool ck_critter_in_combat();
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
 CK_API int ck_anim_play(void* ptr, int anim_id);

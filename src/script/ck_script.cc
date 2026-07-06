@@ -8,7 +8,8 @@
 #include "script/ck_script.h"
 #include "object/ck_object_registry.h"
 
-#include <string>
+#include "ck_log.h"
+static const Logger log("CK Script");
 
 namespace ck {
 	int gLastDialogChoice = -1;
@@ -49,14 +50,14 @@ namespace ck {
 			return true;
 		}
 
-		if (managed->meta.proto_sid != -1 && managed->ptr) {
-			int saved = managed->ptr->sid;
-			managed->ptr->sid = managed->meta.proto_sid;
-			fallout::scriptExecProc(managed->meta.proto_sid, proc);
-			managed->ptr->sid = saved;
-
-			return true;
-		}
+		// if (managed->meta.proto_sid != -1 && managed->ptr) {
+		// 	int saved = managed->ptr->sid;
+		// 	managed->ptr->sid = managed->meta.proto_sid;
+		// 	fallout::scriptExecProc(managed->meta.proto_sid, proc);
+		// 	managed->ptr->sid = saved;
+		//
+		// 	return true;
+		// }
 
 		return false;
 	}

@@ -10,6 +10,7 @@ namespace ck {
 
 namespace fallout {
     struct Object;
+	extern Object* gDude;
 
 	void tileWindowRefresh();
 	void animationStop();
@@ -28,6 +29,7 @@ void ck_scripting_on_before_game_load(const char* path);
 void ck_scripting_on_game_loaded();
 void ck_on_scripts_reset();
 // state
+void ck_scripting_on_before_game_save();
 void ck_scripting_on_game_save(const char* path);
 
 int ck_get_config_int(const char* key, int default_value);

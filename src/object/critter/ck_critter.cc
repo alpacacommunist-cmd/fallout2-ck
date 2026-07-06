@@ -128,6 +128,10 @@ CritterLua ck_critter_register(int pid, int tile, const char* tag) {
 	return ck::register_critter(pid, tile, tag);
 }
 
+bool ck_critter_in_combat() {
+	return (fallout::gCombatState & fallout::COMBAT_STATE_0x01) != 0;
+}
+
 int ck_anim_begin(void* ptr, int request_options) {
 	return fallout::reg_anim_begin(request_options);
 }
