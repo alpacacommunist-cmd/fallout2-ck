@@ -50,15 +50,7 @@ namespace ck {
 			return true;
 		}
 
-		// if (managed->meta.proto_sid != -1 && managed->ptr) {
-		// 	int saved = managed->ptr->sid;
-		// 	managed->ptr->sid = managed->meta.proto_sid;
-		// 	fallout::scriptExecProc(managed->meta.proto_sid, proc);
-		// 	managed->ptr->sid = saved;
-		//
-		// 	return true;
-		// }
-
+		log.warn("unhanled proc: {} for id: {}", proc, lua_id);
 		return false;
 	}
 

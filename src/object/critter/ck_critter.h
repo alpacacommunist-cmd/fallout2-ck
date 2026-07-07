@@ -16,6 +16,7 @@ namespace fallout {
 	int mapGetCurrentMap();
 
 	extern unsigned int gCombatState;
+	void _combat_delete_critter(Object* obj);
 
 	int proto_new(int* pid, int type);
 	int proto_copy_proto(int srcPid, int dstPid);

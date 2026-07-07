@@ -18,6 +18,8 @@ namespace ck {
 
 		ck_dispatcher_on_map_enter();
 		ck_rendering_refresh();
+
+		if (ck_in_combat()) fallout::_combat_reload_map();
 	}
 
 	void on_before_map_enter() {

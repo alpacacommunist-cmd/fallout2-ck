@@ -131,7 +131,10 @@ function Critter:_handle_proc(proc_id)
     log.info('damage npc: ' .. tostring(self.id))
 
     return true
+  elseif event_name == "combat" then
+    log.info('combat npc: ' .. tostring(self.id))
 
+    return true
 
   elseif event_name == "talk" then
     if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then
