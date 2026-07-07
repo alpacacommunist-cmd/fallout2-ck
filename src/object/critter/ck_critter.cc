@@ -163,6 +163,25 @@ bool ck_critter_is_busy(void* ptr) {
 	return fallout::animationIsBusy(obj) == -1;
 }
 
+bool ck_critter_process_turn(void* ptr, int lua_id) {
+	if (!ptr) return false; auto* critter = static_cast<fallout::Object*>(ptr);
+
+	if (critter->data.critter.combat.ap <= 0) {
+		log.info("combat_turn_run for {}", lua_id);
+		fallout::_combat_turn_run();
+		return true;
+	}
+
+	if (fallout::_combatai_want_to_join(critter)) {
+		fallout::_combat_ai(critter, nullptr);
+	} else {
+		critter->data.critter.combat.ap = 0;
+		fallout::_combat_turn_run();
+	}
+
+	return true;
+}
+
 bool ck_critter_kill(int lua_id) {
 	return ck::critter_kill(lua_id);
 }

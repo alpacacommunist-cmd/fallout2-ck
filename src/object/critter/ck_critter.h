@@ -17,6 +17,9 @@ namespace fallout {
 
 	extern unsigned int gCombatState;
 	void _combat_delete_critter(Object* obj);
+	void _combat_ai(Object* a1, Object* a2);
+	bool _combatai_want_to_join(Object* a1);
+    void _combat_turn_run();
 
 	int proto_new(int* pid, int type);
 	int proto_copy_proto(int srcPid, int dstPid);
@@ -56,6 +59,7 @@ CK_API int ck_anim_play(void* ptr, int anim_id);
 CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
 CK_API bool ck_critter_is_busy(void* ptr);
+CK_API bool ck_critter_process_turn(void* ptr, int lua_id);
 CK_API bool ck_critter_kill(int lua_id);
 
 #endif

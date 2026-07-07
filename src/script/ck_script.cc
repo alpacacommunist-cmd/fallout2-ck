@@ -42,8 +42,10 @@ namespace ck {
 
 		if (!managed) return false;
 
+		int fixed_param = gDummyScript.fixedParam;
 		gDummyScript.scriptOverrides = 0;
-		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, managed->meta.mod_id.c_str());
+
+		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, managed->meta.mod_id.c_str());
 
 		if (handled_in_lua) {
 			gDummyScript.scriptOverrides = 1;

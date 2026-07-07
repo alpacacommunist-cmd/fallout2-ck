@@ -11,6 +11,7 @@ ffi.cdef[[
   int  ck_anim_clear(void* ptr);
   int  ck_anim_end();
   bool ck_critter_is_busy(void* ptr);
+  bool ck_critter_process_turn(void* ptr, int lua_id);
 
   int ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
@@ -98,7 +99,7 @@ function Critter:float_message(text, type)
   ffi.C.ck_critter_float_msg(self.id, text, type)
 end
 
-function Critter:_handle_proc(proc_id)
+function Critter:_handle_proc(proc_id, fixed_param)
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
@@ -133,6 +134,14 @@ function Critter:_handle_proc(proc_id)
     return true
   elseif event_name == "combat" then
     log.info('combat npc: ' .. tostring(self.id))
+
+    if fixed_param == 5 then return false end
+    if fixed_param == 4 then
+      if self:is_busy() then return true end
+
+      ffi.C.ck_critter_process_turn(self.c_ptr, self.id)
+      return true
+    end
 
     return true
 

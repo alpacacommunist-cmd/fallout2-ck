@@ -4,7 +4,7 @@
 #include "ck_api.h"
 
 void ck_dispatcher_on_map_update(int ticks);
-bool ck_dispatcher_on_proc(int lua_id, int proc_id, const char* object_mod_id);
+bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
 
 namespace fallout {
     struct Object;

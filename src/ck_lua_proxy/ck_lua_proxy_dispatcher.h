@@ -21,7 +21,7 @@ namespace ck::proxy {
 		emit_event(mod_id, event_name, { ProxyArg(args)... });
 	}
 
-	bool on_proc(int lua_id, int proc_id, const char* object_mod_id);
+	bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
     bool load_mod(const char* mod_id);
 
 	void clear_tracked_objects();

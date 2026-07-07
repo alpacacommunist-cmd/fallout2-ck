@@ -15,7 +15,7 @@ void ck_dispatcher_on_day_passed();
 void ck_dispatcher_on_time_advance(int hours, int minutes);
 
 void ck_dispatcher_on_map_update(int ticks);
-bool ck_dispatcher_on_proc(int lua_id, int proc_id, const char* object_mod_id);
+bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
 
 CK_API bool ck_dispatcher_load_mod(const char* mod_id);
 CK_API const char* ck_get_current_mod_id();

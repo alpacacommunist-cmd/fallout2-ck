@@ -78,11 +78,11 @@ function events.on_map_update(ticks)
   state.update_tracked_objects(ticks)
 end
 
-function events.on_proc(lua_id, proc_id)
+function events.on_proc(lua_id, proc_id, fixed_param)
   local object = objects.registry[lua_id]
 
   if not object then return false end
-  return object:_handle_proc(proc_id)
+  return object:_handle_proc(proc_id, fixed_param)
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua
