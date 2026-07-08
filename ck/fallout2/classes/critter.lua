@@ -133,7 +133,6 @@ function Critter:_handle_proc(proc_id, fixed_param)
 
     return true
   elseif event_name == "combat" then
-    log.info('combat npc: ' .. tostring(self.id))
     log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
     if fixed_param == 5 then
@@ -141,6 +140,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
     end
 
     if fixed_param == 4 then
+      self.in_combat = true
       ffi.C.ck_critter_process_turn(self.c_ptr, self.id)
     end
 
