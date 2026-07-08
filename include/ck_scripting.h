@@ -8,6 +8,7 @@ extern "C" bool ck_in_combat();
 
 namespace ck {
 	void on_map_enter();
+	void reset_dummy_script();
 }
 
 namespace fallout {

@@ -23,10 +23,12 @@ namespace ck {
 
 	extern int gLastDialogChoice;
 
-	bool owns_sid(int sid);
+	void reset_dummy_script();
+
 	fallout::Script*  script_get_dummy(int sid);
 	fallout::Program* program_get_dummy();
 
+	bool owns_sid(int sid);
 	void on_map_update(unsigned int ticks);
 	bool script_try_handle(int sid, int proc);
 }

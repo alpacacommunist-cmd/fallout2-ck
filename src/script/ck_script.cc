@@ -8,6 +8,8 @@
 #include "script/ck_script.h"
 #include "object/ck_object_registry.h"
 
+#include <cstring>
+
 #include "ck_log.h"
 static const Logger log("CK Script");
 
@@ -17,17 +19,22 @@ namespace ck {
 	static fallout::Program gDummyProgram;
 	static fallout::Script gDummyScript;
 
-	bool owns_sid(int sid) {
-		return ck::is_ck_sid(ck::clean_sid(sid));
+	void reset_dummy_script() {
+		log.debug("RESET gDummyScript");
+		memset(&gDummyScript, 0, sizeof(fallout::Script));
 	}
 
 	fallout::Script* script_get_dummy(int sid) {
-		gDummyScript.sid = sid;
+		gDummyScript.sid         = sid;
 		return &gDummyScript;
 	}
 
 	fallout::Program* program_get_dummy() {
 		return &gDummyProgram;
+	}
+
+	bool owns_sid(int sid) {
+		return ck::is_ck_sid(ck::clean_sid(sid));
 	}
 
 	void on_map_update(unsigned int ticks) {

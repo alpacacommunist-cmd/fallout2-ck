@@ -136,12 +136,12 @@ function Critter:_handle_proc(proc_id, fixed_param)
     log.info('combat npc: ' .. tostring(self.id))
     log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
-    if fixed_param == 5 then return true end
-    if fixed_param == 4 then
-      if self:is_busy() then return true end
+    if fixed_param == 5 then
+      return false
+    end
 
+    if fixed_param == 4 then
       ffi.C.ck_critter_process_turn(self.c_ptr, self.id)
-      return true
     end
 
     return true
