@@ -13,15 +13,18 @@ namespace ck {
 	static std::string normalize_path(const std::string& path) {
 		std::string result = path;
 		std::transform(result.begin(), result.end(), result.begin(), ::tolower);
-
 		for (char& c : result) if (c == '\\') c = '/';
+
+		size_t last_slash = result.find_last_of('/');
+		if (last_slash != std::string::npos) result = result.substr(last_slash + 1);
 
 		return result;
 	}
 
-	void messages_add_string(const std::string& msg_file, int msg_id, const std::string& text) {
-		std::string file_key = normalize_path(msg_file);
+	void messages_add_string(std::string_view msg_file, int msg_id, std::string_view text) {
+		std::string file_key = normalize_path(std::string(msg_file));
 		g_strings[file_key][msg_id] = text;
+
 		log.debug("Registered string for {}: [{}] = {}", file_key, msg_id, text);
 	}
 
@@ -30,11 +33,9 @@ namespace ck {
 
 		std::string file_key = normalize_path(path);
 
-		if (file_key.find("map.msg") != std::string::npos) {
-			g_list_registry[list] = "game/map.msg";
-		} else if (file_key.find("worldmap.msg") != std::string::npos) {
-			g_list_registry[list] = "game/worldmap.msg";
-		}
+		if (!g_list_registry.contains(list)) log.debug("Bound MessageList {:p} to file: {}", (void*)list, file_key);
+
+		g_list_registry[list] = file_key;
 	}
 
 	void messages_on_list_free(fallout::MessageList* list) {
@@ -61,6 +62,7 @@ namespace ck {
 	void messages_clear() {
 		g_strings.clear();
 		g_list_registry.clear();
+
 		log.info("Runtime message registries cleared");
 	}
 

@@ -2,13 +2,14 @@
 #define CK_MESSAGES_H
 
 #include <string>
+#include <string_view>
 
 namespace fallout {
     struct MessageList;
 }
 
 namespace ck {
-    void messages_add_string(const std::string& msg_file, int msg_id, const std::string& text);
+    void messages_add_string(std::string_view msg_file, int msg_id, std::string_view text);
     void messages_clear();
 
     void messages_on_list_loaded(fallout::MessageList* list, const char* path);
