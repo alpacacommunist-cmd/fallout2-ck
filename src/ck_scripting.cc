@@ -6,12 +6,11 @@
 #include "ck_utils.h"
 #include "ck_encoding.h"
 
+#include "ck_messages/ck_messages.h"
 #include "ce_config/ck_config_patch.h"
-#include "ce_config/ck_message_patch.h"
 #include "ce_config/ck_map_registry.h"
 #include "ce_config/ck_map_patch.h"
 
-#include "game_time/ck_game_time.h"
 #include "object/ck_object_registry.h"
 
 #include "ck_assets/ck_frm.h"
@@ -31,14 +30,12 @@ lua_State* gLuaState = nullptr;
 static const Logger log("CK Scripting");
 
 CkAssetRegistry gAssetRegistry;
-CkMapRegistry gMapRegistry;
+CkMapRegistry   gMapRegistry;
 
 void ck_scripting_register_location(const std::string& modId, const std::string& mapsDir,
         const std::string& name, const std::string& subName, const std::string& mapFile,
         const std::string& music, int worldX, int worldY, const std::string& size,
         int entranceX, int entranceY, int entranceTile) {
-
-	return;
 
     static int nextMapIdx  = -1;
     static int nextAreaIdx = -1;
@@ -96,14 +93,14 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",            entrance);
 
 	// map.msg — city name
-	ck_message_patch_add("game/map.msg", 1500 + areaIdx, name);
+	ck::messages_add_string("game/map.msg", 1500 + areaIdx, name);
 
 	int mapMsgBase = (mapIdx * 3) + 100;
-	ck_message_patch_add("game/map.msg", mapMsgBase, name);
+	ck::messages_add_string("game/map.msg", mapMsgBase, name);
 	// (mapIdx * 3) + 101 -> first line save
-	ck_message_patch_add("game/map.msg", mapMsgBase + 1, name);
+	ck::messages_add_string("game/map.msg", mapMsgBase + 1, name);
 	// (mapIdx * 3) + 200 -> description
-	ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, subName);
+	ck::messages_add_string("game/map.msg", (mapIdx * 3) + 200, subName);
 
     // mod map file path
 	std::string mapFilePath = std::format("../{}/{}.MAP", mapsDir, mapFileUpper);

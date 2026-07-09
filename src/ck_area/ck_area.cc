@@ -61,7 +61,7 @@ namespace ck {
 		gCurrentLoadingMapName = "";
 	}
 
-	int register_map(const std::string& map_file_name, const std::string& name,
+	int area_register_map(const std::string& map_file_name, const std::string& name,
 			const std::string& sub_name, const std::string& music) {
 
         static int next_map_index = -1;
@@ -96,20 +96,22 @@ namespace ck {
         return map_index;
     }
 
-    void override_map(int original_map_id, const CkMapFFI& data) {
-        std::string map_file = data.map_file ? data.map_file : std::string();
-        std::string name     = data.name     ? data.name     : std::string();
-        std::string subName  = data.sub_name ? data.subName  : std::string();
-        std::string music    = data.music    ? data.music    : "17arroyo";
+    int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
+        std::string map_file  = data.map_file ? data.map_file  : std::string();
+        std::string name      = data.name     ? data.name      : std::string();
+        std::string sub_name  = data.sub_name ? data.sub_name  : std::string();
+        std::string music     = data.music    ? data.music     : "17arroyo";
 
-        int map_id = ck::register_map(map_file, name, sub_name, music);
+        int map_id = ck::area_register_map(map_file, name, sub_name, music);
 
         gMapIdRedirects[origonal_map_id] = map_id;
 
         log.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
+
+		return map_id;
     }
 
-	int register_area(const std::string& modId, const std::string& name,
+	int area_register_location(const std::string& modId, const std::string& name,
 			int worldX, int worldY, const std::string& size,
 			const std::vector<std::string>& entranceLookups) {
 
@@ -146,11 +148,11 @@ namespace ck {
 
 }
 
-void ck_area_override_map(int originalMapId, const CkMapFFI* data) {
-    if (data) ck::override_map(original_map_id, *data);
+int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {
+    return ck::area_override_map(original_map_id, *data);
 }
 
-int ck_area_register_map(const CkMapFFI* data) {
+int ck_area_register_map(const CkAreaMapFFI* data) {
     if (!data) return -1;
 
     return ck::register_map(

@@ -13,7 +13,7 @@ static const Logger log("CK Map");
 namespace ck {
 	void on_map_enter() {
 		ck_dispatcher_on_map_enter();
-		// ck_rendering_refresh();
+		ck_rendering_refresh();
 
 		if (ck_in_combat()) fallout::_combat_reload_map();
 	}

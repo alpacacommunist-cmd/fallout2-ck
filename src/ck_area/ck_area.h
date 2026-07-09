@@ -9,7 +9,7 @@ namespace fallout {
     struct MapHeader;
 }
 
-struct CkMapFFI {
+struct CkAreaMapFFI {
     const char* map_file;
     const char* name;
     const char* sub_name;
@@ -28,9 +28,9 @@ namespace ck {
                       const std::vector<std::string>& entranceLookups);
 }
 
-CK_API void ck_area_override_map(int originalMapId, const CkMapFFI* data);
+CK_API int  ck_area_override_map(int original_map_id, const CkMapFFI* data);
 CK_API int  ck_area_register_map(const CkMapFFI* data);
 
-CK_API int ck_area_register_area(const char* modId, const char* name,
-		int worldX, int worldY, const char* size,
-		const char** entranceLookups, int entranceCount);
+CK_API int ck_area_register_area(const char* name,
+		int world_x, int world_y, const char* size,
+		const char** entrance_lookups, int entrance_count);
