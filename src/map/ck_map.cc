@@ -12,18 +12,18 @@ static const Logger log("CK Map");
 
 namespace ck {
 	void on_map_enter() {
-		ck_rendering_clear();
-		ck_map_clear_camera_borders();
-		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
-
 		ck_dispatcher_on_map_enter();
-		ck_rendering_refresh();
+		// ck_rendering_refresh();
 
 		if (ck_in_combat()) fallout::_combat_reload_map();
 	}
 
 	void on_before_map_enter() {
 		log.debug("on_before_map_enter");
+
+		ck_rendering_clear();
+		ck_map_clear_camera_borders();
+		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}
 }
 

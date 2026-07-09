@@ -1,6 +1,8 @@
 #include "map.h"
 
-#include "locations/ck_locations.h"
+#include "ce_config/ck_config_patch.h"
+#include "ce_config/ck_message_patch.h"
+#include "ck_area/ck_area.h"
 
 #include <unordered_map>
 #include <algorithm>
@@ -12,10 +14,11 @@ static const Logger log("CK Locations");
 namespace ck {
 
     struct MapRuntimeEntry {
-        int mapIdx;
+        int map_index;
         std::string modId;
     };
 
+	static std::unordered_map<int, int> gMapIdRedirects;
     static std::unordered_map<std::string, std::string> gMapPaths;        // key: lowercase map name -> full path
     static std::unordered_map<std::string, MapRuntimeEntry> gRuntimeMaps; // key: lowercase map name -> info
     static std::string gCurrentLoadingMapName = "";
@@ -33,17 +36,14 @@ namespace ck {
         std::transform(key.begin(), key.end(), key.begin(), ::tolower);
         std::transform(ext.begin(), ext.end(), ext.begin(), ::toupper);
 
-        if (!ext.empty() && ext != ".MAP") {
-            return nullptr;
-        }
-
-        auto it = gMapPaths.find(key);
-        if (it == gMapPaths.end()) return nullptr;
+        if (!ext.empty() && ext != ".MAP")                        return nullptr;
+        auto it = gMapPaths.find(key); if (it == gMapPaths.end()) return nullptr;
 
         gCurrentLoadingMapName = key;
 
         strncpy(resolved_path, it->second.c_str(), sizeof(resolved_path) - 1);
         resolved_path[sizeof(resolved_path) - 1] = '\0';
+
         return resolved_path;
     }
 
@@ -53,49 +53,61 @@ namespace ck {
 		auto it = gRuntimeMaps.find(gCurrentLoadingMapName);
 		if (it != gRuntimeMaps.end()) {
 			log.info("Memory patch map index for '{}': {} -> {}",
-					gCurrentLoadingMapName, header->index, it->second.mapIdx);
+					gCurrentLoadingMapName, header->index, it->second.map_index);
 
-			header->index = it->second.mapIdx;
+			header->index = it->second.map_index;
 		}
 
 		gCurrentLoadingMapName = "";
 	}
 
-	int register_map(const std::string& modId, const std::string& mapsDir,
-			const std::string& mapFile, const std::string& name,
-			const std::string& subName, const std::string& music) {
+	int register_map(const std::string& map_file_name, const std::string& name,
+			const std::string& sub_name, const std::string& music) {
 
-		static int nextMapIdx = -1;
-		if (nextMapIdx == -1) {
-			nextMapIdx = ck_config_next_map_index("data\\data\\maps.txt");
-		}
+        static int next_map_index = -1;
+        if (next_map_index == -1) {
+            next_map_index = ck_config_next_map_index("data\\data\\maps.txt");
+        }
 
-		std::string mapFileUpper = mapFile;
-		std::transform(mapFileUpper.begin(), mapFileUpper.end(), mapFileUpper.begin(), ::toupper);
-		std::string mapFileLower = mapFile;
-		std::transform(mapFileLower.begin(), mapFileLower.end(), mapFileLower.begin(), ::tolower);
+        std::string map_file_upper = map_file;
+        std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
+        std::string map_file_lower = map_file;
+        std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
 
-		int mapIdx = nextMapIdx++;
+        int map_index = next_map_index++;
 
-		std::string mapFilePath = std::format("../{}/{}.MAP", mapsDir, mapFileUpper);
-		gMapPaths[mapFileLower] = mapFilePath;
-		gRuntimeMaps[mapFileLower] = { mapIdx, modId };
+        std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", ck_get_current_mod_id(), map_file_upper);
+        gMapPaths[map_file_lower] = map_file_path;
+        gRuntimeMaps[map_file_lower] = { map_index, ck_get_current_mod_id() };
 
-		log.info("Registered map: {} (ID: {}) -> {}", mapFileUpper, mapIdx, mapFilePath);
+        log.info("Registered map: {} (ID: {}) -> {}", map_file_upper, map_index, map_file_path);
 
-		std::string mapSection = "Map " + std::to_string(mapIdx);
-		ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
-		ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    mapFileUpper);
-		ck_config_patch_add("data\\maps.txt", mapSection, "music",       music);
-		ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
+        std::string mapSection = "Map " + std::to_string(map_index);
+        ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
+        ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    map_file_upper);
+        ck_config_patch_add("data\\maps.txt", mapSection, "music",       music);
+        ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
 
-		int mapMsgBase = (mapIdx * 3) + 100;
-		ck_message_patch_add("game/map.msg", mapMsgBase, name);
-		ck_message_patch_add("game/map.msg", mapMsgBase + 1, name);
-		ck_message_patch_add("game/map.msg", (mapIdx * 3) + 200, subName);
+        int mapMsgBase = (map_index * 3) + 100;
+        ck_message_patch_add("game/map.msg", mapMsgBase, name);
+        ck_message_patch_add("game/map.msg", mapMsgBase + 1, name);
+        ck_message_patch_add("game/map.msg", (map_index * 3) + 200, subName);
 
-		return mapIdx;
-	}
+        return map_index;
+    }
+
+    void override_map(int original_map_id, const CkMapFFI& data) {
+        std::string map_file = data.map_file ? data.map_file : std::string();
+        std::string name     = data.name     ? data.name     : std::string();
+        std::string subName  = data.sub_name ? data.subName  : std::string();
+        std::string music    = data.music    ? data.music    : "17arroyo";
+
+        int map_id = ck::register_map(map_file, name, sub_name, music);
+
+        gMapIdRedirects[origonal_map_id] = map_id;
+
+        log.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
+    }
 
 	int register_area(const std::string& modId, const std::string& name,
 			int worldX, int worldY, const std::string& size,
@@ -134,9 +146,19 @@ namespace ck {
 
 }
 
-int ck_area_register_map(const char* modId, const char* mapsDir, const char* mapFile,
-		const char* name, const char* subName, const char* music) {
-	return ck::register_map(modId, mapsDir, mapFile, name, subName, music);
+void ck_area_override_map(int originalMapId, const CkMapFFI* data) {
+    if (data) ck::override_map(original_map_id, *data);
+}
+
+int ck_area_register_map(const CkMapFFI* data) {
+    if (!data) return -1;
+
+    return ck::register_map(
+        data->map_file ? data->map_file : std::string(),
+        data->name     ? data->name     : std::string(),
+        data->sub_name ? data->sub_name : std::string(),
+        data->music    ? data->music    : std::string("17arroyo")
+    );
 }
 
 int ck_area_register_area(const char* modId, const char* name, int worldX, int worldY,

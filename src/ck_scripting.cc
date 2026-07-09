@@ -38,6 +38,8 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
         const std::string& music, int worldX, int worldY, const std::string& size,
         int entranceX, int entranceY, int entranceTile) {
 
+	return;
+
     static int nextMapIdx  = -1;
     static int nextAreaIdx = -1;
     static bool registryLoaded = false;
