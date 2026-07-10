@@ -148,3 +148,14 @@ void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
 		if (src.tile != -1) ck_object_remove_at(src.tile);
     }
 }
+
+int ck_map_get_mvar(int index) {
+	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return 0;
+	return fallout::gMapLocalVars[index];
+}
+
+void ck_map_set_mvar(int index, int value) {
+	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return;
+	fallout::gMapLocalVars[index] = value;
+}
+

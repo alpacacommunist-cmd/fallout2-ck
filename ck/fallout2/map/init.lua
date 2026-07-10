@@ -2,6 +2,9 @@
 local ffi = require("ffi")
 
 ffi.cdef[[
+  int  ck_map_get_mvar(int index);
+  void ck_map_set_mvar(int index, int value);
+
   int  ck_map_get_id();
   void ck_map_add_scenery_fid(int fid, int tile);
   void ck_map_add_scenery_key(const char* key, int tile);
@@ -32,6 +35,8 @@ local map  = {
 
 map.tools.init(map)
 
+map.get_var           = C.ck_map_get_mvar
+map.set_var           = C.ck_map_set_mvar
 map.get_id            = C.ck_map_get_id
 map.set_borders       = C.ck_map_set_camera_borders
 map.add_tile_fid      = C.ck_map_add_tile_fid
@@ -43,7 +48,6 @@ map.create_object_fid = C.ck_map_create_object_fid
 map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.rendering_refresh = C.ck_rendering_refresh
-
 
 function map.register_object(value, tile)
   C.ck_map_register_object(value, tile)

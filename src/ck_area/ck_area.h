@@ -35,6 +35,3 @@ CK_API int ck_area_expand_location(int area_id, const char* custom_map_lookup_na
 CK_API int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data);
 CK_API int ck_area_register_map(const CkAreaMapFFI* data);
 
-CK_API int ck_area_register_area(const char* name,
-		int world_x, int world_y, const char* size,
-		const char** entrance_lookups, int entrance_count);

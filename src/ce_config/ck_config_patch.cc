@@ -93,32 +93,32 @@ namespace ck {
         return next_idx;
     }
 
+	void config_patch_apply(fallout::Config* config, const char* file_path) {
+		if (config == nullptr || file_path == nullptr) return;
+
+		std::string path_norm = normalize_config_path(file_path);
+
+		auto file_it = ck::g_config_patches.find(path_norm);
+		if  (file_it == ck::g_config_patches.end()) return;
+
+		int applied = 0;
+		for (const auto& [section, keys] : file_it->second) {
+			for (const auto& [key, value] : keys) {
+				fallout::configSetString(config, section.c_str(), key.c_str(), value.c_str());
+				applied++;
+			}
+		}
+
+		if (applied > 0) {
+			log.info("Applied {} unique patches to: {}", applied, file_path);
+		}
+	}
+
 	void config_patch_clear() {
 		ck::g_config_patches.clear();
 		log.info("Cleared all patches.");
 	}
 
-}
-
-void ck_config_patch_apply(fallout::Config* config, const char* file_path) {
-    if (config == nullptr || file_path == nullptr) return;
-
-    std::string path_norm = normalize_config_path(file_path);
-
-    auto file_it = ck::g_config_patches.find(path_norm);
-    if  (file_it == ck::g_config_patches.end()) return;
-
-    int applied = 0;
-    for (const auto& [section, keys] : file_it->second) {
-        for (const auto& [key, value] : keys) {
-            fallout::configSetString(config, section.c_str(), key.c_str(), value.c_str());
-            applied++;
-        }
-    }
-
-    if (applied > 0) {
-        log.info("Applied {} unique patches to: {}", applied, file_path);
-    }
 }
 
 
