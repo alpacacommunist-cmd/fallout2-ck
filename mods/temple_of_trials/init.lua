@@ -5,8 +5,15 @@ local assets    = require('ck.fallout2.assets')
 local critters  = require('ck.fallout2.objects.critters')
 local state     = require('ck.fallout2.state')
 local behaviors = require('ck.fallout2.objects.critters.behaviors')
+local locations = require('ck.fallout2.locations')
 
 local outskirts = require('.outskirts')
+
+local new_hunting_grounds = locations.override_map(35,{
+  map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
+})
+
+log.info("new_hunting_grounds id: " .. new_hunting_grounds)
 
 events.on('onModReload', function()
   map.rendering_refresh()

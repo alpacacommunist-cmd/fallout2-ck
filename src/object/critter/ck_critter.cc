@@ -125,7 +125,7 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
 }
 
 bool ck_in_combat() {
-	return (fallout::gCombatState & fallout::COMBAT_STATE_0x01) != 0;
+	return (fallout::gCombatState & fallout::COMBAT_STATE_IN_COMBAT) != 0;
 }
 
 CritterLua ck_critter_register(int pid, int tile, const char* tag) {

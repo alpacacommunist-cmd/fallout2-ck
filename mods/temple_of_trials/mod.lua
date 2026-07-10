@@ -11,7 +11,7 @@ return {
   locations = {
     {
       name      = "Test Caves",
-      sub_name  = "Infiltration2",
+      sub_name  = "Infiltration",
       map_file  = "tstcv",
       music     = "07desert",
       world_pos = {220, 140},

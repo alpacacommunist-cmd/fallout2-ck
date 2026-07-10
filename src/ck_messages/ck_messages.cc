@@ -50,6 +50,10 @@ namespace ck {
 
 		const std::string& file_key = list_it->second;
 
+		if (file_key == "map.msg") {
+			log.debug("Engine requested map.msg ID: {}, current default text: '{}'", num, default_text ? default_text : "NULL");
+		}
+
 		auto file_it = g_strings.find(file_key);
 		if (file_it != g_strings.end()) {
 			auto string_it = file_it->second.find(num);
