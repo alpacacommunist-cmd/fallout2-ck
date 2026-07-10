@@ -1,8 +1,11 @@
 #include "map.h"
 
-#include "ce_config/ck_config_patch.h"
-#include "ck_messages/ck_messages.h"
 #include "ck_area/ck_area.h"
+
+#include "ce_config/ck_config_patch.h"
+#include "ce_config/ck_config_maps.h"
+#include "ce_config/ck_config_city.h"
+#include "ck_messages/ck_messages.h"
 
 #include <unordered_map>
 #include <algorithm>
@@ -98,9 +101,7 @@ namespace ck {
 			   const std::string& sub_name, const std::string& music) {
 
         static int next_map_index = -1;
-        if (next_map_index == -1) {
-            next_map_index = ck::config_next_map_index("data\\data\\maps.txt");
-        }
+        if (next_map_index == -1) next_map_index = ck::config_maps::get_next_index();
 
         std::string map_file_upper = map_file_name;
         std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
@@ -108,32 +109,30 @@ namespace ck {
         std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
 
         int map_index = -1;
-
-        // (Mod Reload Check):
         auto runtime_it = gRuntimeMaps.find(map_file_lower);
         if (runtime_it != gRuntimeMaps.end()) {
-            map_index = runtime_it->second; // get previous id (eg 151)
-            log.info("Map reload detected for [{}]: retaining existing ID {}", map_file_upper, map_index);
-        } else map_index = next_map_index++;
+            map_index = runtime_it->second;
+        } else {
+            map_index = next_map_index++;
+        }
 
         std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", ck_get_current_mod_id(), map_file_upper);
         gMapPaths[map_file_lower] = map_file_path;
         gRuntimeMaps[map_file_lower] = map_index;
 
-        log.info("Registered map: {} (ID: {}) -> {}", map_file_upper, map_index, map_file_path);
+        std::string map_section = ck::config_maps::format_section(map_index);
 
-        std::string mapSection = "Map " + std::to_string(map_index);
-        ck::config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
-        ck::config_patch_add("data\\maps.txt", mapSection, "map_name",    map_file_upper);
-        ck::config_patch_add("data\\maps.txt", mapSection, "music",       music);
-		ck::config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
+        ck::config_patch_add("data/maps.txt", map_section, "lookup_name", name);
+        ck::config_patch_add("data/maps.txt", map_section, "map_name",    map_file_upper);
+        ck::config_patch_add("data/maps.txt", map_section, "music",       music);
+        ck::config_patch_add("data/maps.txt", map_section, "saved",       "Yes");
 
         int map_base_id = map_index * 3;
-        ck::messages_add_string("map.msg", map_base_id + 100, name);     // name
-        ck::messages_add_string("map.msg", map_base_id + 101, name);     // save label
+        ck::messages_add_string("map.msg", map_base_id + 100, name);
+        ck::messages_add_string("map.msg", map_base_id + 101, name);
 
         std::string full_description = sub_name.empty() ? name : sub_name;
-        ck::messages_add_string("map.msg", map_base_id + 200, full_description); // description
+        ck::messages_add_string("map.msg", map_base_id + 200, full_description);
 
         return map_index;
     }
@@ -152,82 +151,19 @@ namespace ck {
         return map_id;
     }
 
-	int expand_location(int area_id, const std::string& custom_map_lookup_name, int townmap_x, int townmap_y) {
-        // format section [Area 00]
-        std::string area_section = std::format("Area {:02d}", area_id);
-        std::string city_path = "data/city.txt";
-
-        int next_entrance_id = ck::config_find_entrance_by_map_name(city_path, area_section, custom_map_lookup_name);
-
-        if (next_entrance_id == -1) {
-            // first map registration, get free index
-            int original_entrances = ck::config_count_area_entrances_vfs(area_id);
-            int custom_entrances   = ck::config_count_custom_entrances(city_path, area_section);
-
-            next_entrance_id = original_entrances + custom_entrances;
-        } else {
-            log.info("Mod reload detected for [{}]: updating existing entrance_{}", area_section, next_entrance_id);
-        }
-
-        std::string entrance_key   = "entrance_" + std::to_string(next_entrance_id);
-        std::string entrance_value = std::format("On,{},{},{},-1,-1,0", townmap_x, townmap_y, custom_map_lookup_name);
-
-        ck::config_patch_add(city_path, area_section, entrance_key, entrance_value);
-        log.info("Successfully patched [{}] with {} = {}", area_section, entrance_key, entrance_value);
-
-        int townmap_msg_id = 200 + (10 * area_id) + next_entrance_id;
-		ck::messages_add_string("worldmap.msg", townmap_msg_id, custom_map_lookup_name);
-
-        return next_entrance_id;
-    }
-
-	int area_register_location(const std::string& name,
-			int worldX, int worldY, const std::string& size,
-			const std::vector<std::string>& entranceLookups) {
-
-		static int nextAreaIdx = -1;
-		if (nextAreaIdx == -1) {
-			nextAreaIdx = ck::config_next_area_index("data\\data\\city.txt");
-		}
-
-		int areaIdx = nextAreaIdx++;
-
-		std::string areaSection = "Area " + std::to_string(areaIdx);
-		std::string worldPos = std::format("{},{}", worldX, worldY);
-
-		log.info("Registered worldmap area: {} (ID: {})", name, areaIdx);
-
-		ck::config_patch_add("data\\city.txt", areaSection, "area_name",             name);
-		ck::config_patch_add("data\\city.txt", areaSection, "world_pos",             worldPos);
-		ck::config_patch_add("data\\city.txt", areaSection, "start_state",           "On");
-		ck::config_patch_add("data\\city.txt", areaSection, "size",                  size);
-		ck::config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",       "-1");
-		ck::config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx", "-1");
-
-		// entrances
-		for (size_t i = 0; i < entranceLookups.size(); ++i) {
-			std::string entrance = std::format("On,350,275,{},-1,-1,3", entranceLookups[i]);
-			ck::config_patch_add("data\\city.txt", areaSection, "entrance_" + std::to_string(i), entrance);
-		}
-
-		// city name
-		ck::messages_add_string("game/map.msg", 1500 + areaIdx, name);
-
-		return areaIdx;
+	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
+		return ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
 	}
 
+	int expand_location(int area_id, const std::string& map_lookup_name, int x, int y) {
+		return ck::config_city::expand_location(ck_get_current_mod_id(), area_id, map_lookup_name, x, y);
+    }
+
 }
 
-int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {
-	if (!data) return -1;
+int ck_area_register_location(const char* name, int worldX, int worldY, const char* size) {
 
-    return ck::area_override_map(original_map_id, *data);
-}
-
-int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y) {
-	if (!custom_map_lookup_name) return -1;
-
-	return ck::expand_location(area_id, custom_map_lookup_name, townmap_x, townmap_y);
+	return ck::area_register_location(name, worldX, worldY, size);
 }
 
 int ck_area_register_map(const CkAreaMapFFI* data) {
@@ -241,11 +177,15 @@ int ck_area_register_map(const CkAreaMapFFI* data) {
     );
 }
 
-int ck_area_register_area(const char* name, int worldX, int worldY,
-		const char* size, const char** entranceLookups, int entranceCount) {
+int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {
+	if (!data) return -1;
 
-	std::vector<std::string> lookups;
-	for (int i = 0; i < entranceCount; ++i) lookups.push_back(entranceLookups[i]);
-
-	return ck::area_register_location(name, worldX, worldY, size, lookups);
+    return ck::area_override_map(original_map_id, *data);
 }
+
+int ck_area_expand_location(int area_id, const char* map_lookup_name, int townmap_x, int townmap_y) {
+	if (!map_lookup_name) return -1;
+
+	return ck::expand_location(area_id, map_lookup_name, townmap_x, townmap_y);
+}
+

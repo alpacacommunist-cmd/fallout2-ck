@@ -30,9 +30,10 @@ namespace ck {
                       const std::vector<std::string>& entranceLookups);
 }
 
+CK_API int ck_area_register_location(const char* name, int worldX, int worldY, const char* size);
+CK_API int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 CK_API int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data);
 CK_API int ck_area_register_map(const CkAreaMapFFI* data);
-CK_API int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 
 CK_API int ck_area_register_area(const char* name,
 		int world_x, int world_y, const char* size,

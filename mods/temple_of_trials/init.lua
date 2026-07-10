@@ -15,17 +15,28 @@ local outskirts = require('.outskirts')
 --
 -- log.info("new_hunting_grounds id: " .. new_hunting_grounds)
 
-local new_map_id = locations.register_map({
+-- local new_map_id = locations.register_map({
+--     map_file = 'tstcv',
+--     name     = "Secret Hunting Grounds",
+--     music    = "07desert"
+-- })
+--
+-- locations.expand(0, {
+--     lookup_name = "Secret Hunting Grounds",
+--     townmap_x   = 150,
+--     townmap_y   = 220
+-- })
+
+new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
+local test_caves = locations.register_map({
     map_file = 'tstcv',
-    name     = "Secret Hunting Grounds",
+    name     = "Secret Caves",
+    sub_name = "Very secret",
     music    = "07desert"
 })
 
-locations.expand_location(0, {
-    lookup_name = "Secret Hunting Grounds",
-    townmap_x   = 150,
-    townmap_y   = 220
-})
+locations.expand(new_location_id, { lookup_name = "Secret Caves" })
+
 
 events.on('onModReload', function()
   map.rendering_refresh()

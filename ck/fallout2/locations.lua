@@ -8,12 +8,36 @@ typedef struct {
     const char* music;
 } CkAreaMapFFI;
 
+int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
+int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 int ck_area_register_map(const CkAreaMapFFI* data);
 int ck_area_override_map(int map_id, const CkAreaMapFFI* data);
-int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 ]]
 
 local locations = {}
+
+function locations.register(config)
+    assert(config.name,   "name is required!")
+
+    return ffi.C.ck_area_register_location(
+        config.name,
+        config.world_x,
+        config.world_y,
+        config.size or "small"
+    )
+end
+
+function locations.expand(area_id, config)
+    assert(type(area_id) == "number", "area_id number required!")
+    assert(config.lookup_name, "lookup_name of the target map is required!")
+
+    return ffi.C.ck_area_expand_location(
+        area_id,
+        config.lookup_name,
+        config.townmap_x or 200,
+        config.townmap_y or 200
+    )
+end
 
 function locations.register_map(config)
   assert(config.map_file,  "map_file is required!")
@@ -42,18 +66,6 @@ function locations.override_map(map_id, config)
     data.music     = config.music or "17arroyo"
 
     return ffi.C.ck_area_override_map(map_id, data)
-end
-
-function locations.expand_location(area_id, config)
-    assert(type(area_id) == "number", "area_id number required!")
-    assert(config.lookup_name, "lookup_name of the target map is required!")
-
-    return ffi.C.ck_area_expand_location(
-        area_id,
-        config.lookup_name,
-        config.townmap_x or 200,
-        config.townmap_y or 200
-    )
 end
 
 return locations

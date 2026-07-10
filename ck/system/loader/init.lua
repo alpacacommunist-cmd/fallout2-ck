@@ -50,22 +50,6 @@ local function apply_manifest(manifest)
   if manifest.locale then
     i18n.register(manifest.id, manifest.locale)
   end
-
-  if manifest.locations then
-    for _, loc in ipairs(manifest.locations) do
-      local map_file_upper = loc.map_file:upper()
-
-        ckRegisterLocation(
-          manifest.id, manifest.maps,
-
-          loc.name, loc.sub_name or "Entrance",
-          map_file_upper,
-          loc.music or "07desert",
-          loc.world_pos[1], loc.world_pos[2], loc.size or "Small",
-          loc.entrance.x, loc.entrance.y, loc.entrance.tile
-        )
-    end
-  end
 end
 
 function loader.load_and_init_mod(mod_id)

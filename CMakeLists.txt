@@ -35,8 +35,8 @@ add_library(fallout2-ck STATIC
     src/ck_lua_proxy/ck_lua_proxy_state.cc
 
     src/ce_config/ck_config_patch.cc
-    src/ce_config/ck_map_registry.cc
-    src/ce_config/ck_map_patch.cc
+    src/ce_config/ck_config_maps.cc
+    src/ce_config/ck_config_city.cc
     src/ce_config/ck_encoding.cc
 
     src/ck_assets/ck_frm.cc
