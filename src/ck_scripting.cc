@@ -49,8 +49,8 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
     }
 
     if (nextMapIdx == -1) {
-        nextMapIdx  = ck_config_next_map_index("data\\data\\maps.txt");
-        nextAreaIdx = ck_config_next_area_index("data\\data\\city.txt");
+        nextMapIdx  = ck::config_next_map_index("data\\data\\maps.txt");
+        nextAreaIdx = ck::config_next_area_index("data\\data\\city.txt");
     }
 
 	std::string mapFileUpper = mapFile;
@@ -77,22 +77,22 @@ void ck_scripting_register_location(const std::string& modId, const std::string&
 	log.info("Registering location: {} as {} / {}", name, mapSection, areaSection);
 
     // maps.txt
-    ck_config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
-    ck_config_patch_add("data\\maps.txt", mapSection, "map_name",    mapFileUpper);
-    ck_config_patch_add("data\\maps.txt", mapSection, "music",       music);
-    ck_config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
+	ck::config_patch_add("data\\maps.txt", mapSection, "lookup_name", name);
+    ck::config_patch_add("data\\maps.txt", mapSection, "map_name",    mapFileUpper);
+    ck::config_patch_add("data\\maps.txt", mapSection, "music",       music);
+    ck::config_patch_add("data\\maps.txt", mapSection, "saved",       "Yes");
 
     // city.txt
 	std::string worldPos = std::format("{},{}", worldX, worldY);
 	std::string entrance = std::format("On,{},{},{},-1,{},0", entranceX, entranceY, name, entranceTile);
 
-    ck_config_patch_add("data\\city.txt", areaSection, "area_name",             name);
-    ck_config_patch_add("data\\city.txt", areaSection, "world_pos",             worldPos);
-    ck_config_patch_add("data\\city.txt", areaSection, "start_state",           "On");
-    ck_config_patch_add("data\\city.txt", areaSection, "size",                  size);
-    ck_config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",       "-1");
-    ck_config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx", "-1");
-	ck_config_patch_add("data\\city.txt", areaSection, "entrance_0",            entrance);
+	ck::config_patch_add("data\\city.txt", areaSection, "area_name",             name);
+    ck::config_patch_add("data\\city.txt", areaSection, "world_pos",             worldPos);
+    ck::config_patch_add("data\\city.txt", areaSection, "start_state",           "On");
+    ck::config_patch_add("data\\city.txt", areaSection, "size",                  size);
+    ck::config_patch_add("data\\city.txt", areaSection, "townmap_art_idx",       "-1");
+    ck::config_patch_add("data\\city.txt", areaSection, "townmap_label_art_idx", "-1");
+	ck::config_patch_add("data\\city.txt", areaSection, "entrance_0",            entrance);
 
 	// map.msg — city name
 	ck::messages_add_string("game/map.msg", 1500 + areaIdx, name);

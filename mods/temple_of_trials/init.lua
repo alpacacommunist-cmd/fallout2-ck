@@ -9,11 +9,23 @@ local locations = require('ck.fallout2.locations')
 
 local outskirts = require('.outskirts')
 
-local new_hunting_grounds = locations.override_map(35,{
-  map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
+-- local new_hunting_grounds = locations.override_map(35,{
+--   map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
+-- })
+--
+-- log.info("new_hunting_grounds id: " .. new_hunting_grounds)
+
+local new_map_id = locations.register_map({
+    map_file = 'tstcv',
+    name     = "Secret Hunting Grounds",
+    music    = "07desert"
 })
 
-log.info("new_hunting_grounds id: " .. new_hunting_grounds)
+locations.expand_location(0, {
+    lookup_name = "Secret Hunting Grounds",
+    townmap_x   = 150,
+    townmap_y   = 220
+})
 
 events.on('onModReload', function()
   map.rendering_refresh()
@@ -23,6 +35,21 @@ events.on('onMapEnter', function()
   local map_id = map.get_id()
 
   if map_id ~= 4 then return end
+
+-- [CK DBG] [INFO] SELECTED tile=21948 (51, 109)
+-- [CK DBG] [INFO] SELECTED tile=22152 (47, 110)
+-- [CK DBG] [INFO] SELECTED tile=24153 (46, 120)
+-- [CK DBG] [INFO] SELECTED tile=24359 (40, 121)
+-- entrance_3=Off,100,150,Arroyo Wilderness,-1,-1,0
+
+  map.exit_grid.spawn_in_rect(21948, 22152, 24153, 24359, {
+    map = new_map_id,
+    tile = -1,
+    elevation = 0,
+    rotation = 1,
+    style = 2
+  })
+
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
     name        = 'Ralph',
