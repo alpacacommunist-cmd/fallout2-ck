@@ -21,9 +21,9 @@ namespace ck::debug {
 
             case 1: // OBJ_TYPE_CRITTER
                 return std::format(
-                    "  [Critter Data] HP: {}, Rad: {}, Poison: {} | "
+                    "  [Critter Data] HP: {}/{}, Rad: {}, Poison: {} | "
                     "AI_Packet: {}, Team: {}, AP: {}, Target: {}",
-                    d.critter.hp,
+                    d.critter.hp, ck_critter_get_max_hp(obj),
                     d.critter.radiation,
                     d.critter.poison,
                     d.critter.combat.aiPacket,

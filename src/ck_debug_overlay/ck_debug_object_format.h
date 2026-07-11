@@ -3,8 +3,11 @@
 
 #include <string>
 
+extern "C" { int ck_critter_get_max_hp(void* ptr); }
+
 namespace fallout {
     struct Object;
+	int critterGetStat(Object* critter, int stat);
 }
 
 namespace ck::debug {
