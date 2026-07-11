@@ -84,6 +84,7 @@ end
 
 function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
 function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end
+function Critter:set_hp(hp) return ffi.C.ck_critter_set_current_hp(self.c_ptr, hp) end
 
 function Critter:set_behavior(behavior_fn, ...)
   if type(behavior_fn) ~= "function" then

@@ -77,7 +77,7 @@ events.on('onMapEnter', function()
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 2)
 
-  villager1.stats = { max_hp = 10, hp = 1 }
+  villager1:set_hp(1)
 
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.id, alice_dialogue)
