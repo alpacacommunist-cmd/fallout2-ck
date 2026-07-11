@@ -1,5 +1,6 @@
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
+#include "ck_debug_overlay/ck_debug_object_format.h"
 #include "ck_input.h"
 
 #include "geometry/geometry.h"
@@ -210,9 +211,12 @@ static void mode_main_export() {
 		while (obj != nullptr) {
 			int objType = FID_TYPE(obj->fid);
 
-			log.debug("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, data: {}, Flags: {:#x}",
+			log.debug("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
 					objIndex, fallout::objectGetName(obj), objType, obj->pid, obj->fid, obj->sid,
-					obj->data.misc.map, static_cast<unsigned int>(obj->flags));
+					static_cast<unsigned int>(obj->flags));
+
+			std::string data_debug = ck::debug::format_object_data(obj, objType);
+			log.debug("{}", data_debug);
 
 			obj = fallout::objectFindNextAtLocation();
 		}

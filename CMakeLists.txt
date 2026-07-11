@@ -55,6 +55,7 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_overlay.cc
     src/ck_debug_overlay/ck_debug_overlay_hexes.cc
     src/ck_debug_overlay/ck_debug_overlay_render.cc
+    src/ck_debug_overlay/ck_debug_object_format.cc
 )
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 
