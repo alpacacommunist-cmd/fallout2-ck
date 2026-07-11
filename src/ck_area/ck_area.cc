@@ -19,13 +19,13 @@ namespace ck {
 	static int g_current_loading_map_id = -1;
 
 	static std::unordered_map<int, int> g_map_id_to_original;
-	static std::unordered_map<int, int> gMapIdRedirects;           // orig_ID -> ck_ID
+	static std::unordered_map<int, int> g_map_id_redirects;           // orig_ID -> ck_ID
     static std::unordered_map<std::string, std::string> gMapPaths; // lowercase_name -> full path
     static std::unordered_map<std::string, int> gRuntimeMaps;      // lowercase_name -> ck_id_ID
 
 	int area_resolve_map_id(int original_map_id) {
-		auto it = gMapIdRedirects.find(original_map_id);
-		if (it != gMapIdRedirects.end()) {
+		auto it = g_map_id_redirects.find(original_map_id);
+		if (it != g_map_id_redirects.end()) {
 			g_current_loading_map_id = it->second;
 			return it->second;
 		}
@@ -144,7 +144,7 @@ namespace ck {
         std::string music     = data.music    ? data.music     : "17arroyo";
 
         int map_id = ck::area_register_map(map_file, name, sub_name, music);
-        gMapIdRedirects[original_map_id] = map_id;
+        g_map_id_redirects[original_map_id] = map_id;
 		g_map_id_to_original[map_id] = original_map_id;
 
         log.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
