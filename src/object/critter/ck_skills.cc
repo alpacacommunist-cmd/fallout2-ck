@@ -37,6 +37,15 @@ namespace ck::skills {
 
 		ck_dispatcher_on_skill_used(skill, success_count, bonus);
 	}
+
+	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy) {
+        if (attacker != fallout::gDude) return;
+
+		bool is_success  = (roll_result == fallout::ROLL_SUCCESS || roll_result == fallout::ROLL_CRITICAL_SUCCESS);
+		int combat_bonus = accuracy - 90;
+
+		on_use_complete(attacker, skill, target, is_success, combat_bonus);
+    }
 }
 
 void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value)) {

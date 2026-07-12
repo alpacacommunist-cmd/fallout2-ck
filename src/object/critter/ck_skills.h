@@ -19,6 +19,7 @@ namespace ck {
 
 namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
+	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy);
 }
 
 CK_API void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value));
