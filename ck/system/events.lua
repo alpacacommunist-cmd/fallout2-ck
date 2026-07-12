@@ -10,7 +10,7 @@ local events = {
   available_listeners = { 'onGameStart', 'onModReload',
     'onDayPassed', 'onHourPassed', 'onTimeAdvance',
     'onBeforeGameLoad', 'onGameLoaded',
-    'onDialogStart',
+    'onDialogStart', 'skill_used',
     'onMapEnter'
   },
 

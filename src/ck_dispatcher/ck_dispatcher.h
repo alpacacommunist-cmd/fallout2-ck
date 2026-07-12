@@ -13,6 +13,7 @@ void ck_dispatcher_on_game_loaded();
 
 void ck_dispatcher_on_day_passed();
 void ck_dispatcher_on_time_advance(int hours, int minutes);
+void ck_dispatcher_on_skill_used(int skill, int success_count, int bonus);
 
 void ck_dispatcher_on_map_update(int ticks);
 bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);

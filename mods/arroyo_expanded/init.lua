@@ -8,6 +8,7 @@ local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.objects.critters.behaviors')
 local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
+local skills      = require('ck.fallout2.objects.critters.skills')
 
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
@@ -20,6 +21,14 @@ end)
 
 events.on('onModReload', function()
   log.warn('reloaded!')
+end)
+
+events.on('skill_used', function(skill, success_count, skill_bonus)
+  local skill_name = skills.ID_MAP[skill] or "unknown_skill"
+
+  log.info('skill: ' .. skill_name .. ' (ID: ' .. tostring(skill) .. ')')
+  log.info('success: ' .. tostring(success_count))
+  log.info('bonus: ' .. tostring(skill_bonus))
 end)
 
 events.on('onMapEnter', function()

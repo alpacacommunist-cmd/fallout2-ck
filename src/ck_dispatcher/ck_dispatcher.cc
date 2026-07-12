@@ -33,7 +33,7 @@ void ck_dispatcher_emit(const char* event_name, Args... args) {
 	if (!ck::proxy::is_ready() || !event_name) return;
 
 	for (const auto& mod_id : g_active_mods) {
-		log.info("Emit event {} for {}", event_name, mod_id);
+		log.debug("Emit event {} for {}", event_name, mod_id);
 
 		ModContextGuard guard(mod_id.c_str());
 		ck::proxy::emit_for_mod(mod_id.c_str(), event_name, args...);
@@ -69,6 +69,10 @@ void ck_dispatcher_on_game_loaded() {
 
 void ck_dispatcher_on_time_advance(int hours, int minutes) {
 	ck_dispatcher_emit("onTimeAdvance", hours, minutes);
+}
+
+void ck_dispatcher_on_skill_used(int skill, int success_count, int bonus) {
+	ck_dispatcher_emit("skill_used", skill, success_count, bonus);
 }
 
 void ck_dispatcher_on_day_passed() {
