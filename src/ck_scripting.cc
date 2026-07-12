@@ -176,7 +176,6 @@ void ck_registry_clear() { gObjectRegistry.clear(); }
 // loadsave.cc
 void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
-	ck::reset_dummy_script();
 
 	ck_state_load(path);
 }

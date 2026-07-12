@@ -21,6 +21,7 @@ namespace ck {
 	void on_before_map_enter() {
 		log.debug("on_before_map_enter");
 
+		ck::reset_dummy_script();
 		ck_rendering_clear();
 		ck_map_clear_camera_borders();
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();

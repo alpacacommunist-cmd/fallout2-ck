@@ -8,6 +8,7 @@ local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.objects.critters.behaviors')
 local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
+local skills      = require('ck.fallout2.skills')
 
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
@@ -27,6 +28,8 @@ events.on('onMapEnter', function()
   monitor.print("Entered map!")
 
   if map_id ~= 4 then return end
+
+  log.info('small guns: ' .. tostring(skills.MAP.small_guns))
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
