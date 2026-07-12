@@ -15,6 +15,8 @@ events.on('onGameLoaded', function()
   log.info(player.stats.intelligence)
   log.info(player.gender)
   log.info(player.level)
+
+  log.info('small_guns: ' .. tostring(player.skills.small_guns))
 end)
 
 events.on('onModReload', function()
@@ -29,7 +31,7 @@ events.on('onMapEnter', function()
 
   if map_id ~= 4 then return end
 
-  log.info('small guns: ' .. tostring(skills.MAP.small_guns))
+  log.info('small guns id: ' .. tostring(skills.MAP.small_guns))
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },

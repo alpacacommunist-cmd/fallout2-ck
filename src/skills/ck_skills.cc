@@ -2,6 +2,9 @@
 #include "skill_defs.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
+#include "ck_log.h"
+static const Logger log("CK Skills");
+
 static const char* g_skill_names[] = {
     "small_guns", "big_guns", "energy_weapons", "unarmed", "melee_weapons", "throwing",
     "first_aid", "doctor", "sneak", "lockpick", "steal", "traps", "science", "repair",
@@ -11,6 +14,14 @@ static const char* g_skill_names[] = {
 static_assert(sizeof(g_skill_names) / sizeof(g_skill_names[0]) == fallout::SKILL_COUNT,
               "skill names / skill_defs.h mismatch!");
 
+namespace ck {
+	int player_skill(int skill) {
+		return fallout::skillGetValue(fallout::gDude, skill);
+	}
+}
+
 void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value)) {
     for (int i = 0; i < fallout::SKILL_COUNT; ++i) callback(g_skill_names[i], i);
 }
+
+int player_skill(int skill) { return ck::player_skill(skill); }
