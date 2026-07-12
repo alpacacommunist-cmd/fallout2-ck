@@ -1,4 +1,4 @@
-#include "skills/ck_skills.h"
+#include "object/critter/ck_skills.h"
 #include "skill_defs.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 

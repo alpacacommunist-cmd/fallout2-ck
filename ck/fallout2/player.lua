@@ -1,6 +1,6 @@
 local ffi = require("ffi")
 local stats = require("ck.fallout2.objects.critters.stats")
-local skills = require('ck.fallout2.skills')
+local skills = require('ck.fallout2.objects.critters.skills')
 
 ffi.cdef[[
   int player_stat(int stat);
