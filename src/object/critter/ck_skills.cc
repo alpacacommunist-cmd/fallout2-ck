@@ -58,6 +58,8 @@ namespace ck {
 }
 
 namespace ck::skills {
+	static int g_outdoorsman_steps_accumulator = 0;
+
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus) {
 		if (obj != fallout::gDude) return;
 
@@ -79,6 +81,16 @@ namespace ck::skills {
 
 		on_use_complete(fallout::gDude, fallout::SKILL_OUTDOORSMAN, nullptr, 1, outdoorsman_bonus);
 	}
+
+	void on_worldmap_step(int terrain_difficulty) {
+        g_outdoorsman_steps_accumulator += terrain_difficulty;
+
+        if (g_outdoorsman_steps_accumulator >= 150) {
+            g_outdoorsman_steps_accumulator = 0;
+
+            on_use_complete(fallout::gDude, fallout::SKILL_OUTDOORSMAN, nullptr, 1, -terrain_difficulty);
+        }
+    }
 }
 
 void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value)) {

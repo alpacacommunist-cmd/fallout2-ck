@@ -27,6 +27,7 @@ namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus);
 	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy);
     void on_encounter(int difficulty_modifier, int frequency, bool special);
+	void on_worldmap_step(int terrain_difficulty);
 }
 
 CK_API void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value));
