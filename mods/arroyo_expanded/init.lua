@@ -16,6 +16,7 @@ events.on('onGameLoaded', function()
   log.info(player.gender)
   log.info(player.level)
 
+  player.add_skill('small_guns', 25)
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
 end)
 

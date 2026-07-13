@@ -4,6 +4,7 @@
 #include "skill_defs.h"
 #include "random.h"
 #include "item.h"
+#include "proto.h"
 
 
 #include "ck_log.h"
@@ -26,8 +27,33 @@ static_assert(sizeof(g_roll_names) / sizeof(g_roll_names[0]) == 4,
               "roll names / random.h mismatch!");
 
 namespace ck {
+	bool critter_skill_is_valid(int skill) { return skill >= 0 && skill < fallout::SKILL_COUNT; }
+
+	int critter_set_skill(fallout::Object* critter, int skill, int value) {
+		if (critter == nullptr) return -5;
+		if (!critter_skill_is_valid(skill)) return -5;
+
+		fallout::Proto* proto;
+		if (fallout::protoGetProto(critter->pid, &proto) != 0 || proto == nullptr) return -5;
+		if (skillGetValue(critter, skill) >= 300) return -3;
+
+		int base = proto->critter.data.skills[skill];
+		int new_base = base + value;
+
+        if (new_base > 300) new_base = 300;
+        if (new_base < 0)   new_base = 0;
+
+        proto->critter.data.skills[skill] = new_base;
+
+		return 0;
+	}
+
 	int player_skill(int skill) {
 		return fallout::skillGetValue(fallout::gDude, skill);
+	}
+
+	int player_skill_add(int skill, int value) {
+		return critter_set_skill(fallout::gDude, skill, value);
 	}
 }
 
@@ -46,14 +72,23 @@ namespace ck::skills {
 
 		on_use_complete(attacker, skill, target, is_success, combat_bonus);
     }
+
+    void on_encounter(int difficulty_modifier, int frequency, bool special) {
+		int outdoorsman_bonus = difficulty_modifier - ((100 - frequency) / 2);
+		if (special) outdoorsman_bonus -= 50;
+
+		on_use_complete(fallout::gDude, fallout::SKILL_OUTDOORSMAN, nullptr, 1, outdoorsman_bonus);
+	}
 }
 
 void ck_get_skills_metadata(void (*callback)(const char* lua_name, int value)) {
     for (int i = 0; i < fallout::SKILL_COUNT; ++i) callback(g_skill_names[i], i);
 }
 
-CK_API void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value)) {
+void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value)) {
 	for (int i = 0; i < 4; ++i) callback(g_roll_names[i], i);
 }
 
 int player_skill(int skill) { return ck::player_skill(skill); }
+int player_skill_add(int skill, int value) { return ck::player_skill_add(skill, value); }
+

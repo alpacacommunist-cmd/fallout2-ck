@@ -1,11 +1,14 @@
 local ffi = require("ffi")
 local stats = require("ck.fallout2.objects.critters.stats")
 local skills = require('ck.fallout2.objects.critters.skills')
+local utils = require('ck.system.utils')
 
 ffi.cdef[[
   int player_stat(int stat);
   int player_pc_stat(int stat);
+
   int player_skill(int skill);
+  int player_skill_add(int skill, int value);
 ]]
 
 local stats_proxy  = stats.create_proxy(ffi.C.player_stat)
@@ -18,8 +21,9 @@ local player = {
   stat    = ffi.C.player_stat,
   pc_stat = ffi.C.player_pc_stat,
 
-  skills  = skills_proxy,
-  skill   = ffi.C.player_skill,
+  skills    = skills_proxy,
+  skill     = ffi.C.player_skill,
+  skill_add = ffi.C.player_skill_add
 }
 
 setmetatable(player, {
@@ -36,5 +40,11 @@ setmetatable(player, {
     return nil
   end
 })
+
+function player.add_skill(skill, value)
+  if not skills.MAP[skill] then return end
+
+  ffi.C.player_skill_add(skills.MAP[skill], value)
+end
 
 return player
