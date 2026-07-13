@@ -26,6 +26,23 @@ namespace ck {
 		ck_map_clear_camera_borders();
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}
+
+	bool map_has_camera_borders() { return gCameraBorders.enabled; }
+	bool map_is_camera_position_allowed(int tile) {
+		if (!gCameraBorders.enabled) { return false; }
+
+		int gridWidth = fallout::tileGetHexGridWidth();
+		int tileX = gridWidth - 1 - tile % gridWidth;
+		int tileY = tile / gridWidth;
+
+		bool allowed = tileX >= gCameraBorders.left && tileX <= gCameraBorders.right &&
+			tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom;
+
+		// fallout::debugPrint("[CK] Camera check " "tile=(%d,%d) " "bounds=(%d..%d,%d..%d) " "allowed=%d\n",
+		//     tileX, tileY, gCameraBorders.left, gCameraBorders.right, gCameraBorders.top, gCameraBorders.bottom, allowed);
+
+		return allowed;
+	}
 }
 
 
@@ -45,23 +62,7 @@ void ck_map_add_tile(const std::string& key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-bool ck_map_is_camera_position_allowed(int tile) {
-    if (!gCameraBorders.enabled) { return false; }
 
-    int gridWidth = fallout::tileGetHexGridWidth();
-    int tileX = gridWidth - 1 - tile % gridWidth;
-    int tileY = tile / gridWidth;
-
-    bool allowed = tileX >= gCameraBorders.left && tileX <= gCameraBorders.right &&
-        tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom;
-
-    // fallout::debugPrint("[CK] Camera check " "tile=(%d,%d) " "bounds=(%d..%d,%d..%d) " "allowed=%d\n",
-    //     tileX, tileY, gCameraBorders.left, gCameraBorders.right, gCameraBorders.top, gCameraBorders.bottom, allowed);
-
-	return allowed;
-}
-
-bool ck_map_has_camera_borders() { return gCameraBorders.enabled; }
 
 void ck_map_clear_camera_borders() { gCameraBorders = {}; }
 const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
@@ -90,6 +91,7 @@ void ck_map_add_tile_key(const char* key, int tile) {
 }
 
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
+	fallout::mapEdgeFree();
     gCameraBorders.enabled = true;
 
     gCameraBorders.left = left;

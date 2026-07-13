@@ -38,9 +38,9 @@ events.on('skill_used', function(skill_id, success_count, skill_bonus)
   if skill_name == "barter" then
     success_modifier = math.min(20, success_count / 20)
   else
-    if success_count > 0 then
-      success_modifier = 5
-    end
+    if success_count == 0 then return end
+
+    success_modifier = 1
   end
 
   local final_chance = base_chance + difficulty_modifier + success_modifier
@@ -50,7 +50,7 @@ events.on('skill_used', function(skill_id, success_count, skill_bonus)
   local roll = math.random(1, 100)
 
   if roll <= final_chance then
-    player.add_skill(skill_name, 1)
+    player.add_skill(skill_id, 1)
 
     monitor.print(string.format("Skill %s is growing: %d%%", skill_name, current_val + 1))
   end

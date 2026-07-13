@@ -45,11 +45,10 @@ namespace ck {
 	}
 
 	int critter_add_skill(fallout::Object* critter, int skill, int value) {
-		int base = fallout::skillGetValue(critter, skill);
-		if (base >= 300) return -3;
+		fallout::Proto* proto;
+		if (fallout::protoGetProto(critter->pid, &proto) != 0 || proto == nullptr) return -5;
 
-		int new_base = base + value;
-		if (new_base > 300) new_base = 300; if (new_base < 0) new_base = 0;
+		int new_base = proto->critter.data.skills[skill] + value;
 
 		return critter_set_skill(critter, skill, new_base);
 	}

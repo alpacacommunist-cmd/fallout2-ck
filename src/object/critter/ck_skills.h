@@ -12,7 +12,7 @@ namespace fallout {
 	extern Object* gDude;
 
 	int skillGetValue(Object* critter, int skill);
-	int skillAddForce(Object* obj, int skill); // gdude only
+	bool skillIsTagged(int skill);
 }
 
 namespace ck {

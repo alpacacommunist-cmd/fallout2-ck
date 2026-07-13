@@ -17,11 +17,14 @@ namespace ck {
 
 	void on_map_enter();
 	void on_before_map_enter();
+	bool map_has_camera_borders();
+	bool map_is_camera_position_allowed(int tile);
 }
 
 namespace fallout {
 	int mapGetCurrentMap();
 	bool _combat_reload_map();
+	void mapEdgeFree();
 
 	extern int* gMapLocalVars;
 	extern int gMapLocalVarsLength;
@@ -43,8 +46,6 @@ struct CkCameraBorders {
 };
 
 void ck_map_clear_camera_borders();
-bool ck_map_is_camera_position_allowed(int tile);
-bool ck_map_has_camera_borders();
 
 const CkCameraBorders& ck_map_get_camera_borders();
 

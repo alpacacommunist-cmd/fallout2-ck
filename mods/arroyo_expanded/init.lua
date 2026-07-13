@@ -16,6 +16,7 @@ events.on('onGameLoaded', function()
   log.info(player.gender)
   log.info(player.level)
 
+  -- player.set_skill(skills.MAP['melee_weapons'], 10)
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
 end)
 
