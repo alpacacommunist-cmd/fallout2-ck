@@ -18,7 +18,8 @@ _G["ckBootstrapMods"] = function()
   local active_mods = {
     "game_time_extender",
     "arroyo_expanded",
-    "temple_of_trials"
+    "temple_of_trials",
+    "natural_growth"
   }
 
   for _, mod_id in ipairs(active_mods) do

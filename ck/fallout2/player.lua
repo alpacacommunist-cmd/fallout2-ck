@@ -8,7 +8,8 @@ ffi.cdef[[
   int player_pc_stat(int stat);
 
   int player_skill(int skill);
-  int player_skill_add(int skill, int value);
+  int player_add_skill(int skill, int value);
+  int player_set_skill(int skill, int value);
 ]]
 
 local stats_proxy  = stats.create_proxy(ffi.C.player_stat)
@@ -23,7 +24,6 @@ local player = {
 
   skills    = skills_proxy,
   skill     = ffi.C.player_skill,
-  skill_add = ffi.C.player_skill_add
 }
 
 setmetatable(player, {
@@ -42,9 +42,16 @@ setmetatable(player, {
 })
 
 function player.add_skill(skill, value)
-  if not skills.MAP[skill] then return end
+  if not skills.ID_MAP[skill] then return end
 
-  ffi.C.player_skill_add(skills.MAP[skill], value)
+  ffi.C.player_add_skill(skill, value)
+end
+
+function player.set_skill(skill, value)
+  if not skills.ID_MAP[skill] then return end
+  print(value)
+
+  ffi.C.player_set_skill(skill, value)
 end
 
 return player

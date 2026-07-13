@@ -34,6 +34,6 @@ CK_API void ck_get_skills_metadata(void (*callback)(const char* lua_name, int va
 CK_API void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value));
 
 CK_API int player_skill(int skill);
-CK_API int player_skill_add(int skill, int value);
-
+CK_API int player_add_skill(int skill, int value);
+CK_API int player_set_skill(int skill, int value);
 #endif

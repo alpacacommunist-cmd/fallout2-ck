@@ -35,25 +35,35 @@ namespace ck {
 
 		fallout::Proto* proto;
 		if (fallout::protoGetProto(critter->pid, &proto) != 0 || proto == nullptr) return -5;
-		if (skillGetValue(critter, skill) >= 300) return -3;
 
-		int base = proto->critter.data.skills[skill];
-		int new_base = base + value;
+        if (value > 300) value = 300;
+        if (value < 0)   value = 0;
 
-        if (new_base > 300) new_base = 300;
-        if (new_base < 0)   new_base = 0;
-
-        proto->critter.data.skills[skill] = new_base;
+        proto->critter.data.skills[skill] = value;
 
 		return 0;
+	}
+
+	int critter_add_skill(fallout::Object* critter, int skill, int value) {
+		int base = fallout::skillGetValue(critter, skill);
+		if (base >= 300) return -3;
+
+		int new_base = base + value;
+		if (new_base > 300) new_base = 300; if (new_base < 0) new_base = 0;
+
+		return critter_set_skill(critter, skill, new_base);
 	}
 
 	int player_skill(int skill) {
 		return fallout::skillGetValue(fallout::gDude, skill);
 	}
 
-	int player_skill_add(int skill, int value) {
+	int player_set_skill(int skill, int value) {
 		return critter_set_skill(fallout::gDude, skill, value);
+	}
+
+	int player_add_skill(int skill, int value) {
+		return critter_add_skill(fallout::gDude, skill, value);
 	}
 }
 
@@ -102,5 +112,6 @@ void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value)) {
 }
 
 int player_skill(int skill) { return ck::player_skill(skill); }
-int player_skill_add(int skill, int value) { return ck::player_skill_add(skill, value); }
+int player_add_skill(int skill, int value) { return ck::player_add_skill(skill, value); }
+int player_set_skill(int skill, int value) { return ck::player_set_skill(skill, value); }
 
