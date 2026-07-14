@@ -82,6 +82,9 @@ namespace ck::skills {
 		int combat_bonus = accuracy - 90;
 
 		on_use_complete(attacker, skill, target, is_success, combat_bonus);
+
+		if ((fallout::dudeIsSneaking() || fallout::dudeHasState(0)))
+			on_use_complete(fallout::gDude, fallout::SKILL_SNEAK, target, is_success, (combat_bonus/2));
     }
 
     void on_encounter(int difficulty_modifier, int frequency, bool special) {

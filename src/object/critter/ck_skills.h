@@ -12,6 +12,9 @@ namespace fallout {
 	extern Object* gDude;
 
 	int skillGetValue(Object* critter, int skill);
+	int critterGetStat(Object* critter, int stat);
+	bool dudeIsSneaking();
+	bool dudeHasState(int state);
 	bool skillIsTagged(int skill);
 }
 
