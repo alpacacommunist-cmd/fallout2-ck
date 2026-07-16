@@ -89,7 +89,7 @@ namespace ck {
 	}
 }
 
-void ck_critter_float_msg(int lua_id, const char* text, int msg_type) {
+void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
 	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
 	if (!managed || !managed->ptr) return;
 

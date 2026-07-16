@@ -22,7 +22,7 @@ namespace ck {
 	static std::unordered_map<int, fallout::Script> g_lua_scripts;
 
 	void reset_dummy_script() {
-		log.debug("RESET gDummyScript");
+		log.debug("RESET lua_scripts");
 		g_lua_scripts.clear();
 	}
 
@@ -39,7 +39,10 @@ namespace ck {
             script.localVarsOffset = -1;
             script.actionBeingUsed = -1;
 
-            for (int i = 0; i < 25; i++) script.procs[i] = -1;
+			script.index = 0;
+			script.flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
+
+            for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
         }
 
         script.sid = sid;
@@ -68,17 +71,21 @@ namespace ck {
 
 		if (!managed) return false;
 
-		int fixed_param = gDummyScript.fixedParam;
-		gDummyScript.scriptOverrides = 0;
+		fallout::Script* script = script_get_dummy(sid);
+
+		int fixed_param = script->fixedParam;
+		script->scriptOverrides = 0;
+
+		// void* source_ptr = script->source;
 
 		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, managed->meta.mod_id.c_str());
 
 		if (handled_in_lua) {
-			gDummyScript.scriptOverrides = 1;
+			script->scriptOverrides = 1;
 			return true;
 		}
 
-		log.warn("unhanled proc: {} for id: {}", proc, lua_id);
+		log.warn("unhandled proc: {} for id: {}", proc, lua_id);
 		return false;
 	}
 

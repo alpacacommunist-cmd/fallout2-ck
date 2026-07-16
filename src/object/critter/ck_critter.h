@@ -28,6 +28,7 @@ namespace fallout {
 
 	int  textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
 	void tileWindowRefreshRect(Rect* rect, int elevation);
+	int tileGetTileInDirection(int tile, int rotation, int distance);
 
     int reg_anim_begin(int requestOptions);
     int reg_anim_end();

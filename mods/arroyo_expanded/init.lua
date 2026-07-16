@@ -75,6 +75,11 @@ events.on('onMapEnter', function()
     end
   end)
 
+  alice:on('push', function(self)
+    self:float_message('denied', 1)
+    return false
+  end)
+
   alice:animate()
     :walk_to(20913)
     :walk_to(21116)

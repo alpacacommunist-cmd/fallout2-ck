@@ -105,9 +105,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
   if not event_name then return false end
 
   if self.handlers[event_name] then
-    if self.handlers[event_name](self) ~= false then
-      return true
-    end
+    if self.handlers[event_name](self) ~= false then return true end
   end
 
   if event_name == "look_at" then
@@ -148,13 +146,15 @@ function Critter:_handle_proc(proc_id, fixed_param)
     return true
 
   elseif event_name == "talk" then
-    if (dialogue and dialogue.start and dialogue.is_registered(self.id)) then
-      dialogue.start(self.id)
+    if not (dialogue and dialogue.start and dialogue.is_registered(self.id)) then return end
 
-      self:clear_animations()
-        :emit('dialogue_finished')
-      return true
-    end
+    dialogue.start(self.id)
+    self:clear_animations():emit('dialogue_finished')
+
+    return true
+
+  elseif event_name == "push" then
+    return true
   end
 
   return false
@@ -207,14 +207,10 @@ function Critter:_handle_map_update(current_ticks)
   if ffi.C.ck_in_combat() then return end
 
   -- 1: handle object's on:('map_update')
-  if self.handlers['map_update'] then
-    self.handlers['map_update'](self)
-  end
+  if self.handlers['map_update'] then self.handlers['map_update'](self) end
 
   -- 2: if called but busy - return
-  if self:is_busy() then
-    return
-  end
+  if self:is_busy() then return end
 
   -- 3: fifo queue
   if #self._action_queue > 0 then
