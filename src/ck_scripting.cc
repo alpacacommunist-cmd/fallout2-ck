@@ -177,6 +177,7 @@ void ck_registry_clear() { gObjectRegistry.clear(); }
 void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
 
+	ck_map_clear_camera_borders();
 	ck_state_load(path);
 }
 

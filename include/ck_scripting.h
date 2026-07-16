@@ -19,6 +19,9 @@ namespace fallout {
 	void displayMonitorAddMessage(const char* str);
 }
 
+
+void ck_map_clear_camera_borders();
+
 void ck_reload_mods();
 void ck_scripting_init();
 void ck_scripting_exit();

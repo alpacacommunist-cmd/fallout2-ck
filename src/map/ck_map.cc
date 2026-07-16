@@ -62,11 +62,11 @@ void ck_map_add_tile(const std::string& key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-
-
-void ck_map_clear_camera_borders() { gCameraBorders = {}; }
+void ck_map_clear_camera_borders() {
+	gCameraBorders = {};
+	gCameraBorders.enabled = false;
+}
 const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
-
 
 // ffi
 
