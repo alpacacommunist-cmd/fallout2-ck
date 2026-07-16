@@ -19,15 +19,34 @@ namespace ck {
 	static fallout::Program gDummyProgram;
 	static fallout::Script gDummyScript;
 
+	static std::unordered_map<int, fallout::Script> g_lua_scripts;
+
 	void reset_dummy_script() {
 		log.debug("RESET gDummyScript");
-		memset(&gDummyScript, 0, sizeof(fallout::Script));
+		g_lua_scripts.clear();
 	}
 
-	fallout::Script* script_get_dummy(int sid) {
-		gDummyScript.sid         = sid;
-		return &gDummyScript;
-	}
+    fallout::Script* script_get_dummy(int sid) {
+		int lua_id = lua_id_from_sid(clean_sid(sid));
+
+        auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
+        auto& script = it->second;
+
+        if (inserted) {
+            script.sp.built_tile = -1;
+            script.sp.radius = -1;
+            script.index = -1;
+            script.localVarsOffset = -1;
+            script.actionBeingUsed = -1;
+
+            for (int i = 0; i < 25; i++) script.procs[i] = -1;
+        }
+
+        script.sid = sid;
+        script.program = nullptr;
+
+        return &script;
+    }
 
 	fallout::Program* program_get_dummy() {
 		return &gDummyProgram;

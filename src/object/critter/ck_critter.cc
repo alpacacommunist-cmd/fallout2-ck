@@ -77,13 +77,13 @@ namespace ck {
 		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
 		if (!managed || !managed->ptr) return false;
 
-		managed->ptr->pid = managed->meta.source_pid;
-		managed->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
-		_combat_delete_critter(managed->ptr);
-
-		if (fallout::gDude->data.critter.combat.whoHitMe == managed->ptr) {
-			fallout::gDude->data.critter.combat.whoHitMe = nullptr;
-		}
+		// managed->ptr->pid = managed->meta.source_pid;
+		// managed->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+		// _combat_delete_critter(managed->ptr);
+		//
+		// if (fallout::gDude->data.critter.combat.whoHitMe == managed->ptr) {
+		// 	fallout::gDude->data.critter.combat.whoHitMe = nullptr;
+		// }
 
 		return true;
 	}
