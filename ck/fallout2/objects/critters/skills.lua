@@ -1,9 +1,5 @@
 local ffi = require('ffi')
 
-ffi.cdef[[
-    void ck_get_skills_metadata(void (*callback)(const char* name, int value));
-]]
-
 local SKILLS_MAP    = {} -- name -> int
 local SKILLS_ID_MAP = {} -- int -> name
 

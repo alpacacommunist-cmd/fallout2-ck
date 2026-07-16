@@ -1,9 +1,6 @@
 -- ck/fallout2/quests.lua
 
 local ffi = require("ffi")
-ffi.cdef[[
-  const char* ck_get_current_mod_id();
-]]
 
 
 local state = require('ck.fallout2.state')

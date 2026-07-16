@@ -1,9 +1,4 @@
 local ffi = require("ffi")
-ffi.cdef[[
-  typedef struct { int lua_id; const char* mod_id; } CritterLua;
-
-  CritterLua ck_critter_register(int pid, int tile, const char* tag);
-]]
 
 local log = ck.log.new('objects/critters.lua')
 

@@ -1,19 +1,5 @@
 local ffi = require('ffi')
 
-ffi.cdef[[
-typedef struct {
-    const char* map_file;
-    const char* name;
-    const char* sub_name;
-    const char* music;
-} CkAreaMapFFI;
-
-int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
-int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
-int ck_area_register_map(const CkAreaMapFFI* data);
-int ck_area_override_map(int map_id, const CkAreaMapFFI* data);
-]]
-
 local locations = {}
 
 function locations.register(config)

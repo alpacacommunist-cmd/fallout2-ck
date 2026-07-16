@@ -1,10 +1,5 @@
 local ffi = require("ffi")
 
-ffi.cdef[[
-  void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
-  void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
-]]
-
 local STATS_MAP = {}
 local PC_STATS_MAP = {}
 

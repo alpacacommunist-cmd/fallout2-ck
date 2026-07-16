@@ -32,7 +32,7 @@ events.on('onMapEnter', function()
 
   map.exit_grid.spawn_in_rect(21948, 22152, 24153, 24359, {
     map = new_map_id,
-    tile = -1,
+    tile = 21068,
     elevation = 0,
     rotation = 1,
     style = 2

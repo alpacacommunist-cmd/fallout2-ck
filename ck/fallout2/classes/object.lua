@@ -1,11 +1,5 @@
 local ffi = require("ffi")
 
-ffi.cdef[[
-  int ck_object_get_tile(int lua_id);
-  int ck_object_get_sid(int lua_id);
-  void* ck_object_get_ptr(int lua_id);
-]]
-
 local log = ck.log.new('classes/object')
 
 local objects = require('ck.fallout2.objects')

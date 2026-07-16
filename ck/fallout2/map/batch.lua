@@ -1,18 +1,6 @@
 -- ck/fallout2/map/batch.lua
 local ffi = require("ffi")
 
-ffi.cdef[[
-  typedef struct { int tile; int fid; const char* key; } CkFFITile;
-  typedef struct { int tile; int fid; const char* key; } CkFFIScenery;
-  typedef struct { int tile; int fid; } CkFFIBlocker;
-  typedef struct { int tile; } CkFFIClear;
-
-  void ck_map_batch_tiles(const CkFFITile* tiles, int count);
-  void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count);
-  void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count);
-  void ck_map_batch_clear(const CkFFIClear* tiles, int count);
-]]
-
 local batch = {}
 
 function batch.tiles(tiles)

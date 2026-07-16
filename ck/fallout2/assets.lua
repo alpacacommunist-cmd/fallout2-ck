@@ -3,14 +3,6 @@ local ffi = require("ffi")
 local utils = require('ck.system.utils')
 local log = ck.log.new('assets.lua')
 
-ffi.cdef[[
-typedef struct { bool valid; int art_id; int fid; int pid; int object_type; bool is_tile; bool lookup_failed; } CkAssetFFI;
-
-int ck_assets_register(const char* mod_id, const char* base_path);
-const char* ck_asset_file_path(const char* key);
-CkAssetFFI ck_assets_resolve(const char* key);
-]]
-
 local assets = {}
 
 ck.assets.register = ffi.C.ck_assets_register

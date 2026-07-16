@@ -1,0 +1,149 @@
+local ffi = require("ffi")
+
+ffi.cdef[[
+  // --- System & Bootstrap ---
+  bool ck_dispatcher_load_mod(const char* mod_id);
+  void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
+
+  void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
+  void ck_registry_clear();
+
+  const char* ck_get_current_mod_id();
+
+  // --- State ---
+  bool ck_state_load(const char* path);
+  void ck_state_save(const char* path);
+
+  // --- Combat & Actions ---
+  bool ck_in_combat();
+
+  // --- Critter Animations ---
+  int  ck_anim_begin(void* ptr, int weapon_ready);
+  int  ck_anim_move_to(void* ptr, int tile, int elevation);
+  int  ck_anim_play(void* ptr, int anim_id);
+  int  ck_anim_clear(void* ptr);
+  int  ck_anim_end();
+  bool ck_critter_is_busy(void* ptr);
+
+  // --- Critter Stats & Base ---
+  void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
+  int  ck_critter_get_base_stat(void* ptr, int stat_id);
+  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
+  int  ck_critter_get_bonus_stat(void* ptr, int stat);
+  bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+  int  player_stat(int stat);
+  int  player_pc_stat(int stat);
+
+  typedef struct { int lua_id; const char* mod_id; } CritterLua;
+  CritterLua ck_critter_register(int pid, int tile, const char* tag);
+
+  // --- Critter Events
+  bool ck_critter_kill(int lua_id);
+  bool ck_critter_process_turn(void* ptr, int lua_id);
+
+  // --- Critter HP ---
+  int  ck_critter_get_hp(void* ptr);
+  int  ck_critter_get_max_hp(void* ptr);
+  int  ck_critter_set_current_hp(void* ptr, int target_hp);
+  int  ck_critter_set_full_hp(void* ptr);
+
+  // --- Object Base ---
+  int ck_object_get_tile(int lua_id);
+  int ck_object_get_sid(int lua_id);
+  void* ck_object_get_ptr(int lua_id);
+
+  // --- Stats metadata ---
+  void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
+  void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
+
+  // --- Skills  ---
+  void ck_get_skills_metadata(void (*callback)(const char* name, int value));
+
+  int  player_skill(int skill);
+  int  player_add_skill(int skill, int value);
+  int  player_set_skill(int skill, int value);
+
+  // --- Rendering ---
+  void ck_rendering_clear();
+  void ck_rendering_refresh();
+
+  // --- Assets ---
+  int ck_assets_register(const char* mod_id, const char* base_path);
+  const char* ck_asset_file_path(const char* key);
+
+  typedef struct { bool valid; int art_id; int fid; int pid; int object_type; bool is_tile; bool lookup_failed; } CkAssetFFI;
+  CkAssetFFI ck_assets_resolve(const char* key);
+
+  // --- Dialogue ---
+  bool ck_dialog_init_ui();
+  void ck_dialog_set_reply(const char* text);
+  void ck_dialog_add_option(const char* text, int reaction);
+  int  ck_dialog_go();
+  void ck_dialog_exit();
+  void ck_dialog_close_ui();
+
+  // --- Game-time ---
+  int ck_game_get_year();
+  int ck_game_get_day();
+  int ck_game_get_month();
+  int ck_game_get_hour();
+  int ck_game_get_time();
+
+  // --- Locations ---
+  int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
+  int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
+
+  typedef struct {
+    const char* map_file;
+    const char* name;
+    const char* sub_name;
+    const char* music;
+  } CkAreaMapFFI;
+
+  int ck_area_register_map(const CkAreaMapFFI* data);
+  int ck_area_override_map(int map_id, const CkAreaMapFFI* data);
+
+  // --- Map ---
+  int  ck_map_get_mvar(int index);
+  void ck_map_set_mvar(int index, int value);
+
+  int  ck_map_get_id();
+  void ck_map_add_scenery_fid(int fid, int tile);
+  void ck_map_add_scenery_key(const char* key, int tile);
+  void ck_map_add_tile_fid(int fid, int tile);
+  void ck_map_add_tile_key(const char* key, int tile);
+  void ck_map_set_camera_borders(int left, int right, int top, int bottom);
+  void ck_map_remove_blocker(int tile);
+  void ck_map_create_blocker(int tile);
+  void ck_map_create_object(int fid, int tile);
+  void ck_map_create_object_fid(int fid, int tile);
+  int  ck_map_register_object(int artId, int tile);
+
+  void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
+  // --- Map Batch ---
+  typedef struct { int tile; int fid; const char* key; } CkFFITile;
+  typedef struct { int tile; int fid; const char* key; } CkFFIScenery;
+  typedef struct { int tile; int fid; } CkFFIBlocker;
+  typedef struct { int tile; } CkFFIClear;
+
+  void ck_map_batch_tiles(const CkFFITile* tiles, int count);
+  void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count);
+  void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count);
+  void ck_map_batch_clear(const CkFFIClear* tiles, int count);
+
+  // --- Exit Grid ---
+  int ck_proto_first_exit_grid_pid();
+  int ck_proto_last_exit_grid_pid();
+
+  typedef struct {
+    int target_map;
+    int target_tile;
+    int target_elevation;
+    int target_rotation;
+  } CKExitGridData;
+
+  void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
+  void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data);
+]]
+
+return ffi

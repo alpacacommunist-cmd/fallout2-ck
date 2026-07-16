@@ -3,15 +3,6 @@ local stats = require("ck.fallout2.objects.critters.stats")
 local skills = require('ck.fallout2.objects.critters.skills')
 local utils = require('ck.system.utils')
 
-ffi.cdef[[
-  int player_stat(int stat);
-  int player_pc_stat(int stat);
-
-  int player_skill(int skill);
-  int player_add_skill(int skill, int value);
-  int player_set_skill(int skill, int value);
-]]
-
 local stats_proxy  = stats.create_proxy(ffi.C.player_stat)
 local skills_proxy = skills.create_proxy(ffi.C.player_skill)
 local pc_stats_proxy = stats.create_pc_proxy(ffi.C.player_pc_stat)

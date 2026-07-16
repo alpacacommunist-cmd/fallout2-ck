@@ -1,13 +1,5 @@
 -- ck/fallout2/dialogue.lua
 local ffi = require("ffi")
-ffi.cdef[[
-  bool ck_dialog_init_ui();
-  void ck_dialog_set_reply(const char* text);
-  void ck_dialog_add_option(const char* text, int reaction);
-  int  ck_dialog_go();
-  void ck_dialog_exit();
-  void ck_dialog_close_ui();
-]]
 
 local C = ffi.C
 

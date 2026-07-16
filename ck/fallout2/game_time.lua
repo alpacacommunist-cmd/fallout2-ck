@@ -1,14 +1,6 @@
 -- ck/fallout2/game_time.lua
 local ffi = require("ffi")
 
-ffi.cdef[[
-    int ck_game_get_year();
-    int ck_game_get_day();
-    int ck_game_get_month();
-    int ck_game_get_hour();
-    int ck_game_get_time();
-]]
-
 local C = ffi.C
 
 ck.game_time.get_year  = C.ck_game_get_year

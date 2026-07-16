@@ -1,11 +1,6 @@
 -- ck/fallout2/state.lua
 local ffi = require("ffi")
 
-ffi.cdef[[
-    bool ck_state_load(const char* path);
-    void ck_state_save(const char* path);
-]]
-
 local map = require('ck.fallout2.map')
 
 local state = {}

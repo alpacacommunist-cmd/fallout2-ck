@@ -1,20 +1,5 @@
 local ffi = require("ffi")
 
-ffi.cdef[[
-  int ck_proto_first_exit_grid_pid();
-  int ck_proto_last_exit_grid_pid();
-
-  typedef struct {
-    int target_map;
-    int target_tile;
-    int target_elevation;
-    int target_rotation;
-  } CKExitGridData;
-
-  void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
-  void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data);
-]]
-
 local C = ffi.C
 
 local exit_grid = {}

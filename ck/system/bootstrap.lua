@@ -1,6 +1,7 @@
 -- bootstrap.lua
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
+require('ck.system.ffi_api')
 local ffi = require("ffi")
 
 ffi.cdef[[

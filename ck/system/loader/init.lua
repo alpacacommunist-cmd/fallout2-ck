@@ -1,14 +1,6 @@
 -- ck/system/loader/init.lua
 local ffi = require("ffi")
 
-ffi.cdef[[
-  void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
-  void ck_registry_clear();
-
-  bool ck_dispatcher_load_mod(const char* mod_id);
-  void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
-]]
-
 local sandbox   = require('ck.system.loader.sandbox')
 local events    = require('ck.system.events')
 
