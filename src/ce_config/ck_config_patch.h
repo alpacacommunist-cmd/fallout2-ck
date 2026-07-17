@@ -19,8 +19,7 @@ namespace ck {
 
 	std::string normalize_config_path(std::string_view path);
 
-	int  config_find_next_free_index_vfs(const char* file_path, std::string_view prefix);
-	int config_find_next_free_key_index(std::string_view file_path, std::string_view section, std::string_view key_prefix);
+	int config_find_next_free_index(std::string_view file_path, std::string_view section, std::string_view prefix);
 
     void config_patch_add(std::string_view mod_id, std::string_view file_path, std::string_view section,
 			std::string_view key, std::string_view value);

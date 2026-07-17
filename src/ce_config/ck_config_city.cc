@@ -17,7 +17,7 @@ namespace ck::config_city {
     }
 
 	int get_next_index() {
-        return ck::config_find_next_free_index_vfs("data\\data\\city.txt", "Area");
+        return ck::config_find_next_free_index("data\\data\\city.txt", "", "Area");
     }
 
     int count_original_entrances(int area_id) {
@@ -67,7 +67,7 @@ namespace ck::config_city {
 		// std::string city_path = "data\\data\\city.txt";
 		// std::string city_path = "data\\city.txt";
 
-		int target_entrance_id = ck::config_find_next_free_key_index(city_path, area_section, "entrance_");
+		int target_entrance_id = ck::config_find_next_free_index(city_path, area_section, "entrance_");
 
 		std::string entrance_key = "entrance_" + std::to_string(target_entrance_id);
 		std::string entrance_value = std::format("On,{},{},{},-1,-1,0", x, y, map_lookup_name);
@@ -85,8 +85,7 @@ namespace ck::config_city {
         int next_area_index = -1;
         if (next_area_index == -1) next_area_index = get_next_index();
 
-		std::string city_path = "data\\data\\city.txt";
-        // std::string city_path = "data/city.txt";
+        std::string city_path = "data/city.txt";
         int area_idx = -1;
 
         if (area_idx == -1) area_idx = next_area_index++;

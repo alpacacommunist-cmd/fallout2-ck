@@ -8,7 +8,6 @@
 static const Logger log("CK Config Patch");
 
 namespace {
-
     inline std::string_view trim_string(std::string_view s) {
         while (!s.empty() && (s.back() == '\r' || s.back() == '\n' || s.back() == ' ' || s.back() == '\t')) s.remove_suffix(1);
         while (!s.empty() && (s.front() == ' ' || s.front() == '\t')) s.remove_prefix(1);
@@ -64,69 +63,47 @@ namespace ck {
         log.info("Registered patch for mod '{}': [{}] {} = {}", mod_id, section, key, value);
     }
 
-	int config_find_next_free_index_vfs(const char* file_path, std::string_view prefix) {
-		fallout::File* f = fallout::fileOpen(file_path, "rt");
-		if (f == nullptr) {
-			log.error("VFS cannot open configuration file for index scanning: {}", file_path);
-			return 0;
-		}
-
-		int last_index = -1;
-		char line[1024];
-
-		std::string search_prefix = "[";
-		search_prefix.append(prefix).append(" ");
-
-		while (fileReadString(line, sizeof(line), f) != nullptr) {
-			std::string_view s = trim_string(strip_comments(line));
-			if (s.empty()) continue;
-
-			if (s.starts_with(search_prefix)) {
-				size_t start = search_prefix.size();
-				size_t end   = s.find(']', start);
-
-				if (end != std::string_view::npos) {
-					int idx = 0;
-					if (try_parse_int(s.substr(start, end - start), idx)) {
-						if (idx > last_index) last_index = idx;
-					}
-				}
-			}
-		}
-		fileClose(f);
-
-		int next_idx = (last_index == -1) ? 0 : last_index + 1;
-		log.info("VFS scan complete for '{}'. Last {} index: {}, next free: {}",
-				file_path, prefix, last_index, next_idx);
-
-		return next_idx;
-	}
-
-	int config_find_next_free_key_index(std::string_view file_path, std::string_view section, std::string_view key_prefix) {
+	int config_find_next_free_index(std::string_view file_path, std::string_view section, std::string_view prefix) {
 		std::string path_norm = normalize_config_path(file_path);
 		std::string sec_str(section);
-		std::string prefix_str(key_prefix);
+		std::string prefix_str(prefix);
 
 		int max_index = -1;
+		const bool scanning_sections = sec_str.empty();
 
-		std::string full_vfs_path = "data\\data\\" + path_norm;
-		fallout::File* f = fallout::fileOpen(full_vfs_path.c_str(), "rt");
+		fallout::File* f = fallout::fileOpen(path_norm.c_str(), "rt");
+		if (f == nullptr) f = fallout::fileOpen(("data\\data\\" + path_norm).c_str(), "rt");
+
 		if (f != nullptr) {
 			char line[1024];
-			bool in_target_section = false;
+			bool in_target_section = scanning_sections;
 
 			while (fileReadString(line, sizeof(line), f) != nullptr) {
 				std::string_view s = trim_string(strip_comments(line));
 				if (s.empty()) continue;
 
+				// section header [...]
 				if (s.starts_with("[") && s.ends_with("]")) {
-					in_target_section = (trim_string(s.substr(1, s.size() - 2)) == sec_str);
+					std::string_view current_sec = trim_string(s.substr(1, s.size() - 2));
+
+					if (scanning_sections) {
+						if (current_sec.starts_with(prefix_str)) {
+							// ФИКС: Обязательно триммим остаток строки, чтобы убрать пробел перед числом!
+							std::string_view idx_view = trim_string(current_sec.substr(prefix_str.size()));
+							int idx = 0;
+							if (try_parse_int(idx_view, idx)) {
+								if (idx > max_index) max_index = idx;
+							}
+						}
+					} else {
+						in_target_section = (current_sec == sec_str);
+					}
 					continue;
 				}
 
-				if (in_target_section && s.starts_with(prefix_str)) {
+				// keys eg entrance_4=...
+				if (!scanning_sections && in_target_section && s.starts_with(prefix_str)) {
 					size_t end_of_num = s.find_first_of(" =\t", prefix_str.size());
-
 					if (end_of_num != std::string_view::npos && end_of_num > prefix_str.size()) {
 						int idx = 0;
 						if (try_parse_int(s.substr(prefix_str.size(), end_of_num - prefix_str.size()), idx)) {
@@ -135,22 +112,36 @@ namespace ck {
 					}
 				}
 			}
-
 			fileClose(f);
 		}
 
+		// check g_config_patches
 		for (const auto& [mod, file_maps] : g_config_patches) {
 			auto file_it = file_maps.find(path_norm);
 			if (file_it == file_maps.end()) continue;
 
-			auto sec_it = file_it->second.find(sec_str);
-			if (sec_it == file_it->second.end()) continue;
+			if (scanning_sections) {
+				// looking for new section, check existing mod patches for section name
+				for (const auto& [existing_section, keys] : file_it->second) {
+					if (existing_section.starts_with(prefix_str)) {
+						std::string_view idx_view = trim_string(existing_section.substr(prefix_str.size()));
+						int idx = 0;
+						if (try_parse_int(idx_view, idx)) {
+							if (idx > max_index) max_index = idx;
+						}
+					}
+				}
+			} else {
+				// looking for free key (entrance_X) in particular section
+				auto sec_it = file_it->second.find(sec_str);
+				if (sec_it == file_it->second.end()) continue;
 
-			for (const auto& [key, val] : sec_it->second) {
-				if (key.starts_with(prefix_str)) {
-					int idx = 0;
-					if (try_parse_int(std::string_view(key.data() + prefix_str.size(), key.size() - prefix_str.size()), idx)) {
-						if (idx > max_index) max_index = idx;
+				for (const auto& [key, val] : sec_it->second) {
+					if (key.starts_with(prefix_str)) {
+						int idx = 0;
+						if (try_parse_int(std::string_view(key.data() + prefix_str.size(), key.size() - prefix_str.size()), idx)) {
+							if (idx > max_index) max_index = idx;
+						}
 					}
 				}
 			}

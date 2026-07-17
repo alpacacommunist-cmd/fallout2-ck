@@ -16,7 +16,7 @@ namespace ck::config_maps {
     }
 
     int get_next_index() {
-		return ck::config_find_next_free_index_vfs("data\\data\\maps.txt", "Map");
+		return ck::config_find_next_free_index("maps.txt", "", "Map");
     }
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
@@ -49,7 +49,6 @@ namespace ck::config_maps {
         std::string map_section = format_section(map_index);
         log.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
 
-        // Накатываем патчи
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "lookup_name", name);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "map_name",    map_file_upper);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "music",       music);
