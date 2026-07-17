@@ -63,8 +63,8 @@ namespace ck::config_city {
     int expand_location(const std::string& mod_id, int area_id,
                         const std::string& map_lookup_name, int x, int y) {
 		std::string area_section = format_section(area_id);
-		// std::string city_path = "data/city.txt";
-		std::string city_path = "data\\data\\city.txt";
+		std::string city_path = "data/city.txt";
+		// std::string city_path = "data\\data\\city.txt";
 		// std::string city_path = "data\\city.txt";
 
 		int target_entrance_id = ck::config_find_next_free_key_index(city_path, area_section, "entrance_");
