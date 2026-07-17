@@ -92,7 +92,7 @@ events.on('onMapEnter', function()
   villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
     :set_behavior(behaviors.wander, 3)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
-    :set_behavior(behaviors.wander, 2)
+    :set_behavior(behaviors.wander, 12)
 
   villager1:set_hp(1)
 
