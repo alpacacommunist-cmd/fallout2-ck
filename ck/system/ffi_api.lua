@@ -146,6 +146,7 @@ ffi.cdef[[
 
   void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
   void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data);
+  void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data);
 ]]
 
 return ffi

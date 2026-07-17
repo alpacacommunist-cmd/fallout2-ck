@@ -85,3 +85,17 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 	});
 }
 
+void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data) {
+    if (data == nullptr) return;
+
+    const LuaMeta& meta = { {}, {}, ck_get_current_mod_id() };
+    int lua_id = ck_object_register_object(pid, tile, meta);
+
+    fallout::Object* obj = gObjectRegistry.get(lua_id);
+    if (obj != nullptr) {
+        obj->data.misc.map       = data->target_map;
+        obj->data.misc.tile      = data->target_tile;
+        obj->data.misc.elevation = data->target_elevation;
+        obj->data.misc.rotation  = data->target_rotation;
+    }
+}

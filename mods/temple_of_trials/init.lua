@@ -34,14 +34,17 @@ events.on('onMapEnter', function()
 
   if map_id ~= 4 then return end
 
-  map.exit_grid.spawn_in_rect(21948, 22152, 24153, 24359, {
-    map = new_map_id,
-    tile = 21068,
-    -- tile = -1,
-    elevation = 0,
-    rotation = 1,
-    style = 2
-  })
+  -- map.exit_grid.spawn_in_rect(21948, 22152, 24153, 24359, {
+  --   map = new_map_id,
+  --   tile = 21068,
+  --   -- tile = -1,
+  --   elevation = 0,
+  --   rotation = 1,
+  --   style = 2
+  -- })
+  map.exit_grid.spawn_in_line(22551, 24758, {
+  map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 2
+}, 2)
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
     name        = 'Ralph',

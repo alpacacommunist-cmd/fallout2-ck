@@ -166,7 +166,7 @@ function state.get_global(mod_id, sub_section, key)
 end
 
 function state.get_stored_object_data(mod_id, map_id, tag)
-  utils.print_table(db, log)
+  -- utils.print_table(db, log)
 
   if db.maps[map_id] and db.maps[map_id][mod_id] and db.maps[map_id][mod_id][tag] then
     return db.maps[map_id][mod_id][tag]
