@@ -8,6 +8,8 @@ ffi.cdef[[
   void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
   void ck_registry_clear();
 
+  void ck_config_clear_mod_patches(const char* mod_id);
+
   const char* ck_get_current_mod_id();
 
   // --- State ---

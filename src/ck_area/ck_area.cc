@@ -98,44 +98,29 @@ namespace ck {
 	}
 
 	int area_register_map(const std::string& map_file_name, const std::string& name,
-			   const std::string& sub_name, const std::string& music) {
+			const std::string& sub_name, const std::string& music) {
 
-        static int next_map_index = -1;
-        if (next_map_index == -1) next_map_index = ck::config_maps::get_next_index();
+		std::string current_mod = ck_get_current_mod_id();
+		int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music);
 
-        std::string map_file_upper = map_file_name;
-        std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
-        std::string map_file_lower = map_file_name;
-        std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
+		std::string map_file_upper = map_file_name;
+		std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
+		std::string map_file_lower = map_file_name;
+		std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
 
-        int map_index = -1;
-        auto runtime_it = gRuntimeMaps.find(map_file_lower);
-        if (runtime_it != gRuntimeMaps.end()) {
-            map_index = runtime_it->second;
-        } else {
-            map_index = next_map_index++;
-        }
+		std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
+		gMapPaths[map_file_lower] = map_file_path;
+		gRuntimeMaps[map_file_lower] = map_index;
 
-        std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", ck_get_current_mod_id(), map_file_upper);
-        gMapPaths[map_file_lower] = map_file_path;
-        gRuntimeMaps[map_file_lower] = map_index;
+		int map_base_id = map_index * 3;
+		ck::messages_add_string("map.msg", map_base_id + 100, name);
+		ck::messages_add_string("map.msg", map_base_id + 101, name);
 
-        std::string map_section = ck::config_maps::format_section(map_index);
+		std::string full_description = sub_name.empty() ? name : sub_name;
+		ck::messages_add_string("map.msg", map_base_id + 200, full_description);
 
-        ck::config_patch_add("data/maps.txt", map_section, "lookup_name", name);
-        ck::config_patch_add("data/maps.txt", map_section, "map_name",    map_file_upper);
-        ck::config_patch_add("data/maps.txt", map_section, "music",       music);
-        ck::config_patch_add("data/maps.txt", map_section, "saved",       "Yes");
-
-        int map_base_id = map_index * 3;
-        ck::messages_add_string("map.msg", map_base_id + 100, name);
-        ck::messages_add_string("map.msg", map_base_id + 101, name);
-
-        std::string full_description = sub_name.empty() ? name : sub_name;
-        ck::messages_add_string("map.msg", map_base_id + 200, full_description);
-
-        return map_index;
-    }
+		return map_index;
+	}
 
 	int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
         std::string map_file  = data.map_file ? data.map_file  : std::string();
@@ -152,11 +137,19 @@ namespace ck {
     }
 
 	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
-		return ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
+		int location_index = ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
+        ck::messages_add_string("map.msg", 1500 + location_index, name);
+
+		return location_index;
 	}
 
 	int expand_location(int area_id, const std::string& map_lookup_name, int x, int y) {
-		return ck::config_city::expand_location(ck_get_current_mod_id(), area_id, map_lookup_name, x, y);
+		int target_entrance_id = ck::config_city::expand_location(ck_get_current_mod_id(), area_id, map_lookup_name, x, y);
+
+        int townmap_msg_id = 200 + (area_id * 10) + target_entrance_id;
+        ck::messages_add_string("worldmap.msg", townmap_msg_id, map_lookup_name);
+
+		return target_entrance_id;
     }
 
 }

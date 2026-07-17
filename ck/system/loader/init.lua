@@ -91,6 +91,7 @@ function loader.reload_mods()
     state.clear_for_mod(mod_id)
 
     ffi.C.ck_registry_destroy_objects_for_mod(mod_id)
+    ffi.C.ck_config_clear_mod_patches(mod_id)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then

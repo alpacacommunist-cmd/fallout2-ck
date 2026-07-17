@@ -4,6 +4,8 @@ log.info("Loading Game Time Extender...")
 local config    = require('ck.fallout2.config')
 local monitor   = require('ck.fallout2.monitor')
 local game_time = require('ck.fallout2.game_time')
+local locations = require('ck.fallout2.locations')
+local map       = require('ck.fallout2.map')
 
 -- local new_hunting_grounds = locations.override_map(35,{
 --   map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
@@ -11,30 +13,30 @@ local game_time = require('ck.fallout2.game_time')
 --
 -- log.info("new_hunting_grounds id: " .. new_hunting_grounds)
 
--- new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
--- local test_caves_id = locations.register_map({
---     map_file = 'tstcv',
---     name     = "Secret Caves",
---     sub_name = "Very secret",
---     music    = "07desert"
--- })
--- locations.expand(new_location_id, { lookup_name = "Secret Caves" })
+new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
+local test_caves_id = locations.register_map({
+    map_file = 'tstcv',
+    name     = "Secret Caves",
+    sub_name = "Very secret",
+    music    = "07desert"
+})
+locations.expand(new_location_id, { lookup_name = "Secret Caves" })
 
--- log.info('test caves id: ' .. tostring(test_caves_id))
+log.info('test caves id: ' .. tostring(test_caves_id))
 
--- events.on('onMapEnter', function()
---   local map_id = map.get_id()
---
---   if map_id ~= test_caves_id then return end
---
---   if map.get_var(0) == 0 then
---     monitor.print("first time here")
---
---     map.set_var(0, 1)
---   else
---     monitor.print("already was here")
---   end
--- end)
+events.on('onMapEnter', function()
+  local map_id = map.get_id()
+
+  if map_id ~= test_caves_id then return end
+
+  if map.get_var(0) == 0 then
+    monitor.print("first time here")
+
+    map.set_var(0, 1)
+  else
+    monitor.print("already was here")
+  end
+end)
 
 events.on('onDayPassed', function()
   local date = game_time.get_date()

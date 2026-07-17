@@ -1,4 +1,5 @@
 #include "object/ck_object.h"
+#include "object/ck_object_registry.h"
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
 
@@ -66,17 +67,21 @@ void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bo
 void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data) {
 	std::vector<int> tiles = { t1, t2, t3, t4 };
 	HexRect rect = geometry_build_rect_from_points(tiles);
+
 	if (!rect.is_valid()) return;
 
 	rect.for_each_tile([pid, &data](int tile) {
-			fallout::Object* obj = ck_object_create(pid, tile);
+		const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
+		int lua_id = ck_object_register_object(pid, tile, meta);
 
-			if (obj != nullptr) {
+		fallout::Object* obj = gObjectRegistry.get(lua_id);
+
+		if (obj != nullptr) {
 			obj->data.misc.map       = data.target_map;
 			obj->data.misc.tile      = data.target_tile;
 			obj->data.misc.elevation = data.target_elevation;
 			obj->data.misc.rotation  = data.target_rotation;
-			}
+		}
 	});
 }
 

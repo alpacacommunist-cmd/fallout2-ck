@@ -3,6 +3,8 @@
 
 #include "ck_api.h"
 
+extern "C" const char* ck_get_current_mod_id();
+
 namespace fallout {
 	extern int gElevation;
 }
