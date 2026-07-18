@@ -5,6 +5,8 @@
 #include "map/ck_map_batch.h"
 #include "object/ck_object.h"
 
+#include "obj_types.h"
+
 static CkCameraBorders gCameraBorders;
 
 #include "ck_log.h"
@@ -18,18 +20,19 @@ namespace ck {
 		if (ck_in_combat()) fallout::_combat_reload_map();
 	}
 
-	void on_before_map_enter() {
-		log.debug("on_before_map_enter");
+	void on_before_map_load() {
+		log.debug("on_before_map_load");
 
 		ck::reset_dummy_script();
 		ck_rendering_clear();
 		ck_map_clear_camera_borders();
+
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}
 
 	bool map_has_camera_borders() { return gCameraBorders.enabled; }
 	bool map_is_camera_position_allowed(int tile) {
-		if (!gCameraBorders.enabled) { return false; }
+		if (!gCameraBorders.enabled) { return true; }
 
 		int gridWidth = fallout::tileGetHexGridWidth();
 		int tileX = gridWidth - 1 - tile % gridWidth;

@@ -1,6 +1,8 @@
 #include "object/ck_item.h"
 
 #include "item.h"
+#include "object.h"
+#include "proto.h"
 
 namespace ck {
 

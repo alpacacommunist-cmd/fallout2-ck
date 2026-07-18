@@ -65,7 +65,7 @@ namespace ck {
 		int lua_id = -1;
 		LuaMeta meta = { critter->sid, lua_tag, mod_id, source_pid };
 
-		lua_id = gObjectRegistry.add(critter, meta);
+		lua_id = ck::registry::add(critter, meta);
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
@@ -74,7 +74,7 @@ namespace ck {
 	}
 
 	bool critter_kill(int lua_id) {
-		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+		const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 		if (!managed || !managed->ptr) return false;
 
 		// managed->ptr->pid = managed->meta.source_pid;
@@ -90,7 +90,7 @@ namespace ck {
 }
 
 void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
-	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 	if (!managed || !managed->ptr) return;
 
 	fallout::Object* obj = managed->ptr;

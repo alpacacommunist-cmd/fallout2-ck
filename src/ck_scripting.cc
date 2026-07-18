@@ -62,7 +62,7 @@ void ck_reload_mods() {
 }
 
 void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
-	gObjectRegistry.destroy_objects_for_mod(target_mod_id);
+	ck::registry::clear_resources_for_mod(target_mod_id);
 }
 
 static const luaL_Reg CK_GLOBAL_FUNCTIONS[] = {
@@ -169,9 +169,8 @@ void ck_scripting_on_engine_ready() {
 }
 
 void ck_scripting_on_object_destroyed(fallout::Object* object) {
-	gObjectRegistry.remove_by_ptr(object);
+	ck::registry::remove_by_ptr(object);
 }
-void ck_registry_clear() { gObjectRegistry.clear(); }
 
 // loadsave.cc
 void ck_scripting_on_before_game_load(const char* path) {

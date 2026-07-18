@@ -1,102 +1,120 @@
-#include "ck_utils.h"
-#include "ck_ids.h"
+#include "object/ck_object.h"
 #include "object/ck_object_registry.h"
-#include "object/ck_item.h"
+#include <algorithm>
+
+#include "obj_types.h"
 
 #include "ck_log.h"
 static const Logger log("CK Object Registry");
 
-CkObjectRegistry gObjectRegistry;
-
-const LuaMeta* CkObjectRegistry::get_meta(int lua_id) const {
-    auto it = objects.find(lua_id);
-    if (it == objects.end() || !it->second.alive) return nullptr;
-    return &it->second.meta;
+namespace {
+    int next_id = 1;
 }
 
-int CkObjectRegistry::add(fallout::Object* obj, const LuaMeta& meta) {
-    int id = next_id++;
-    objects[id] = { obj, id, true, meta };
+namespace ck::registry {
+    std::unordered_map<int, CkManagedObject> g_objects;
+    std::vector<CkHiddenObjectEntry> g_hidden_objects;
 
-    return id;
-}
-
-void CkObjectRegistry::destroy_objects_for_mod(const char* target_mod_id) {
-	log.info("Hot Reload: Looking for {} objects", target_mod_id);
-
-    if (target_mod_id == nullptr) return;
-    std::string mod_id_str(target_mod_id);
-
-    int count = 0;
-
-    auto it = objects.begin();
-    while (it != objects.end()) {
-        if (it->second.alive && it->second.meta.mod_id == mod_id_str && it->second.ptr != nullptr) {
-            // ck_scripting_on_object_destroyed gets triggered in engine (inside objectDestroy)
-            // and calls remove_by_ptr.
-			fallout::reg_anim_clear(it->second.ptr);
-            fallout::objectDestroy(it->second.ptr, nullptr);
-
-            it = objects.begin();
-            count++;
-        } else { ++it; }
+    int add(fallout::Object* obj, const LuaMeta& meta) {
+        int id = next_id++;
+        g_objects[id] = { obj, id, meta };
+        return id;
     }
 
-    if (count > 0) {
-        log.info("Hot Reload: Physicaly destroyed {} objects belonging to mod '{}'", count, mod_id_str);
+    void register_hidden_object(fallout::Object* obj, const std::string& mod_id) {
+        if (obj == nullptr) return;
+        g_hidden_objects.push_back({ obj, mod_id });
     }
-}
 
-int CkObjectRegistry::remove_by_ptr(fallout::Object* ptr) {
-    if (ptr == nullptr) return false;
+    void clear_resources_for_mod(const char* target_mod_id) {
+        if (target_mod_id == nullptr) return;
+        std::string mod_str(target_mod_id);
 
-    for (auto it = objects.begin(); it != objects.end(); ++it) {
-        if (it->second.alive && it->second.ptr == ptr) {
-            it->second.alive = false;
+        int restored_count = std::erase_if(g_hidden_objects, [&mod_str](const auto& entry) {
+            if (entry.mod_id == mod_str) {
+                if (entry.ptr != nullptr) {
+                    entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+                }
+                return true;
+            }
+            return false;
+        });
 
-            std::string obj_tag = it->second.meta.tag;
-            int deleted_id      = it->second.lua_id;
+        if (restored_count > 0) {
+            log.info("Hot Reload: Restored (unhidden) {} original map objects for mod '{}'", restored_count, mod_str);
+        }
 
-			objects.erase(it);
+        std::vector<fallout::Object*> to_destroy;
+        for (const auto& [id, managed] : g_objects) {
+            if (managed.meta.mod_id == mod_str && managed.ptr != nullptr) {
+                to_destroy.push_back(managed.ptr);
+            }
+        }
 
-			log.debug("Engine destroyed object [ID: {}, Tag: '{}']. Managed registry size: {}",
-					deleted_id,
-					obj_tag.empty() ? "mass_object (untagged)" : obj_tag,
-					objects.size());
+        for (fallout::Object* obj : to_destroy) {
+            fallout::reg_anim_clear(obj);
+            fallout::objectDestroy(obj, nullptr);
+        }
 
-            return deleted_id;
+        if (!to_destroy.empty()) {
+            log.info("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_str);
         }
     }
 
-    return -1;
-}
+    int remove_by_ptr(fallout::Object* ptr) {
+        if (ptr == nullptr) return -1;
 
-const CkManagedObject* CkObjectRegistry::get_managed(int lua_id) const {
-    auto it = objects.find(lua_id);
-    if (it == objects.end() || !it->second.alive) return nullptr;
-    return &it->second;
-}
+        int deleted_id = -1;
+        std::string obj_tag;
 
-fallout::Object* CkObjectRegistry::get(int lua_id) const {
-    auto it = objects.find(lua_id);
-    if (it == objects.end() || !it->second.alive) return nullptr;
-    return it->second.ptr;
-}
+        std::erase_if(g_objects, [ptr, &deleted_id, &obj_tag](const auto& item) {
+            const auto& [id, managed] = item;
+            if (managed.ptr == ptr) {
+                deleted_id = managed.lua_id;
+                obj_tag = managed.meta.tag;
+                return true;
+            }
+            return false;
+        });
 
-int CkObjectRegistry::find_by_ptr(fallout::Object* ptr) const {
-    for (const auto& [id, managed] : objects) {
-        if (managed.alive && managed.ptr == ptr) return id;
+        if (deleted_id != -1) {
+            log.debug("Engine destroyed object [ID: {}, Tag: '{}']. Registry size: {}",
+                      deleted_id, obj_tag.empty() ? "untagged" : obj_tag, g_objects.size());
+        }
+
+        return deleted_id;
     }
-    return -1;
-}
 
-void CkObjectRegistry::clear() {
-    objects.clear();
-    next_id = 1;
+    const CkManagedObject* get_managed(int lua_id) {
+        auto it = g_objects.find(lua_id);
+        return (it == g_objects.end()) ? nullptr : &it->second;
+    }
 
-	log.info("Cleared objects, current registry size: 0");
+    fallout::Object* get(int lua_id) {
+        auto it = g_objects.find(lua_id);
+        return (it == g_objects.end()) ? nullptr : it->second.ptr;
+    }
+
+    int find_by_ptr(fallout::Object* ptr) {
+        for (const auto& [id, managed] : g_objects) {
+            if (managed.ptr == ptr) return id;
+        }
+        return -1;
+    }
+
+    const LuaMeta* get_meta(int lua_id) {
+        auto it = g_objects.find(lua_id);
+        return (it == g_objects.end()) ? nullptr : &it->second.meta;
+    }
+
+    void clear() {
+        g_objects.clear();
+        g_hidden_objects.clear();
+        next_id = 1;
+        log.info("Cleared object registry entirely.");
+    }
 }
 
 void ck_registry_clear() {
-	gObjectRegistry.clear();
+    ck::registry::clear();
 }

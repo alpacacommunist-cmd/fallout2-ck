@@ -5,7 +5,12 @@
 #include "ck_api.h"
 #include "geometry/geometry.h"
 #include "object/ck_object_registry.h"
-#include "object.h"
+
+namespace fallout {
+	struct Object;
+}
+
+struct LuaMeta;
 
 static fallout::Object* ck_object_blocker_at(int tile);
 

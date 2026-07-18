@@ -141,7 +141,7 @@ static void mode_main_dude_scan() {
 		for (int distance = 1; distance <= radius; distance++) {
 			int tile = fallout::tileGetTileInDirection(dude->tile, direction, distance);
 
-			if (!fallout::hexGridTileIsValid(tile)) continue;
+			if (!hexGridTileIsValid(tile)) continue;
 			if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
 
 			ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));

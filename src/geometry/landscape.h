@@ -7,8 +7,12 @@ extern "C" const char* ck_get_current_mod_id();
 
 namespace fallout {
 	extern int gElevation;
+
 	int tileGetRotationTo(int tile1, int tile2);
 	int tileGetTileInDirection(int tile, int rotation, int distance);
+
+	Object* objectFindFirstAtLocation(int elevation, int tile);
+	Object* objectFindNextAtLocation();
 }
 
 struct CKExitGridData {

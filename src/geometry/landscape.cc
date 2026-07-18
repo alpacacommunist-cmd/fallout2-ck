@@ -4,6 +4,7 @@
 #include "geometry/landscape.h"
 
 #include "proto_types.h"
+#include "object.h"
 
 static void ck_landscape_destroy_in_rect_match(const HexRect& rect, std::function<bool(int pid)> should_destroy) {
     std::vector<fallout::Object*> to_delete;
@@ -19,6 +20,20 @@ static void ck_landscape_destroy_in_rect_match(const HexRect& rect, std::functio
     });
 
     for (fallout::Object* obj : to_delete) { fallout::objectDestroy(obj, nullptr); }
+}
+
+static void ck_landscape_hide_in_rect_match(const HexRect& rect, std::function<bool(int pid)> should_hide) {
+    rect.for_each_tile([&should_hide](int tile) {
+        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+        while (obj != nullptr) {
+            fallout::Object* next_obj = fallout::objectFindNextAtLocation();
+
+            if (should_hide(obj->pid) && FID_TYPE(obj->pid) != fallout::OBJ_TYPE_CRITTER) {
+                obj->flags |= fallout::OBJECT_HIDDEN;
+            }
+            obj = next_obj;
+        }
+    });
 }
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
@@ -52,16 +67,25 @@ void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, 
 }
 
 void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom) {
-	std::vector<int> tiles = { left, right, top, bottom };
-	HexRect rect = geometry_build_rect_from_points(tiles);
+    std::vector<int> tiles = { left, right, top, bottom };
+    HexRect rect = geometry_build_rect_from_points(tiles);
+    if (!rect.is_valid()) return;
 
-	if (!rect.is_valid()) return;
+    std::string current_mod = ck_get_current_mod_id();
 
-	auto is_exit_grid = [](int obj_pid) {
-		return obj_pid >= FIRST_EXIT_GRID_PID && obj_pid <= LAST_EXIT_GRID_PID;
-	};
+    rect.for_each_tile([&current_mod](int tile) {
+        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+        while (obj != nullptr) {
+            fallout::Object* next_obj = fallout::objectFindNextAtLocation();
 
-	ck_landscape_destroy_in_rect_match(rect, is_exit_grid);
+            if (obj->pid >= FIRST_EXIT_GRID_PID && obj->pid <= LAST_EXIT_GRID_PID) {
+                obj->flags |= fallout::OBJECT_HIDDEN;
+
+				ck::registry::register_hidden_object(obj, current_mod);
+            }
+            obj = next_obj;
+        }
+    });
 }
 
 void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data) {
@@ -74,7 +98,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 		const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
 		int lua_id = ck_object_register_object(pid, tile, meta);
 
-		fallout::Object* obj = gObjectRegistry.get(lua_id);
+		fallout::Object* obj = ck::registry::get(lua_id);
 
 		if (obj != nullptr) {
 			obj->data.misc.map       = data.target_map;
@@ -91,7 +115,7 @@ void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridDa
     const LuaMeta& meta = { {}, {}, ck_get_current_mod_id() };
     int lua_id = ck_object_register_object(pid, tile, meta);
 
-    fallout::Object* obj = gObjectRegistry.get(lua_id);
+    fallout::Object* obj = ck::registry::get(lua_id);
     if (obj != nullptr) {
         obj->data.misc.map       = data->target_map;
         obj->data.misc.tile      = data->target_tile;

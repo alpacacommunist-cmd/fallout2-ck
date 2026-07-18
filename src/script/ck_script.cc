@@ -67,7 +67,7 @@ namespace ck {
 		if (!is_ck_sid(clean_sid(sid))) return false;
 
 		int lua_id = lua_id_from_sid(clean_sid(sid));
-		const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+		const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 
 		if (!managed) return false;
 

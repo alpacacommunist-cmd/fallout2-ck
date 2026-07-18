@@ -55,7 +55,7 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create_at(fid, tile);
 
-	if (object != nullptr) return gObjectRegistry.add(object, meta);
+	if (object != nullptr) return ck::registry::add(object, meta);
 
 	return -1;
 }
@@ -64,7 +64,7 @@ int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 
-	if (object != nullptr) return gObjectRegistry.add(object, meta);
+	if (object != nullptr) return ck::registry::add(object, meta);
 
 	return -1;
 }
@@ -98,7 +98,7 @@ void ck_object_create_blocker_at(int tile) {
 // ffi
 
 int ck_object_get_sid(int lua_id) {
-	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 
 	if (!managed || !managed->ptr) return -1;
 	if (!ck::is_ck_sid(ck::clean_sid(managed->ptr->sid))) return -1;
@@ -107,13 +107,13 @@ int ck_object_get_sid(int lua_id) {
 }
 
 void* ck_object_get_ptr(int lua_id) {
-	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 	if (!managed) return nullptr;
 	return static_cast<void*>(managed->ptr);
 }
 
 int ck_object_get_tile(int lua_id) {
-	const CkManagedObject* managed = gObjectRegistry.get_managed(lua_id);
+	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
 	if (!managed || !managed->ptr) return -1;
 
 	return managed->ptr->tile;

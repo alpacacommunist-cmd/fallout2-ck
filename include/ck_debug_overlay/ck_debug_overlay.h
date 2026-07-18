@@ -4,7 +4,14 @@
 
 namespace fallout {
 #define MOUSE_EVENT_LEFT_BUTTON_REPEAT 0x04
+#define HEX_GRID_WIDTH (200)
+#define HEX_GRID_HEIGHT (200)
+#define HEX_GRID_SIZE (HEX_GRID_WIDTH * HEX_GRID_HEIGHT)
+
 	struct Rect;
+	struct Object;
+
+	extern Object* gDude;
 
 	int  mouseGetEvent();
 	void mouseGetPosition(int* out_x, int* out_y);
@@ -14,7 +21,13 @@ namespace fallout {
 	void tileWindowRefresh();
 
 	void displayMonitorAddMessage(const char* str);
-	int showDialogBox(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* secondaryButtonText, int bodyColor, int flags);
+
+	bool isExitGridAt(int tile, int elevation);
+	char* objectGetName(Object* obj);
+}
+
+inline bool hexGridTileIsValid(int tile) {
+	return tile >= 0 && tile < HEX_GRID_SIZE;
 }
 
 void ck_debug_overlay_toggle();

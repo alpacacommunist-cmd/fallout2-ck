@@ -82,7 +82,7 @@ void ck_dispatcher_on_day_passed() {
 void ck_dispatcher_on_map_enter() {
 	log.debug("ck_dispatcher_on_map_enter");
 
-	gObjectRegistry.clear();
+	ck::registry::clear();
 
 	ck::proxy::clear_tracked_objects();
 	ck::proxy::clear_registry();
