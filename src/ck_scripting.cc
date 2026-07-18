@@ -185,9 +185,13 @@ void ck_scripting_on_game_loaded() {
 }
 
 void ck_scripting_on_before_game_save() {
+	log.debug("on_before_game_save");
+	ck::registry::temporary_unhide_for_save();
 }
 
 void ck_scripting_on_game_save(const char* path) {
-    log.debug("ck_scripting_on_game_save");
+    log.debug("on_game_save");
+
 	ck_state_save(path);
+	ck::registry::rehide_after_save();
 }

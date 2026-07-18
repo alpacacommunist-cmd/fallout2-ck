@@ -50,6 +50,5 @@ void ck_scripting_register_location(
 
 
 CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
-CK_API void ck_registry_clear();
 
 #endif // CK_SCRIPTING_H

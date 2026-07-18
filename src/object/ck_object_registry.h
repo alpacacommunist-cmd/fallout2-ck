@@ -1,7 +1,6 @@
 #ifndef CK_OBJECT_REGISTRY_H
 #define CK_OBJECT_REGISTRY_H
 
-#include "ck_api.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -29,7 +28,7 @@ struct CkManagedObject {
 };
 
 struct CkHiddenObjectEntry {
-    fallout::Object* ptr;
+    fallout::Object* ptr = nullptr;
     std::string mod_id;
 };
 
@@ -47,8 +46,11 @@ namespace ck::registry {
     int  find_by_ptr(fallout::Object* ptr);
     const LuaMeta* get_meta(int lua_id);
     void clear();
+
+    void temporary_unhide_for_save();
+    void rehide_after_save();
 }
 
-CK_API void ck_registry_clear();
+extern "C" void ck_registry_clear();
 
 #endif

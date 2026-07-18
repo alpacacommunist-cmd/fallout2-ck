@@ -8,6 +8,7 @@
 #include <string>
 
 extern "C" const char* ck_get_current_mod_id();
+extern "C" void        ck_registry_clear();
 extern "C" bool        ck_in_combat();
 
 void ck_dispatcher_on_map_enter();

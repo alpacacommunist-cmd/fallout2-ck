@@ -23,9 +23,12 @@ namespace ck {
 	void on_before_map_load() {
 		log.debug("on_before_map_load");
 
-		ck::reset_dummy_script();
-		ck_rendering_clear();
 		ck_map_clear_camera_borders();
+
+		ck_registry_clear();
+		ck_rendering_clear();
+
+		ck::reset_dummy_script();
 
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}

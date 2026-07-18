@@ -17,31 +17,35 @@ namespace ck::registry {
 
     int add(fallout::Object* obj, const LuaMeta& meta) {
         int id = next_id++;
-        g_objects[id] = { obj, id, meta };
+        g_objects[id] = CkManagedObject{ obj, id, meta };
         return id;
     }
 
     void register_hidden_object(fallout::Object* obj, const std::string& mod_id) {
         if (obj == nullptr) return;
-        g_hidden_objects.push_back({ obj, mod_id });
+        g_hidden_objects.push_back(CkHiddenObjectEntry{ obj, mod_id });
     }
 
     void clear_resources_for_mod(const char* target_mod_id) {
         if (target_mod_id == nullptr) return;
         std::string mod_str(target_mod_id);
 
-        int restored_count = std::erase_if(g_hidden_objects, [&mod_str](const auto& entry) {
-            if (entry.mod_id == mod_str) {
-                if (entry.ptr != nullptr) {
-                    entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+        int restored_count = 0;
+        auto hidden_it = g_hidden_objects.begin();
+        while (hidden_it != g_hidden_objects.end()) {
+            if (hidden_it->mod_id == mod_str) {
+                if (hidden_it->ptr != nullptr) {
+                    hidden_it->ptr->flags &= ~fallout::OBJECT_HIDDEN;
+                    restored_count++;
                 }
-                return true;
+                hidden_it = g_hidden_objects.erase(hidden_it);
+            } else {
+                ++hidden_it;
             }
-            return false;
-        });
+        }
 
         if (restored_count > 0) {
-            log.info("Hot Reload: Restored (unhidden) {} original map objects for mod '{}'", restored_count, mod_str);
+            log.info("Hot Reload: Restored {} hidden map objects for mod '{}'", restored_count, mod_str);
         }
 
         std::vector<fallout::Object*> to_destroy;
@@ -68,12 +72,13 @@ namespace ck::registry {
         std::string obj_tag;
 
         std::erase_if(g_objects, [ptr, &deleted_id, &obj_tag](const auto& item) {
-            const auto& [id, managed] = item;
-            if (managed.ptr == ptr) {
-                deleted_id = managed.lua_id;
-                obj_tag = managed.meta.tag;
+            if (item.second.ptr == ptr) {
+                deleted_id = item.second.lua_id;
+                obj_tag = item.second.meta.tag;
+
                 return true;
             }
+
             return false;
         });
 
@@ -108,10 +113,34 @@ namespace ck::registry {
     }
 
     void clear() {
+		int restored_count = 0;
+		for (const auto& entry : g_hidden_objects) {
+			if (entry.ptr != nullptr) {
+				entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+				restored_count++;
+			}
+		}
+
+		if (restored_count > 0) {
+			log.info("Registry Clear Guard: Restored {} hidden objects before map unload/save", restored_count);
+		}
+
         g_objects.clear();
         g_hidden_objects.clear();
         next_id = 1;
         log.info("Cleared object registry entirely.");
+    }
+
+    void temporary_unhide_for_save() {
+        for (const auto& entry : g_hidden_objects) {
+            if (entry.ptr != nullptr) entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+        }
+    }
+
+    void rehide_after_save() {
+        for (const auto& entry : g_hidden_objects) {
+            if (entry.ptr != nullptr) entry.ptr->flags |= fallout::OBJECT_HIDDEN;
+        }
     }
 }
 
