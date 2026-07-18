@@ -34,9 +34,9 @@ events.on('onMapEnter', function()
 
   if map_id ~= 4 then return end
 
-  map.exit_grid.spawn_in_line(22551, 24758, {
-    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 2
-}, 2)
+--   map.exit_grid.spawn_in_line(22551, 24758, {
+--     map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 2
+-- }, 2)
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
     name        = 'Ralph',
@@ -56,13 +56,10 @@ events.on('onMapEnter', function()
 
   map.exit_grid.destroy_in_rect(21514, 22727, 24113, 24323);
 
-  map.exit_grid.spawn_in_rect(22132, 23531, 23938, 24731, {
-    map = 4,
-    tile = 11683,
-    elevation = 0,
-    rotation = 1,
-    style = 2
-  })
+  map.exit_grid.spawn_in_line(22533, 24734, {
+    map = 4, tile = 11683, elevation = 0, rotation = 1, style = 4
+  },3 )
+
 
   local asset = assets.resolve('temple_of_trials:scenery/tree10')
 

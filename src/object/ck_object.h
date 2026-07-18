@@ -14,6 +14,7 @@ bool ck_object_blocking(int tile);
 fallout::Object* ck_object_create(int pid, int tile);
 fallout::Object* ck_object_create_at(int fid, int tile);
 
+int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta);
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta);
 
 void ck_object_remove(fallout::Object* obj);

@@ -116,7 +116,7 @@ int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
 	const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
 
-    return ck_object_register_object(fid, tile, meta);
+    return ck_object_register_object_by_fid(fid, tile, meta);
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {

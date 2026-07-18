@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local geometry = require('ck.fallout2.map.geometry')
 
 local C = ffi.C
 
@@ -40,6 +41,21 @@ function exit_grid.spawn_in_rect(t1, t2, t3, t4, config)
     exit_grid.create_in_rect(t1, t2, t3, t4, final_pid, grid_data)
 end
 
+function exit_grid.spawn_at_tile(tile, config)
+  -- config : { map = 10, tile = 15000, elevation = 0, rotation = 1, style = 0 }
+
+  local grid_data = ffi.new("CKExitGridData")
+  grid_data.target_map       = config.map
+  grid_data.target_tile      = config.tile
+  grid_data.target_elevation = config.elevation or 0
+  grid_data.target_rotation  = config.rotation or 0
+
+  local style_offset = config.style or 0
+  local final_pid    = exit_grid.styles.FIRST + style_offset
+
+  exit_grid.create_at_tile(tile, final_pid, grid_data)
+end
+
 function exit_grid.spawn_in_line(t1, t2, config, thickness)
   -- config : { map = 10, tile = 15000, elevation = 0, rotation = 1, style = 0 }
 
@@ -54,7 +70,6 @@ function exit_grid.spawn_in_line(t1, t2, config, thickness)
   thickness = thickness or 1
 
   -- middle line
-  local geometry = require('ck.fallout2.map.geometry')
   local core_line = geometry.line(t1, t2)
 
   -- thickness brush

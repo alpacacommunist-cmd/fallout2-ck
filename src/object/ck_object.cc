@@ -52,6 +52,15 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 	return object;
 }
 
+int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
+	fallout::Object* object = ck_object_create_at(fid, tile);
+
+	if (object != nullptr) return gObjectRegistry.add(object, meta);
+
+	return -1;
+}
+
+
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 
