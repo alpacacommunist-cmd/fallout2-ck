@@ -6,6 +6,8 @@ local critters  = require('ck.fallout2.objects.critters')
 local state     = require('ck.fallout2.state')
 local behaviors = require('ck.fallout2.objects.critters.behaviors')
 local locations = require('ck.fallout2.locations')
+local player    = require('ck.fallout2.player')
+local stats     = require('ck.fallout2.objects.critters.stats')
 
 local outskirts = require('.outskirts')
 
@@ -27,6 +29,17 @@ log.warn("ENTRANCE ID: " .. tostring(entrance_id))
 
 events.on('onModReload', function()
   map.rendering_refresh()
+end)
+
+events.on('onGameLoaded', function()
+  -- log.info(player.stats.strength)
+  -- log.info(player.stats.intelligence)
+  -- log.info(player.gender)
+  -- log.info(player.level)
+  --
+  -- log.info('small_guns: ' .. tostring(player.skills.small_guns))
+
+  -- player.set_base_stat('perception', 8)
 end)
 
 events.on('onMapEnter', function()
