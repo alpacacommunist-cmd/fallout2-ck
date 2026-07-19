@@ -69,6 +69,7 @@ namespace ck {
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
+		critter->data.critter.combat.team = 0;
 
 		return { lua_id, ck_get_current_mod_id() };
 	}

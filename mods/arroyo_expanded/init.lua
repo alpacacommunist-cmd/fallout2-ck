@@ -77,7 +77,7 @@ events.on('onMapEnter', function()
 
   alice:on('push', function(self)
     self:float_message('denied', 1)
-    return false
+    return true
   end)
 
   alice:animate()
