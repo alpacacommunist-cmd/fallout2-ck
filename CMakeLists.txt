@@ -109,3 +109,14 @@ foreach(TARGET fallout2-ce mapper-ce)
 	set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE) # ffi
     endif()
 endforeach()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(fallout2-ck PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+
+    foreach(TARGET fallout2-ce mapper-ce)
+        if(TARGET ${TARGET})
+            target_compile_options(${TARGET} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+            target_link_options(${TARGET} PRIVATE -fsanitize=address)
+        endif()
+    endforeach()
+endif()
