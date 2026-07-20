@@ -1,6 +1,6 @@
 #include "ck_ids.h"
 #include "object/ck_object.h"
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 #include "object/ck_item.h"
 
 #include "tile.h"
@@ -55,7 +55,7 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create_at(fid, tile);
 
-	if (object != nullptr) return ck::registry::add(object, meta);
+	if (object != nullptr) return ck::registry::created::add(object, meta);
 
 	return -1;
 }
@@ -64,7 +64,7 @@ int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 
-	if (object != nullptr) return ck::registry::add(object, meta);
+	if (object != nullptr) return ck::registry::created::add(object, meta);
 
 	return -1;
 }
@@ -98,25 +98,25 @@ void ck_object_create_blocker_at(int tile) {
 // ffi
 
 int ck_object_get_sid(int lua_id) {
-	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
+	const CkCreatedObject* object = ck::registry::created::get(lua_id);
 
-	if (!managed || !managed->ptr) return -1;
-	if (!ck::is_ck_sid(ck::clean_sid(managed->ptr->sid))) return -1;
+	if (!object || !object->ptr) return -1;
+	if (!ck::is_ck_sid(ck::clean_sid(object->ptr->sid))) return -1;
 
-	return ck::clean_sid(managed->ptr->sid);
+	return ck::clean_sid(object->ptr->sid);
 }
 
 void* ck_object_get_ptr(int lua_id) {
-	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
-	if (!managed) return nullptr;
-	return static_cast<void*>(managed->ptr);
+	const CkCreatedObject* object = ck::registry::created::get(lua_id);
+	if (!object) return nullptr;
+	return static_cast<void*>(object->ptr);
 }
 
 int ck_object_get_tile(int lua_id) {
-	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
-	if (!managed || !managed->ptr) return -1;
+	const CkCreatedObject* object = ck::registry::created::get(lua_id);
+	if (!object || !object->ptr) return -1;
 
-	return managed->ptr->tile;
+	return object->ptr->tile;
 }
 
 bool ck_inventory_add(void* container_ptr, int item_pid, int count) {

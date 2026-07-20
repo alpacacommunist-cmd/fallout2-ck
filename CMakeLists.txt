@@ -39,6 +39,10 @@ add_library(fallout2-ck STATIC
     src/ce_config/ck_config_city.cc
     src/ce_config/ck_encoding.cc
 
+    src/ck_registry/ck_registry.cc
+    src/ck_registry/ck_registry_created.cc
+    src/ck_registry/ck_registry_deleted.cc
+
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
 
@@ -47,7 +51,6 @@ add_library(fallout2-ck STATIC
     src/map/ck_map.cc
     src/script/ck_script.cc
     src/object/ck_object.cc
-    src/object/ck_object_registry.cc
     src/object/critter/ck_critter.cc
     src/object/critter/ck_stats.cc
     src/object/critter/ck_skills.cc

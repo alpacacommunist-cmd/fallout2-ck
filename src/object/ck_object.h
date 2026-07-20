@@ -4,7 +4,7 @@
 
 #include "ck_api.h"
 #include "geometry/geometry.h"
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 
 namespace fallout {
 	struct Object;

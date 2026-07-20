@@ -3,7 +3,6 @@
 #define CK_SCRIPTING_MAP_H
 
 #include "ck_api.h"
-#include "object/ck_object_registry.h"
 
 #include <string>
 

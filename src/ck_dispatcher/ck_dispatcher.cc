@@ -1,6 +1,7 @@
 #include "ck_dispatcher.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
+#include "ck_registry/ck_registry.h"
 
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");

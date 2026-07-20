@@ -3,7 +3,7 @@
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 
 #include "object/ck_object.h"
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_stats.h"
 
@@ -63,9 +63,9 @@ namespace ck {
 		if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
 		int lua_id = -1;
-		LuaMeta meta = { critter->sid, lua_tag, mod_id, source_pid };
+		LuaMeta meta = { mod_id, lua_tag, critter->sid, source_pid };
 
-		lua_id = ck::registry::add(critter, meta);
+		lua_id = ck::registry::created::add(critter, meta);
 
 		int custom_sid = ck::make_sid(lua_id);
 		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
@@ -75,14 +75,14 @@ namespace ck {
 	}
 
 	bool critter_kill(int lua_id) {
-		const CkManagedObject* managed = ck::registry::get_managed(lua_id);
-		if (!managed || !managed->ptr) return false;
+		const CkCreatedObject* object = ck::registry::created::get(lua_id);
+		if (!object || !object->ptr) return false;
 
-		// managed->ptr->pid = managed->meta.source_pid;
-		// managed->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
-		// _combat_delete_critter(managed->ptr);
+		// object->ptr->pid = object->meta.source_pid;
+		// object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+		// _combat_delete_critter(object->ptr);
 		//
-		// if (fallout::gDude->data.critter.combat.whoHitMe == managed->ptr) {
+		// if (fallout::gDude->data.critter.combat.whoHitMe == object->ptr) {
 		// 	fallout::gDude->data.critter.combat.whoHitMe = nullptr;
 		// }
 
@@ -91,10 +91,10 @@ namespace ck {
 }
 
 void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
-	const CkManagedObject* managed = ck::registry::get_managed(lua_id);
-	if (!managed || !managed->ptr) return;
+	const CkCreatedObject* object = ck::registry::created::get(lua_id);
+	if (!object || !object->ptr) return;
 
-	fallout::Object* obj = managed->ptr;
+	fallout::Object* obj = object->ptr;
 	if (obj->elevation != fallout::gElevation) return;
 
 	int color = fallout::_colorTable[32747], background_color = fallout::_colorTable[0], font = 101;

@@ -24,6 +24,7 @@ namespace fallout {
 
 	bool isExitGridAt(int tile, int elevation);
 	char* objectGetName(Object* obj);
+	Object* _obj_blocking_at(Object* excludeObj, int tile_num, int elev);
 }
 
 inline bool hexGridTileIsValid(int tile) {

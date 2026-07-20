@@ -4,6 +4,7 @@
 #include "map/ck_map.h"
 #include "map/ck_map_batch.h"
 #include "object/ck_object.h"
+#include "ck_registry/ck_registry.h"
 
 #include "obj_types.h"
 
@@ -104,6 +105,8 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
     gCameraBorders.right = right;
     gCameraBorders.top = top;
     gCameraBorders.bottom = bottom;
+
+	ck_rendering_refresh();
 }
 
 void ck_map_remove_blocker(int tile) { ck_object_remove_blocker_at(tile); }
@@ -120,7 +123,7 @@ void ck_map_create_object_fid(int fid, int tile) {
 
 int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
+	const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
 
     return ck_object_register_object_by_fid(fid, tile, meta);
 }

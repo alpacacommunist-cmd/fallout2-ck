@@ -6,7 +6,7 @@
 #include "game_dialog.h"
 
 #include "script/ck_script.h"
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 
 #include <cstring>
 
@@ -67,9 +67,9 @@ namespace ck {
 		if (!is_ck_sid(clean_sid(sid))) return false;
 
 		int lua_id = lua_id_from_sid(clean_sid(sid));
-		const CkManagedObject* managed = ck::registry::get_managed(lua_id);
+		const CkCreatedObject* object = ck::registry::created::get(lua_id);
 
-		if (!managed) return false;
+		if (!object) return false;
 
 		fallout::Script* script = script_get_dummy(sid);
 
@@ -78,7 +78,7 @@ namespace ck {
 
 		// void* source_ptr = script->source;
 
-		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, managed->meta.mod_id.c_str());
+		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, object->meta.mod_id.c_str());
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;

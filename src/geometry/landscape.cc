@@ -1,5 +1,5 @@
 #include "object/ck_object.h"
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
 
@@ -81,7 +81,7 @@ void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bo
             if (obj->pid >= FIRST_EXIT_GRID_PID && obj->pid <= LAST_EXIT_GRID_PID) {
                 obj->flags |= fallout::OBJECT_HIDDEN;
 
-				ck::registry::register_hidden_object(obj, current_mod);
+				ck::registry::deleted::add(obj, current_mod);
             }
             obj = next_obj;
         }
@@ -95,10 +95,10 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 	if (!rect.is_valid()) return;
 
 	rect.for_each_tile([pid, &data](int tile) {
-		const LuaMeta& meta  = { {}, {}, ck_get_current_mod_id() };
+		const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
 		int lua_id = ck_object_register_object(pid, tile, meta);
 
-		fallout::Object* obj = ck::registry::get(lua_id);
+		fallout::Object* obj = ck::registry::created::get_object(lua_id);
 
 		if (obj != nullptr) {
 			obj->data.misc.map       = data.target_map;
@@ -112,10 +112,10 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data) {
     if (data == nullptr) return;
 
-    const LuaMeta& meta = { {}, {}, ck_get_current_mod_id() };
+    const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
     int lua_id = ck_object_register_object(pid, tile, meta);
 
-    fallout::Object* obj = ck::registry::get(lua_id);
+    fallout::Object* obj = ck::registry::created::get_object(lua_id);
     if (obj != nullptr) {
         obj->data.misc.map       = data->target_map;
         obj->data.misc.tile      = data->target_tile;

@@ -8,7 +8,7 @@
 
 #include "ck_messages/ck_messages.h"
 
-#include "object/ck_object_registry.h"
+#include "ck_registry/ck_registry.h"
 
 #include "ck_assets/ck_frm.h"
 #include "ck_assets/ck_asset_registry.h"
@@ -169,7 +169,7 @@ void ck_scripting_on_engine_ready() {
 }
 
 void ck_scripting_on_object_destroyed(fallout::Object* object) {
-	ck::registry::remove_by_ptr(object);
+	ck::registry::created::remove_by_ptr(object);
 }
 
 // loadsave.cc
@@ -186,12 +186,12 @@ void ck_scripting_on_game_loaded() {
 
 void ck_scripting_on_before_game_save() {
 	log.debug("on_before_game_save");
-	ck::registry::temporary_unhide_for_save();
+	ck::registry::deleted::unhide_for_save();
 }
 
 void ck_scripting_on_game_save(const char* path) {
     log.debug("on_game_save");
 
 	ck_state_save(path);
-	ck::registry::rehide_after_save();
+	ck::registry::deleted::rehide_after_save();
 }

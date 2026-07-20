@@ -2,7 +2,6 @@
 #define CK_DISPATCHER_H
 
 #include "ck_api.h"
-#include "object/ck_object_registry.h"
 
 #include <algorithm>
 #include <string>
