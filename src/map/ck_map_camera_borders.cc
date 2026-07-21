@@ -82,6 +82,8 @@ void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders) {
 	log.debug("Registered borders for map {} (Mod: {}): L:{}, R:{}, T:{}, B:{}",
 			map_id, mod_str,
 			borders->left, borders->right, borders->top, borders->bottom);
+
+	fallout::mapEdgeFree();
 }
 
 void ck_map_clear_camera_borders() {

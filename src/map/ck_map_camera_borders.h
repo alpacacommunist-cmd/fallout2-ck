@@ -12,6 +12,7 @@ struct CkCameraBorders {
 
 namespace fallout {
 	int tileGetHexGridWidth();
+	void mapEdgeFree();
 }
 
 namespace ck::map::borders {
