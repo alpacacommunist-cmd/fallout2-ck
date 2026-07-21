@@ -40,6 +40,8 @@ namespace ck::registry {
     void clear();
     void clear_resources_for_mod(const char* target_mod_id);
 
+	void on_map_exit();
+
     namespace created {
         int  add(fallout::Object* obj, const LuaMeta& meta = {});
         int  remove_by_ptr(fallout::Object* ptr);
@@ -52,8 +54,8 @@ namespace ck::registry {
 
     namespace deleted {
         void add(fallout::Object* obj, const std::string& mod_id);
-        void unhide_for_save();
-        void rehide_after_save();
+        void unhide();
+        void hide();
     }
 }
 

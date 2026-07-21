@@ -24,12 +24,11 @@ namespace ck {
 	void on_before_map_load() {
 		log.debug("on_before_map_load");
 
-		ck_map_clear_camera_borders();
-
-		ck_registry_clear();
-		ck_rendering_clear();
-
+		ck::registry::on_map_exit();
 		ck::reset_dummy_script();
+
+		ck_map_clear_camera_borders();
+		ck_rendering_clear();
 
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}
@@ -98,7 +97,6 @@ void ck_map_add_tile_key(const char* key, int tile) {
 }
 
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
-	fallout::mapEdgeFree();
     gCameraBorders.enabled = true;
 
     gCameraBorders.left = left;
@@ -106,6 +104,7 @@ void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
     gCameraBorders.top = top;
     gCameraBorders.bottom = bottom;
 
+	fallout::mapEdgeFree();
 	ck_rendering_refresh();
 }
 

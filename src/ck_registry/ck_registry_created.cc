@@ -1,7 +1,7 @@
 #include "ck_registry/ck_registry.h"
 
 #include "ck_log.h"
-static const Logger log("CK Registry [created]");
+static const Logger log("CK Registry [Created]");
 
 namespace {
     int next_id = 1;

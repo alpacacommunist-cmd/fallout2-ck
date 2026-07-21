@@ -4,7 +4,7 @@
 #include "obj_types.h"
 
 #include "ck_log.h"
-static const Logger log("CK Central Registry");
+static const Logger log("CK Registry");
 
 namespace ck::registry {
     std::unordered_map<int, CkCreatedObject> g_created_objects;
@@ -57,25 +57,19 @@ namespace ck::registry {
         }
     }
 
-    void clear() {
-        int restored_count = 0;
-        for (const auto& entry : g_deleted_objects) {
-            if (entry.ptr != nullptr) {
-                entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
-                restored_count++;
-            }
-        }
+	void on_map_exit() {
+		deleted::unhide();
 
-        if (restored_count > 0) {
-            log.info("Registry Clear Guard: Restored {} hidden objects before map unload/save", restored_count);
-        }
+		clear();
+	}
 
+	void clear() {
         g_created_objects.clear();
         g_deleted_objects.clear();
         g_ptr_to_lua_id.clear();
 
         log.info("Cleared object registry entirely.");
-    }
+	}
 }
 
 void ck_registry_clear() {

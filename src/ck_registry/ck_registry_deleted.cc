@@ -1,25 +1,40 @@
 #include "ck_registry.h"
 #include "obj_types.h"
 
+#include "ck_log.h"
+static const Logger log("CK Registry [Deleted]");
+
 namespace ck::registry::deleted {
     void add(fallout::Object* obj, const std::string& mod_id) {
         if (obj == nullptr) return;
         g_deleted_objects.push_back(CkDeletedObject{ obj, mod_id });
     }
 
-    void unhide_for_save() {
-        for (const auto& entry : g_deleted_objects) {
-            if (entry.ptr != nullptr) {
-                entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
-            }
-        }
+    void unhide() {
+		int restored_count = 0;
+		for (const auto& entry : g_deleted_objects) {
+			if (entry.ptr != nullptr) {
+				entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+				restored_count++;
+			}
+		}
+
+		if (restored_count > 0) {
+			log.info("Restored {} hidden objects", restored_count);
+		}
     }
 
-    void rehide_after_save() {
+    void hide() {
+		int hidden_count = 0;
         for (const auto& entry : g_deleted_objects) {
             if (entry.ptr != nullptr) {
                 entry.ptr->flags |= fallout::OBJECT_HIDDEN;
+				hidden_count++;
             }
         }
+
+		if (hidden_count > 0) {
+			log.info("Hidden {} objects", hidden_count);
+		}
     }
 }

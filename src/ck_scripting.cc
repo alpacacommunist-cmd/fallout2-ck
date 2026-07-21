@@ -176,7 +176,7 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
 
-	ck_map_clear_camera_borders();
+	ck::registry::clear();
 	ck_state_load(path);
 }
 
@@ -186,12 +186,12 @@ void ck_scripting_on_game_loaded() {
 
 void ck_scripting_on_before_game_save() {
 	log.debug("on_before_game_save");
-	ck::registry::deleted::unhide_for_save();
+	ck::registry::deleted::unhide();
 }
 
 void ck_scripting_on_game_save(const char* path) {
     log.debug("on_game_save");
 
 	ck_state_save(path);
-	ck::registry::deleted::rehide_after_save();
+	ck::registry::deleted::hide();
 }
