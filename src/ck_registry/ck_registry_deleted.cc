@@ -7,6 +7,8 @@ static const Logger log("CK Registry [Deleted]");
 namespace ck::registry::deleted {
     void add(fallout::Object* obj, const std::string& mod_id) {
         if (obj == nullptr) return;
+		obj->flags |= fallout::OBJECT_HIDDEN;
+
         g_deleted_objects.push_back(CkDeletedObject{ obj, mod_id });
     }
 

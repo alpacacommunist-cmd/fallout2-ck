@@ -79,8 +79,6 @@ void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bo
             fallout::Object* next_obj = fallout::objectFindNextAtLocation();
 
             if (obj->pid >= FIRST_EXIT_GRID_PID && obj->pid <= LAST_EXIT_GRID_PID) {
-                obj->flags |= fallout::OBJECT_HIDDEN;
-
 				ck::registry::deleted::add(obj, current_mod);
             }
             obj = next_obj;

@@ -186,6 +186,7 @@ void ck_scripting_on_game_loaded() {
 
 void ck_scripting_on_before_game_save() {
 	log.debug("on_before_game_save");
+
 	ck::registry::deleted::unhide();
 }
 

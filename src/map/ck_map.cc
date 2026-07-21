@@ -97,15 +97,14 @@ void ck_map_add_tile_key(const char* key, int tile) {
 }
 
 void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
+	fallout::mapEdgeFree();
+
     gCameraBorders.enabled = true;
 
     gCameraBorders.left = left;
     gCameraBorders.right = right;
     gCameraBorders.top = top;
     gCameraBorders.bottom = bottom;
-
-	fallout::mapEdgeFree();
-	ck_rendering_refresh();
 }
 
 void ck_map_remove_blocker(int tile) { ck_object_remove_blocker_at(tile); }

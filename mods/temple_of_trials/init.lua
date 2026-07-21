@@ -40,6 +40,8 @@ events.on('onGameLoaded', function()
   -- log.info('small_guns: ' .. tostring(player.skills.small_guns))
 
   -- player.set_base_stat('perception', 8)
+  -- player.set_base_stat('strength', 8)
+  -- player.set_base_stat('endurance', 7)
 end)
 
 events.on('onMapEnter', function()

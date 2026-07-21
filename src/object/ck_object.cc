@@ -80,7 +80,11 @@ void ck_object_remove_at(int tile) {
 		to_delete.push_back(object); object = next_object;
 	}
 
-    for (fallout::Object* object : to_delete) { ck_object_remove(object); }
+	const char* current_mod = ck_get_current_mod_id();
+
+    for (fallout::Object* object : to_delete) {
+		ck::registry::deleted::add(object, current_mod);
+	}
 }
 
 void ck_object_remove_blocker_at(int tile) {

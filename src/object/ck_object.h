@@ -10,6 +10,8 @@ namespace fallout {
 	struct Object;
 }
 
+extern "C" const char* ck_get_current_mod_id();
+
 struct LuaMeta;
 
 static fallout::Object* ck_object_blocker_at(int tile);
