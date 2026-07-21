@@ -16,7 +16,6 @@ map.tools.init(map)
 map.get_var           = C.ck_map_get_mvar
 map.set_var           = C.ck_map_set_mvar
 map.get_id            = C.ck_map_get_id
-map.set_borders       = C.ck_map_set_camera_borders
 map.add_tile_fid      = C.ck_map_add_tile_fid
 map.add_tile_key      = C.ck_map_add_tile_key
 map.add_scenery_fid   = C.ck_map_add_scenery_fid
@@ -26,6 +25,23 @@ map.create_object_fid = C.ck_map_create_object_fid
 map.create_blocker    = C.ck_map_create_blocker
 map.remove_blocker    = C.ck_map_remove_blocker
 map.rendering_refresh = C.ck_rendering_refresh
+
+function map.register_borders(map_id, config)
+  assert(map_id,  "map_id is required!")
+  assert(config.left,  "left edge hex coordinate is required!")
+  assert(config.right,  "right edge hex coordinate is required!")
+  assert(config.top,  "top edge hex coordinate is required!")
+  assert(config.bottom,  "bottom edge hex coordinate is required!")
+
+  local data = ffi.new("CkCameraBorders")
+
+  data.left   = config.left
+  data.right  = config.right
+  data.top    = config.top
+  data.bottom = config.bottom
+
+  C.ck_map_set_camera_borders(map_id, data)
+end
 
 function map.register_object(value, tile)
   C.ck_map_register_object(value, tile)

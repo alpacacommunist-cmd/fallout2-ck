@@ -49,6 +49,7 @@ add_library(fallout2-ck STATIC
     src/ck_area/ck_area.cc
     src/game_time/ck_game_time.cc
     src/map/ck_map.cc
+    src/map/ck_map_camera_borders.cc
     src/script/ck_script.cc
     src/object/ck_object.cc
     src/object/critter/ck_critter.cc

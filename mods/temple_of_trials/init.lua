@@ -1,5 +1,4 @@
 -- mods/temple_of_trials/init.lua
-
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 local critters  = require('ck.fallout2.objects.critters')
@@ -24,6 +23,8 @@ entrance_id = locations.expand(0, {
     townmap_x   = 150,
     townmap_y   = 220
 })
+
+map.register_borders(126, {left = 95, right = 113, top = 82, bottom = 110})
 
 log.warn("ENTRANCE ID: " .. tostring(entrance_id))
 
@@ -66,8 +67,6 @@ end)
 
 events.on('onMapEnter', function()
   if map.get_id() ~= 126 then return end
-
-  map.set_borders(95, 113, 82, 110)
 
   -- map.exit_grid.destroy_in_rect(21514, 22727, 24113, 24323);
   -- --

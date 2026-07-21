@@ -116,14 +116,17 @@ ffi.cdef[[
   void ck_map_add_scenery_key(const char* key, int tile);
   void ck_map_add_tile_fid(int fid, int tile);
   void ck_map_add_tile_key(const char* key, int tile);
-  void ck_map_set_camera_borders(int left, int right, int top, int bottom);
   void ck_map_remove_blocker(int tile);
   void ck_map_create_blocker(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
   int  ck_map_register_object(int artId, int tile);
-
   void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
+
+  typedef struct { int left; int right; int top; int bottom; } CkCameraBorders;
+  void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders);
+  void ck_map_clear_camera_borders_for_mod(const char* mod_id);
+
   // --- Map Batch ---
   typedef struct { int tile; int fid; const char* key; } CkFFITile;
   typedef struct { int tile; int fid; const char* key; } CkFFIScenery;

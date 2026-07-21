@@ -182,6 +182,8 @@ void ck_scripting_on_before_game_load(const char* path) {
 
 void ck_scripting_on_game_loaded() {
 	ck_dispatcher_on_game_loaded();
+
+	ck::on_map_enter();
 }
 
 void ck_scripting_on_before_game_save() {

@@ -1,14 +1,11 @@
-#include "ck_utils.h"
 #include "ck_rendering.h"
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "map/ck_map.h"
-#include "map/ck_map_batch.h"
+#include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 
 #include "obj_types.h"
-
-static CkCameraBorders gCameraBorders;
 
 #include "ck_log.h"
 static const Logger log("CK Map");
@@ -27,30 +24,21 @@ namespace ck {
 		ck::registry::on_map_exit();
 		ck::reset_dummy_script();
 
-		ck_map_clear_camera_borders();
 		ck_rendering_clear();
 
 		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
 	}
 
-	bool map_has_camera_borders() { return gCameraBorders.enabled; }
+	int current_map_id() { return fallout::mapGetCurrentMap(); }
+
+	bool map_has_camera_borders() {
+		return ck::map::borders::has_borders_for_map(current_map_id());
+	}
+
 	bool map_is_camera_position_allowed(int tile) {
-		if (!gCameraBorders.enabled) { return true; }
-
-		int gridWidth = fallout::tileGetHexGridWidth();
-		int tileX = gridWidth - 1 - tile % gridWidth;
-		int tileY = tile / gridWidth;
-
-		bool allowed = tileX >= gCameraBorders.left && tileX <= gCameraBorders.right &&
-			tileY >= gCameraBorders.top && tileY <= gCameraBorders.bottom;
-
-		// fallout::debugPrint("[CK] Camera check " "tile=(%d,%d) " "bounds=(%d..%d,%d..%d) " "allowed=%d\n",
-		//     tileX, tileY, gCameraBorders.left, gCameraBorders.right, gCameraBorders.top, gCameraBorders.bottom, allowed);
-
-		return allowed;
+		return ck::map::borders::is_camera_position_allowed(tile);
 	}
 }
-
 
 void ck_map_add_scenery(int fid, int tile) {
 	ck_rendering_add_scenery(fid, tile);
@@ -68,16 +56,10 @@ void ck_map_add_tile(const std::string& key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-void ck_map_clear_camera_borders() {
-	gCameraBorders = {};
-	gCameraBorders.enabled = false;
-}
-const CkCameraBorders& ck_map_get_camera_borders() { return gCameraBorders; }
-
 // ffi
 
 int ck_map_get_id() {
-	return fallout::mapGetCurrentMap();
+	return ck::current_map_id();
 }
 
 void ck_map_add_scenery_fid(int fid, int tile) {
@@ -94,17 +76,6 @@ void ck_map_add_tile_fid(int fid, int tile) {
 
 void ck_map_add_tile_key(const char* key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
-}
-
-void ck_map_set_camera_borders(int left, int right, int top, int bottom) {
-	fallout::mapEdgeFree();
-
-    gCameraBorders.enabled = true;
-
-    gCameraBorders.left = left;
-    gCameraBorders.right = right;
-    gCameraBorders.top = top;
-    gCameraBorders.bottom = bottom;
 }
 
 void ck_map_remove_blocker(int tile) { ck_object_remove_blocker_at(tile); }

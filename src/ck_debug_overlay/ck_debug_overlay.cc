@@ -6,7 +6,7 @@
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
 #include "object/ck_object.h"
-#include "map/ck_map.h"
+#include "map/ck_map_camera_borders.h"
 
 #include <unordered_set>
 
@@ -101,9 +101,9 @@ static void ck_toggle_camera_square() {
 		return;
 	}
 
-	const CkCameraBorders& borders = ck_map_get_camera_borders();
+	if (!ck_map_has_camera_borders(ck_map_get_id())) return;
 
-	if (!borders.enabled) { return; }
+	const CkCameraBorders& borders = ck_map_get_camera_borders(ck_map_get_id());
 
 	// tileX = gridWidth - 1 - tile % gridWidth; -> tile % gridWidth = gridWidth - 1 - tileX;
 	// tileY = tile / gridWidth; -> tile = tileY * gridWidth + (tile % gridWidth);

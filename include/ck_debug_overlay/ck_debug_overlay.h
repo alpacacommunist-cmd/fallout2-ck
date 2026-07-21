@@ -2,6 +2,8 @@
 #ifndef CK_DEBUG_OVERLAY_H
 #define CK_DEBUG_OVERLAY_H
 
+extern "C" int ck_map_get_id();
+
 namespace fallout {
 #define MOUSE_EVENT_LEFT_BUTTON_REPEAT 0x04
 #define HEX_GRID_WIDTH (200)
