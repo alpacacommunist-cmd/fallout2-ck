@@ -159,43 +159,42 @@ static void mode_main_dude_scan() {
 }
 
 static void mode_main_paint() {
-	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
+    const bool isSelectPressed = ck_input_shift() && ck_input_pressed(CK_KEY_W);
+    const bool isClearPressed  = ck_input_shift() && ck_input_pressed(CK_KEY_X);
 
-	int mouseX, mouseY;
-	fallout::mouseGetPosition(&mouseX, &mouseY);
-	int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
+    if (!isSelectPressed && !isClearPressed) return;
 
-	const bool isShift = ck_input_shift();
-	const bool isCtrl = ck_input_ctrl();
-	if (!isShift && !isCtrl) return;
+    int mouseX, mouseY;
+    fallout::mouseGetPosition(&mouseX, &mouseY);
+    int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
 
-	ckDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
+    if (currentMouseTile == -1) return;
 
-	// SHIFT + LMB: select area
-	if (isShift) {
-		if (hex == nullptr) {
-			if (ck_is_tile_blocking(currentMouseTile))
-				ck_debug_overlay_add_hex(currentMouseTile, HexState::TRANSITION);
-			else
-				ck_debug_overlay_add_hex(currentMouseTile, HexState::SELECTED);
-			return;
-		}
+    ckDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
 
-		switch (hex->state) {
-			case HexState::BLOCKER:  hex->switch_to(HexState::TRANSITION); break;
-			case HexState::WALKABLE: hex->switch_to(HexState::SELECTED);   break;
-			default: break;
-		}
-	}
-	// CTRL + LMB: clear selection
-	else if (isCtrl && hex != nullptr) {
-		switch (hex->state) {
-			case HexState::TRANSITION: hex->switch_to(HexState::BLOCKER); break;
-			case HexState::SELECTED: hex->switch_to(ck_hex_state_for_tile(hex->tile)); break;
+    if (isSelectPressed) {
+        if (hex == nullptr) {
+            if (ck_is_tile_blocking(currentMouseTile))
+                ck_debug_overlay_add_hex(currentMouseTile, HexState::TRANSITION);
+            else
+                ck_debug_overlay_add_hex(currentMouseTile, HexState::SELECTED);
+            return;
+        }
 
-			default: break;
-		}
-	}
+        switch (hex->state) {
+            case HexState::BLOCKER:  hex->switch_to(HexState::TRANSITION); break;
+            case HexState::WALKABLE: hex->switch_to(HexState::SELECTED);   break;
+            default: break;
+        }
+    }
+
+    else if (isClearPressed && hex != nullptr) {
+        switch (hex->state) {
+            case HexState::TRANSITION: hex->switch_to(HexState::BLOCKER); break;
+            case HexState::SELECTED:   hex->switch_to(ck_hex_state_for_tile(hex->tile)); break;
+            default: break;
+        }
+    }
 }
 
 static void mode_main_export() {
@@ -285,7 +284,7 @@ static void mode_main_toggle_hidden_in_rect() {
 	for (auto* hex : selected_hexes) selected_tiles.push_back(hex->tile);
 
 	HexRect rect = geometry_build_rect_from_points(selected_tiles);
-	if (!rect.is_valid()) { return; }
+	if (!rect.is_valid()) return;
 
 	gAreaVisibilitySwitch = !gAreaVisibilitySwitch;
 
@@ -296,7 +295,7 @@ static void mode_main_toggle_hidden_in_rect() {
 
 static void mode_main() {
 	mode_main_dude_scan();
-	mode_main_paint();
+	mode_main_paint(); // uses shift+w (select) shift+x(clear)
 
 	int pressedKey = ck_input_get_just_pressed_key();
 	switch (pressedKey) {
@@ -304,12 +303,8 @@ static void mode_main() {
 							   if (ck_input_shift()) mode_main_export();
 							   break;
 						   }
-		case CK_KEY_X:     {
-							   if (ck_input_shift()) mode_main_clear_all();
-							   break;
-						   }
 		case CK_KEY_U:     {
-							   if (ck_input_shift()) mode_main_clear_selected();
+							   if (ck_input_shift()) mode_main_clear_all();
 							   break;
 						   }
 		case CK_KEY_V:     {
@@ -326,16 +321,6 @@ static void mode_main() {
 							   if (ck_input_alt()) ck_teleport_to_tile();
 							   break;
 						   }
-
-		case CK_KEY_MINUS: {
-							   if (ck_input_ctrl()) mode_main_remove_selected();
-							   break;
-					       }
-		case CK_KEY_EQUALS: {
-								if (ck_input_ctrl()) mode_main_create_blockers();
-								break;
-							}
-
 	}
 
 	ck_input_update(); // key just pressed
