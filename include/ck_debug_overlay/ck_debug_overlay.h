@@ -4,6 +4,12 @@
 
 extern "C" int ck_map_get_id();
 
+enum class ExportMode {
+    FULL_DUMP,
+	LUA_TILES,
+	COUNT = 2
+};
+
 namespace fallout {
 #define MOUSE_EVENT_LEFT_BUTTON_REPEAT 0x04
 #define HEX_GRID_WIDTH (200)

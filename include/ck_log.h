@@ -11,6 +11,7 @@ public:
     void print_log(std::string_view tag, std::string_view tag_color, std::string_view message) const;
     void print_error_log(std::string_view message) const;
     void print_debug_log(std::string_view message) const;
+	void raw(std::string_view message) const;
 
     explicit Logger(std::string_view prefix) : m_prefix(prefix) {}
 
@@ -40,4 +41,11 @@ public:
         std::string msg = std::format(fmt_str, std::forward<Args>(args)...);
         print_debug_log(msg);
     }
+
+    template <typename... Args>
+    void raw(std::format_string<Args...> fmt_str, Args&&... args) const {
+        std::string msg = std::format(fmt_str, std::forward<Args>(args)...);
+        raw(msg);
+    }
+
 };

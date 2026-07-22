@@ -17,3 +17,7 @@ void Logger::print_debug_log(std::string_view message) const {
     std::cout << "\033[1m\033[37m[" << m_prefix << "]\033[0m "
               << "\033[90m[DEBUG] " << message << "\033[0m\n";
 }
+
+void Logger::raw(std::string_view message) const {
+    std::cout << message << "\n";
+}

@@ -3,7 +3,51 @@
 #include "obj_types.h"
 #include <format>
 
+#include "ck_log.h"
+static const Logger log("CK DBG format");
+
 namespace ck::debug {
+	void export_full_dump(const std::vector<ckDebugHex*>& hexes) {
+		static int grid_width = fallout::tileGetHexGridWidth();
+
+		for (ckDebugHex* hex : hexes) {
+			int tile = hex->tile;
+			int tileX = grid_width - 1 - tile % grid_width;
+			int tileY = tile / grid_width;
+
+			log.raw("SELECTED tile={} ({}, {})", tile, tileX, tileY);
+
+			if (fallout::isExitGridAt(tile, fallout::gElevation)) {
+				log.warn("EXIT GRID ON TILE");
+			}
+
+			fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+			int objIndex = 0;
+
+			while (obj != nullptr) {
+				int objType = FID_TYPE(obj->fid);
+
+				log.raw("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
+						objIndex, fallout::objectGetName(obj), objType, obj->pid, obj->fid, obj->sid,
+						static_cast<unsigned int>(obj->flags));
+
+				std::string data_debug = ck::debug::format_object_data(obj, objType);
+				log.raw("{}", data_debug);
+
+				obj = fallout::objectFindNextAtLocation();
+			}
+		}
+	}
+
+    void export_lua_tiles(const std::vector<ckDebugHex*>& hexes) {
+        log.raw("tiles = {{");
+        for (ckDebugHex* hex : hexes) {
+            if (hex->state == HexState::SELECTED) {
+                log.raw("  {{ tile = {} }},", hex->tile);
+            }
+        }
+        log.raw("}}");
+    }
 
     std::string format_object_data(fallout::Object* obj, int obj_type) {
         if (obj == nullptr) return "  data: NULL";

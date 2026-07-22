@@ -19,6 +19,7 @@ static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
 static bool gAreaVisibilitySwitch = true;
+static ExportMode gCurrentExportMode = ExportMode::FULL_DUMP;
 
 bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
 
@@ -135,6 +136,15 @@ static void ck_teleport_to_tile() {
 	gNeedsRefresh = true;
 }
 
+static void change_export_mode() {
+    gCurrentExportMode = static_cast<ExportMode>((static_cast<int>(gCurrentExportMode) + 1) % static_cast<int>(ExportMode::COUNT));
+
+    if (gCurrentExportMode == ExportMode::FULL_DUMP)
+        fallout::displayMonitorAddMessage("Overlay Export Mode: FULL DUMP");
+	else if (gCurrentExportMode == ExportMode::LUA_TILES)
+        fallout::displayMonitorAddMessage("Overlay Export Mode: LUA_TILES");
+}
+
 static void mode_main_dude_scan() {
 	static int sLastDudeTile = -1;
 
@@ -199,67 +209,22 @@ static void mode_main_paint() {
 
 static void mode_main_export() {
 	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
-	int gridWidth = fallout::tileGetHexGridWidth();
 
-	log.info("--- START DUMP --- Count: {}", selectedHexes.size());
-	for (ckDebugHex* hex : selectedHexes) {
-		int tile = hex->tile;
-		int tileX = gridWidth - 1 - tile % gridWidth;
-		int tileY = tile / gridWidth;
+    if (selectedHexes.empty()) {
+        log.info("no hexes selected!");
+        return;
+    }
 
-		log.info("SELECTED tile={} ({}, {})", tile, tileX, tileY);
+    using ExportFunc = void(*)(const std::vector<ckDebugHex*>&);
 
-		if (fallout::isExitGridAt(tile, fallout::gElevation)) {
-			log.warn("EXIT GRID ON TILE");
-		}
+    static const ExportFunc export_handlers[] = {
+		ck::debug::export_full_dump,
+        ck::debug::export_lua_tiles
+    };
 
-		fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
-		int objIndex = 0;
+    int mode_index = static_cast<int>(gCurrentExportMode);
 
-		while (obj != nullptr) {
-			int objType = FID_TYPE(obj->fid);
-
-			log.debug("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
-					objIndex, fallout::objectGetName(obj), objType, obj->pid, obj->fid, obj->sid,
-					static_cast<unsigned int>(obj->flags));
-
-			std::string data_debug = ck::debug::format_object_data(obj, objType);
-			log.debug("{}", data_debug);
-
-			obj = fallout::objectFindNextAtLocation();
-		}
-	}
-	log.info("--- END DUMP --- ", selectedHexes.size());
-}
-
-static void mode_main_create_blockers() {
-	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
-
-	log.debug(" --- Creating blockers --- Count: {}", selected_hexes.size());
-	for (ckDebugHex* hex : selected_hexes) {
-		ck_object_create_blocker_at(hex->tile);
-		hex->switch_to(HexState::BLOCKER);
-	}
-	log.debug(" --- Creating blockers DONE ---");
-
-	gNeedsRefresh = true;
-
-	fallout::soundPlayFile("iisxxxx1");
-}
-
-static void mode_main_remove_selected() {
-	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
-
-	log.debug(" --- Removing blockers --- Count: {}", selected_hexes.size());
-	for (ckDebugHex* hex : selected_hexes) {
-		ck_object_remove_at(hex->tile);
-		hex->switch_to(ck_hex_state_for_tile(hex->tile));
-	}
-	log.debug(" --- Removing blockers DONE --- ");
-
-	gNeedsRefresh = true;
-
-	fallout::soundPlayFile("iisxxxx1");
+    export_handlers[mode_index](selectedHexes);
 }
 
 static void mode_main_clear_all() {
@@ -301,6 +266,7 @@ static void mode_main() {
 	switch (pressedKey) {
 		case CK_KEY_E: 	   {
 							   if (ck_input_shift()) mode_main_export();
+							   else if (ck_input_alt()) change_export_mode();
 							   break;
 						   }
 		case CK_KEY_U:     {
