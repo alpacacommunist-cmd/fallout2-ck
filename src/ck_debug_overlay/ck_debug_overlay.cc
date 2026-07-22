@@ -126,6 +126,15 @@ static void ck_toggle_camera_square() {
 	gCameraSquareDrawn = true;
 }
 
+static void ck_teleport_to_tile() {
+	int mouseX, mouseY;
+	fallout::mouseGetPosition(&mouseX, &mouseY);
+	int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
+
+	objectSetLocation(fallout::gDude, currentMouseTile, fallout::gDude->elevation, nullptr);
+	gNeedsRefresh = true;
+}
+
 static void mode_main_dude_scan() {
 	static int sLastDudeTile = -1;
 
@@ -312,6 +321,12 @@ static void mode_main() {
 							   if (ck_input_alt()) ck_toggle_camera_square();
 							   break;
 						   }
+
+		case CK_KEY_T:     {
+							   if (ck_input_alt()) ck_teleport_to_tile();
+							   break;
+						   }
+
 		case CK_KEY_MINUS: {
 							   if (ck_input_ctrl()) mode_main_remove_selected();
 							   break;
