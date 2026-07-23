@@ -4,11 +4,17 @@
 #include "ck_log.h"
 static const Logger log("CK Registry [Deleted]");
 
+namespace {
+    const std::string SYSTEM_MOD_ID = "__ck_system__";
+}
+
 namespace ck::registry::deleted {
     void add(fallout::Object* obj) {
         if (obj == nullptr) return;
 
-		const char* mod_id = ck_get_current_mod_id();
+		const char* current_mod_id = ck_get_current_mod_id();
+		std::string mod_id = current_mod_id != nullptr ? current_mod_id : SYSTEM_MOD_ID;
+
 		obj->flags |= fallout::OBJECT_HIDDEN;
 
         g_deleted_objects.push_back(CkDeletedObject{ obj, mod_id });
@@ -19,6 +25,7 @@ namespace ck::registry::deleted {
 		for (const auto& entry : g_deleted_objects) {
 			if (entry.ptr != nullptr) {
 				entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+				log.debug("restored hidden object for mod: {}", entry.mod_id);
 				restored_count++;
 			}
 		}

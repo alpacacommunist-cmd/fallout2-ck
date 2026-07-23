@@ -6,20 +6,6 @@
 #include "proto_types.h"
 #include "object.h"
 
-static void ck_landscape_hide_in_rect_match(const HexRect& rect, std::function<bool(int pid)> should_hide) {
-    rect.for_each_tile([&should_hide](int tile) {
-        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
-        while (obj != nullptr) {
-            fallout::Object* next_obj = fallout::objectFindNextAtLocation();
-
-            if (should_hide(obj->pid) && FID_TYPE(obj->pid) != fallout::OBJ_TYPE_CRITTER) {
-                obj->flags |= fallout::OBJECT_HIDDEN;
-            }
-            obj = next_obj;
-        }
-    });
-}
-
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
         fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -28,13 +14,29 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
             fallout::Object* nextObj = fallout::objectFindNextAtLocation();
 
             if (FID_TYPE(obj->fid) != fallout::OBJ_TYPE_CRITTER) {
-                if (visible) obj->flags &= ~fallout::OBJECT_HIDDEN;
-                else obj->flags |= fallout::OBJECT_HIDDEN;
+                if (visible) {
+                    obj->flags &= ~fallout::OBJECT_HIDDEN;
+
+                    std::erase_if(ck::registry::g_deleted_objects, [obj](const auto& entry) {
+                        return entry.ptr == obj;
+                    });
+                }
+                else {
+                    bool already_tracked = std::any_of(
+                        ck::registry::g_deleted_objects.begin(),
+                        ck::registry::g_deleted_objects.end(),
+                        [obj](const auto& entry) { return entry.ptr == obj; }
+                    );
+
+                    if (!already_tracked) {
+                        ck::registry::deleted::add(obj);
+                    }
+                }
             }
 
             obj = nextObj;
         }
-    });
+	});
 }
 
 // FFI

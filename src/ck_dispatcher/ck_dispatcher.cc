@@ -6,7 +6,7 @@
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
 
-const char* g_current_mod_id = "unknown";
+const char* g_current_mod_id = nullptr;
 
 // map update intervals
 static int g_last_update_ticks = 0;
@@ -15,17 +15,19 @@ static const int MAP_UPDATE_INTERVAL_TICKS = 10;
 static std::vector<std::string> g_active_mods;
 
 static void ck_set_mod_context(const char* mod_id) {
-	g_current_mod_id = mod_id ? mod_id : "unknown";
+	g_current_mod_id = mod_id;
 }
 
 struct ModContextGuard {
-    const char* previous;
-    ModContextGuard(const char* new_id) {
-        previous = g_current_mod_id;
-        ck_set_mod_context(new_id);
+    const char* previous_context;
+
+    ModContextGuard(const char* mod_id) {
+        previous_context = g_current_mod_id;
+        ck_set_mod_context(mod_id);
     }
+
     ~ModContextGuard() {
-        ck_set_mod_context(previous);
+        ck_set_mod_context(previous_context);
     }
 };
 
