@@ -5,7 +5,6 @@
 #include "proto.h"
 
 namespace ck {
-
 	void clear_inventory(fallout::Object* object) {
 		fallout::Inventory* inventory = &(object->data.inventory);
 
@@ -57,5 +56,9 @@ int ck_inventory_count(void* container_ptr, int item_pid) {
 	auto* owner = static_cast<fallout::Object*>(container_ptr);
 
 	return fallout::objectGetCarriedQuantityByPid(owner, item_pid);
+}
+
+bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
+	return ck::inventory_add(container_ptr, item_pid, count);
 }
 

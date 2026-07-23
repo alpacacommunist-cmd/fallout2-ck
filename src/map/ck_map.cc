@@ -1,5 +1,4 @@
 #include "ck_rendering.h"
-#include "ck_debug_overlay/ck_debug_overlay.h"
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
@@ -78,9 +77,6 @@ void ck_map_add_tile_key(const char* key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-void ck_map_remove_blocker(int tile) { ck_object_remove_blocker_at(tile); }
-void ck_map_create_blocker(int tile) { ck_object_create_blocker_at(tile); }
-
 void ck_map_create_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
     ck_object_create_at(fid, tile);
@@ -95,6 +91,22 @@ int ck_map_register_object(int artId, int tile) {
 	const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
 
     return ck_object_register_object_by_fid(fid, tile, meta);
+}
+
+int ck_map_create_blocker_at(int tile) {
+	const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
+
+    return ck_object_register_object(BLOCKER_PID, tile, meta);
+}
+
+int ck_map_get_mvar(int index) {
+	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return 0;
+	return fallout::gMapLocalVars[index];
+}
+
+void ck_map_set_mvar(int index, int value) {
+	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return;
+	fallout::gMapLocalVars[index] = value;
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
@@ -118,7 +130,7 @@ void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = blockers[i];
 
-		if (src.tile != -1) ck_object_create_blocker_at(src.tile);
+		if (src.tile != -1) ck_map_create_blocker_at(src.tile);
     }
 }
 
@@ -126,17 +138,7 @@ void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
 
-		if (src.tile != -1) ck_object_remove_at(src.tile);
+		if (src.tile != -1) ck::object::remove_at(src.tile);
     }
-}
-
-int ck_map_get_mvar(int index) {
-	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return 0;
-	return fallout::gMapLocalVars[index];
-}
-
-void ck_map_set_mvar(int index, int value) {
-	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return;
-	fallout::gMapLocalVars[index] = value;
 }
 

@@ -1,11 +1,6 @@
 -- --- File: ck/fallout2/items.lua ---
 local ffi = require("ffi")
 
-ffi.cdef[[
-  bool ck_inventory_add(void* container_ptr, int item_pid, int count);
-  int ck_inventory_count(void* container_ptr, int item_pid);
-]]
-
 local items = {}
 
 items.add   = ffi.C.ck_inventory_add

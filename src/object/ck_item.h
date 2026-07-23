@@ -25,6 +25,6 @@ namespace ck {
 }
 
 CK_API bool ck_inventory_add(void* container_ptr, int item_pid, int count);
-CK_API int ck_inventory_count(void* container_ptr, int item_pid);
+CK_API int  ck_inventory_count(void* container_ptr, int item_pid);
 
 #endif

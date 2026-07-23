@@ -10,11 +10,14 @@ namespace fallout {
 	struct Object;
 }
 
-extern "C" const char* ck_get_current_mod_id();
+const int BLOCKER_PID=0x2000158;  // dummy collision object
+const int BLOCKER_FID=0x02000015;
 
 struct LuaMeta;
 
-static fallout::Object* ck_object_blocker_at(int tile);
+namespace ck::object {
+	void remove_at(int tile);
+}
 
 bool ck_object_blocking(int tile);
 
@@ -25,11 +28,11 @@ int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta);
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta);
 
 void ck_object_remove(fallout::Object* obj);
-void ck_object_remove_at(int tile);
 void ck_object_remove_blocker_at(int tile);
 
 void ck_object_create_blocker_at(int tile);
 
+CK_API void ck_object_remove_at(int tile);
 CK_API int ck_object_get_tile(int lua_id);
 CK_API int ck_object_get_sid(int lua_id);
 CK_API void* ck_object_get_ptr(int lua_id);

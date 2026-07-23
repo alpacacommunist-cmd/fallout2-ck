@@ -1,4 +1,6 @@
 extern "C" {
+	int ck_inventory_count(...);
+
     int player_stat(...);
 
     void ck_critter_float_msg(...);
@@ -7,6 +9,8 @@ extern "C" {
 }
 
 static void* const volatile ck_ffi_exports[] = {
+    (void*)&ck_inventory_count,
+
     (void*)&player_stat,
 
     (void*)&ck_critter_float_msg,

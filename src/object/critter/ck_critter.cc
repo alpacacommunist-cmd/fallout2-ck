@@ -41,14 +41,15 @@ namespace ck {
 	}
 
 	CritterLua register_critter(int pid, int tile, const char* tag) {
+		int map_id          = fallout::mapGetCurrentMap();
+
 		std::string mod_id  = ck_get_current_mod_id();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
-		int map_id          = fallout::mapGetCurrentMap();
 		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
 
 		if (state.tile != -1) tile = state.tile;
 
-		int  source_pid = pid;
+		int source_pid = pid;
 
 		if (!lua_tag.empty()) {
 			int unique_pid = allocate_unique_proto(pid, lua_tag);

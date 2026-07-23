@@ -1,6 +1,5 @@
 #include "ck_ids.h"
 #include "object/ck_object.h"
-#include "ck_registry/ck_registry.h"
 #include "object/ck_item.h"
 
 #include "tile.h"
@@ -9,17 +8,24 @@
 #include "ck_log.h"
 static const Logger log("CK Object");
 
-const int BLOCKER_PID=0x2000158;  // dummy collision object
-const int BLOCKER_FID=0x02000015;
-
 static fallout::Object* ck_object_blocker_at(int tile) {
 	return fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
 }
 
-void ck_object_remove(fallout::Object* obj) {
-    if (obj == nullptr) return;
+namespace ck::object {
+	void remove_at(int tile) {
+		std::vector<fallout::Object*> to_delete;
+		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
 
-    fallout::objectDestroy(obj, nullptr);
+		if (object == nullptr) return;
+
+		while (object != nullptr) {
+			fallout::Object* next_object = fallout::objectFindNextAtLocation();
+			to_delete.push_back(object); object = next_object;
+		}
+
+		for (fallout::Object* object : to_delete) ck::registry::deleted::add(object);
+	}
 }
 
 bool ck_object_blocking(int tile) {
@@ -60,7 +66,6 @@ int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
 	return -1;
 }
 
-
 int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 
@@ -69,37 +74,11 @@ int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
 	return -1;
 }
 
-void ck_object_remove_at(int tile) {
-	std::vector<fallout::Object*> to_delete;
-	fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
-
-	if (object == nullptr) return;
-
-	while (object != nullptr) {
-		fallout::Object* next_object = fallout::objectFindNextAtLocation();
-		to_delete.push_back(object); object = next_object;
-	}
-
-	const char* current_mod = ck_get_current_mod_id();
-
-    for (fallout::Object* object : to_delete) {
-		ck::registry::deleted::add(object, current_mod);
-	}
-}
-
-void ck_object_remove_blocker_at(int tile) {
-	fallout::Object* blocker = ck_object_blocker_at(tile);
-
-	if (blocker != nullptr && (FID_TYPE(blocker->fid) == fallout::OBJ_TYPE_SCENERY)) {
-		ck_object_remove(blocker);
-	}
-}
-
-void ck_object_create_blocker_at(int tile) {
-	ck_object_create_at(BLOCKER_FID, tile);
-}
-
 // ffi
+
+void ck_object_remove_at(int tile) {
+	ck::object::remove_at(tile);
+}
 
 int ck_object_get_sid(int lua_id) {
 	const CkCreatedObject* object = ck::registry::created::get(lua_id);
@@ -121,9 +100,5 @@ int ck_object_get_tile(int lua_id) {
 	if (!object || !object->ptr) return -1;
 
 	return object->ptr->tile;
-}
-
-bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
-	return ck::inventory_add(container_ptr, item_pid, count);
 }
 

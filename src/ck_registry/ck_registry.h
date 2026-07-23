@@ -6,6 +6,8 @@
 #include <string>
 #include "ck_api.h"
 
+extern "C" const char* ck_get_current_mod_id();
+
 namespace fallout {
     struct Object;
     struct Rect;
@@ -53,7 +55,7 @@ namespace ck::registry {
     }
 
     namespace deleted {
-        void add(fallout::Object* obj, const std::string& mod_id);
+        void add(fallout::Object* obj);
         void unhide();
         void hide();
     }

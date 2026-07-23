@@ -6,22 +6,6 @@
 #include "proto_types.h"
 #include "object.h"
 
-static void ck_landscape_destroy_in_rect_match(const HexRect& rect, std::function<bool(int pid)> should_destroy) {
-    std::vector<fallout::Object*> to_delete;
-
-    rect.for_each_tile([&to_delete, &should_destroy](int tile) {
-        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
-        while (obj != nullptr) {
-            fallout::Object* next_obj = fallout::objectFindNextAtLocation();
-
-            if (should_destroy(obj->pid)) { to_delete.push_back(obj); }
-            obj = next_obj;
-        }
-    });
-
-    for (fallout::Object* obj : to_delete) { fallout::objectDestroy(obj, nullptr); }
-}
-
 static void ck_landscape_hide_in_rect_match(const HexRect& rect, std::function<bool(int pid)> should_hide) {
     rect.for_each_tile([&should_hide](int tile) {
         fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -57,29 +41,18 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
 int ck_proto_first_exit_grid_pid() { return FIRST_EXIT_GRID_PID; }
 int ck_proto_last_exit_grid_pid()  { return LAST_EXIT_GRID_PID; }
 
-void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid) {
-	std::vector<int> tiles = { left, right, top, bottom };
-	HexRect rect = geometry_build_rect_from_points(tiles);
-
-	if (!rect.is_valid()) return;
-
-	ck_landscape_destroy_in_rect_match(rect, [pid](int obj_pid) { return obj_pid == pid; });
-}
-
 void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom) {
     std::vector<int> tiles = { left, right, top, bottom };
     HexRect rect = geometry_build_rect_from_points(tiles);
     if (!rect.is_valid()) return;
 
-    std::string current_mod = ck_get_current_mod_id();
-
-    rect.for_each_tile([&current_mod](int tile) {
+    rect.for_each_tile([](int tile) {
         fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
         while (obj != nullptr) {
             fallout::Object* next_obj = fallout::objectFindNextAtLocation();
 
             if (obj->pid >= FIRST_EXIT_GRID_PID && obj->pid <= LAST_EXIT_GRID_PID) {
-				ck::registry::deleted::add(obj, current_mod);
+				ck::registry::deleted::add(obj);
             }
             obj = next_obj;
         }

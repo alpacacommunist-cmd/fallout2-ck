@@ -67,6 +67,10 @@ ffi.cdef[[
   int  player_add_skill(int skill, int value);
   int  player_set_skill(int skill, int value);
 
+  // --- Items ---
+  bool ck_inventory_add(void* container_ptr, int item_pid, int count);
+  int  ck_inventory_count(void* container_ptr, int item_pid);
+
   // --- Rendering ---
   void ck_rendering_clear();
   void ck_rendering_refresh();
@@ -111,17 +115,20 @@ ffi.cdef[[
   int  ck_map_get_mvar(int index);
   void ck_map_set_mvar(int index, int value);
 
+  // --- remove object ---
+  void ck_object_remove_at(int tile);
+
+  // --- add object/render
   int  ck_map_get_id();
   void ck_map_add_scenery_fid(int fid, int tile);
   void ck_map_add_scenery_key(const char* key, int tile);
   void ck_map_add_tile_fid(int fid, int tile);
   void ck_map_add_tile_key(const char* key, int tile);
-  void ck_map_remove_blocker(int tile);
-  void ck_map_create_blocker(int tile);
+  void ck_map_create_blocker_at(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
   int  ck_map_register_object(int artId, int tile);
-  void ck_landscape_destroy_pid_in_rect(int left, int right, int top, int bottom, int pid);
+
 
   typedef struct { int left; int right; int top; int bottom; } CkCameraBorders;
   void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders);

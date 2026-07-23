@@ -40,8 +40,8 @@ inline bool hexGridTileIsValid(int tile) {
 	return tile >= 0 && tile < HEX_GRID_SIZE;
 }
 
-void ck_debug_overlay_toggle();
 bool ck_debug_overlay_enabled();
+void ck_debug_overlay_toggle();
 
 void ck_debug_overlay_render(fallout::Rect* rect);
 
