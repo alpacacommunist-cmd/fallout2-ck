@@ -4,6 +4,7 @@ local log = ck.log.new('classes/object')
 
 local objects = require('ck.fallout2.objects')
 local items   = require('ck.fallout2.objects.items')
+local monitor = require('ck.fallout2.monitor')
 
 local Object = {}
 Object.__index = Object
@@ -36,8 +37,6 @@ end
 
 function Object:emit(event_name, ...)
   if self.handlers[event_name] then
-    local previous_context = ffi.C.ck_get_current_mod_id()
-
     local ok, err = xpcall(self.handlers[event_name], debug.traceback, self, ...)
 
     if not ok then
@@ -46,6 +45,47 @@ function Object:emit(event_name, ...)
   end
 
   return self
+end
+
+function Object:_handle_proc(proc_id, fixed_param)
+  local event_name = Object.PROC_NAMES[proc_id]
+  if not event_name then return false end
+
+  -- check custom callbacks eg alice:on, door:on etc
+  if self.handlers[event_name] then
+    local result = self.handlers[event_name](self, fixed_param)
+
+    if result ~= nil then return result end
+  end
+
+  -- default behavior
+  if event_name == "look_at" then
+    if self.name then
+      monitor.print(self.name)
+
+      return true
+    end
+
+  elseif event_name == "description" then
+    if self.description then
+      monitor.print(self.description)
+
+      return true
+    end
+
+  elseif event_name == "damage" then
+    log.info('damaged object: ' .. tostring(self.id))
+
+    return false
+
+  elseif event_name == "destroy" then
+    log.info('Object destroyed: ' .. tostring(self.id))
+    -- ffi.C.ck_critter_kill(self.id)
+    --
+    return false
+  end
+
+  return false
 end
 
 function Object:tile()

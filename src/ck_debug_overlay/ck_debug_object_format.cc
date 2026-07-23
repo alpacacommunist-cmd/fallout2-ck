@@ -27,8 +27,8 @@ namespace ck::debug {
 			while (obj != nullptr) {
 				int objType = FID_TYPE(obj->fid);
 
-				log.raw("[OBJ #{} Name: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
-						objIndex, fallout::objectGetName(obj), objType, obj->pid, obj->fid, obj->sid,
+				log.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
+						objIndex, fallout::objectGetName(obj), obj->id, objType, obj->pid, obj->fid, obj->sid,
 						static_cast<unsigned int>(obj->flags));
 
 				std::string data_debug = ck::debug::format_object_data(obj, objType);

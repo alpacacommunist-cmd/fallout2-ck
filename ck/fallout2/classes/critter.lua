@@ -124,37 +124,13 @@ function Critter:animate()
 end
 
 function Critter:_handle_proc(proc_id, fixed_param)
+  -- check if proc is already handled in Object
+  if Object._handle_proc(self, proc_id, fixed_param) then return true end
+
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
-  if self.handlers[event_name] then
-    if self.handlers[event_name](self) ~= false then return true end
-  end
-
-  if event_name == "look_at" then
-    if (monitor and monitor.print and self.name) then
-      monitor.print(self.name)
-
-      return true
-    end
-
-  elseif event_name == "description" then
-    if (monitor and monitor.print and self.description) then
-      monitor.print(self.description)
-
-      return true
-    end
-
-  elseif event_name == "destroy" then
-    log.info('destroyed npc: ' .. tostring(self.id))
-    ffi.C.ck_critter_kill(self.id)
-
-    return true
-  elseif event_name == "damage" then
-    log.info('damage npc: ' .. tostring(self.id))
-
-    return true
-  elseif event_name == "combat" then
+  if event_name == "combat" then
     log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
     if fixed_param == 5 then
@@ -169,7 +145,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
     return true
 
   elseif event_name == "talk" then
-    if not (dialogue and dialogue.start and dialogue.is_registered(self.id)) then return end
+    if not dialogue.is_registered(self.id) then return end
 
     dialogue.start(self.id)
     self:clear_animations():emit('dialogue_finished')
@@ -177,7 +153,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
     return true
 
   elseif event_name == "push" then
-    -- return true
+    return false
   end
 
   return false
@@ -208,6 +184,5 @@ function Critter:_handle_map_update(current_ticks)
     self.active_behavior(self, current_ticks)
   end
 end
-
 
 return Critter
