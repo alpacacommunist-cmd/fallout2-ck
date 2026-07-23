@@ -39,6 +39,9 @@ namespace ck::registry {
     extern std::vector<CkDeletedObject>             g_deleted_objects;
     extern std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
+	int next_lua_id();
+	void reset_lua_id_counter();
+
     void clear();
     void clear_resources_for_mod(const char* target_mod_id);
 

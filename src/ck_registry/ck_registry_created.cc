@@ -3,16 +3,12 @@
 #include "ck_log.h"
 static const Logger log("CK Registry [Created]");
 
-namespace {
-    int next_id = 1;
-}
-
 namespace ck::registry::created {
 
     int add(fallout::Object* obj, const LuaMeta& meta) {
         if (!obj) return -1;
+        int id = next_lua_id();
 
-        int id = next_id++;
         g_created_objects[id] = CkCreatedObject{ obj, id, meta };
         g_ptr_to_lua_id[obj] = id;
         return id;
@@ -22,7 +18,9 @@ namespace ck::registry::created {
         if (ptr == nullptr) return -1;
 
         auto it = g_ptr_to_lua_id.find(ptr);
-        if (it == g_ptr_to_lua_id.end()) return -1;
+        if (it == g_ptr_to_lua_id.end()) {
+			return -1;
+		}
 
         int deleted_id = it->second;
         std::string obj_tag;

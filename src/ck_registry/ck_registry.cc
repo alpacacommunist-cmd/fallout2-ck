@@ -12,6 +12,11 @@ namespace ck::registry {
 
     std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
+	static int g_next_id = 1;
+
+	int  next_lua_id() { return g_next_id++; }
+	void reset_lua_id_counter() { g_next_id = 1; }
+
     void clear_resources_for_mod(const char* target_mod_id) {
         if (target_mod_id == nullptr) return;
         std::string mod_str(target_mod_id);
@@ -42,8 +47,6 @@ namespace ck::registry {
         }
 
         for (fallout::Object* obj : to_destroy) {
-            g_ptr_to_lua_id.erase(obj);
-
             fallout::reg_anim_clear(obj);
             fallout::objectDestroy(obj, nullptr);
         }
@@ -67,6 +70,8 @@ namespace ck::registry {
         g_created_objects.clear();
         g_deleted_objects.clear();
         g_ptr_to_lua_id.clear();
+
+		reset_lua_id_counter();
 
         log.info("Cleared object registry entirely.");
 	}
