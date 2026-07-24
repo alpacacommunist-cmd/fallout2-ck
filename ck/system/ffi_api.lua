@@ -19,6 +19,20 @@ ffi.cdef[[
   // --- Combat & Actions ---
   bool ck_in_combat();
 
+  // --- Object FFI ---
+  typedef struct {
+      void*     c_ptr;
+      int       id;
+      int       pid;
+      int       sid;
+      int       tile;
+      int       elevation;
+      int       flags;
+      int       rotation;
+  } CkObjectFFI;
+
+  int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
+
   // --- Critter Animations ---
   int  ck_anim_begin(void* ptr, int weapon_ready);
   int  ck_anim_move_to(void* ptr, int tile, int elevation);

@@ -26,6 +26,26 @@ namespace ck::object {
 
 		for (fallout::Object* object : to_delete) ck::registry::deleted::add(object);
 	}
+
+	int find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
+		int count = 0, current_elev = fallout::gElevation;
+
+		fallout::Object* obj = fallout::objectFindFirstAtLocation(current_elev, tile);
+		while (obj != nullptr && count < max_count) {
+			buffer[count].c_ptr     = static_cast<void*>(obj);
+			buffer[count].id        = obj->id;
+			buffer[count].pid       = obj->pid;
+			buffer[count].sid       = obj->sid;
+			buffer[count].tile      = obj->tile;
+			buffer[count].elevation = obj->elevation;
+			buffer[count].flags     = obj->flags;
+			buffer[count].rotation  = obj->rotation;
+
+			count++;
+			obj = fallout::objectFindNextAtLocation();
+		}
+		return count;
+	}
 }
 
 bool ck_object_blocking(int tile) {
@@ -102,3 +122,6 @@ int ck_object_get_tile(int lua_id) {
 	return object->ptr->tile;
 }
 
+int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
+	return ck::object::find_at_tile(tile, buffer, max_count);
+}

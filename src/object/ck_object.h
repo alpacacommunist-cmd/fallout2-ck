@@ -12,8 +12,18 @@ namespace fallout {
 
 const int BLOCKER_PID=0x2000158;  // dummy collision object
 const int BLOCKER_FID=0x02000015;
-
 struct LuaMeta;
+
+struct CkObjectFFI {
+    void*     c_ptr;
+    int       id;
+    int       pid;
+    int       sid;
+    int       tile;
+    int       elevation;
+    int       flags;
+    int       rotation;
+};
 
 namespace ck::object {
 	void remove_at(int tile);
@@ -36,5 +46,6 @@ CK_API void ck_object_remove_at(int tile);
 CK_API int ck_object_get_tile(int lua_id);
 CK_API int ck_object_get_sid(int lua_id);
 CK_API void* ck_object_get_ptr(int lua_id);
+CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
 
 #endif

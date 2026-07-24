@@ -45,6 +45,30 @@ function map.register_object(value, tile)
   ffi.C.ck_map_register_object(value, tile)
 end
 
+function map.find_at_tile(tile)
+  local max_count = 32
+  local buffer    = ffi.new("CkObjectFFI[?]", max_count)
+  
+  local count = ffi.C.ck_object_find_at_tile(tile, buffer, max_count)
+  
+  local result = {}
+  for index = 0, count - 1 do
+    local snapshot = {
+      c_ptr     = buffer[index].c_ptr,
+      id        = buffer[index].id,
+      pid       = buffer[index].pid,
+      sid       = buffer[index].sid,
+      tile      = buffer[index].tile,
+      elevation = buffer[index].elevation,
+      flags     = buffer[index].flags,
+      rotation  = buffer[index].rotation
+    }
+    table.insert(result, snapshot)
+  end
+  
+  return result
+end
+
 function map.place(value, tile, config)
   config = config or {}
   local mode = config.mode or "place"
