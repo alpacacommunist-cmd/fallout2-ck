@@ -1,5 +1,6 @@
 -- ck/fallout2/map/init.lua
 local ffi = require("ffi")
+require('ck.fallout2.classes.object_ffi')
 
 local map  = {
   geometry  = require('ck.fallout2.map.geometry'),
@@ -48,25 +49,26 @@ end
 function map.find_at_tile(tile)
   local max_count = 32
   local buffer    = ffi.new("CkObjectFFI[?]", max_count)
-  
+
   local count = ffi.C.ck_object_find_at_tile(tile, buffer, max_count)
-  
+
   local result = {}
   for index = 0, count - 1 do
-    local snapshot = {
-      c_ptr     = buffer[index].c_ptr,
-      id        = buffer[index].id,
-      pid       = buffer[index].pid,
-      sid       = buffer[index].sid,
-      tile      = buffer[index].tile,
-      elevation = buffer[index].elevation,
-      flags     = buffer[index].flags,
-      rotation  = buffer[index].rotation
-    }
-    table.insert(result, snapshot)
+    local copy = ffi.new("CkObjectFFI", buffer[index])
+
+    table.insert(result, copy)
   end
-  
-  return result
+
+  return setmetatable(result, {
+    __index = {
+      find_by_pid = function(t, target_pid)
+        for _, obj in ipairs(t) do
+          if obj.pid == target_pid then return obj end
+        end
+        return nil
+      end
+    }
+  })
 end
 
 function map.place(value, tile, config)

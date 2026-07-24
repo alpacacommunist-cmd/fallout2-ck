@@ -29,6 +29,23 @@ function Object.new(lua_id, config, mod_id)
   return self
 end
 
+function Object.hijack_existing(c_ptr, pid, mod_id)
+  local lua_id = ffi.C.ck_registry_modify_object(c_ptr, mod_id)
+
+  local config = {
+    name = "Modified Object",
+    description = "Hijacked by runtime"
+  }
+
+  local self = Object.new(lua_id, config, mod_id)
+  self.c_ptr = c_ptr
+  self.is_modified = true
+
+  log.info(string.format("Successfully hijacked object at ptr %s, assigned LuaID: %d", tostring(c_ptr), lua_id))
+
+  return self
+end
+
 function Object:on(event_name, callback)
   self.handlers[event_name] = callback
 
