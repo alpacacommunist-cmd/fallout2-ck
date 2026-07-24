@@ -7,13 +7,16 @@
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_stats.h"
 
+#include "object.h"
+#include "combat_defs.h"
+
 #include "ck_log.h"
 static const Logger log("CK Critter");
 
 static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 	int unique_pid = 0;
 
-	if (fallout::proto_new(&unique_pid, fallout::OBJ_TYPE_CRITTER) != 0) {
+	if (fallout::proto_new(&unique_pid, ck::ids::object_types::CRITTER) != 0) {
 		log.error("Couldn't allocate new prototype for '{}'", lua_tag);
 		return -1;
 	}
@@ -68,8 +71,7 @@ namespace ck {
 
 		lua_id = ck::registry::created::add(critter, meta);
 
-		int custom_sid = ck::make_sid(lua_id);
-		critter->sid   = ck::make_full_sid(fallout::SCRIPT_TYPE_CRITTER, custom_sid);
+		critter->sid = ck::ids::make_sid_created(critter, lua_id);
 		critter->data.critter.combat.team = 0;
 
 		return { lua_id, ck_get_current_mod_id() };

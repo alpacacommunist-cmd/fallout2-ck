@@ -13,9 +13,11 @@ extern "C" const char* ck_get_current_mod_id();
 int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 
 namespace fallout {
+	enum CombatState : unsigned int;
+	extern CombatState gCombatState;
+
 	int mapGetCurrentMap();
 
-	extern unsigned int gCombatState;
 	void _combat_delete_critter(Object* obj);
 	void _combat_ai(Object* a1, Object* a2);
 	bool _combatai_want_to_join(Object* a1);

@@ -13,7 +13,7 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
         while (obj != nullptr) {
             fallout::Object* nextObj = fallout::objectFindNextAtLocation();
 
-            if (FID_TYPE(obj->fid) != fallout::OBJ_TYPE_CRITTER) {
+            if (FID_TYPE(obj->fid) != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
                 if (visible) {
                     obj->flags &= ~fallout::OBJECT_HIDDEN;
 

@@ -104,9 +104,9 @@ int ck_object_get_sid(int lua_id) {
 	const CkCreatedObject* object = ck::registry::created::get(lua_id);
 
 	if (!object || !object->ptr) return -1;
-	if (!ck::is_ck_sid(ck::clean_sid(object->ptr->sid))) return -1;
+	if (!ck::ids::is_ck_sid(ck::ids::clean_sid(object->ptr->sid))) return -1;
 
-	return ck::clean_sid(object->ptr->sid);
+	return ck::ids::clean_sid(object->ptr->sid);
 }
 
 void* ck_object_get_ptr(int lua_id) {
