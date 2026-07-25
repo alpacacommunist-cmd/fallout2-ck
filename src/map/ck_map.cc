@@ -20,8 +20,10 @@ namespace ck {
 	void on_before_map_load() {
 		log.debug("on_before_map_load");
 
-		ck::registry::on_map_exit();
 		ck::reset_dummy_script();
+		// ck::map::borders::clear();
+
+		ck::registry::on_map_exit();
 
 		ck_rendering_clear();
 
@@ -30,8 +32,8 @@ namespace ck {
 
 	int current_map_id() { return fallout::mapGetCurrentMap(); }
 
-	bool map_has_camera_borders() {
-		return ck::map::borders::has_borders_for_map(current_map_id());
+	bool map_has_camera_borders(int map_index) {
+		return ck::map::borders::has_borders_for_map(map_index);
 	}
 
 	bool map_is_camera_position_allowed(int tile) {

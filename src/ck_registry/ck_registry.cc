@@ -79,7 +79,7 @@ namespace ck::registry {
 
 	void on_map_exit() {
 		deleted::unhide();
-		modified::restore_original_sids();
+		modified::restore_sids();
 
 		clear();
 	}

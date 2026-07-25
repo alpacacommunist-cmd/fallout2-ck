@@ -96,15 +96,7 @@ namespace ck {
 }
 
 void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
-    fallout::Object* obj = nullptr;
-
-    if (const auto* created_obj = ck::registry::created::get(lua_id)) {
-        obj = created_obj->ptr;
-    }
-
-    else if (const auto* modified_obj = ck::registry::modified::get(lua_id)) {
-        obj = modified_obj->ptr;
-    }
+	fallout::Object* obj = ck::registry::get_object(lua_id);
 
     if (!obj) {
         log.warn("ck_critter_float_msg: Object with LuaID {} not found in any registry", lua_id);

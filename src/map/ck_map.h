@@ -21,7 +21,7 @@ namespace ck {
 
 
 	int current_map_id();
-	bool map_has_camera_borders();
+	bool map_has_camera_borders(int map_index);
 	bool map_is_camera_position_allowed(int tile);
 }
 

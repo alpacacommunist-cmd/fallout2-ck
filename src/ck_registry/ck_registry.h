@@ -80,8 +80,8 @@ namespace ck::registry {
 		int  add(fallout::Object* obj, const LuaMeta& meta = {});
 		void clear_for_mod(std::string_view mod_id);
 
-		void restore_original_sids();
-		void reapply_lua_sids();
+		void restore_sids();
+		void reapply_sids();
 
 		const CkModifiedObject* get(int lua_id);
 	}

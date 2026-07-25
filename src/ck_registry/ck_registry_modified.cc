@@ -67,7 +67,7 @@ namespace ck::registry::modified {
         }
 	}
 
-    void restore_original_sids() {
+    void restore_sids() {
         int restored_count = 0;
         for (const auto& [id, entry] : g_modified_objects) {
             if (entry.ptr != nullptr) {
@@ -80,7 +80,7 @@ namespace ck::registry::modified {
         }
     }
 
-    void reapply_lua_sids() {
+    void reapply_sids() {
         int reapplied_count = 0;
         for (const auto& [id, entry] : g_modified_objects) {
             if (entry.ptr != nullptr) {
