@@ -38,6 +38,11 @@ function dialogue.register(npc_id, fn_or_nodes)
   log.info("Registered dialogue for npc: " .. tostring(npc_id))
 end
 
+function dialogue.clear_dialogs()
+  registry = {}
+  log.info("Cleared dialogues registry")
+end
+
 function dialogue.is_registered(npc_id) return registry[npc_id] ~= nil end
 
 function dialogue.say(text)

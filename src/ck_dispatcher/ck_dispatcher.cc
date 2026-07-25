@@ -89,6 +89,7 @@ void ck_dispatcher_on_map_enter() {
 
 	ck::proxy::clear_tracked_objects();
 	ck::proxy::clear_registry();
+	ck::proxy::clear_dialogs();
 
 	g_last_update_ticks = 0;
 	ck_dispatcher_emit("onMapEnter");

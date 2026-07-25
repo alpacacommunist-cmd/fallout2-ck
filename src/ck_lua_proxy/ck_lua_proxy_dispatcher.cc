@@ -13,6 +13,7 @@ namespace ck::proxy::detail {
     extern int on_proc;
     extern int clear_tracked_objects;
     extern int clear_registry;
+    extern int clear_dialogs;
     extern int load_and_init_mod;
 }
 
@@ -50,5 +51,8 @@ namespace ck::proxy {
 	}
 	void clear_registry() {
 		execute_proxy_call<bool>(detail::clear_registry);
+	}
+	void clear_dialogs() {
+		execute_proxy_call<bool>(detail::clear_dialogs);
 	}
 }

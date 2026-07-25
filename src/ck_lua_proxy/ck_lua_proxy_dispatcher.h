@@ -26,6 +26,7 @@ namespace ck::proxy {
 
 	void clear_tracked_objects();
 	void clear_registry();
+	void clear_dialogs();
 }
 
 #endif

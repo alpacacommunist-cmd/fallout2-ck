@@ -75,15 +75,15 @@ events.on('onMapEnter', function()
   --   map = 4, tile = 11683, elevation = 0, rotation = 1, style = 4
   -- },3 )
 
-  -- local found_objects = map.find_at_tile(21101)
-  -- utils.print_table(found_objects, log)
-  -- local klint_snapshot = map.find_at_tile(21101):find_by_pid(16777219)
-  -- log.warn(klint_snapshot.pid)
-  -- log.warn(klint_snapshot:is_critter())
-  --
-  -- klint_snapshot:on('talk', function(self)
-  --   self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self.id), 2)
-  -- end)
+  local found_objects = map.find_at_tile(21101)
+  utils.print_table(found_objects, log)
+  local klint_snapshot = map.find_at_tile(21101):find_by_pid(16777219)
+  log.warn(klint_snapshot.pid)
+  log.warn(klint_snapshot:is_critter())
+
+  klint_snapshot:on('talk', function(self)
+    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self.id), 2)
+  end)
 
   local asset = assets.resolve('temple_of_trials:scenery/tree10')
 
