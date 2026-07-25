@@ -50,6 +50,11 @@ namespace ck::registry {
 	int next_lua_id();
 	void reset_lua_id_counter();
 
+	int find_by_ptr(fallout::Object* ptr);
+	const LuaMeta* get_meta(int lua_id);
+
+	fallout::Object* get_object(int lua_id);
+
     void clear();
     void clear_resources_for_mod(const char* target_mod_id);
 
@@ -61,8 +66,6 @@ namespace ck::registry {
 
         fallout::Object* get_object(int lua_id);
         const CkCreatedObject* get(int lua_id);
-        int  find_by_ptr(fallout::Object* ptr);
-        const LuaMeta* get_meta(int lua_id);
     }
 
     namespace deleted {

@@ -18,6 +18,36 @@ namespace ck::registry {
 	int  next_lua_id() { return g_next_id++; }
 	void reset_lua_id_counter() { g_next_id = 1; }
 
+	int find_by_ptr(fallout::Object* ptr) {
+		if (ptr == nullptr) return -1;
+		auto it = g_ptr_to_lua_id.find(ptr);
+		return (it == g_ptr_to_lua_id.end()) ? -1 : it->second;
+	}
+
+	const LuaMeta* get_meta(int lua_id) {
+		auto created_it = g_created_objects.find(lua_id);
+		if (created_it != g_created_objects.end()) {
+			return &created_it->second.meta;
+		}
+
+		auto modified_it = g_modified_objects.find(lua_id);
+		if (modified_it != g_modified_objects.end()) {
+			return &modified_it->second.meta;
+		}
+
+		return nullptr;
+	}
+
+	fallout::Object* get_object(int lua_id) {
+		auto created_it = g_created_objects.find(lua_id);
+		if (created_it != g_created_objects.end()) return created_it->second.ptr;
+
+		auto modified_it = g_modified_objects.find(lua_id);
+		if (modified_it != g_modified_objects.end()) return modified_it->second.ptr;
+
+		return nullptr;
+	}
+
     void clear_resources_for_mod(const char* mod_id) {
         if (mod_id == nullptr) return;
 

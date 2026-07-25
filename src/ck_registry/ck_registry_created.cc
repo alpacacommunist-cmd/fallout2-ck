@@ -48,14 +48,4 @@ namespace ck::registry::created {
         auto it = g_created_objects.find(lua_id);
         return (it == g_created_objects.end()) ? nullptr : it->second.ptr;
     }
-
-    int find_by_ptr(fallout::Object* ptr) {
-        auto it = g_ptr_to_lua_id.find(ptr);
-        return (it == g_ptr_to_lua_id.end()) ? -1 : it->second;
-    }
-
-    const LuaMeta* get_meta(int lua_id) {
-        auto it = g_created_objects.find(lua_id);
-        return (it == g_created_objects.end()) ? nullptr : &it->second.meta;
-    }
 }
