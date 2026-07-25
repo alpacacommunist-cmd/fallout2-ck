@@ -74,7 +74,7 @@ events.on('onMapEnter', function()
   -- map.exit_grid.spawn_in_line(22533, 24734, {
   --   map = 4, tile = 11683, elevation = 0, rotation = 1, style = 4
   -- },3 )
-
+  --
   -- local found_objects = map.find_at_tile(21101)
   -- utils.print_table(found_objects, log)
   -- local klint_snapshot = map.find_at_tile(21101):find_by_pid(16777219)

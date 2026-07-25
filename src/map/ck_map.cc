@@ -21,8 +21,6 @@ namespace ck {
 		log.debug("on_before_map_load");
 
 		ck::reset_dummy_script();
-		// ck::map::borders::clear();
-
 		ck::registry::on_map_exit();
 
 		ck_rendering_clear();
