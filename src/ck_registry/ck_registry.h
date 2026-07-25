@@ -63,6 +63,7 @@ namespace ck::registry {
     namespace created {
         int  add(fallout::Object* obj, const LuaMeta& meta = {});
         int  remove_by_ptr(fallout::Object* ptr);
+		void clear_for_mod(std::string_view mod_id);
 
         fallout::Object* get_object(int lua_id);
         const CkCreatedObject* get(int lua_id);
@@ -78,6 +79,7 @@ namespace ck::registry {
 
 	namespace modified {
 		int  add(fallout::Object* obj, const LuaMeta& meta = {});
+		int  restore(fallout::Object* object);
 		void clear_for_mod(std::string_view mod_id);
 
 		void restore_sids();
@@ -89,5 +91,6 @@ namespace ck::registry {
 
 CK_API void ck_registry_clear();
 CK_API int  ck_registry_modify_object(void* ptr);
+CK_API int  ck_registry_restore_modified_object(void* ptr);
 
 #endif

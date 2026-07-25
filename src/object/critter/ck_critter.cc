@@ -69,7 +69,7 @@ namespace ck {
 		if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
 		int lua_id = -1;
-		LuaMeta meta = { mod_id, lua_tag, critter->sid, source_pid };
+		LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
 
 		lua_id = ck::registry::created::add(critter, meta);
 

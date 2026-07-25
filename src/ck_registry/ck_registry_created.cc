@@ -14,6 +14,30 @@ namespace ck::registry::created {
         return id;
     }
 
+	void clear_for_mod(std::string_view mod_id) {
+        std::vector<fallout::Object*> to_destroy;
+
+        for (const auto& [id, managed] : g_created_objects) {
+            if (managed.meta.mod_id == mod_id && managed.ptr != nullptr) {
+                to_destroy.push_back(managed.ptr);
+            }
+        }
+
+        for (fallout::Object* obj : to_destroy) {
+            fallout::reg_anim_clear(obj);
+            fallout::objectDestroy(obj, nullptr);
+            // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
+        }
+
+        std::erase_if(g_created_objects, [mod_id](const auto& item) {
+            return item.second.meta.mod_id == mod_id;
+        });
+
+        if (!to_destroy.empty()) {
+            log.info("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_id);
+        }
+    }
+
     int remove_by_ptr(fallout::Object* ptr) {
         if (ptr == nullptr) return -1;
 

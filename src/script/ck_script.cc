@@ -69,6 +69,8 @@ namespace ck {
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 		const LuaMeta* meta = ck::registry::get_meta(lua_id);
 
+		if (meta == nullptr) return false; // game loading
+
 		if (meta->mod_id.empty()) {
 			log.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
 			return false;

@@ -1,4 +1,4 @@
-#include "ck_registry.h"
+#include "ck_registry/ck_registry.h"
 #include "ck_ids.h"
 #include "obj_types.h"
 
@@ -45,20 +45,45 @@ namespace ck::registry::modified {
         return lua_id;
     }
 
+	int restore(fallout::Object* obj) {
+        if (obj == nullptr) return false;
+
+        auto ptr_it = g_ptr_to_lua_id.find(obj);
+        if (ptr_it == g_ptr_to_lua_id.end()) return false;
+
+        int lua_id = ptr_it->second;
+		int source_sid;
+
+        auto modified_it = g_modified_objects.find(lua_id);
+        if (modified_it != g_modified_objects.end()) {
+			source_sid = modified_it->second.meta.source_sid;
+            obj->sid = modified_it->second.meta.source_sid;
+
+            g_modified_objects.erase(modified_it);
+        }
+
+        g_ptr_to_lua_id.erase(ptr_it);
+
+        log.debug("Restored individual object by pointer [LuaID: {}]. Remaining modified size: {}",
+                  lua_id, g_modified_objects.size());
+
+        return source_sid;
+    }
+
 	void clear_for_mod(std::string_view mod_id) {
 		int restored_sids_count = 0;
 
-        auto mod_it = g_modified_objects.begin();
-        while (mod_it != g_modified_objects.end()) {
-            if (mod_it->second.meta.mod_id == mod_id) {
-                if (mod_it->second.ptr != nullptr) {
-                    mod_it->second.ptr->sid = mod_it->second.meta.source_sid;
-                    g_ptr_to_lua_id.erase(mod_it->second.ptr);
+        auto modified_it = g_modified_objects.begin();
+        while (modified_it != g_modified_objects.end()) {
+            if (modified_it->second.meta.mod_id == mod_id) {
+                if (modified_it->second.ptr != nullptr) {
+                    modified_it->second.ptr->sid = modified_it->second.meta.source_sid;
+                    g_ptr_to_lua_id.erase(modified_it->second.ptr);
                     restored_sids_count++;
                 }
-                mod_it = g_modified_objects.erase(mod_it);
+                modified_it = g_modified_objects.erase(modified_it);
             } else {
-                ++mod_it;
+                ++modified_it;
             }
         }
 
@@ -107,4 +132,10 @@ int ck_registry_modify_object(void* ptr) {
 	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
 
 	return ck::registry::modified::add(object);
+}
+
+int ck_registry_restore_modified_object(void* ptr) {
+	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
+
+	return ck::registry::modified::restore(object);
 }

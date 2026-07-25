@@ -55,26 +55,7 @@ namespace ck::registry {
 
 		deleted::clear_for_mod(mod_str);
 		modified::clear_for_mod(mod_str);
-
-        std::vector<fallout::Object*> to_destroy;
-        for (const auto& [id, managed] : g_created_objects) {
-            if (managed.meta.mod_id == mod_str && managed.ptr != nullptr) {
-                to_destroy.push_back(managed.ptr);
-            }
-        }
-
-        for (fallout::Object* obj : to_destroy) {
-            fallout::reg_anim_clear(obj);
-            fallout::objectDestroy(obj, nullptr);
-        }
-
-        std::erase_if(g_created_objects, [&mod_str](const auto& item) {
-            return item.second.meta.mod_id == mod_str;
-        });
-
-        if (!to_destroy.empty()) {
-            log.debug("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_str);
-        }
+		created::clear_for_mod(mod_str);
     }
 
 	void on_map_exit() {

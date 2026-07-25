@@ -176,7 +176,8 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 void ck_scripting_on_before_game_load(const char* path) {
 	log.debug("ck_scripting_on_before_game_load");
 
-	ck::registry::on_map_exit();
+	ck::registry::clear();
+
 	ck_state_load(path);
 }
 
