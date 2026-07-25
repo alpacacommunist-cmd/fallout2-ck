@@ -29,14 +29,22 @@ struct CkCreatedObject {
     LuaMeta          meta;
 };
 
+struct CkModifiedObject {
+    fallout::Object* ptr    = nullptr;
+    int              lua_id = -1;
+    LuaMeta          meta;
+};
+
 struct CkDeletedObject {
     fallout::Object* ptr = nullptr;
     std::string mod_id;
 };
 
 namespace ck::registry {
-    extern std::unordered_map<int, CkCreatedObject> g_created_objects;
-    extern std::vector<CkDeletedObject>             g_deleted_objects;
+    extern std::unordered_map<int, CkCreatedObject>  g_created_objects;
+	extern std::unordered_map<int, CkModifiedObject> g_modified_objects;
+    extern std::vector<CkDeletedObject>              g_deleted_objects;
+
     extern std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
 	int next_lua_id();
@@ -62,6 +70,16 @@ namespace ck::registry {
         void unhide();
         void hide();
     }
+
+	namespace modified {
+		int  add(fallout::Object* obj, const LuaMeta& meta = {});
+		void clear_for_mod(const char* mod_id);
+
+		void restore_original_sids();
+		void reapply_lua_sids();
+
+		const CkModifiedObject* get(int lua_id);
+	}
 }
 
 CK_API void ck_registry_clear();

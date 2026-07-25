@@ -7,8 +7,9 @@
 static const Logger log("CK Registry");
 
 namespace ck::registry {
-    std::unordered_map<int, CkCreatedObject> g_created_objects;
-    std::vector<CkDeletedObject>             g_deleted_objects;
+    std::unordered_map<int, CkCreatedObject>  g_created_objects;
+	std::unordered_map<int, CkModifiedObject> g_modified_objects;
+    std::vector<CkDeletedObject>              g_deleted_objects;
 
     std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
@@ -17,9 +18,12 @@ namespace ck::registry {
 	int  next_lua_id() { return g_next_id++; }
 	void reset_lua_id_counter() { g_next_id = 1; }
 
-    void clear_resources_for_mod(const char* target_mod_id) {
-        if (target_mod_id == nullptr) return;
-        std::string mod_str(target_mod_id);
+    void clear_resources_for_mod(const char* mod_id) {
+        if (mod_id == nullptr) return;
+
+		modified::clear_for_mod(mod_id);
+
+        std::string mod_str(mod_id);
 
         int restored_count = 0;
         auto hidden_it = g_deleted_objects.begin();
@@ -56,12 +60,13 @@ namespace ck::registry {
         });
 
         if (!to_destroy.empty()) {
-            log.info("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_str);
+            log.debug("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_str);
         }
     }
 
 	void on_map_exit() {
 		deleted::unhide();
+		modified::restore_original_sids();
 
 		clear();
 	}
@@ -69,8 +74,9 @@ namespace ck::registry {
 	void clear() {
         g_created_objects.clear();
         g_deleted_objects.clear();
-        g_ptr_to_lua_id.clear();
+		g_modified_objects.clear();
 
+        g_ptr_to_lua_id.clear();
 		reset_lua_id_counter();
 
         log.info("Cleared object registry entirely.");

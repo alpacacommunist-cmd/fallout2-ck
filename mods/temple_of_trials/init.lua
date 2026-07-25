@@ -81,6 +81,11 @@ events.on('onMapEnter', function()
   log.warn(klint_snapshot.pid)
   log.warn(klint_snapshot:is_critter())
 
+  klint_snapshot:on('talk', function(self)
+    self:float_message('Че хочешь?', 1)
+    return true;
+  end)
+
   local asset = assets.resolve('temple_of_trials:scenery/tree10')
 
   map.batch.scenery(outskirts.mountain_scenery)

@@ -43,6 +43,7 @@ add_library(fallout2-ck STATIC
     src/ck_registry/ck_registry.cc
     src/ck_registry/ck_registry_created.cc
     src/ck_registry/ck_registry_deleted.cc
+    src/ck_registry/ck_registry_modified.cc
 
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
