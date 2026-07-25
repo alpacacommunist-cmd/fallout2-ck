@@ -51,27 +51,10 @@ namespace ck::registry {
     void clear_resources_for_mod(const char* mod_id) {
         if (mod_id == nullptr) return;
 
-		modified::clear_for_mod(mod_id);
+		std::string_view mod_str(mod_id);
 
-        std::string mod_str(mod_id);
-
-        int restored_count = 0;
-        auto hidden_it = g_deleted_objects.begin();
-        while (hidden_it != g_deleted_objects.end()) {
-            if (hidden_it->mod_id == mod_str) {
-                if (hidden_it->ptr != nullptr) {
-                    hidden_it->ptr->flags &= ~fallout::OBJECT_HIDDEN;
-                    restored_count++;
-                }
-                hidden_it = g_deleted_objects.erase(hidden_it);
-            } else {
-                ++hidden_it;
-            }
-        }
-
-        if (restored_count > 0) {
-            log.info("Hot Reload: Restored {} hidden map objects for mod '{}'", restored_count, mod_str);
-        }
+		deleted::clear_for_mod(mod_str);
+		modified::clear_for_mod(mod_str);
 
         std::vector<fallout::Object*> to_destroy;
         for (const auto& [id, managed] : g_created_objects) {

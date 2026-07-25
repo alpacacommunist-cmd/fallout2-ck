@@ -70,13 +70,15 @@ namespace ck::registry {
 
     namespace deleted {
         void add(fallout::Object* obj);
+		void clear_for_mod(std::string_view mod_id);
+
         void unhide();
         void hide();
     }
 
 	namespace modified {
 		int  add(fallout::Object* obj, const LuaMeta& meta = {});
-		void clear_for_mod(const char* mod_id);
+		void clear_for_mod(std::string_view mod_id);
 
 		void restore_original_sids();
 		void reapply_lua_sids();

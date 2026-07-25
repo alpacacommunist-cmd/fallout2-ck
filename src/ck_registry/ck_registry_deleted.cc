@@ -20,6 +20,25 @@ namespace ck::registry::deleted {
         g_deleted_objects.push_back(CkDeletedObject{ obj, mod_id });
     }
 
+	void clear_for_mod(std::string_view mod_id) {
+        int restored_count = 0;
+
+        std::erase_if(g_deleted_objects, [mod_id, &restored_count](const CkDeletedObject& entry) {
+            if (entry.mod_id == mod_id) {
+                if (entry.ptr != nullptr) {
+                    entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
+                    restored_count++;
+                }
+                return true;
+            }
+            return false;
+        });
+
+        if (restored_count > 0) {
+            log.info("Hot Reload: Restored {} deleted/hidden objects for mod '{}'", restored_count, mod_id);
+        }
+    }
+
     void unhide() {
 		int restored_count = 0;
 		for (const auto& entry : g_deleted_objects) {

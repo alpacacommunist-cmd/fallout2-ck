@@ -45,13 +45,12 @@ namespace ck::registry::modified {
         return lua_id;
     }
 
-	void clear_for_mod(const char* mod_id) {
+	void clear_for_mod(std::string_view mod_id) {
 		int restored_sids_count = 0;
-		std::string_view mod_str = std::string_view(mod_id);
 
         auto mod_it = g_modified_objects.begin();
         while (mod_it != g_modified_objects.end()) {
-            if (mod_it->second.meta.mod_id == mod_str) {
+            if (mod_it->second.meta.mod_id == mod_id) {
                 if (mod_it->second.ptr != nullptr) {
                     mod_it->second.ptr->sid = mod_it->second.meta.source_sid;
                     g_ptr_to_lua_id.erase(mod_it->second.ptr);
@@ -64,7 +63,7 @@ namespace ck::registry::modified {
         }
 
         if (restored_sids_count > 0) {
-            log.info("Hot Reload: Restored {} modified SIDs for mod '{}'", restored_sids_count, mod_str);
+            log.info("Hot Reload: Restored {} modified SIDs for mod '{}'", restored_sids_count, mod_id);
         }
 	}
 
