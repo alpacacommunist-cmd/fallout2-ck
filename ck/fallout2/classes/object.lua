@@ -11,37 +11,20 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id, config, mod_id)
+function Object.new(id, config, mod_id)
   local self = setmetatable({}, Object)
 
-  self.id          = lua_id
-  self.mod_id      = mod_id or "unknown"
-  self.sid         = ffi.C.ck_object_get_sid(lua_id)
-  self.c_ptr       = ffi.C.ck_object_get_ptr(lua_id)
+  self.id          = id
+  self.mod_id      = mod_id
+  self.sid         = ffi.C.ck_object_get_sid(id)
+  self.c_ptr       = ffi.C.ck_object_get_ptr(id)
 
   self.name        = config.name
   self.description = config.description
 
   self.handlers = {}
 
-  objects.registry[lua_id] = self
-
-  return self
-end
-
-function Object.hijack_existing(c_ptr, pid, mod_id)
-  local lua_id = ffi.C.ck_registry_modify_object(c_ptr, mod_id)
-
-  local config = {
-    name = "Modified Object",
-    description = "Hijacked by runtime"
-  }
-
-  local self = Object.new(lua_id, config, mod_id)
-  self.c_ptr = c_ptr
-  self.is_modified = true
-
-  log.info(string.format("Successfully hijacked object at ptr %s, assigned LuaID: %d", tostring(c_ptr), lua_id))
+  objects.registry[id] = self
 
   return self
 end

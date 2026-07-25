@@ -31,6 +31,7 @@ ffi.cdef[[
       int       rotation;
   } CkObjectFFI;
 
+  int ck_registry_modify_object(void* ptr);
   int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
 
   // --- Critter Animations ---

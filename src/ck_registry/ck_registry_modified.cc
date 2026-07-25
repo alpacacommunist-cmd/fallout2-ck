@@ -103,3 +103,9 @@ namespace ck::registry::modified {
         return nullptr;
     }
 }
+
+int ck_registry_modify_object(void* ptr) {
+	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
+
+	return ck::registry::modified::add(object);
+}

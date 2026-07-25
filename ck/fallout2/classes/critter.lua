@@ -8,7 +8,6 @@ local behaviors = require('ck.fallout2.objects.critters.behaviors')
 local stats     = require('ck.fallout2.objects.critters.stats')
 
 local Object = require("ck.fallout2.classes.object")
-local critter_events = require('ck.fallout2.handlers.critter_events')
 
 local Critter = {}
 setmetatable(Critter, { __index = Object })
@@ -59,8 +58,6 @@ function Critter:__newindex(key, value)
     rawset(self, key, value)
   end
 end
-
-critter_events.attach(Critter)
 
 function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
 function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end

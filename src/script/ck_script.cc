@@ -67,9 +67,24 @@ namespace ck {
 		if (!ck::ids::is_ck_sid(sid)) return false;
 
 		int lua_id = ck::ids::lua_id_from_sid(sid);
-		const CkCreatedObject* object = ck::registry::created::get(lua_id);
+		std::string mod_id;
 
-		if (!object) return false;
+		if (ck::ids::is_created_sid(sid)) {
+			if (const auto* created_obj = ck::registry::created::get(lua_id)) {
+				mod_id = created_obj->meta.mod_id;
+			}
+		}
+
+		else if (ck::ids::is_modified_sid(sid)) {
+			if (const auto* modified_obj = ck::registry::modified::get(lua_id)) {
+				mod_id = modified_obj->meta.mod_id;
+			}
+		}
+
+		if (mod_id.empty()) {
+			log.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
+			return false;
+		}
 
 		fallout::Script* script = script_get_dummy(sid);
 
@@ -78,7 +93,7 @@ namespace ck {
 
 		// void* source_ptr = script->source;
 
-		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, object->meta.mod_id.c_str());
+		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, mod_id.c_str());
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;

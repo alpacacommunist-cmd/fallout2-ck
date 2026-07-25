@@ -9,22 +9,27 @@
   --     int       rotation;
   -- } CkObjectFFI;
 
-local ffi    = require('ffi')
-local Object = require('ck.fallout2.classes.object')
+local ffi     = require('ffi')
+local Object  = require('ck.fallout2.classes.object')
+local Critter = require('ck.fallout2.classes.critter')
 
 ffi.metatype("CkObjectFFI", {
   __index = {
 
-    hijack = function(self)
-      local current_mod = ffi.C.ck_get_current_mod_id()
-
-      return Object.hijack_existing(self.c_ptr, self.pid, current_mod)
-    end,
-
     on = function(self, event_name, callback)
-      local managed_obj = self:hijack()
+      local id     = ffi.C.ck_registry_modify_object(self.c_ptr)
+      local mod_id = ffi.C.ck_get_current_mod_id()
 
-      return managed_obj:on(event_name, callback)
+      local config = { name = 'object_id: ' .. tostring(self.id), description = 'test' }
+
+      local object
+      if self:is_critter() then
+        object = Critter.new(id, config, config.name, mod_id)
+      else
+        object = Object.new(id, config, mod_id)
+      end
+
+      return object:on(event_name, callback)
     end,
 
     is_critter = function(self)

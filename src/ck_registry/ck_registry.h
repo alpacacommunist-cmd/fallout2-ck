@@ -83,5 +83,6 @@ namespace ck::registry {
 }
 
 CK_API void ck_registry_clear();
+CK_API int  ck_registry_modify_object(void* ptr);
 
 #endif

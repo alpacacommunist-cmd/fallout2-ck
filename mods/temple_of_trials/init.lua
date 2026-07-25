@@ -82,8 +82,8 @@ events.on('onMapEnter', function()
   log.warn(klint_snapshot:is_critter())
 
   klint_snapshot:on('talk', function(self)
-    self:float_message('Че хочешь?', 1)
-    return true;
+    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self.id), 2)
+    -- self:float_message('hi ' .. tostring(self.id), 2)
   end)
 
   local asset = assets.resolve('temple_of_trials:scenery/tree10')
