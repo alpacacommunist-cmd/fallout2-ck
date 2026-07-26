@@ -58,7 +58,7 @@ function Object:_handle_proc(proc_id, fixed_param)
     if result ~= nil then return result end
   end
 
-  -- default behavior
+  -- defaults
   if event_name == "look_at" then
     if self.name then
       monitor.print(self.name)

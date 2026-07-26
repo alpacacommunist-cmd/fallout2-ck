@@ -33,6 +33,8 @@ ffi.cdef[[
   } CkObjectFFI;
 
   int ck_registry_modify_object(void* ptr);
+  int ck_registry_restore_modified_object(void* ptr);
+
   int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
   int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
 

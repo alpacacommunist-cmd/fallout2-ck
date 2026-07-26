@@ -17,6 +17,10 @@ local Critter = require('ck.fallout2.classes.critter')
 ffi.metatype("CkObjectFFI", {
   __index = {
 
+    restore = function(self)
+      return ffi.C.ck_registry_restore_modified_object(self.c_ptr)
+    end,
+
     on = function(self, event_name, callback)
       local id     = ffi.C.ck_registry_modify_object(self.c_ptr)
       local mod_id = ffi.C.ck_get_current_mod_id()
