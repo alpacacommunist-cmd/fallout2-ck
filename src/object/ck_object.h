@@ -23,6 +23,7 @@ struct CkObjectFFI {
     int       elevation;
     int       flags;
     int       rotation;
+	int       lua_id;
 };
 
 namespace ck::object {
@@ -43,9 +44,12 @@ void ck_object_remove_blocker_at(int tile);
 void ck_object_create_blocker_at(int tile);
 
 CK_API void ck_object_remove_at(int tile);
+
 CK_API int ck_object_get_tile(int lua_id);
 CK_API int ck_object_get_sid(int lua_id);
 CK_API void* ck_object_get_ptr(int lua_id);
+
 CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
+CK_API int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
 
 #endif

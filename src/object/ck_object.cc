@@ -41,11 +41,41 @@ namespace ck::object {
 			buffer[count].flags     = obj->flags;
 			buffer[count].rotation  = obj->rotation;
 
+			buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
+
 			count++;
 			obj = fallout::objectFindNextAtLocation();
 		}
 		return count;
 	}
+
+	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
+        int count = 0;
+        int current_elev = fallout::gElevation;
+
+        fallout::Object* obj = fallout::objectFindFirstAtElevation(current_elev);
+
+        while (obj != nullptr && count < max_count) {
+            if (obj->pid == pid) {
+                buffer[count].c_ptr     = static_cast<void*>(obj);
+                buffer[count].id        = obj->id;
+                buffer[count].pid       = obj->pid;
+                buffer[count].sid       = obj->sid;
+                buffer[count].tile      = obj->tile;
+                buffer[count].elevation = obj->elevation;
+                buffer[count].flags     = obj->flags;
+                buffer[count].rotation  = obj->rotation;
+
+                buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
+
+                count++;
+            }
+
+            obj = fallout::objectFindNextAtElevation();
+        }
+
+        return count;
+    }
 }
 
 bool ck_object_blocking(int tile) {
@@ -124,4 +154,8 @@ int ck_object_get_tile(int lua_id) {
 
 int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
 	return ck::object::find_at_tile(tile, buffer, max_count);
+}
+
+int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
+    return ck::object::find_by_pid(pid, buffer, max_count);
 }

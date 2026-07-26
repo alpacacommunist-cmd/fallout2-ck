@@ -7,6 +7,7 @@
   --     int       elevation;
   --     int       flags;
   --     int       rotation;
+  --     int       lua_id;
   -- } CkObjectFFI;
 
 local ffi     = require('ffi')

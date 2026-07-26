@@ -1,6 +1,7 @@
 -- ck/fallout2/map/init.lua
-local ffi = require("ffi")
-require('ck.fallout2.classes.object_ffi')
+local ffi        = require("ffi")
+local objects    = require('ck.fallout2.objects')
+local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local map  = {
   geometry  = require('ck.fallout2.map.geometry'),
@@ -69,6 +70,26 @@ function map.find_at_tile(tile)
       end
     }
   })
+end
+
+function map.find_by_pid(pid, max_count)
+  max_count    = max_count or 32
+  local buffer = ffi.new("CkObjectFFI[?]", max_count)
+
+  local count = ffi.C.ck_object_find_by_pid(pid, buffer, max_count)
+  local results = {}
+
+  for i = 0, count - 1 do
+    local item = buffer[i]
+
+    if item.lua_id ~= -1 and objects.registry[item.lua_id] then
+      table.insert(results, objects.registry[item.lua_id])
+    else
+      table.insert(results, item)
+    end
+  end
+
+  return results
 end
 
 function map.place(value, tile, config)
