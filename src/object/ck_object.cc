@@ -44,8 +44,10 @@ namespace ck::object {
 			buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
 
 			count++;
+			log.info("found obj id: {}", obj->id);
 			obj = fallout::objectFindNextAtLocation();
 		}
+
 		return count;
 	}
 
@@ -68,6 +70,7 @@ namespace ck::object {
 
                 buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
 
+				log.info("found obj id: {}", obj->id);
                 count++;
             }
 
@@ -150,6 +153,14 @@ int ck_object_get_tile(int lua_id) {
 	if (!object || !object->ptr) return -1;
 
 	return object->ptr->tile;
+}
+
+// fallout id
+int ck_object_get_id(int lua_id) {
+	fallout::Object* object = ck::registry::get_object(lua_id);
+	if (!object) return -1;
+
+	return object->id;
 }
 
 int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {

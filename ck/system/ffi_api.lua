@@ -71,6 +71,7 @@ ffi.cdef[[
   int  ck_critter_set_full_hp(void* ptr);
 
   // --- Object Base ---
+  int ck_object_get_id(int lua_id);
   int ck_object_get_tile(int lua_id);
   int ck_object_get_sid(int lua_id);
   void* ck_object_get_ptr(int lua_id);

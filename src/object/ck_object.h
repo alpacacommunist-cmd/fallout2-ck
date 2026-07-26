@@ -15,15 +15,15 @@ const int BLOCKER_FID=0x02000015;
 struct LuaMeta;
 
 struct CkObjectFFI {
-    void*     c_ptr;
-    int       id;
-    int       pid;
-    int       sid;
-    int       tile;
-    int       elevation;
-    int       flags;
-    int       rotation;
-	int       lua_id;
+    void*     c_ptr = nullptr;
+    int       id        = 0;
+    int       pid       = 0;
+    int       sid       = -1;
+    int       tile      = -1;
+    int       elevation = 0;
+    int       flags     = 0;
+    int       rotation  = 0;
+	int       lua_id    = -1;
 };
 
 namespace ck::object {
@@ -45,6 +45,7 @@ void ck_object_create_blocker_at(int tile);
 
 CK_API void ck_object_remove_at(int tile);
 
+CK_API int ck_object_get_id(int lua_id);
 CK_API int ck_object_get_tile(int lua_id);
 CK_API int ck_object_get_sid(int lua_id);
 CK_API void* ck_object_get_ptr(int lua_id);

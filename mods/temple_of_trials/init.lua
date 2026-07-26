@@ -82,13 +82,18 @@ events.on('onMapEnter', function()
   local klint = found_objects[1]
   log.warn(klint.pid)
   log.warn(klint:is_critter())
+  log.warn("lua id: " .. tostring(klint.lua_id))
 
   klint:on('talk', function(self)
-    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self.id), 1)
+    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
+  end)
+  klint:on('push', function(self)
+    self:float_message('denied', 1)
+    return true
   end)
 
-  local orig_klint_sid = klint:restore()
-  log.warn(orig_klint_sid)
+  -- local orig_klint_sid = klint:restore()
+  -- log.warn(orig_klint_sid)
   -- klint:on('push', function(self)
   --   self:float_message('Denied', 2)
   -- end)

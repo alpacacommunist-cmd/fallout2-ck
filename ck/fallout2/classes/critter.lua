@@ -74,7 +74,7 @@ function Critter:set_behavior(behavior_fn, ...)
 end
 
 function Critter:float_message(text, type)
-  ffi.C.ck_critter_float_msg(self.id, text, type)
+  ffi.C.ck_critter_float_msg(self.lua_id, text, type)
 end
 
 function Critter:is_busy()
@@ -128,7 +128,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
   if not event_name then return false end
 
   if event_name == "combat" then
-    log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
+    log.info(string.format("combat npc: %d, fixed_param: %d", self.lua_id, fixed_param))
 
     if fixed_param == 5 then
       return false
@@ -136,15 +136,15 @@ function Critter:_handle_proc(proc_id, fixed_param)
 
     if fixed_param == 4 then
       self.in_combat = true
-      ffi.C.ck_critter_process_turn(self.c_ptr, self.id)
+      ffi.C.ck_critter_process_turn(self.c_ptr, self.lua_id)
     end
 
     return true
 
   elseif event_name == "talk" then
-    if not dialogue.is_registered(self.id) then return end
+    if not dialogue.is_registered(self.lua_id) then return end
 
-    dialogue.start(self.id)
+    dialogue.start(self.lua_id)
     self:clear_animations():emit('dialogue_finished')
 
     return true

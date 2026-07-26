@@ -11,20 +11,20 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(id, config, mod_id)
+function Object.new(lua_id, config, mod_id)
   local self = setmetatable({}, Object)
 
-  self.id          = id
+  self.lua_id      = lua_id
   self.mod_id      = mod_id
-  self.sid         = ffi.C.ck_object_get_sid(id)
-  self.c_ptr       = ffi.C.ck_object_get_ptr(id)
+  self.sid         = ffi.C.ck_object_get_sid(self.lua_id)
+  self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
 
   self.name        = config.name
   self.description = config.description
 
   self.handlers = {}
 
-  objects.registry[id] = self
+  objects.registry[lua_id] = self
 
   return self
 end
@@ -74,13 +74,13 @@ function Object:_handle_proc(proc_id, fixed_param)
     end
 
   elseif event_name == "damage" then
-    log.info('damaged object: ' .. tostring(self.id))
+    log.info('damaged object: ' .. tostring(self.lua_id))
 
     return false
 
   elseif event_name == "destroy" then
-    log.info('Object destroyed: ' .. tostring(self.id))
-    -- ffi.C.ck_critter_kill(self.id)
+    log.info('Object destroyed: ' .. tostring(self.lua_id))
+    -- ffi.C.ck_critter_kill(self.lua_id)
     --
     return false
   end
@@ -88,8 +88,16 @@ function Object:_handle_proc(proc_id, fixed_param)
   return false
 end
 
+function Object:restore()
+  return ffi.C.ck_registry_restore_modified_object(self.c_ptr)
+end
+
+function Object:id()
+  return ffi.C.ck_object_get_id(self.lua_id)
+end
+
 function Object:tile()
-  return ffi.C.ck_object_get_tile(self.id)
+  return ffi.C.ck_object_get_tile(self.lua_id)
 end
 
 function Object:give_item(item_pid, count)
