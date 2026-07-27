@@ -61,7 +61,7 @@ function Object:_handle_proc(proc_id, fixed_param)
   -- defaults
   if event_name == "look_at" then
     if self.name then
-      monitor.print(self.name)
+      monitor.print(ck_t('you_see', self.name))
 
       return true
     end

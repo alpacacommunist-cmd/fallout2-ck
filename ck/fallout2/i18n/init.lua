@@ -1,4 +1,6 @@
 -- ck/fallout2/i18n.lua
+local i18n_system = require('ck.fallout2.i18n.system')
+
 local LANGUAGE_MAP = {
   english = "en",
   russian = "ru",
@@ -91,5 +93,23 @@ function ckSetLanguage(lang)
 
   log.info("System language: " .. lang .. " -> Mapped to: " .. i18n.language)
 end
+
+-- system
+i18n.cache["__ck_system__"] = i18n_system.translations
+function _ck_t(key, ...)
+  local core_cache = i18n.cache["__ck_system__"]
+  if not core_cache then return key end
+
+  local lang_table = core_cache[i18n.language] or core_cache["en"]
+  local text = lang_table[key] or key
+
+  if select("#", ...) > 0 then
+    return string.format(text, ...)
+  end
+
+  return text
+end
+
+_G.ck_t = _ck_t
 
 return i18n
