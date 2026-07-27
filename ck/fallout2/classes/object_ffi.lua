@@ -30,27 +30,19 @@ ffi.metatype("CkObjectFFI", {
         return bit.rshift(self.pid, 24) == 1
       end,
 
-      on = function(self, event_name, callback)
-        if self.lua_id == -1 then
-          self.lua_id = ffi.C.ck_registry_modify_object(self.c_ptr)
-        end
+      bind = function(self)
+        if self.lua_id ~= -1 then return objects.registry[self.lua_id] end
 
-        local mod_id = ffi.C.ck_get_current_mod_id()
+        self.lua_id  = ffi.C.ck_registry_modify_object(self.c_ptr)
         local object = objects.registry[self.lua_id]
 
         if not object then
-          local config = { name = 'object_id: ' .. tostring(self.lua_id), description = 'test' }
-          local Object  = require('ck.fallout2.classes.object')
-          local Critter = require('ck.fallout2.classes.critter')
-
           if self:is_critter() then
-            object = Critter.new(self.lua_id, config, config.name, mod_id)
+            object = Critter.new(self.lua_id, { name = ffi.string(self.name) }, ffi.string(self.name), self.mod_id)
           else
-            object = Object.new(self.lua_id, config, mod_id)
+            object = Object.new(self.lua_id, {}, self.mod_id)
           end
         end
-
-        object:on(event_name, callback)
 
         return object
       end

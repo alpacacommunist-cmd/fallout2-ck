@@ -79,10 +79,12 @@ events.on('onMapEnter', function()
   -- local klint = map.find_at_tile(21101):find_by_pid(16777219)
 
   local found_objects = map.find_by_pid(16777219)
-  local klint = found_objects[1]
-  log.warn(klint.pid)
-  log.warn(klint:is_critter())
-  log.warn("lua id: " .. tostring(klint.lua_id))
+  local klint_obj = found_objects[1]
+  log.warn(klint_obj.pid)
+  log.warn(klint_obj:is_critter())
+  log.warn("lua id: " .. tostring(klint_obj.lua_id))
+
+  local klint = klint_obj:bind()
 
   klint:on('talk', function(self)
     self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)

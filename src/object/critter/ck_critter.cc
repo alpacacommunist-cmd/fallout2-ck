@@ -128,20 +128,10 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
 	fallout::Rect rect;
 	std::string converted = utf8_to_cp1251(text);
 
-	// wrap fix, temporary
-	static std::vector<std::vector<char>> string_pool(32);
-	static size_t pool_index = 0;
+	std::vector<char> safe_buffer(converted.size() + 5, '\0');
+	std::memcpy(safe_buffer.data(), converted.c_str(), converted.size());
 
-	size_t safe_size = converted.size() + 64;
-	auto& buffer = string_pool[pool_index];
-	buffer.assign(safe_size, '\0');
-
-	std::memcpy(buffer.data(), converted.c_str(), converted.size());
-
-	char* safe_text_ptr = buffer.data();
-
-	pool_index = (pool_index + 1) % 32;
-	// wrap fix, temporary end
+	char* safe_text_ptr = safe_buffer.data();
 
 	if (fallout::textObjectAdd(obj, safe_text_ptr, font, color, background_color, &rect) != -1) {
 		fallout::tileWindowRefreshRect(&rect, obj->elevation);

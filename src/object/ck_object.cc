@@ -27,7 +27,10 @@ namespace {
 		destination.flags     = source->flags;
 		destination.rotation  = source->rotation;
 
+		destination.name      = fallout::objectGetName(source);
+
 		destination.lua_id    = ck::registry::find_by_ptr(source);
+		destination.mod_id    = ck_get_current_mod_id();
 	}
 }
 
@@ -128,34 +131,32 @@ void ck_object_remove_at(int tile) {
 	ck::object::remove_at(tile);
 }
 
-int ck_object_get_sid(int lua_id) {
-	const CkCreatedObject* object = ck::registry::created::get(lua_id);
-
-	if (!object || !object->ptr) return -1;
-	if (!ck::ids::is_ck_sid(ck::ids::clean_sid(object->ptr->sid))) return -1;
-
-	return ck::ids::clean_sid(object->ptr->sid);
-}
-
 void* ck_object_get_ptr(int lua_id) {
-	const CkCreatedObject* object = ck::registry::created::get(lua_id);
+	fallout::Object* object = ck::registry::get_object(lua_id);
+
 	if (!object) return nullptr;
-	return static_cast<void*>(object->ptr);
-}
-
-int ck_object_get_tile(int lua_id) {
-	const CkCreatedObject* object = ck::registry::created::get(lua_id);
-	if (!object || !object->ptr) return -1;
-
-	return object->ptr->tile;
+	return object;
 }
 
 // fallout id
-int ck_object_get_id(int lua_id) {
-	fallout::Object* object = ck::registry::get_object(lua_id);
-	if (!object) return -1;
-
+int ck_object_get_id(void* ptr) {
+	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
 	return object->id;
+}
+
+int ck_object_get_tile(void* ptr) {
+	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+	return object->tile;
+}
+
+int ck_object_get_sid(void* ptr) {
+	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+	return object->tile;
+}
+
+char* ck_object_get_name(void* ptr) {
+	if (!ptr) return nullptr; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+	return fallout::objectGetName(object);
 }
 
 int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {

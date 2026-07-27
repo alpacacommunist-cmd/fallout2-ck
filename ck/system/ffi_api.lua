@@ -29,7 +29,11 @@ ffi.cdef[[
       int       elevation;
       int       flags;
       int       rotation;
-      int       lua_id;
+
+      const char* name;
+
+      int         lua_id;
+      const char* mod_id;
   } CkObjectFFI;
 
   int ck_registry_modify_object(void* ptr);
@@ -71,10 +75,11 @@ ffi.cdef[[
   int  ck_critter_set_full_hp(void* ptr);
 
   // --- Object Base ---
-  int ck_object_get_id(int lua_id);
-  int ck_object_get_tile(int lua_id);
-  int ck_object_get_sid(int lua_id);
   void* ck_object_get_ptr(int lua_id);
+  int ck_object_get_id(void* c_ptr);
+  int ck_object_get_tile(void* c_ptr);
+  int ck_object_get_sid(void* c_ptr);
+  char* ck_object_get_name(void* ptr);
 
   // --- Stats metadata ---
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));

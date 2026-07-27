@@ -16,8 +16,8 @@ function Object.new(lua_id, config, mod_id)
 
   self.lua_id      = lua_id
   self.mod_id      = mod_id
-  self.sid         = ffi.C.ck_object_get_sid(self.lua_id)
   self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
+  self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
 
   self.name        = config.name
   self.description = config.description
@@ -93,11 +93,15 @@ function Object:restore()
 end
 
 function Object:id()
-  return ffi.C.ck_object_get_id(self.lua_id)
+  return ffi.C.ck_object_get_id(self.c_ptr)
 end
 
 function Object:tile()
-  return ffi.C.ck_object_get_tile(self.lua_id)
+  return ffi.C.ck_object_get_tile(self.c_ptr)
+end
+
+function Object:name()
+  return ffi.string(ffi.C.ck_object_get_name(self.c_ptr))
 end
 
 function Object:give_item(item_pid, count)
