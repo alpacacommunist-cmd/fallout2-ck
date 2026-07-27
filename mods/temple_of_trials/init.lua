@@ -34,12 +34,12 @@ events.on('onModReload', function()
 end)
 
 events.on('onGameLoaded', function()
-  -- log.info(player.stats.strength)
-  -- log.info(player.stats.intelligence)
-  -- log.info(player.gender)
-  -- log.info(player.level)
-  --
-  -- log.info('small_guns: ' .. tostring(player.skills.small_guns))
+  log.info(player.stats.strength)
+  log.info(player.stats.intelligence)
+  log.info(player.gender)
+  log.info(player.level)
+
+  log.info('small_guns: ' .. tostring(player.skills.small_guns))
 
   -- player.set_base_stat('perception', 8)
   -- player.set_base_stat('strength', 8)
