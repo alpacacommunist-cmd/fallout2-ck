@@ -50,19 +50,19 @@ namespace ck {
 
 		int new_base = proto->critter.data.skills[skill] + value;
 
-		return critter_set_skill(critter, skill, new_base);
+		return critter_set_skill(critter, static_cast<fallout::Skill>(skill), new_base);
 	}
 
 	int player_skill(int skill) {
-		return fallout::skillGetValue(fallout::gDude, skill);
+		return fallout::skillGetValue(fallout::gDude, static_cast<fallout::Skill>(skill));
 	}
 
 	int player_set_skill(int skill, int value) {
-		return critter_set_skill(fallout::gDude, skill, value);
+		return critter_set_skill(fallout::gDude, static_cast<fallout::Skill>(skill), value);
 	}
 
 	int player_add_skill(int skill, int value) {
-		return critter_add_skill(fallout::gDude, skill, value);
+		return critter_add_skill(fallout::gDude, static_cast<fallout::Skill>(skill), value);
 	}
 }
 

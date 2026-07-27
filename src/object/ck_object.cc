@@ -1,9 +1,9 @@
 #include "ck_ids.h"
 #include "object/ck_object.h"
 #include "object/ck_item.h"
+#include "ck_registry/ck_registry.h"
 
-#include "tile.h"
-#include "proto.h"
+#include "object.h"
 
 #include "ck_log.h"
 static const Logger log("CK Object");
@@ -13,6 +13,24 @@ static fallout::Object* ck_object_blocker_at(int tile) {
 }
 
 namespace ck::object {
+
+namespace {
+	void build_ffi_struct(CkObjectFFI& destination, fallout::Object* source) {
+		if (!source) return;
+
+		destination.c_ptr     = static_cast<void*>(source);
+		destination.id        = source->id;
+		destination.pid       = source->pid;
+		destination.sid       = source->sid;
+		destination.tile      = source->tile;
+		destination.elevation = source->elevation;
+		destination.flags     = source->flags;
+		destination.rotation  = source->rotation;
+
+		destination.lua_id    = ck::registry::find_by_ptr(source);
+	}
+}
+
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
 		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -28,57 +46,34 @@ namespace ck::object {
 	}
 
 	int find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
-		int count = 0, current_elev = fallout::gElevation;
+		int count = 0, elevation = fallout::gElevation;
 
-		fallout::Object* obj = fallout::objectFindFirstAtLocation(current_elev, tile);
-		while (obj != nullptr && count < max_count) {
-			buffer[count].c_ptr     = static_cast<void*>(obj);
-			buffer[count].id        = obj->id;
-			buffer[count].pid       = obj->pid;
-			buffer[count].sid       = obj->sid;
-			buffer[count].tile      = obj->tile;
-			buffer[count].elevation = obj->elevation;
-			buffer[count].flags     = obj->flags;
-			buffer[count].rotation  = obj->rotation;
+        fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
+        while (object != nullptr && count < max_count) {
+            build_ffi_struct(buffer[count], object);
 
-			buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
+            count++;
+            object = fallout::objectFindNextAtLocation();
+        }
 
-			count++;
-			log.info("found obj id: {}", obj->id);
-			obj = fallout::objectFindNextAtLocation();
+        return count;
+	}
+
+	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
+		int count = 0, elevation = fallout::gElevation;
+
+		fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
+		while (object != nullptr && count < max_count) {
+			if (object->pid == pid) {
+				build_ffi_struct(buffer[count], object);
+				count++;
+			}
+
+			object = fallout::objectFindNextAtElevation();
 		}
 
 		return count;
 	}
-
-	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
-        int count = 0;
-        int current_elev = fallout::gElevation;
-
-        fallout::Object* obj = fallout::objectFindFirstAtElevation(current_elev);
-
-        while (obj != nullptr && count < max_count) {
-            if (obj->pid == pid) {
-                buffer[count].c_ptr     = static_cast<void*>(obj);
-                buffer[count].id        = obj->id;
-                buffer[count].pid       = obj->pid;
-                buffer[count].sid       = obj->sid;
-                buffer[count].tile      = obj->tile;
-                buffer[count].elevation = obj->elevation;
-                buffer[count].flags     = obj->flags;
-                buffer[count].rotation  = obj->rotation;
-
-                buffer[count].lua_id    = ck::registry::find_by_ptr(obj);
-
-				log.info("found obj id: {}", obj->id);
-                count++;
-            }
-
-            obj = fallout::objectFindNextAtElevation();
-        }
-
-        return count;
-    }
 }
 
 bool ck_object_blocking(int tile) {

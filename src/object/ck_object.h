@@ -3,11 +3,11 @@
 #define CK_OBJECT_H
 
 #include "ck_api.h"
-#include "geometry/geometry.h"
-#include "ck_registry/ck_registry.h"
 
 namespace fallout {
 	struct Object;
+
+	extern int gElevation;
 }
 
 const int BLOCKER_PID=0x2000158;  // dummy collision object

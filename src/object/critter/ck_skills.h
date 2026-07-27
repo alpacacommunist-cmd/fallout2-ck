@@ -8,10 +8,11 @@ extern "C" const char* ck_get_current_mod_id();
 namespace fallout {
     struct Object;
 	struct Attack;
+	enum Skill : int;
 
 	extern Object* gDude;
 
-	int skillGetValue(Object* critter, int skill);
+	int skillGetValue(Object* critter, Skill skill);
 	int critterGetStat(Object* critter, int stat);
 	bool dudeIsSneaking();
 	bool dudeHasState(int state);
