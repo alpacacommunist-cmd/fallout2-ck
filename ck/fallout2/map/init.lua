@@ -60,16 +60,7 @@ function map.find_at_tile(tile)
     table.insert(result, copy)
   end
 
-  return setmetatable(result, {
-    __index = {
-      find_by_pid = function(t, target_pid)
-        for _, obj in ipairs(t) do
-          if obj.pid == target_pid then return obj end
-        end
-        return nil
-      end
-    }
-  })
+  return setmetatable(result, ffi_object.collection)
 end
 
 function map.find_by_pid(pid, max_count)

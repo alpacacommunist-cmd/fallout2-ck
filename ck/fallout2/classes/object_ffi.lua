@@ -8,12 +8,27 @@
   --     int       flags;
   --     int       rotation;
   --     int       lua_id;
+  --     const char* mod_id;
+	--     const char* name;
   -- } CkObjectFFI;
 
 local ffi     = require('ffi')
 local Object  = require('ck.fallout2.classes.object')
 local Critter = require('ck.fallout2.classes.critter')
 local objects = require('ck.fallout2.objects')
+
+object_ffi = {}
+
+object_ffi.collection = {
+  __index = {
+    find_by_pid = function(t, target_pid)
+      for _, obj in ipairs(t) do
+        if obj.pid == target_pid then return obj end
+      end
+      return nil
+    end
+  }
+}
 
 ffi.metatype("CkObjectFFI", {
   __index = function(self, key)
@@ -51,3 +66,5 @@ ffi.metatype("CkObjectFFI", {
     return methods[key]
   end
 })
+
+return object_ffi
