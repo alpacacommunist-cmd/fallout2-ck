@@ -8,6 +8,8 @@
 
 extern "C" { int ck_critter_get_max_hp(void* ptr); }
 
+int ck_map_get_floor_fid(int tile, int elevation);
+
 namespace fallout {
     struct Object;
 	extern int gElevation;

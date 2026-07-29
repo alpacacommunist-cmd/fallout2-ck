@@ -26,13 +26,17 @@ namespace ck {
 }
 
 namespace fallout {
-	int mapGetCurrentMap();
+	int  mapGetCurrentMap();
 	bool _combat_reload_map();
+
+	// tile.h
+	int squareTileFromTile(int tile);
 
 	extern int* gMapLocalVars;
 	extern int  gMapLocalVarsLength;
 }
 
+int  ck_map_get_floor_fid(int tile, int elevation);
 void ck_map_add_scenery(const std::string& key, int tile);
 void ck_map_add_scenery(int fid, int tile);
 
