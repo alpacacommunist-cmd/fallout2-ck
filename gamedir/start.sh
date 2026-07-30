@@ -1,7 +1,10 @@
 #!/bin/bash
 
-MODE="${1:-debug}"
-shift
+MODE="debug"
+if [ "$1" = "release" ] || [ "$1" = "debug" ]; then
+    MODE="$1"
+    shift
+fi
 
 if [ "$MODE" = "release" ]; then
     BUILD_DIR="../build-release"
