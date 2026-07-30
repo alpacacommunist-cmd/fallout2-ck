@@ -72,8 +72,29 @@ static const luaL_Reg CK_GLOBAL_FUNCTIONS[] = {
 
 // Init
 
-void ck_scripting_init() {
+static bool is_test_mode           = false;
+static std::string test_suite_name = std::string();
+
+static int    g_game_argc = 0;
+static char** g_game_argv = nullptr;
+void ck_scripting_init(int argc, char** argv) {
     log.info("Initializing LuaJIT backend...");
+
+    g_game_argc = argc; g_game_argv = argv;
+
+    for (int index = 1; index < g_game_argc; index++) {
+        std::string arg = g_game_argv[index];
+        if (arg == "--test" || arg == "--integration-tests") {
+            is_test_mode = true;
+
+            if (index + 1 < g_game_argc) test_suite_name = g_game_argv[index + 1];
+            break;
+        }
+    }
+
+    if (is_test_mode) {
+        log.info("LAUNCHING IN INTEGRATION TEST MODE: {}", test_suite_name);
+    }
 
     gLuaState = luaL_newstate();
     if (!gLuaState) {

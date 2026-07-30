@@ -23,7 +23,7 @@ namespace fallout {
 void ck_map_clear_camera_borders();
 
 void ck_reload_mods();
-void ck_scripting_init();
+void ck_scripting_init(int argc, char** argv);
 void ck_scripting_exit();
 
 void ck_scripting_on_object_destroyed(fallout::Object* object);

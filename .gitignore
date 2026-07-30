@@ -5,6 +5,7 @@
 
 /gamedir/**
 !/gamedir/README
+!/gamedir/start.sh
 
 assets/
 maps/
