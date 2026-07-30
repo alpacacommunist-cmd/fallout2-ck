@@ -1,0 +1,3 @@
+return {
+  "natural_growth"
+}

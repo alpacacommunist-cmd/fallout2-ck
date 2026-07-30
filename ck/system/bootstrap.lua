@@ -16,12 +16,12 @@ local loader = require('ck.system.loader')
 _G["ckBootstrapMods"] = function()
   log.info("Bootstrapping active mods...")
 
-  local active_mods = {
-    "game_time_extender",
-    "arroyo_expanded",
-    "temple_of_trials",
-    "natural_growth"
-  }
+  local success_load, active_mods = pcall(require, "mods")
+
+  if not success_load or type(active_mods) ~= "table" then
+    log.error("Failed to load mods.lua config! Please ensure gamedir/mods.lua exists and returns a table.")
+    active_mods = {}
+  end
 
   for _, mod_id in ipairs(active_mods) do
     local success = ffi.C.ck_dispatcher_load_mod(mod_id)

@@ -1,14 +1,19 @@
 /build-debug/
 /build-release/
+/backups/
 
 /ck_registry.json
 
 /gamedir/**
 !/gamedir/README
 !/gamedir/start.sh
+!/gamedir/test.sh
 
-assets/
-maps/
+mods/*/assets/
+mods/*/maps/
+
+tests_env/SAVEGAME/**
+!tests_env/SAVEGAME/slotdat.ini
 
 *.o
 *.a
