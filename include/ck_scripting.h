@@ -17,6 +17,10 @@ namespace fallout {
 	void tileWindowRefresh();
 	void animationStop();
 	void displayMonitorAddMessage(const char* str);
+
+	void mainMenuWindowFree();
+
+	int  ck_load_game_slot(int slot);
 }
 
 
@@ -38,16 +42,6 @@ void ck_scripting_on_before_game_save();
 void ck_scripting_on_game_save(const char* path);
 
 int ck_get_config_int(const char* key, int default_value);
-
-void ck_scripting_register_location(
-		const std::string& name,
-		const std::string& mapFile,
-		const std::string& music,
-		int worldX, int worldY,
-		const std::string& size,
-		int entranceX, int entranceY, int entranceTile
-);
-
 
 CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
 

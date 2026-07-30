@@ -182,6 +182,10 @@ void ck_scripting_on_engine_ready() {
 	ck_scripting_set_language();
     log.debug("ck_scripting_on_engine_ready");
 
+    if (is_test_mode) {
+		fallout::settings.ui.skip_opening_movies = 1;
+	}
+
 #ifdef USE_PROTO_CACHE
 	gProtoCache.initialize("build/proto_cache.db");
 #else
