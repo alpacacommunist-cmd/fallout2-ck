@@ -54,8 +54,6 @@ events.on('onMapEnter', function()
   log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))
 
   alice
-    :on('look_at', function(self) monitor.print(self.name) end)
-    :on('description', function(self) monitor.print(self.description) end)
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
   state.track(alice, { save_interval_seconds = 5 })
@@ -64,16 +62,6 @@ events.on('onMapEnter', function()
 
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)
-
-  alice:on('dialogue_finished', function(self)
-    log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
-
-    if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
-      quests.set("erlang_refactoring", quests.status.ACTIVE)
-
-      log.info("Accepted quest!")
-    end
-  end)
 
   alice:on('push', function(self)
     self:float_message('denied', 1)
@@ -97,5 +85,15 @@ events.on('onMapEnter', function()
   villager1:set_hp(1)
 
   local alice_dialogue = require('.dialogs').alice_nodes
-  dialogue.register(alice.id, alice_dialogue)
+  dialogue.register(alice.lua_id, alice_dialogue)
+
+  alice:on('dialogue_finished', function(self)
+    log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
+
+    if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
+      quests.set("erlang_refactoring", quests.status.ACTIVE)
+
+      log.info("Accepted quest!")
+    end
+  end)
 end)

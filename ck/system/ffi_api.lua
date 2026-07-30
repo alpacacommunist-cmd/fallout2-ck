@@ -16,6 +16,7 @@ ffi.cdef[[
 
   // --- Tests ---
   const char* ck_testing_get_current_suite();
+  void ck_testing_set_current_suite(const char* name);
 
   // --- State ---
   bool ck_state_load(const char* path);

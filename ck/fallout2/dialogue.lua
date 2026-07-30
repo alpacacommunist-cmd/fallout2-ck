@@ -11,6 +11,9 @@ ck.dialogue.init_ui      = C.ck_dialog_init_ui
 ck.dialogue.close_ui     = C.ck_dialog_close_ui
 
 local dialogue = {
+  -- npc_id -> dialog function
+  registry = {},
+
   reactions = { GOOD = 49, NEUTRAL = 50, BAD = 51 }
 }
 
@@ -30,20 +33,17 @@ end
 
 local log = ck.log.new('CK Dialogue')
 
--- npc_id -> dialog function
-local registry = {}
-
 function dialogue.register(npc_id, fn_or_nodes)
-  registry[npc_id] = fn_or_nodes
+  dialogue.registry[npc_id] = fn_or_nodes
   log.info("Registered dialogue for npc: " .. tostring(npc_id))
 end
 
 function dialogue.clear_dialogs()
-  registry = {}
+  dialogue.registry = {}
   log.info("Cleared dialogues registry")
 end
 
-function dialogue.is_registered(npc_id) return registry[npc_id] ~= nil end
+function dialogue.is_registered(npc_id) return dialogue.registry[npc_id] ~= nil end
 
 function dialogue.say(text)
   dialogue.set_reply(text)
@@ -118,7 +118,7 @@ local function run_node_dialogue(npc_id, nodes)
 end
 
 function dialogue.start(npc_id)
-  local target = registry[npc_id]
+  local target = dialogue.registry[npc_id]
 
   if not target then
     log.error("No dialogue registered for npc: " .. tostring(npc_id))

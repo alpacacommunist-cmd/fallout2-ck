@@ -11,7 +11,7 @@ local events = {
     'onDayPassed', 'onHourPassed', 'onTimeAdvance',
     'onBeforeGameLoad', 'onGameLoaded',
     'onDialogStart', 'skill_used',
-    'onMapEnter'
+    'onMapEnter', 'onMapUpdate'
   },
 
   listeners = {},
@@ -76,6 +76,8 @@ function events.on_map_update(ticks)
   end
 
   state.update_tracked_objects(ticks)
+
+  events.emit('onMapUpdate', ticks)
 end
 
 function events.on_proc(lua_id, proc_id, fixed_param)

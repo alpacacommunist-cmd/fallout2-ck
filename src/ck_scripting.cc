@@ -73,7 +73,7 @@ static const luaL_Reg CK_GLOBAL_FUNCTIONS[] = {
 // Init
 
 static bool is_test_mode           = false;
-static std::string test_suite_name = std::string();
+static std::string g_test_suite_name = std::string();
 
 static int    g_game_argc = 0;
 static char** g_game_argv = nullptr;
@@ -87,13 +87,13 @@ void ck_scripting_init(int argc, char** argv) {
         if (arg == "--test" || arg == "--integration-tests") {
             is_test_mode = true;
 
-            if (index + 1 < g_game_argc) test_suite_name = g_game_argv[index + 1];
+            if (index + 1 < g_game_argc) g_test_suite_name = g_game_argv[index + 1];
             break;
         }
     }
 
     if (is_test_mode) {
-        log.info("LAUNCHING IN INTEGRATION TEST MODE: {}", test_suite_name);
+        log.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
     }
 
     gLuaState = luaL_newstate();
@@ -233,5 +233,9 @@ void ck_scripting_load_game_slot(int slot) {
 }
 
 const char* ck_testing_get_current_suite() {
-    return test_suite_name.c_str();
+    return g_test_suite_name.c_str();
+}
+
+void ck_testing_set_current_suite(const char* name) {
+    g_test_suite_name = std::string(name);
 }
