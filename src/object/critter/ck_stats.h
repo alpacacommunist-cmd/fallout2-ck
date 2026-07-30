@@ -8,15 +8,18 @@ namespace fallout {
 	struct Object;
 	extern Object* gDude;
 
-	int critterGetStat(Object* critter, int stat);
-	int pcGetStat(int pcStat);
+	enum Stat : int;
+	enum PcStat : int;
+
+	int critterGetStat(Object* critter, Stat stat);
+	int pcGetStat(PcStat pcStat);
 
 	int critterGetHitPoints(Object* critter);
 	int critterAdjustHitPoints(Object* critter, int hp);
-	int critterSetBaseStat(Object* critter, int stat, int value);
+	int critterSetBaseStat(Object* critter, Stat stat, int value);
 
-	int critterGetBonusStat(Object* critter, int stat);
-	int critterSetBonusStat(Object* critter, int stat, int value);
+	int critterGetBonusStat(Object* critter, Stat stat);
+	int critterSetBonusStat(Object* critter, Stat stat, int value);
 }
 
 namespace ck {

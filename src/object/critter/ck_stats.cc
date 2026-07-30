@@ -28,26 +28,26 @@ static_assert(sizeof(g_stat_names) / sizeof(g_stat_names[0]) == fallout::STAT_CO
 
 namespace ck {
 	int critter_base_stat(fallout::Object* critter, int stat) {
-		return fallout::critterGetStat(critter, stat);
+		return fallout::critterGetStat(critter, static_cast<fallout::Stat>(stat));
 	}
 
 	int critter_set_base_stat(fallout::Object* critter, int stat, int value) {
-		return fallout::critterSetBaseStat(critter, stat, value);
+		return fallout::critterSetBaseStat(critter, static_cast<fallout::Stat>(stat), value);
 	}
 
 	int critter_bonus_stat(fallout::Object* critter, int stat) {
-		return fallout::critterGetBonusStat(critter, stat);
+		return fallout::critterGetBonusStat(critter, static_cast<fallout::Stat>(stat));
 	}
 
 	int critter_set_bonus_stat(fallout::Object* critter, int stat, int value) {
-		return fallout::critterSetBonusStat(critter, stat, value);
+		return fallout::critterSetBonusStat(critter, static_cast<fallout::Stat>(stat), value);
 	}
 
-	int critter_pc_stat(int stat) { return fallout::pcGetStat(stat); }
+	int critter_pc_stat(int stat) { return fallout::pcGetStat(static_cast<fallout::PcStat>(stat)); }
 	int critter_get_hp(fallout::Object* critter) { return fallout::critterGetHitPoints(critter); }
 
 	int critter_get_max_hp(fallout::Object* critter) {
-		return fallout::critterGetStat(critter, fallout::STAT_MAXIMUM_HIT_POINTS);
+		return fallout::critterGetStat(critter, static_cast<fallout::Stat>(fallout::STAT_MAXIMUM_HIT_POINTS));
 	}
 
 	int critter_adjust_hp(fallout::Object* critter, int target_hp) {
