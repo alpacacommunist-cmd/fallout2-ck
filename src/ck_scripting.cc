@@ -227,3 +227,11 @@ void ck_scripting_on_game_save(const char* path) {
 	ck::registry::deleted::hide();
 	ck::registry::modified::reapply_sids();
 }
+
+void ck_scripting_load_game_slot(int slot) {
+	fallout::ck_load_game_slot(slot);
+}
+
+const char* ck_testing_get_current_suite() {
+    return test_suite_name.c_str();
+}

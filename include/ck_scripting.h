@@ -44,5 +44,8 @@ void ck_scripting_on_game_save(const char* path);
 int ck_get_config_int(const char* key, int default_value);
 
 CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
+CK_API void ck_scripting_load_game_slot(int slot);
+
+CK_API const char* ck_testing_get_current_suite();
 
 #endif // CK_SCRIPTING_H

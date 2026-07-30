@@ -12,6 +12,11 @@ ffi.cdef[[
 
   const char* ck_get_current_mod_id();
 
+  void ck_scripting_load_game_slot(int slot);
+
+  // --- Tests ---
+  const char* ck_testing_get_current_suite();
+
   // --- State ---
   bool ck_state_load(const char* path);
   void ck_state_save(const char* path);

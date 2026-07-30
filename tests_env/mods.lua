@@ -1,3 +1,3 @@
 return {
-  "natural_growth"
+  "tests_base"
 }
