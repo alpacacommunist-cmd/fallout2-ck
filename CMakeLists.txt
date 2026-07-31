@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(fallout2-ck C CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(ExternalProject)
 set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
 set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")

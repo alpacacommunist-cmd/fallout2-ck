@@ -3,10 +3,6 @@
 
 #include "ck_api.h"
 
-#include <algorithm>
-#include <string>
-#include <vector>
-
 void ck_dispatcher_on_game_start();
 void ck_dispatcher_on_game_loaded();
 

@@ -34,3 +34,5 @@ tests_env/SAVEGAME/**
 !/src/vendor/picojson/README
 
 /.clang-format
+/.cache
+/compile_commands.json

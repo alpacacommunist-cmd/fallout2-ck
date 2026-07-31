@@ -3,6 +3,10 @@
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
 #include "ck_registry/ck_registry.h"
 
+#include <algorithm>
+#include <string>
+#include <vector>
+
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
 
@@ -121,13 +125,13 @@ bool ck_dispatcher_load_mod(const char* mod_id) {
 }
 
 const char* ck_get_current_mod_id() {
-	return g_current_mod_id;
+    return g_current_mod_id;
 }
 
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
-	if (!mod_id || !event_name) return;
+    if (!mod_id || !event_name) return;
 
-	ModContextGuard guard(mod_id);
-	ck::proxy::emit_for_mod(mod_id, event_name);
+    ModContextGuard guard(mod_id);
+    ck::proxy::emit_for_mod(mod_id, event_name);
 }
 

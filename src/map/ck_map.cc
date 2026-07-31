@@ -18,33 +18,33 @@ namespace fallout {
 }
 
 namespace ck {
-	void on_map_enter() {
-		ck_dispatcher_on_map_enter();
-		ck_rendering_refresh();
+    void on_map_enter() {
+        ck_dispatcher_on_map_enter();
+        ck_rendering_refresh();
 
-		if (ck_in_combat()) fallout::_combat_reload_map();
-	}
+        if (ck_in_combat()) fallout::_combat_reload_map();
+    }
 
-	void on_before_map_load() {
-		log.debug("on_before_map_load");
+    void on_before_map_load() {
+        log.debug("on_before_map_load");
 
-		ck::reset_dummy_script();
-		ck::registry::on_map_exit();
+        ck::reset_dummy_script();
+        ck::registry::on_map_exit();
 
-		ck_rendering_clear();
+        ck_rendering_clear();
 
-		if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
-	}
+        if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
+    }
 
-	int current_map_id() { return fallout::mapGetCurrentMap(); }
+    int current_map_id() { return fallout::mapGetCurrentMap(); }
 
-	bool map_has_camera_borders(int map_index) {
-		return ck::map::borders::has_borders_for_map(map_index);
-	}
+    bool map_has_camera_borders(int map_index) {
+        return ck::map::borders::has_borders_for_map(map_index);
+    }
 
-	bool map_is_camera_position_allowed(int tile) {
-		return ck::map::borders::is_camera_position_allowed(tile);
-	}
+    bool map_is_camera_position_allowed(int tile) {
+        return ck::map::borders::is_camera_position_allowed(tile);
+    }
 }
 
 int ck_map_get_floor_fid(int tile, int elevation) {
@@ -76,7 +76,7 @@ int get_roof_fid(int tile, int elevation) {
 }
 
 void ck_map_add_scenery(int fid, int tile) {
-	ck_rendering_add_scenery(fid, tile);
+    ck_rendering_add_scenery(fid, tile);
 }
 
 void ck_map_add_scenery(const std::string& key, int tile) {
@@ -84,7 +84,7 @@ void ck_map_add_scenery(const std::string& key, int tile) {
 }
 
 void ck_map_add_tile(int fid, int tile) {
-	ck_rendering_add_tile(fid, tile);
+    ck_rendering_add_tile(fid, tile);
 }
 
 void ck_map_add_tile(const std::string& key, int tile) {
@@ -94,11 +94,11 @@ void ck_map_add_tile(const std::string& key, int tile) {
 // ffi
 
 int ck_map_get_id() {
-	return ck::current_map_id();
+    return ck::current_map_id();
 }
 
 void ck_map_add_scenery_fid(int fid, int tile) {
-	ck_map_add_scenery(fid, tile);
+    ck_map_add_scenery(fid, tile);
 }
 
 void ck_map_add_scenery_key(const char* key, int tile) {
@@ -106,7 +106,7 @@ void ck_map_add_scenery_key(const char* key, int tile) {
 }
 
 void ck_map_add_tile_fid(int fid, int tile) {
-	ck_rendering_add_tile(fid, tile);
+    ck_rendering_add_tile(fid, tile);
 }
 
 void ck_map_add_tile_key(const char* key, int tile) {
@@ -119,30 +119,30 @@ void ck_map_create_object(int artId, int tile) {
 }
 
 void ck_map_create_object_fid(int fid, int tile) {
-	ck_object_create_at(fid, tile);
+    ck_object_create_at(fid, tile);
 }
 
 int ck_map_register_object(int artId, int tile) {
     int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-	const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
+    const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
 
     return ck_object_register_object_by_fid(fid, tile, meta);
 }
 
 int ck_map_create_blocker_at(int tile) {
-	const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
+    const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
 
     return ck_object_register_object(BLOCKER_PID, tile, meta);
 }
 
 int ck_map_get_mvar(int index) {
-	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return 0;
-	return fallout::gMapLocalVars[index];
+    if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return 0;
+    return fallout::gMapLocalVars[index];
 }
 
 void ck_map_set_mvar(int index, int value) {
-	if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return;
-	fallout::gMapLocalVars[index] = value;
+    if (fallout::gMapLocalVars == nullptr || index < 0 || index >= fallout::gMapLocalVarsLength) return;
+    fallout::gMapLocalVars[index] = value;
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
@@ -155,38 +155,38 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
-	if (count <= 0) return;
+    if (count <= 0) return;
 
-	gPersistentScenery.reserve(gPersistentScenery.size() + count);
+    gPersistentScenery.reserve(gPersistentScenery.size() + count);
 
-	for (int i = 0; i < count; ++i) {
-		const auto& src = sceneries[i];
+    for (int i = 0; i < count; ++i) {
+        const auto& src = sceneries[i];
 
-		CkSceneryInstance inst;
-		inst.tile = src.tile;
-		if (src.key != nullptr) inst.assetKey = src.key;
-		else inst.engineFid = src.fid;
+        CkSceneryInstance inst;
+        inst.tile = src.tile;
+        if (src.key != nullptr) inst.assetKey = src.key;
+        else inst.engineFid = src.fid;
 
-		gPersistentScenery.push_back(inst);
-	}
+        gPersistentScenery.push_back(inst);
+    }
 
-	std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),
-			  [](const CkSceneryInstance& a, const CkSceneryInstance& b) { return a.tile < b.tile; });
+    std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),
+              [](const CkSceneryInstance& a, const CkSceneryInstance& b) { return a.tile < b.tile; });
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
-    for (int i = 0; i < count; ++i) {
-        const auto& src = blockers[i];
+    for (int index = 0; index < count; ++index) {
+        const auto& src = blockers[index];
 
         if (src.tile != -1) ck_map_create_blocker_at(src.tile);
     }
 }
 
 void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
-    for (int i = 0; i < count; ++i) {
-        const auto& src = tiles[i];
+    for (int index = 0; index < count; ++index) {
+        const auto& src = tiles[index];
 
-		if (src.tile != -1) ck::object::remove_at(src.tile);
+        if (src.tile != -1) ck::object::remove_at(src.tile);
     }
 }
 
