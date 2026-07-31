@@ -20,6 +20,7 @@ function db.get_by_pid(pid)
   if ffi.C.ck_proto_get_by_pid(pid, info_ffi) then
     return parse_ffi_struct(info_ffi)
   end
+
   return nil
 end
 
@@ -29,6 +30,7 @@ function db.get_by_name(name, type)
   if ffi.C.ck_proto_get_by_name(name, type, info_ffi) then
     return parse_ffi_struct(info_ffi)
   end
+
   return nil
 end
 

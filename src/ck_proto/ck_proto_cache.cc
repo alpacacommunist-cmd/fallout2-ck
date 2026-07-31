@@ -129,7 +129,6 @@ bool CkProtoCache::buildFromEngine() {
         return false;
     }
 
-    // Собираем кэш по всем типам объектов
     for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
         int maxId = fallout::proto_max_id(type);
         if (maxId <= 1) continue;
@@ -164,8 +163,12 @@ bool CkProtoCache::buildFromEngine() {
                     msgItem.num = descMsgId;
                     if (fallout::messageListGetItem(&msgLists[type], &msgItem)) descStr = msgItem.text;
                 } else {
-                    msgItem.num = id;
-                    if (fallout::messageListGetItem(&msgLists[type], &msgItem)) nameStr = msgItem.text;
+                    int nameMsgId = id * 100;
+                    msgItem.num = nameMsgId;
+
+                    if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
+                        nameStr = msgItem.text;
+                    }
                     descStr = "";
                 }
             }

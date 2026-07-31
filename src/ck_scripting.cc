@@ -1,18 +1,15 @@
 #include <cstring>
-#include <algorithm>
 #include <format>
 
 #include "ck_scripting.h"
 #include "ck_utils.h"
 #include "ck_encoding.h"
 
-#include "ck_messages/ck_messages.h"
 
 #include "ck_registry/ck_registry.h"
 
-#include "ck_assets/ck_frm.h"
 #include "ck_assets/ck_asset_registry.h"
-#include "ck_assets/ck_proto_cache.h"
+#include "ck_proto/ck_proto_cache.h"
 
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
