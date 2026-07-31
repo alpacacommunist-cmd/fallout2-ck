@@ -1,78 +1,100 @@
 #include "ck_proto_cache.h"
-
-#ifdef USE_PROTO_CACHE
 #include "ck_proto_schema.h"
 #include "sqlite3.h"
-#include <iostream>
-#include <algorithm>
-#include <cstdio>
-
 #include "proto.h"
 #include "message.h"
+
+#include <algorithm>
+#include <cstdio>
+#include <format>
+
+#include "ck_log.h"
+static const Logger log("CK Scripting");
 
 CkProtoCache gProtoCache;
 
 CkProtoCache::CkProtoCache() : db(nullptr) {}
 
 CkProtoCache::~CkProtoCache() {
-	if (db) {
-		sqlite3_close(db);
-	}
+    if (db) {
+        sqlite3_close(db);
+    }
 }
 
 bool CkProtoCache::initialize(const std::string& cachePath) {
-	if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr) == SQLITE_OK) {
+    bool fileExists = false;
 
-		sqlite3_stmt* stmt = nullptr;
-		int currentFileVoid = 0;
+    if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr) == SQLITE_OK) {
+        fileExists = true;
+        sqlite3_stmt* stmt = nullptr;
+        int currentFileVoid = 0;
 
-		if (sqlite3_prepare_v2(db, "PRAGMA user_version;", -1, &stmt, nullptr) == SQLITE_OK) {
-			if (sqlite3_step(stmt) == SQLITE_ROW) {
-				currentFileVoid = sqlite3_column_int(stmt, 0);
-			}
-		}
-		sqlite3_finalize(stmt);
+        if (sqlite3_prepare_v2(db, "PRAGMA user_version;", -1, &stmt, nullptr) == SQLITE_OK) {
+            if (sqlite3_step(stmt) == SQLITE_ROW) {
+                currentFileVoid = sqlite3_column_int(stmt, 0);
+            }
+        }
+        sqlite3_finalize(stmt);
 
-		if (currentFileVoid == CK_PROTO_DB_VERSION) {
-			std::cout << "[CK Proto Cache] DB version matches (" << CK_PROTO_DB_VERSION
-				<< "). Cache loaded successfully." << std::endl;
-			return true;
-		}
+        if (currentFileVoid == CK_PROTO_DB_VERSION) {
+            log.info("DB version matches ({}). Cache loaded successfully.", CK_PROTO_DB_VERSION);
+            return true;
+        }
 
-		std::cout << "[CK Proto Cache] DB version mismatch (File: " << currentFileVoid
-			<< ", Code: " << CK_PROTO_DB_VERSION << "). Rebuilding..." << std::endl;
+        log.warn("DB version mismatch (File: {}, Code: {}). Rebuilding...", currentFileVoid, CK_PROTO_DB_VERSION);
 
-		sqlite3_close(db);
-		db = nullptr;
+        sqlite3_close(db);
+        db = nullptr;
+        std::remove(cachePath.c_str());
+    } else {
+        if (db) {
+            sqlite3_close(db);
+            db = nullptr;
+        }
+    }
 
-		std::remove(cachePath.c_str());
-	}
-
-	return buildFromEngine(cachePath);
-}
-
-bool CkProtoCache::createTables() {
-	char* errMsg = nullptr;
-
-	if (sqlite3_exec(db, CK_PROTO_SCHEMA_SQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-		std::cerr << "[CK SQL Error] Failed to create tables: " << errMsg << std::endl;
-		sqlite3_free(errMsg);
-		return false;
-	}
-
-	std::string versionSql = "PRAGMA user_version = " + std::to_string(CK_PROTO_DB_VERSION) + ";";
-	sqlite3_exec(db, versionSql.c_str(), nullptr, nullptr, nullptr);
-
-	return true;
-}
-
-bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
     if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK) {
-        std::cerr << "[CK SQL Error] Cannot create database file: " << cachePath << std::endl;
+        log.error("Failed to create cache file at: {}", cachePath);
+        if (db) {
+            sqlite3_close(db);
+            db = nullptr;
+        }
         return false;
     }
 
-    if (!createTables()) return false;
+	if (!createTables()) {
+		return false;
+	}
+
+    return buildFromEngine();
+}
+
+bool CkProtoCache::createTables() {
+    char* errMsg = nullptr;
+
+    if (sqlite3_exec(db, CK_PROTO_SCHEMA_SQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        log.error("Failed to create tables: {}", errMsg ? errMsg : "Unknown SQL error");
+        if (errMsg) {
+            sqlite3_free(errMsg);
+        }
+        return false;
+    }
+
+    const char* const indexNameSql = "CREATE INDEX IF NOT EXISTS idx_protos_fid ON protos(fid);";
+    const char* const indexTypeSql = "CREATE INDEX IF NOT EXISTS idx_protos_pid ON protos(pid);";
+
+    sqlite3_exec(db, indexNameSql, nullptr, nullptr, nullptr);
+    sqlite3_exec(db, indexTypeSql, nullptr, nullptr, nullptr);
+
+    std::string versionSql = std::format("PRAGMA user_version = {};", CK_PROTO_DB_VERSION);
+    sqlite3_exec(db, versionSql.c_str(), nullptr, nullptr, nullptr);
+
+    return true;
+}
+
+bool CkProtoCache::buildFromEngine() {
+    sqlite3_exec(db, "PRAGMA synchronous = OFF;", nullptr, nullptr, nullptr);
+    sqlite3_exec(db, "PRAGMA journal_mode = MEMORY;", nullptr, nullptr, nullptr);
 
     fallout::MessageList msgLists[fallout::OBJ_TYPE_COUNT];
     bool msgListLoaded[fallout::OBJ_TYPE_COUNT] = { false };
@@ -85,61 +107,32 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
         std::string fullMsgPath = "game\\" + std::string(filename);
         if (fallout::messageListLoad(&msgLists[type], const_cast<char*>(fullMsgPath.c_str()))) {
             msgListLoaded[type] = true;
-            std::cout << "[CK Proto Cache] Successfully loaded text base: " << filename << " for Type: " << type << std::endl;
+            log.info("Successfully loaded text base: {} for type {}", filename, type);
         } else {
-            std::cerr << "[CK MSG WARNING] Failed to load msg file: " << fullMsgPath << std::endl;
+            log.error("Failed to load msg file: {}", fullMsgPath);
         }
     };
 
-// --- File: fallout2-ce/src/obj_types.h ---
-// 17 | enum ObjectType {
-// 18 |     OBJ_TYPE_ITEM,
-// 19 |     OBJ_TYPE_CRITTER,
-// 20 |     OBJ_TYPE_SCENERY,
-// 21 |     OBJ_TYPE_WALL,
-// 22 |     OBJ_TYPE_TILE,
-// 23 |     OBJ_TYPE_MISC,
-// 24 |     OBJ_TYPE_INTERFACE,
-// 25 |     OBJ_TYPE_INVENTORY,
-// 26 |     OBJ_TYPE_HEAD,
-// 27 |     OBJ_TYPE_BACKGROUND,
-// 28 |     OBJ_TYPE_SKILLDEX,
-// 29 |     OBJ_TYPE_COUNT,
-// 30 | };
-//
-// ls data/text/english/game/*
-// data/text/english/game/CMBATAI2.BAK  data/text/english/game/LSGAME.MSG    data/text/english/game/PROTO.MSG
-// data/text/english/game/CMBATAI2.msg  data/text/english/game/MAP.MSG       data/text/english/game/pro_wall.msg
-// data/text/english/game/COMBATAI.BAK  data/text/english/game/MISC.MSG      data/text/english/game/quests.msg
-// data/text/english/game/COMBATAI.MSG  data/text/english/game/OPTIONS.MSG   data/text/english/game/SCRIPT.MSG
-// data/text/english/game/COMBAT.MSG    data/text/english/game/PERK.MSG      data/text/english/game/scrname.msg
-// data/text/english/game/custom.msg    data/text/english/game/PIPBOY.MSG    data/text/english/game/SKILLDEX.MSG
-// data/text/english/game/DBOX.MSG      data/text/english/game/pro_crit.msg  data/text/english/game/SKILL.MSG
-// data/text/english/game/EDITOR.MSG    data/text/english/game/pro_item.msg  data/text/english/game/STAT.MSG
-// data/text/english/game/INTRFACE.MSG  data/text/english/game/pro_misc.msg  data/text/english/game/TRAIT.MSG
-// data/text/english/game/INVENTRY.MSG  data/text/english/game/pro_scen.msg  data/text/english/game/WORLDMAP.MSG
-// data/text/english/game/ITEM.MSG      data/text/english/game/pro_tile.msg  data/text/english/game/WORLDMP.MSG
-
-
-    loadMsg(fallout::OBJ_TYPE_ITEM,      "pro_item.msg"); // 0
-    loadMsg(fallout::OBJ_TYPE_CRITTER,   "pro_crit.msg"); // 1
-    loadMsg(fallout::OBJ_TYPE_SCENERY,   "pro_scen.msg"); // 2
-    loadMsg(fallout::OBJ_TYPE_WALL,      "pro_wall.msg"); // 3
-    loadMsg(fallout::OBJ_TYPE_TILE,      "pro_tile.msg"); // 4
-    loadMsg(fallout::OBJ_TYPE_MISC,      "pro_misc.msg"); // 5
+    loadMsg(fallout::OBJ_TYPE_ITEM,      "pro_item.msg");
+    loadMsg(fallout::OBJ_TYPE_CRITTER,   "pro_crit.msg");
+    loadMsg(fallout::OBJ_TYPE_SCENERY,   "pro_scen.msg");
+    loadMsg(fallout::OBJ_TYPE_WALL,      "pro_wall.msg");
+    loadMsg(fallout::OBJ_TYPE_TILE,      "pro_tile.msg");
+    loadMsg(fallout::OBJ_TYPE_MISC,      "pro_misc.msg");
 
     sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
 
-	const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, sid, name, filename, description) VALUES (?, ?, ?, ?, ?, ?, ?);";
+    const char* insertSql = "INSERT OR REPLACE INTO protos (pid, fid, type, sid, name, filename, description) VALUES (?, ?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(db, insertSql, -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "[CK SQL Error] Failed to prepare insert statement" << std::endl;
+        log.error("Failed to prepare insert statement");
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
         for (int i = 0; i < fallout::OBJ_TYPE_COUNT; i++) fallout::messageListFree(&msgLists[i]);
         return false;
     }
 
+    // Собираем кэш по всем типам объектов
     for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
         int maxId = fallout::proto_max_id(type);
         if (maxId <= 1) continue;
@@ -153,10 +146,9 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
             }
 
             int fid = proto->fid;
+            int sid = proto->sid;
 
-            char textBuf[32];
-            snprintf(textBuf, sizeof(textBuf), "%08d.pro", id);
-            std::string filenameStr(textBuf);
+            std::string filenameStr = std::format("{:08d}.pro", id);
 
             std::string nameStr = "";
             std::string descStr = "";
@@ -164,35 +156,35 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
             if (msgListLoaded[type]) {
                 fallout::MessageListItem msgItem;
 
-				int msgIndex = id - 1;
-                // name = 100 + (id * 100), desc = 101 + (id * 2)
-                int nameMsgId = 100 + (msgIndex * 100);
-                msgItem.num = nameMsgId;
-                if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
-                    nameStr = msgItem.text;
-                }
+                if (type == fallout::OBJ_TYPE_ITEM || type == fallout::OBJ_TYPE_CRITTER || type == fallout::OBJ_TYPE_SCENERY) {
+                    int msgIndex = id - 1;
 
-                int descMsgId = 100 + (msgIndex * 100) + 1;
-                msgItem.num = descMsgId;
-                if (fallout::messageListGetItem(&msgLists[type], &msgItem)) {
-                    descStr = msgItem.text;
+                    int nameMsgId = 100 + (msgIndex * 100);
+                    msgItem.num = nameMsgId;
+                    if (fallout::messageListGetItem(&msgLists[type], &msgItem)) nameStr = msgItem.text;
+
+                    int descMsgId = nameMsgId + 1;
+                    msgItem.num = descMsgId;
+                    if (fallout::messageListGetItem(&msgLists[type], &msgItem)) descStr = msgItem.text;
+                } else {
+                    msgItem.num = id;
+                    if (fallout::messageListGetItem(&msgLists[type], &msgItem)) nameStr = msgItem.text;
+                    descStr = "";
                 }
             }
 
-			// no text in MSG
             if (nameStr.empty()) {
-                nameStr = "Proto_" + std::to_string(type) + "_" + std::to_string(id);
+                nameStr = std::format("Proto_{}_{}", type, id);
             }
-
-			int sid = proto->sid;
 
             sqlite3_bind_int(stmt, 1, pid);
             sqlite3_bind_int(stmt, 2, fid);
             sqlite3_bind_int(stmt, 3, type);
             sqlite3_bind_int(stmt, 4, sid);
-            sqlite3_bind_text(stmt, 5, nameStr.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 6, filenameStr.c_str(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 7, descStr.c_str(), -1, SQLITE_TRANSIENT);
+
+            sqlite3_bind_text(stmt, 5, nameStr.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 6, filenameStr.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 7, descStr.c_str(), -1, SQLITE_STATIC);
 
             sqlite3_step(stmt);
             sqlite3_reset(stmt);
@@ -206,7 +198,7 @@ bool CkProtoCache::buildFromEngine(const std::string& cachePath) {
         fallout::messageListFree(&msgLists[i]);
     }
 
-    std::cout << "[CK Proto Cache] Database cache successfully built" << std::endl;
+    log.info("Database cache successfully built");
     return true;
 }
 
@@ -289,4 +281,3 @@ std::vector<CkProtoInfo> CkProtoCache::getByType(int type) const {
 	sqlite3_finalize(stmt);
 	return results;
 }
-#endif // USE_PROTO_CACHE

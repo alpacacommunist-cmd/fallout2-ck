@@ -2,8 +2,6 @@
 #define CK_PROTO_CACHE_H
 
 #include <string>
-
-#ifdef USE_PROTO_CACHE
 #include <vector>
 
 struct CkProtoInfo {
@@ -33,11 +31,10 @@ public:
 private:
     sqlite3* db = nullptr;
 
-    bool buildFromEngine(const std::string& cachePath);
+    bool buildFromEngine();
     bool createTables();
 };
 
 extern CkProtoCache gProtoCache;
-#endif // USE_PROTO_CACHE
 
 #endif

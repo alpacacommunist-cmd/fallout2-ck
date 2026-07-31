@@ -186,11 +186,7 @@ void ck_scripting_on_engine_ready() {
 		fallout::settings.ui.skip_opening_movies = 1;
 	}
 
-#ifdef USE_PROTO_CACHE
 	gProtoCache.initialize("build/proto_cache.db");
-#else
-	log.debug("Proto Cache is disabled in this build");
-#endif
 }
 
 void ck_scripting_on_object_destroyed(fallout::Object* object) {

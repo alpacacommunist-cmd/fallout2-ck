@@ -15,8 +15,6 @@ ExternalProject_Add(luajit_project
     BUILD_BYPRODUCTS "${LUAJIT_LIB}"
 )
 
-option(ENABLE_PROTO_CACHE "Enable SQLite3-based proto cache and GUI features" OFF)
-
 add_subdirectory(fallout2-ce)
 
 add_library(fallout2-ck STATIC
@@ -77,25 +75,25 @@ target_include_directories(fallout2-ck PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src/"
 )
 
-if(ENABLE_PROTO_CACHE)
-	target_sources(fallout2-ck PRIVATE
-		src/vendor/sqlite3/sqlite3.c
-		src/ck_assets/ck_proto_cache.cc
-	)
+# sqlite
+target_sources(fallout2-ck PRIVATE
+	src/vendor/sqlite3/sqlite3.c
+	src/ck_assets/ck_proto_cache.cc
+)
 
-	target_include_directories(fallout2-ck PUBLIC
-		"${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
-	)
+target_include_directories(fallout2-ck PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
+)
 
-	target_compile_definitions(fallout2-ck PRIVATE USE_PROTO_CACHE)
-	target_link_libraries(fallout2-ck PUBLIC pthread)
+target_compile_definitions(fallout2-ck PRIVATE USE_PROTO_CACHE)
+target_link_libraries(fallout2-ck PUBLIC pthread)
 
-	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-		set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
-	elseif(MSVC)
-		set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "/W0")
-	endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+	set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
+elseif(MSVC)
+	set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "/W0")
 endif()
+# sqlite end
 
 target_link_libraries(fallout2-ck PUBLIC 
     ${LUAJIT_LIB}
