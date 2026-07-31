@@ -45,6 +45,10 @@ add_library(fallout2-ck STATIC
     src/ck_registry/ck_registry_deleted.cc
     src/ck_registry/ck_registry_modified.cc
 
+    src/vendor/sqlite3/sqlite3.c
+    src/ck_proto/ck_proto_cache.cc
+    src/ck_proto/ck_proto_ffi.cc
+
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
 
@@ -64,42 +68,29 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_overlay_render.cc
     src/ck_debug_overlay/ck_debug_object_format.cc
 )
-target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 
+target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
 
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/"
-    "${LUAJIT_INCLUDE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
+    "${LUAJIT_INCLUDE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src/"
 )
 
-# sqlite
-target_sources(fallout2-ck PRIVATE
-	src/vendor/sqlite3/sqlite3.c
-	src/ck_assets/ck_proto_cache.cc
-	src/ck_assets/ck_proto_ffi.cc
-)
-
-target_include_directories(fallout2-ck PUBLIC
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
-)
-
-target_compile_definitions(fallout2-ck PRIVATE USE_PROTO_CACHE)
-target_link_libraries(fallout2-ck PUBLIC pthread)
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
+    set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
 elseif(MSVC)
-	set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "/W0")
+    set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "/W0")
 endif()
-# sqlite end
 
 target_link_libraries(fallout2-ck PUBLIC 
     ${LUAJIT_LIB}
+    pthread
     dl
 )
 
@@ -112,8 +103,7 @@ foreach(TARGET fallout2-ce mapper-ce)
         target_sources(${TARGET} PRIVATE ${CE_BRIDGE_SOURCES})
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
         target_link_libraries(${TARGET} fallout2-ck)
-
-	set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE) # ffi
+        set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE) # Для работы LuaJIT FFI
     endif()
 endforeach()
 
