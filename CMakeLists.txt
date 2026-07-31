@@ -81,6 +81,7 @@ target_include_directories(fallout2-ck PUBLIC
 target_sources(fallout2-ck PRIVATE
 	src/vendor/sqlite3/sqlite3.c
 	src/ck_assets/ck_proto_cache.cc
+	src/ck_assets/ck_proto_ffi.cc
 )
 
 target_include_directories(fallout2-ck PUBLIC

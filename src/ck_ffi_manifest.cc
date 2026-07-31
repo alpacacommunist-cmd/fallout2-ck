@@ -1,4 +1,6 @@
 extern "C" {
+    bool ck_proto_get_by_pid(...);
+
 	int ck_inventory_count(...);
 
     int player_stat(...);
@@ -9,6 +11,8 @@ extern "C" {
 }
 
 static void* const volatile ck_ffi_exports[] = {
+    (void*)&ck_proto_get_by_pid,
+
     (void*)&ck_inventory_count,
 
     (void*)&player_stat,

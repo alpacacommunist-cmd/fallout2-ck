@@ -4,7 +4,6 @@
 #include "proto.h"
 #include "message.h"
 
-#include <algorithm>
 #include <cstdio>
 #include <format>
 
@@ -62,9 +61,7 @@ bool CkProtoCache::initialize(const std::string& cachePath) {
         return false;
     }
 
-	if (!createTables()) {
-		return false;
-	}
+	if (!createTables()) return false;
 
     return buildFromEngine();
 }
@@ -202,82 +199,3 @@ bool CkProtoCache::buildFromEngine() {
     return true;
 }
 
-CkProtoInfo CkProtoCache::getByPid(int pid) const {
-	CkProtoInfo info;
-	if (!db) return info;
-
-	const char* sql = "SELECT pid, fid, type, name, filename, description FROM protos WHERE pid = ?;";
-	sqlite3_stmt* stmt = nullptr;
-
-	if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
-		sqlite3_bind_int(stmt, 1, pid);
-
-		if (sqlite3_step(stmt) == SQLITE_ROW) {
-			info.pid = sqlite3_column_int(stmt, 0);
-			info.fid = sqlite3_column_int(stmt, 1);
-			info.type = sqlite3_column_int(stmt, 2);
-			info.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-			info.filename = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
-			info.description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
-		}
-	}
-	sqlite3_finalize(stmt);
-	return info;
-}
-
-CkProtoInfo CkProtoCache::getByName(const std::string& name, int type) const {
-	CkProtoInfo info;
-	if (!db) return info;
-
-	// if type not specified (-1), search by name, otherwise filter by type
-	std::string sql = "SELECT pid, fid, type, name, filename, description FROM protos WHERE name = ?";
-	if (type != -1) {
-		sql += " AND type = ?;";
-	} else {
-		sql += ";";
-	}
-
-	sqlite3_stmt* stmt = nullptr;
-	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
-		sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
-		if (type != -1) {
-			sqlite3_bind_int(stmt, 2, type);
-		}
-
-		if (sqlite3_step(stmt) == SQLITE_ROW) {
-			info.pid = sqlite3_column_int(stmt, 0);
-			info.fid = sqlite3_column_int(stmt, 1);
-			info.type = sqlite3_column_int(stmt, 2);
-			info.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-			info.filename = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
-			info.description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
-		}
-	}
-	sqlite3_finalize(stmt);
-	return info;
-}
-
-std::vector<CkProtoInfo> CkProtoCache::getByType(int type) const {
-	std::vector<CkProtoInfo> results;
-	if (!db) return results;
-
-	const char* sql = "SELECT pid, fid, type, name, filename, description FROM protos WHERE type = ?;";
-	sqlite3_stmt* stmt = nullptr;
-
-	if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
-		sqlite3_bind_int(stmt, 1, type);
-
-		while (sqlite3_step(stmt) == SQLITE_ROW) {
-			CkProtoInfo info;
-			info.pid = sqlite3_column_int(stmt, 0);
-			info.fid = sqlite3_column_int(stmt, 1);
-			info.type = sqlite3_column_int(stmt, 2);
-			info.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
-			info.filename = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
-			info.description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
-			results.push_back(info);
-		}
-	}
-	sqlite3_finalize(stmt);
-	return results;
-}

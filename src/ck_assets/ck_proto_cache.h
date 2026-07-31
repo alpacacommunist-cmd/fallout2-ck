@@ -2,7 +2,6 @@
 #define CK_PROTO_CACHE_H
 
 #include <string>
-#include <vector>
 
 struct CkProtoInfo {
     int pid = -1;
@@ -21,12 +20,7 @@ public:
     ~CkProtoCache();
 
     bool initialize(const std::string& cachePath);
-
-    CkProtoInfo getByName(const std::string& name, int type = -1) const;
-
-    CkProtoInfo getByPid(int pid) const;
-
-    std::vector<CkProtoInfo> getByType(int type) const;
+    struct sqlite3* get_db_handle() const { return db; }
 
 private:
     sqlite3* db = nullptr;

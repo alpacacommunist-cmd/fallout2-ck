@@ -18,6 +18,22 @@ ffi.cdef[[
   const char* ck_testing_get_current_suite();
   void ck_testing_set_current_suite(const char* name);
 
+  // --- Proto ---
+  typedef struct {
+    int pid;
+    int fid;
+    int type;
+    int sid;
+
+    const char* name;
+    const char* filename;
+    const char* description;
+  } CkProtoInfoFFI;
+
+  bool ck_proto_get_by_pid(int pid, CkProtoInfoFFI* out_info);
+  bool ck_proto_get_by_name(const char* name, int type, CkProtoInfoFFI* out_info);
+  int ck_proto_get_by_type(int type, CkProtoInfoFFI* out_array, int max_count);
+
   // --- State ---
   bool ck_state_load(const char* path);
   void ck_state_save(const char* path);
