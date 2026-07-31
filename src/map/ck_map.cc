@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "ck_rendering.h"
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
@@ -153,11 +155,25 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
-    for (int i = 0; i < count; ++i) {
-        const auto& src = sceneries[i];
-        if (src.key != nullptr) ck_rendering_add_custom_scenery(src.key, src.tile);
-        else ck_map_add_scenery(src.fid, src.tile);
-    }
+	if (count <= 0) return;
+
+	gPersistentScenery.reserve(gPersistentScenery.size() + count);
+
+	for (int i = 0; i < count; ++i) {
+		const auto& src = sceneries[i];
+
+		CkSceneryInstance inst;
+		inst.tile = src.tile;
+		if (src.key != nullptr) inst.assetKey = src.key;
+		else inst.engineFid = src.fid;
+
+		gPersistentScenery.push_back(inst);
+	}
+
+	std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),
+		[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
+			return a.tile < b.tile;
+		});
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {

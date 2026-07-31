@@ -1,4 +1,5 @@
 #include <unordered_map>
+#include <algorithm>
 
 #include "art.h"
 #include "debug.h"
@@ -10,6 +11,9 @@
 #include "ck_assets/ck_asset_registry.h"
 
 extern CkAssetRegistry gAssetRegistry;
+
+std::vector<CkSceneryInstance> gPersistentScenery;
+std::vector<CkTileInstance> gPersistentTiles;
 
 struct CachedArt {
     fallout::Art* art = nullptr;
@@ -52,17 +56,27 @@ void ck_rendering_clear_art_cache() {
 }
 
 void ck_rendering_add_scenery(int fid, int tile) {
-    CkSceneryInstance inst;
-    inst.tile      = tile;
-    inst.engineFid = fid;
-    gPersistentScenery.push_back(inst);
+    CkSceneryInstance instance;
+    instance.tile      = tile;
+    instance.engineFid = fid;
+
+	auto it = std::upper_bound(gPersistentScenery.begin(), gPersistentScenery.end(), instance,
+	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
+		return a.tile < b.tile;
+	});
+    gPersistentScenery.insert(it, instance);
 }
 
 void ck_rendering_add_custom_scenery(const std::string& key, int tile) {
-    CkSceneryInstance inst;
-    inst.tile     = tile;
-    inst.assetKey = key;
-    gPersistentScenery.push_back(inst);
+    CkSceneryInstance instance;
+    instance.tile     = tile;
+    instance.assetKey = key;
+
+	auto it = std::upper_bound(gPersistentScenery.begin(), gPersistentScenery.end(), instance,
+	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
+		return a.tile < b.tile;
+	});
+    gPersistentScenery.insert(it, instance);
 }
 
 void ck_rendering_add_tile(int fid, int tile) {
@@ -82,6 +96,9 @@ void ck_rendering_add_custom_tile(const std::string& key, int tile) {
 void ck_rendering_clear() {
 	gPersistentScenery.clear();
 	gPersistentTiles.clear();
+
+	gPersistentScenery.shrink_to_fit();
+	gPersistentTiles.shrink_to_fit();
 
 	ck_rendering_clear_art_cache();
 }

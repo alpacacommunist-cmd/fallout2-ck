@@ -27,8 +27,8 @@ struct CkTileInstance {
     bool isCustomAsset() const { return engineFid == -1; }
 };
 
-static std::vector<CkSceneryInstance> gPersistentScenery;
-static std::vector<CkTileInstance> gPersistentTiles;
+extern std::vector<CkSceneryInstance> gPersistentScenery;
+extern std::vector<CkTileInstance> gPersistentTiles;
 
 const std::vector<CkSceneryInstance>& ck_rendering_get_scenery();
 const std::vector<CkTileInstance>& ck_rendering_get_tiles();
