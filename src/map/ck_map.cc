@@ -171,16 +171,14 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
 	}
 
 	std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),
-		[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
-			return a.tile < b.tile;
-		});
+			  [](const CkSceneryInstance& a, const CkSceneryInstance& b) { return a.tile < b.tile; });
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = blockers[i];
 
-		if (src.tile != -1) ck_map_create_blocker_at(src.tile);
+        if (src.tile != -1) ck_map_create_blocker_at(src.tile);
     }
 }
 

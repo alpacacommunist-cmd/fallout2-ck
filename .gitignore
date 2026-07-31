@@ -32,3 +32,5 @@ tests_env/SAVEGAME/**
 !/src/vendor/luajit/README
 !/src/vendor/sqlite3/README
 !/src/vendor/picojson/README
+
+/.clang-format
