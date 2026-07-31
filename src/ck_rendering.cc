@@ -96,8 +96,8 @@ static void ck_rendering_scenery(fallout::Rect* rect);
 static void ck_rendering_tiles(fallout::Rect* rect);
 
 void ck_rendering_render(fallout::Rect* rect) {
-	ck_rendering_scenery(rect);
 	ck_rendering_tiles(rect);
+	ck_rendering_scenery(rect);
 }
 
 int ck_rendering_build_scenery_fid(int fid) {

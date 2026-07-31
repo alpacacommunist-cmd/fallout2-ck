@@ -96,7 +96,7 @@ int ck_map_get_id() {
 }
 
 void ck_map_add_scenery_fid(int fid, int tile) {
-	ck_rendering_add_scenery(fid, tile);
+	ck_map_add_scenery(fid, tile);
 }
 
 void ck_map_add_scenery_key(const char* key, int tile) {
@@ -156,7 +156,7 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = sceneries[i];
         if (src.key != nullptr) ck_rendering_add_custom_scenery(src.key, src.tile);
-        else ck_rendering_add_scenery(src.fid, src.tile);
+        else ck_map_add_scenery(src.fid, src.tile);
     }
 }
 

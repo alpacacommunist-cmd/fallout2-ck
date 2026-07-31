@@ -6,17 +6,16 @@ function tools.init(map_instance)
   map_ref = map_instance
 end
 
-function tools.spawn_brush(center_tile, radius, density, pool, config)
+local function generic_brush(center_tile, radius, density, apply_fn)
   local tiles = geometry.tiles_in_radius(center_tile, radius)
   for _, tile in ipairs(tiles) do
     if tile ~= center_tile and math.random() <= density then
-      local value = pool[math.random(#pool)]
-      map_ref.place(value, tile, config)
+      apply_fn(tile)
     end
   end
 end
 
-function tools.spawn_mask(anchor_tile, mask_table, mapping)
+local function generic_mask(anchor_tile, mask_table, mapping, apply_fn)
   local w = geometry.grid_width()
   local ax, ay = geometry.tile_to_xy(anchor_tile)
 
@@ -33,20 +32,62 @@ function tools.spawn_mask(anchor_tile, mask_table, mapping)
         local tile = geometry.xy_to_tile(tx, ty)
 
         if char == " " then
-          map_ref.remove_blocker(tile)
+          map_ref.physics.remove_blocker(tile)
         elseif mapping[char] then
-          local element = mapping[char]
-          local pool = element.assets or element.fids
-
-          if pool then
-            local value = pool[math.random(#pool)]
-            map_ref.place(value, tile, element)
-          end
+          apply_fn(tile, mapping[char])
         end
-
       end
     end
   end
+end
+
+tools.render = {}
+
+function tools.render.brush(center_tile, radius, density, pool, config)
+  config = config or {}
+  generic_brush(center_tile, radius, density, function(tile)
+    local asset = pool[math.random(#pool)]
+    if config.type == "tile" then
+      map_ref.render.tile(asset, tile)
+    else
+      map_ref.render.overlay(asset, tile)
+    end
+  end)
+end
+
+function tools.render.mask(anchor_tile, mask_table, mapping)
+  generic_mask(anchor_tile, mask_table, mapping, function(tile, element)
+    local pool = element.assets or element.fids
+    if pool then
+      local asset = pool[math.random(#pool)]
+      if element.type == "tile" then
+        map_ref.render.tile(asset, tile)
+      else
+        map_ref.render.overlay(asset, tile)
+      end
+    end
+
+    if element.block then map_ref.physics.create_blocker(tile) end
+  end)
+end
+
+tools.objects = {}
+
+function tools.objects.brush(center_tile, radius, density, pid_pool)
+  generic_brush(center_tile, radius, density, function(tile)
+    local pid = pid_pool[math.random(#pid_pool)]
+    map_ref.objects.create(pid, tile)
+  end)
+end
+
+function tools.objects.mask(anchor_tile, mask_table, mapping)
+  generic_mask(anchor_tile, mask_table, mapping, function(tile, element)
+    local pool = element.pids
+    if pool then
+      local pid = pool[math.random(#pool)]
+      map_ref.objects.create(pid, tile)
+    end
+  end)
 end
 
 return tools

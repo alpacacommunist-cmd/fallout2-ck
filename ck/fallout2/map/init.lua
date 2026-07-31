@@ -16,15 +16,36 @@ map.tools.init(map)
 map.get_var           = ffi.C.ck_map_get_mvar
 map.set_var           = ffi.C.ck_map_set_mvar
 map.get_id            = ffi.C.ck_map_get_id
-map.add_tile_fid      = ffi.C.ck_map_add_tile_fid
-map.add_tile_key      = ffi.C.ck_map_add_tile_key
-map.add_scenery_fid   = ffi.C.ck_map_add_scenery_fid
-map.add_scenery_key   = ffi.C.ck_map_add_scenery_key
-map.create_object     = ffi.C.ck_map_create_object
-map.create_object_fid = ffi.C.ck_map_create_object_fid
-map.create_blocker    = ffi.C.ck_map_create_blocker_at
-map.remove_blocker    = ffi.C.ck_object_remove_at
 map.rendering_refresh = ffi.C.ck_rendering_refresh
+
+map.physics = {
+  create_blocker = ffi.C.ck_map_create_blocker_at,
+  remove_blocker = ffi.C.ck_object_remove_at
+}
+
+map.objects = {}
+
+function map.objects.create(pid, tile)
+  ffi.C.ck_map_register_object(pid, tile)
+end
+
+map.render = {}
+
+function map.render.tile(value, tile)
+  if type(value) == "number" then
+    ffi.C.ck_map_add_tile_fid(value, tile)
+  else
+    ffi.C.ck_map_add_tile_key(value, tile)
+  end
+end
+
+function map.render.overlay(value, tile)
+  if type(value) == "number" then
+    ffi.C.ck_map_add_scenery_fid(value, tile)
+  else
+    ffi.C.ck_map_add_scenery_key(value, tile)
+  end
+end
 
 function map.register_borders(map_id, config)
   assert(map_id,  "map_id is required!")
@@ -41,10 +62,6 @@ function map.register_borders(map_id, config)
   data.bottom = config.bottom
 
   ffi.C.ck_map_set_camera_borders(map_id, data)
-end
-
-function map.register_object(value, tile)
-  ffi.C.ck_map_register_object(value, tile)
 end
 
 function map.find_at_tile(tile)
@@ -81,34 +98,6 @@ function map.find_by_pid(pid, max_count)
   end
 
   return results
-end
-
-function map.place(value, tile, config)
-  config = config or {}
-  local mode = config.mode or "place"
-
-  local asset = (type(value) == "string") and map.assets.resolve(value) or nil
-  local is_tile = (config.type == "tile") or (asset and asset.is_tile)
-
-  -- render
-  if mode == "draw" or is_tile then
-    if type(value) == "number" then
-      if is_tile then map.add_tile_fid(value, tile) else map.add_scenery_fid(value, tile) end
-    else
-      if is_tile then map.add_tile_key(value, tile) else map.add_scenery_key(value, tile) end
-    end
-  -- create_object
-  else
-    if type(value) == "number" then
-      map.register_object(value, tile)
-    elseif asset and asset.art_id then
-      map.register_object(asset.art_id, tile)
-    else
-      map.add_scenery_key(value, tile)
-    end
-  end
-
-  if config.block then map.create_blocker(tile) end
 end
 
 return map

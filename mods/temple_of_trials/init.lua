@@ -108,11 +108,11 @@ events.on('onMapEnter', function()
   map.batch.clear(outskirts.remove_blockers)
   map.batch.blockers(outskirts.create_blockers)
 
-  map.tools.spawn_brush(19472, 2, 0.3, {956, 957, 958}, { mode = "place" })
-  map.tools.spawn_brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
+  map.tools.render.brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
     { type = "tile" })
+  map.tools.render.brush(19472, 2, 0.3, {956, 957, 958})
 
-  map.tools.spawn_mask(17516, {
+  map.tools.render.mask(17516, {
     "M MMM  MM  M",
     "  MM   MMM  ",
     "   mm  mm   ",
@@ -123,5 +123,5 @@ events.on('onMapEnter', function()
     G = { assets = {"temple_of_trials:tiles/GRASS01"}, type = "tile" }
   })
 
-  map.place("temple_of_trials:scenery/tree10", 19094)
+  -- map.place("temple_of_trials:scenery/tree10", 19094)
 end)
