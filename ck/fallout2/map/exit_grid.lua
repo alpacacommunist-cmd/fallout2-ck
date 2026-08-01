@@ -87,7 +87,7 @@ function exit_grid.spawn_in_line(t1, t2, config, thickness)
   end
 
   for tile_to_spawn, _ in pairs(final_tiles) do
-    ffi.C.ck_landscape_create_exit_grid_at_tile(tile_to_spawn, final_pid, grid_data)
+    exit_grid.create_at_tile(tile_to_spawn, final_pid, grid_data)
   end
 end
 

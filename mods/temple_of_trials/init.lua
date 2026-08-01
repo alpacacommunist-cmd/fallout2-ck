@@ -54,6 +54,15 @@ events.on('onMapEnter', function()
   map.exit_grid.spawn_in_line(22551, 24758, {
     map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 2
 }, 2)
+  map.exit_grid.spawn_at_tile(16309, {
+    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
+  })
+  map.exit_grid.spawn_at_tile(15505, {
+    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 1
+  })
+  map.exit_grid.spawn_at_tile(14497, {
+    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 2
+  })
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
     name        = 'Ralph',

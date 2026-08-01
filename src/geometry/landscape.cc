@@ -40,8 +40,9 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
 }
 
 // FFI
-int ck_proto_first_exit_grid_pid() { return FIRST_EXIT_GRID_PID; }
-int ck_proto_last_exit_grid_pid()  { return LAST_EXIT_GRID_PID; }
+int ck_proto_first_exit_grid_pid()  { return FIRST_EXIT_GRID_PID; }
+int ck_proto_last_exit_grid_pid()   { return LAST_EXIT_GRID_PID; }
+int ck_proto_exit_grid_marker_pid() { return PROTO_ID_EXIT_GRID_MAP_MARKER; }
 
 void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom) {
     std::vector<int> tiles = { left, right, top, bottom };
