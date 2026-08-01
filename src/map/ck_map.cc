@@ -6,7 +6,6 @@
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 
-#include "obj_types.h"
 #include "map_defs.h"
 
 #include "ck_log.h"
@@ -155,7 +154,7 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
         CkSceneryInstance instance;
         instance.tile = src.tile;
         if (src.key != nullptr) instance.assetKey = src.key;
-        else instance.engineFid = src.fid;
+        else instance.fid = src.fid;
 
         gPersistentScenery.push_back(instance);
     }

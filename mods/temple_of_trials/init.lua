@@ -69,15 +69,15 @@ end)
 events.on('onMapEnter', function()
   if map.get_id() ~= 126 then return end
 
-  local db = require('ck.fallout2.db')
-
-  local proto = db.get_by_pid(16777221)
-  if proto then
-    log.info("proto name" .. proto.name)
-    log.info("proto filename" .. proto.filename)
-    log.info("description: " .. proto.description)
-    log.info("SID: " .. proto.sid)
-  end
+  -- local db = require('ck.fallout2.db')
+  --
+  -- local proto = db.get_by_pid(16777221)
+  -- if proto then
+  --   log.info("proto name" .. proto.name)
+  --   log.info("proto filename" .. proto.filename)
+  --   log.info("description: " .. proto.description)
+  --   log.info("SID: " .. proto.sid)
+  -- end
 
   -- map.exit_grid.destroy_in_rect(21514, 22727, 24113, 24323);
   -- --

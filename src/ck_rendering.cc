@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include <algorithm>
+#include <chrono>
 
 #include "art.h"
 #include "light.h"
@@ -7,6 +8,9 @@
 
 #include "ck_rendering.h"
 #include "ck_assets/ck_asset_registry.h"
+
+#include "ck_log.h"
+static const Logger log("CK Rendering");
 
 extern CkAssetRegistry gAssetRegistry;
 
@@ -70,8 +74,13 @@ static void blit_sub_buffer(const unsigned char* pixels, int src_width, int dest
     );
 }
 
+static inline bool is_tile_visible(int screenX, int screenY, const fallout::Rect* rect, int paddingX, int paddingY) {
+    return screenX >= (rect->left - paddingX) && screenX <= (rect->right + paddingX) &&
+           screenY >= (rect->top - paddingY) && screenY <= (rect->bottom + paddingY);
+}
+
 void ck_rendering_clear_art_cache() {
-    for (auto& [fid, cached] : gArtCache) {
+    for (auto &[fid, cached] : gArtCache) {
         if (cached.cacheEntry) {
             fallout::artUnlock(cached.cacheEntry);
         }
@@ -81,8 +90,8 @@ void ck_rendering_clear_art_cache() {
 
 void ck_rendering_add_scenery(int fid, int tile) {
     CkSceneryInstance instance;
-    instance.tile      = tile;
-    instance.engineFid = fid;
+    instance.tile = tile;
+    instance.fid  = fid;
 
 	auto it = std::upper_bound(gPersistentScenery.begin(), gPersistentScenery.end(), instance,
 	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
@@ -106,7 +115,7 @@ void ck_rendering_add_custom_scenery(const std::string& key, int tile) {
 void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance inst;
     inst.tile      = tile;
-    inst.engineFid = fid;
+    inst.fid       = fid;
     gPersistentTiles.push_back(inst);
 }
 
@@ -133,21 +142,6 @@ void ck_rendering_refresh() {
 
 using namespace fallout;
 
-static void ck_rendering_scenery(fallout::Rect* rect);
-static void ck_rendering_tiles(fallout::Rect* rect);
-
-void ck_rendering_render(fallout::Rect* rect) {
-	ck_rendering_tiles(rect);
-	ck_rendering_scenery(rect);
-}
-
-int ck_rendering_build_scenery_fid(int fid) {
-    return buildFid(OBJ_TYPE_SCENERY, fid, 0, 0, 0);
-}
-
-int ck_rendering_build_tile_fid(int fid) {
-    return buildFid(OBJ_TYPE_TILE, fid, 0, 0, 0);
-}
 
 static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     const CachedArt* cached = get_or_cache_art(fid);
@@ -166,50 +160,87 @@ static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rec
     blit_sub_buffer(frame.pixels.data(), frame.width, offsetX, offsetY, frame.width, frame.height, rect);
 }
 
-static void ck_rendering_tiles(fallout::Rect* rect) {
-    for (const auto& tileInstance : gPersistentTiles) {
+static int ck_rendering_tiles(fallout::Rect* rect) {
+    const int TILE_PADDING_X = 80;
+    const int TILE_PADDING_Y = 40;
+    int visible_count = 0;
+
+    for (const auto& tile_instance : gPersistentTiles) {
         int screenX, screenY;
-        tileToScreenXY(tileInstance.tile, &screenX, &screenY);
+        tileToScreenXY(tile_instance.tile, &screenX, &screenY);
 
-		if (tileInstance.isCustomAsset()) {
-			CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, tileInstance.assetKey);
-			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
-			continue;
-		}
+        if (!is_tile_visible(screenX, screenY, &fallout::tileWindowRect(), TILE_PADDING_X, TILE_PADDING_Y)) {
+            continue;
+        }
 
-        int fid = ck_rendering_build_tile_fid(tileInstance.engineFid);
-        tileRenderFloorExternal(fid, screenX, screenY, rect);
+        visible_count++;
+
+        if (tile_instance.isCustomAsset()) {
+            CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, tile_instance.assetKey);
+            if (frm) draw_custom_asset(frm, screenX, screenY, rect);
+            continue;
+        }
+
+        tileRenderFloorExternal(tile_instance.fid, screenX, screenY, rect);
     }
+
+    return visible_count;
 }
 
-static void ck_rendering_scenery(fallout::Rect* rect) {
+static int ck_rendering_scenery(fallout::Rect* rect) {
+    const int SCENERY_PADDING_X = 160;
+    const int SCENERY_PADDING_Y = 240;
+    int visible_count = 0;
+
     for (const auto& scenery : gPersistentScenery) {
         int screenX, screenY;
         tileToScreenXY(scenery.tile, &screenX, &screenY);
 
-		if (scenery.isCustomAsset()) {
-			CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, scenery.assetKey);
-			if (frm) draw_custom_asset(frm, screenX, screenY, rect);
-			continue;
-		}
+        if (!is_tile_visible(screenX, screenY, &fallout::tileWindowRect(), SCENERY_PADDING_X, SCENERY_PADDING_Y)) {
+            continue;
+        }
 
-        int fid = ck_rendering_build_scenery_fid(scenery.engineFid);
+        visible_count++;
 
-        const CachedArt* cached = get_or_cache_art(fid);
+        if (scenery.isCustomAsset()) {
+            CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, scenery.assetKey);
+            if (frm) draw_custom_asset(frm, screenX, screenY, rect);
+            continue;
+        }
+
+        const CachedArt* cached = get_or_cache_art(scenery.fid);
         if (cached == nullptr || cached->frameData == nullptr) continue;
 
-		int frameX = 0, frameY = 0;
-		int rotationX = 0, rotationY = 0;
+        int frameX = 0, frameY = 0;
+        int rotationX = 0, rotationY = 0;
 
-		fallout::artGetFrameOffsets(cached->art, 0, 0, &frameX, &frameY);
+        fallout::artGetFrameOffsets(cached->art, 0, 0, &frameX, &frameY);
         fallout::artGetRotationOffsets(cached->art, 0, &rotationX, &rotationY);
 
-		int screenCenterX = screenX + 16, screenCenterY = screenY + 12;
+        int screenCenterX = screenX + 16, screenCenterY = screenY + 12;
 
-		int offsetX = screenCenterX + frameX + rotationX - (cached->width / 2);
-		int offsetY = screenCenterY + frameY + rotationY - cached->height;
+        int offsetX = screenCenterX + frameX + rotationX - (cached->width / 2);
+        int offsetY = screenCenterY + frameY + rotationY - cached->height;
 
-        draw_scenery_art(fid, offsetX, offsetY, rect);
+        draw_scenery_art(scenery.fid, offsetX, offsetY, rect);
+    }
+
+    return visible_count;
+}
+
+void ck_rendering_render(fallout::Rect* rect) {
+	int visible_tiles   = ck_rendering_tiles(rect);
+	int visible_scenery = ck_rendering_scenery(rect);
+
+    static auto last_log_time = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+
+    if (now - last_log_time >= std::chrono::seconds(2)) {
+        last_log_time = now;
+
+        log.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
+                visible_tiles, gPersistentTiles.size(),
+                visible_scenery, gPersistentScenery.size());
     }
 }
 

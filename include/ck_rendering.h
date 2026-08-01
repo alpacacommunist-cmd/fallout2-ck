@@ -13,18 +13,18 @@ void ck_rendering_render(fallout::Rect* rect);
 
 struct CkSceneryInstance {
     int tile;
-    int engineFid = -1;
+    int fid = -1;
     std::string assetKey;
 
-    bool isCustomAsset() const { return engineFid == -1; }
+    bool isCustomAsset() const { return fid == -1; }
 };
 
 struct CkTileInstance {
     int tile;
-    int engineFid = -1;
+    int fid = -1;
     std::string assetKey;
 
-    bool isCustomAsset() const { return engineFid == -1; }
+    bool isCustomAsset() const { return fid == -1; }
 };
 
 extern std::vector<CkSceneryInstance> gPersistentScenery;
