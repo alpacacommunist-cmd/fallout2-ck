@@ -120,7 +120,7 @@ events.on('onMapEnter', function()
 
   map.tools.render.brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
     { type = "tile" })
-  map.tools.render.brush(19472, 2, 0.3, {956, 957, 958})
+  map.tools.objects.brush(19472, 2, 0.3, {33555377, 33555378, 33555379})
 
   map.tools.render.mask(17516, {
     "M MMM  MM  M",

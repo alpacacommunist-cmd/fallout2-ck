@@ -2,30 +2,28 @@
 
 local outskirts = {}
 
-outskirts.new_exit_grid_rect = {}
-
 outskirts.mountain_tiles = {
-  { fid = 1509, tile = 13893 },
-  { fid = 1508, tile = 14896 },
-  { fid = 1508, tile = 15498 },
-  { fid = 1508, tile = 15098 },
-  { fid = 1508, tile = 15899 },
-  { fid = 1508, tile = 12890 }
+  { fid = 0x040005E5, tile = 13893 },
+  { fid = 0x040005E4, tile = 14896 },
+  { fid = 0x040005E4, tile = 15498 },
+  { fid = 0x040005E4, tile = 15098 },
+  { fid = 0x040005E4, tile = 15899 },
+  { fid = 0x040005E4, tile = 12890 }
 }
 
 outskirts.mountain_scenery = {
-    -- left cliff
-  { fid = 704, tile = 12290 },
-  { fid = 703, tile = 12097 },
-  { fid = 702, tile = 13301 },
-  { fid = 701, tile = 14092 },
-  { fid = 1384, tile = 14705 },
-  { fid = 702, tile = 14908 },
-  { fid = 706, tile = 15303 },
+  -- left cliff
+  { fid = 0x020002C0, tile = 12290 },
+  { fid = 0x020002BF, tile = 12097 },
+  { fid = 0x020002BE, tile = 13301 },
+  { fid = 0x020002BD, tile = 14092 },
+  { fid = 0x02000568, tile = 14705 },
+  { fid = 0x020002BE, tile = 14908 },
+  { fid = 0x020002C2, tile = 15303 },
 
   -- right cliff
-  { fid = 702, tile = 14458 },
-  { fid = 706, tile = 14853 }
+  { fid = 0x020002BE, tile = 14458 },
+  { fid = 0x020002C2, tile = 14853 }
 }
 
 outskirts.remove_blockers = {18308, 18509, 18108, 18709, 22322, 22522, 22723, 22923, 22924, 23124}

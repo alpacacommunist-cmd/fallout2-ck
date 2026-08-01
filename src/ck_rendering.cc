@@ -2,9 +2,7 @@
 #include <algorithm>
 
 #include "art.h"
-#include "debug.h"
 #include "light.h"
-#include "mouse.h"
 #include "tile.h"
 
 #include "ck_rendering.h"
@@ -44,6 +42,32 @@ static const CachedArt* get_or_cache_art(int fid) {
 
     gArtCache[fid] = cached;
     return &gArtCache[fid];
+}
+
+static void blit_sub_buffer(const unsigned char* pixels, int src_width, int dest_x, int dest_y, int width, int height, fallout::Rect* screen_rect) {
+    fallout::Rect artRect;
+    artRect.left   = dest_x;
+    artRect.top    = dest_y;
+    artRect.right  = dest_x + width - 1;
+    artRect.bottom = dest_y + height - 1;
+
+    fallout::Rect intersection;
+    // out of screen
+    if (fallout::rectIntersection(&artRect, screen_rect, &intersection) == -1) return;
+
+    // src buf offset
+    const unsigned char* src = pixels + src_width * (intersection.top - dest_y) + (intersection.left - dest_x);
+
+    int light = fallout::lightGetAmbientIntensity();
+
+    fallout::_dark_trans_buf_to_buf(
+            const_cast<unsigned char*>(src),
+            fallout::rectGetWidth(&intersection), fallout::rectGetHeight(&intersection), src_width,
+            fallout::tileGetWindowBuffer(),
+            intersection.left, intersection.top,
+            fallout::tileGetWindowPitch(),
+            light
+    );
 }
 
 void ck_rendering_clear_art_cache() {
@@ -129,61 +153,17 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     const CachedArt* cached = get_or_cache_art(fid);
     if (cached == nullptr || cached->frameData == nullptr) return;
 
-    fallout::Rect artRect;
-    artRect.left = x; artRect.top = y; artRect.right = x + cached->width - 1; artRect.bottom = y + cached->height - 1;
-
-    fallout::Rect intersection;
-	// object is out of screen
-    if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
-
-    unsigned char* src = cached->frameData;
-    src += cached->width * (intersection.top - y) + (intersection.left - x);
-
-    int light = fallout::lightGetAmbientIntensity();
-    fallout::_dark_trans_buf_to_buf(
-        src, 
-        fallout::rectGetWidth(&intersection), 
-        fallout::rectGetHeight(&intersection),
-        cached->width, 
-        fallout::tileGetWindowBuffer(), 
-        intersection.left, 
-        intersection.top,
-        fallout::tileGetWindowPitch(), 
-        light
-    );
+    blit_sub_buffer(cached->frameData, cached->width, x, y, cached->width, cached->height, rect);
 }
 
 static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rect* rect, int dir = 0) {
-	if (frm->frames[dir].empty()) return;
+    if (frm->frames[dir].empty()) return;
     const CkFrmFrame& frame = frm->frames[dir][0];
 
     int offsetX = screenX + 16 + frame.offsetX - (frame.width / 2);
     int offsetY = screenY + 12 + frame.offsetY - frame.height;
 
-    fallout::Rect artRect;
-    artRect.left   = offsetX;
-    artRect.top    = offsetY;
-    artRect.right  = offsetX + frame.width - 1;
-    artRect.bottom = offsetY + frame.height - 1;
-
-    fallout::Rect intersection;
-    if (fallout::rectIntersection(&artRect, rect, &intersection) == -1) return;
-
-    unsigned char* src = const_cast<unsigned char*>(frame.pixels.data());
-    src += frame.width * (intersection.top - offsetY) + (intersection.left - offsetX);
-
-    int light = fallout::lightGetAmbientIntensity();
-    fallout::_dark_trans_buf_to_buf(
-        src,
-        fallout::rectGetWidth(&intersection),
-        fallout::rectGetHeight(&intersection),
-        frame.width,
-        fallout::tileGetWindowBuffer(),
-        intersection.left,
-        intersection.top,
-        fallout::tileGetWindowPitch(),
-        light
-    );
+    blit_sub_buffer(frame.pixels.data(), frame.width, offsetX, offsetY, frame.width, frame.height, rect);
 }
 
 static void ck_rendering_tiles(fallout::Rect* rect) {

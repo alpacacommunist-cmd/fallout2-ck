@@ -1,4 +1,3 @@
-#include "ck_ids.h"
 #include "object/ck_object.h"
 #include "object/ck_item.h"
 #include "ck_registry/ck_registry.h"
@@ -109,15 +108,7 @@ fallout::Object* ck_object_create_at(int fid, int tile) {
 	return object;
 }
 
-int ck_object_register_object_by_fid(int fid, int tile, const LuaMeta& meta) {
-	fallout::Object* object = ck_object_create_at(fid, tile);
-
-	if (object != nullptr) return ck::registry::created::add(object, meta);
-
-	return -1;
-}
-
-int ck_object_register_object(int pid, int tile, const LuaMeta& meta) {
+int ck_object_register(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 
 	if (object != nullptr) return ck::registry::created::add(object, meta);

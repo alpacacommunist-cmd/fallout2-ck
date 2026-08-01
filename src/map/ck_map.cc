@@ -113,26 +113,16 @@ void ck_map_add_tile_key(const char* key, int tile) {
     ck_rendering_add_custom_tile(key, tile);
 }
 
-void ck_map_create_object(int artId, int tile) {
-    int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
-    ck_object_create_at(fid, tile);
-}
-
-void ck_map_create_object_fid(int fid, int tile) {
-    ck_object_create_at(fid, tile);
-}
-
-int ck_map_register_object(int artId, int tile) {
-    int fid = (fallout::OBJ_TYPE_SCENERY << 24) | (artId & 0x0000FFFF);
+int ck_map_register_object(int pid, int tile) {
     const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
 
-    return ck_object_register_object_by_fid(fid, tile, meta);
+    return ck_object_register(pid, tile, meta);
 }
 
 int ck_map_create_blocker_at(int tile) {
     const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
 
-    return ck_object_register_object(BLOCKER_PID, tile, meta);
+    return ck_object_register(BLOCKER_PID, tile, meta);
 }
 
 int ck_map_get_mvar(int index) {
@@ -162,12 +152,12 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = sceneries[i];
 
-        CkSceneryInstance inst;
-        inst.tile = src.tile;
-        if (src.key != nullptr) inst.assetKey = src.key;
-        else inst.engineFid = src.fid;
+        CkSceneryInstance instance;
+        instance.tile = src.tile;
+        if (src.key != nullptr) instance.assetKey = src.key;
+        else instance.engineFid = src.fid;
 
-        gPersistentScenery.push_back(inst);
+        gPersistentScenery.push_back(instance);
     }
 
     std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),

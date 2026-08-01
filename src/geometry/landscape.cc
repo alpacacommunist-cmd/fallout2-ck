@@ -69,7 +69,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 
 	rect.for_each_tile([pid, &data](int tile) {
 		const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
-		int lua_id = ck_object_register_object(pid, tile, meta);
+		int lua_id = ck_object_register(pid, tile, meta);
 
 		fallout::Object* obj = ck::registry::created::get_object(lua_id);
 
@@ -86,7 +86,7 @@ void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridDa
     if (data == nullptr) return;
 
     const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
-    int lua_id = ck_object_register_object(pid, tile, meta);
+    int lua_id = ck_object_register(pid, tile, meta);
 
     fallout::Object* obj = ck::registry::created::get_object(lua_id);
     if (obj != nullptr) {
