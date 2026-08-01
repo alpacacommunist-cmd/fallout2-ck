@@ -3,6 +3,22 @@
 
 local geometry = {}
 
+geometry.AXIS = {
+    NE = 0, -- ne
+    E  = 1, -- east
+    SE = 2, -- se
+    SW = 3, -- sw
+    W  = 4, -- west
+    NW = 5  -- nw
+}
+
+geometry.SCREEN = {
+    UP    = "up",
+    DOWN  = "down",
+    LEFT  = "left",
+    RIGHT = "right"
+}
+
 function geometry.grid_width()
   return 200
 end
@@ -99,7 +115,10 @@ function geometry.tiles_in_rect(left, right, top, bottom)
   return tiles
 end
 
-function geometry.line(tile_a, tile_b)
+--------
+-- lines
+--------
+function geometry.ray(tile_a, tile_b)
   local dist = geometry.distance(tile_a, tile_b)
   local list = {}
   if dist == 0 then return {tile_a} end
@@ -114,6 +133,60 @@ function geometry.line(tile_a, tile_b)
     local cy = math.floor(y1 + (y2 - y1) * t + 0.5)
     table.insert(list, geometry.xy_to_tile(cx, cy))
   end
+  return list
+end
+
+function geometry.axis_line(start_tile, axis_direction, length)
+  -- axis_direction: uses geometry.AXIS
+  if length <= 0 then return { start_tile } end
+
+  local list = { start_tile }
+  local current = start_tile
+
+  for i = 1, length - 1 do
+    current = geometry.neighbour(current, axis_direction)
+    if geometry.is_valid(current) then
+      table.insert(list, current)
+    else
+      break -- map edge
+    end
+  end
+
+  return list
+end
+
+function geometry.line_directed(start_tile, screen_direction, length)
+  -- screen_direction: uses geometry.SCREEN (eg geometry.SCREEN.LEFT)
+  if length <= 0 then return { start_tile } end
+
+  local list = { start_tile }
+  local current = start_tile
+
+  -- zig-zag pair based on direction
+  local dir1, dir2
+  if screen_direction == geometry.SCREEN.UP then
+    dir1, dir2 = geometry.AXIS.NW, geometry.AXIS.NE
+  elseif screen_direction == geometry.SCREEN.DOWN then
+    dir1, dir2 = geometry.AXIS.SW, geometry.AXIS.SE
+  elseif screen_direction == geometry.SCREEN.LEFT then
+    dir1, dir2 = geometry.AXIS.NW, geometry.AXIS.SW
+  elseif screen_direction == geometry.SCREEN.RIGHT then
+    dir1, dir2 = geometry.AXIS.NE, geometry.AXIS.SE
+  else
+    error("Unknown screen direction: " .. tostring(screen_direction))
+  end
+
+  for i = 1, length - 1 do
+    local chosen_dir = (i % 2 == 1) and dir1 or dir2
+
+    current = geometry.neighbour(current, chosen_dir)
+    if geometry.is_valid(current) then
+      table.insert(list, current)
+    else
+      break
+    end
+  end
+
   return list
 end
 

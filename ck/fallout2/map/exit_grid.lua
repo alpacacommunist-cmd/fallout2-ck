@@ -77,7 +77,7 @@ function exit_grid.spawn_in_line(t1, t2, config, thickness)
   local shift_direction = exit_grid.style_shifts[style_offset] or 0
 
   local spawned_tiles = {}
-  local core_line = geometry.line(t1, t2)
+  local core_line = geometry.ray(t1, t2)
 
   local SPRITE_TAIL_LENGTH = 4
 
