@@ -12,14 +12,19 @@ exit_grid.styles = {
     FIRST = exit_grid.first_pid(),
     LAST  = exit_grid.last_pid(),
 
-    STYLE_0 = exit_grid.first_pid() + 0,
-    STYLE_1 = exit_grid.first_pid() + 1,
-    STYLE_2 = exit_grid.first_pid() + 2,
-    STYLE_3 = exit_grid.first_pid() + 3,
+    STYLE_0 = exit_grid.first_pid() + 0, -- east
+    STYLE_1 = exit_grid.first_pid() + 1, -- west
+    STYLE_2 = exit_grid.first_pid() + 2, -- north
+    STYLE_3 = exit_grid.first_pid() + 3, -- south
     STYLE_4 = exit_grid.first_pid() + 4,
     STYLE_5 = exit_grid.first_pid() + 5,
     STYLE_6 = exit_grid.first_pid() + 6,
-    STYLE_7 = exit_grid.first_pid() + 7
+    STYLE_7 = exit_grid.first_pid() + 7,
+}
+
+exit_grid.style_shifts = {
+    [0] = 0, [1] = 3, [2] = 2, [3] = 5,
+    [4] = 0, [5] = 4, [6] = 1, [7] = 3
 }
 
 exit_grid.create_in_rect  = C.ck_landscape_create_exit_grid_in_rect
@@ -58,6 +63,7 @@ end
 
 function exit_grid.spawn_in_line(t1, t2, config, thickness)
   -- config : { map = 10, tile = 15000, elevation = 0, rotation = 1, style = 0 }
+  thickness = thickness or 1
 
   local grid_data = ffi.new("CKExitGridData")
   grid_data.target_map       = config.map
@@ -67,27 +73,30 @@ function exit_grid.spawn_in_line(t1, t2, config, thickness)
 
   local style_offset = config.style or 0
   local final_pid    = exit_grid.styles.FIRST + style_offset
-  thickness = thickness or 1
 
-  -- middle line
+  local shift_direction = exit_grid.style_shifts[style_offset] or 0
+
+  local spawned_tiles = {}
   local core_line = geometry.line(t1, t2)
 
-  -- thickness brush
-  local final_tiles = {}
+  local SPRITE_TAIL_LENGTH = 4
 
-  for _, tile in ipairs(core_line) do
-    if thickness > 1 then
-      local brush_tiles = geometry.tiles_in_radius(tile, thickness - 1)
-      for _, brush_tile in ipairs(brush_tiles) do
-        final_tiles[brush_tile] = true
+  for layer = 0, thickness - 1 do
+    for _, base_tile in ipairs(core_line) do
+
+      local target_tile = base_tile
+      if layer > 0 then
+        local total_steps = layer * SPRITE_TAIL_LENGTH
+        for step = 1, total_steps do
+          target_tile = geometry.neighbour(target_tile, shift_direction)
+        end
       end
-    else
-      final_tiles[tile] = true
-    end
-  end
 
-  for tile_to_spawn, _ in pairs(final_tiles) do
-    exit_grid.create_at_tile(tile_to_spawn, final_pid, grid_data)
+      if geometry.is_valid(target_tile) and not spawned_tiles[target_tile] then
+        exit_grid.create_at_tile(target_tile, final_pid, grid_data)
+        spawned_tiles[target_tile] = true
+      end
+    end
   end
 end
 
