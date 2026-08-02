@@ -129,8 +129,8 @@ events.on('onMapEnter', function()
     "   mm  mm   ",
     "GGG      GG "
   }, {
-    M = { assets = {"temple_of_trials:scenery/tree10"}, block = true },
-    m = { assets = {"temple_of_trials:scenery/tree11"}, block = true },
+    M = { assets = {"temple_of_trials:scenery/tree10"}, block = false },
+    m = { assets = {"temple_of_trials:scenery/tree11"}, block = false },
     G = { assets = {"temple_of_trials:tiles/GRASS01"}, type = "tile" }
   })
 

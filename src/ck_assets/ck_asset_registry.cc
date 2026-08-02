@@ -1,6 +1,8 @@
+#include "ck_ids.h"
+#include "ck_assets/ck_asset_registry.h"
+
 #include <unordered_map>
 #include <string>
-#include "ck_ids.h"
 
 namespace ck::assets {
     // [frm_id] -> "/mods/my_mod/art/..."

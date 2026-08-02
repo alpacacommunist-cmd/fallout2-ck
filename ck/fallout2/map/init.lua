@@ -2,6 +2,7 @@
 local ffi        = require("ffi")
 local objects    = require('ck.fallout2.objects')
 local object_ffi = require('ck.fallout2.classes.object_ffi')
+local assets     = require('ck.fallout2.assets')
 
 local map  = {
   geometry  = require('ck.fallout2.map.geometry'),
@@ -32,19 +33,15 @@ end
 map.render = {}
 
 function map.render.tile(value, tile)
-  if type(value) == "number" then
-    ffi.C.ck_map_add_tile_fid(value, tile)
-  else
-    ffi.C.ck_map_add_tile_key(value, tile)
-  end
+  local fid = (type(value) == "string") and assets.resolve(value) or value
+
+  ffi.C.ck_map_add_tile_fid(fid, tile)
 end
 
 function map.render.overlay(value, tile)
-  if type(value) == "number" then
-    ffi.C.ck_map_add_scenery_fid(value, tile)
-  else
-    ffi.C.ck_map_add_scenery_key(value, tile)
-  end
+  local fid = (type(value) == "string") and assets.resolve(value) or value
+
+  ffi.C.ck_map_add_scenery_fid(fid, tile)
 end
 
 function map.register_borders(map_id, config)

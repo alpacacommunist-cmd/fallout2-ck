@@ -4,7 +4,7 @@
 #include "ck_api.h"
 
 namespace ck::assets {
-    int         ck_assets_register_path(const char* path);
+    int         register_path(const char* path);
     const char* get_custom_mod_file_path(int frm_id);
 
     void clear();

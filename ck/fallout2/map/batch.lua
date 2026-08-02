@@ -15,10 +15,8 @@ function batch.tiles(tiles)
     tiles_array[index - 1].tile = tile.tile
     if type(tile.fid) == "number" then
       tiles_array[index - 1].fid = tile.fid
-      tiles_array[index - 1].key = nil
     else
       tiles_array[index - 1].fid = -1
-      tiles_array[index - 1].key = tile.fid
     end
   end
 
@@ -37,10 +35,8 @@ function batch.scenery(scenery)
     scenery_array[index - 1].tile = scenery.tile
     if type(scenery.fid) == "number" then
       scenery_array[index - 1].fid = scenery.fid
-      scenery_array[index - 1].key = nil
     else
       scenery_array[index - 1].fid = -1
-      scenery_array[index - 1].key = scenery.fid
     end
   end
 
