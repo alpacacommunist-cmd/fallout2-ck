@@ -14,6 +14,7 @@ struct CkAreaMapFFI {
     const char* name;
     const char* sub_name;
     const char* music;
+    const char* sfx;
 };
 
 namespace ck {
@@ -23,7 +24,7 @@ namespace ck {
     void        area_on_map_header_set(fallout::MapHeader* header);
 
 	void override_map(int original_map_id, const CkAreaMapFFI& data);
-	int  register_map(const CkAreaMapFFI& data);
+	int  area_register_map(const CkAreaMapFFI& data);
 
     int register_area(const std::string& modId, const std::string& name,
                       int worldX, int worldY, const std::string& size,

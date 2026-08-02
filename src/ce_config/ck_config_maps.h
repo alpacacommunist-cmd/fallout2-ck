@@ -9,7 +9,7 @@ namespace ck::config_maps {
     int get_next_index();
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
-			const std::string& name, const std::string& music);
+			const std::string& name, const std::string& music, const std::string& sfx);
 }
 
 #endif

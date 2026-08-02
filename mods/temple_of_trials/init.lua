@@ -14,7 +14,8 @@ local utils     = require('ck.system.utils')
 local new_map_id = locations.register_map({
     map_file = 'tstcv',
     name     = "Secret Hunting Grounds",
-    music    = "07desert"
+    music    = "07desert",
+    sfx      = "gntlwin1:25, gntlwind:25, dogbark:20, dogbark1:20, gustwind:5, gustwin1:5"
 })
 
 log.warn("MAP ID: " .. tostring(new_map_id))

@@ -153,6 +153,7 @@ ffi.cdef[[
     const char* name;
     const char* sub_name;
     const char* music;
+    const char* sfx;
   } CkAreaMapFFI;
 
   int ck_area_register_map(const CkAreaMapFFI* data);

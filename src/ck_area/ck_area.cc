@@ -2,7 +2,6 @@
 
 #include "ck_area/ck_area.h"
 
-#include "ce_config/ck_config_patch.h"
 #include "ce_config/ck_config_maps.h"
 #include "ce_config/ck_config_city.h"
 #include "ck_messages/ck_messages.h"
@@ -97,40 +96,41 @@ namespace ck {
 		g_current_loading_map_id = -1;
 	}
 
-	int area_register_map(const std::string& map_file_name, const std::string& name,
-			const std::string& sub_name, const std::string& music) {
+	int area_register_map(const CkAreaMapFFI& data) {
+        std::string current_mod = ck_get_current_mod_id();
 
-		std::string current_mod = ck_get_current_mod_id();
-		int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music);
+        std::string map_file_name = data.map_file;
+        std::string name          = data.name;
+        std::string sub_name      = data.sub_name;
+        std::string music         = data.music;
+        std::string sfx           = data.sfx;
 
-		std::string map_file_upper = map_file_name;
-		std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
-		std::string map_file_lower = map_file_name;
-		std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
+        int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music, sfx);
 
-		std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
-		gMapPaths[map_file_lower] = map_file_path;
-		gRuntimeMaps[map_file_lower] = map_index;
+        std::string map_file_upper = map_file_name;
+        std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
+        std::string map_file_lower = map_file_name;
+        std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
 
-		int map_base_id = map_index * 3;
-		ck::messages_add_string("map.msg", map_base_id + 100, name);
-		ck::messages_add_string("map.msg", map_base_id + 101, name);
+        std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
+        gMapPaths[map_file_lower]    = map_file_path;
+        gRuntimeMaps[map_file_lower] = map_index;
 
-		std::string full_description = sub_name.empty() ? name : sub_name;
-		ck::messages_add_string("map.msg", map_base_id + 200, full_description);
+        int map_base_id = map_index * 3;
+        ck::messages_add_string("map.msg", map_base_id + 100, name);
+        ck::messages_add_string("map.msg", map_base_id + 101, name);
+
+        std::string full_description = sub_name.empty() ? name : sub_name;
+        ck::messages_add_string("map.msg", map_base_id + 200, full_description);
 
 		return map_index;
 	}
 
 	int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
-        std::string map_file  = data.map_file ? data.map_file  : std::string();
-        std::string name      = data.name     ? data.name      : std::string();
-        std::string sub_name  = data.sub_name ? data.sub_name  : std::string();
-        std::string music     = data.music    ? data.music     : "17arroyo";
+        int map_id = ck::area_register_map(data);
 
-        int map_id = ck::area_register_map(map_file, name, sub_name, music);
         g_map_id_redirects[original_map_id] = map_id;
-		g_map_id_to_original[map_id] = original_map_id;
+		g_map_id_to_original[map_id]        = original_map_id;
 
         log.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
         return map_id;
@@ -162,12 +162,7 @@ int ck_area_register_location(const char* name, int worldX, int worldY, const ch
 int ck_area_register_map(const CkAreaMapFFI* data) {
     if (!data) return -1;
 
-    return ck::area_register_map(
-        data->map_file ? data->map_file : std::string(),
-        data->name     ? data->name     : std::string(),
-        data->sub_name ? data->sub_name : std::string(),
-        data->music    ? data->music    : std::string("17arroyo")
-    );
+    return ck::area_register_map(*data);
 }
 
 int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {

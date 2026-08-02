@@ -1,10 +1,8 @@
 #include "ce_config/ck_config_patch.h"
 #include "ce_config/ck_config_maps.h"
-#include "db.h"
 #include <format>
 #include <string_view>
 #include <algorithm>
-#include <charconv>
 
 #include "ck_log.h"
 static const Logger log("CK Maps Config");
@@ -20,7 +18,7 @@ namespace ck::config_maps {
     }
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
-				const std::string& name, const std::string& music) {
+				const std::string& name, const std::string& music, const std::string& sfx) {
 
         std::string map_file_upper = map_file_name;
         std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
@@ -52,6 +50,7 @@ namespace ck::config_maps {
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "lookup_name", name);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "map_name",    map_file_upper);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "music",       music);
+        ck::config_patch_add(mod_id, maps_txt_path, map_section, "ambient_sfx", sfx);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "saved",       "Yes");
 
         return map_index;

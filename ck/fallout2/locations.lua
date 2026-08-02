@@ -33,8 +33,9 @@ function locations.register_map(config)
 
   data.map_file  = config.map_file
   data.name      = config.name
-  data.sub_name  = config.sub_name
+  data.sub_name  = config.sub_name or ""
   data.music     = config.music or "17arroyo"
+  data.sfx       = config.sfx   or "gntlwin1:25, gustwin1:5"
 
   return ffi.C.ck_area_register_map(data)
 end
