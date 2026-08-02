@@ -123,11 +123,10 @@ ffi.cdef[[
   void ck_rendering_refresh();
 
   // --- Assets ---
-  int ck_assets_register(const char* mod_id, const char* base_path);
-  const char* ck_asset_file_path(const char* key);
+  int ck_assets_register_path(const char* path);
 
-  typedef struct { bool valid; int art_id; int fid; int pid; int object_type; bool is_tile; bool lookup_failed; } CkAssetFFI;
-  CkAssetFFI ck_assets_resolve(const char* key);
+  // --- IDS ---
+  int ck_ids_make_ck_fid(int custom_frm_id);
 
   // --- Dialogue ---
   bool ck_dialog_init_ui();
@@ -169,9 +168,7 @@ ffi.cdef[[
   // --- add object/render
   int  ck_map_get_id();
   void ck_map_add_scenery_fid(int fid, int tile);
-  void ck_map_add_scenery_key(const char* key, int tile);
   void ck_map_add_tile_fid(int fid, int tile);
-  void ck_map_add_tile_key(const char* key, int tile);
   void ck_map_create_blocker_at(int tile);
   void ck_map_create_object(int fid, int tile);
   void ck_map_create_object_fid(int fid, int tile);
@@ -183,8 +180,8 @@ ffi.cdef[[
   void ck_map_clear_camera_borders_for_mod(const char* mod_id);
 
   // --- Map Batch ---
-  typedef struct { int tile; int fid; const char* key; } CkFFITile;
-  typedef struct { int tile; int fid; const char* key; } CkFFIScenery;
+  typedef struct { int tile; int fid; } CkFFITile;
+  typedef struct { int tile; int fid; } CkFFIScenery;
   typedef struct { int tile; int fid; } CkFFIBlocker;
   typedef struct { int tile; } CkFFIClear;
 

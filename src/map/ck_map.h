@@ -37,17 +37,13 @@ namespace fallout {
 }
 
 int  ck_map_get_floor_fid(int tile, int elevation);
-void ck_map_add_scenery(const std::string& key, int tile);
 void ck_map_add_scenery(int fid, int tile);
 
 void ck_map_add_tile(int fid, int tile);
-void ck_map_add_tile(const std::string& key, int tile);
 
 CK_API int  ck_map_get_id();
 CK_API void ck_map_add_scenery_fid(int fid, int tile);
-CK_API void ck_map_add_scenery_key(const char* key, int tile);
 CK_API void ck_map_add_tile_fid(int fid, int tile);
-CK_API void ck_map_add_tile_key(const char* key, int tile);
 CK_API int  ck_map_create_blocker_at(int tile);
 CK_API void ck_map_create_object(int artId, int tile);
 CK_API void ck_map_create_object_fid(int fid, int tile);
@@ -58,11 +54,10 @@ CK_API void ck_map_set_mvar(int index, int value);
 
 struct CkFFITile {
     int tile;
-    int fid; // -1 means use key
-    const char* key; // nullptr if fid != -1
+    int fid;
 };
 
-struct CkFFIScenery { int tile; int fid; const char* key; };
+struct CkFFIScenery { int tile; int fid; };
 struct CkFFIBlocker { int tile; int fid; };
 struct CkFFIClear { int tile; };
 

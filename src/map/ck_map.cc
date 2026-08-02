@@ -78,16 +78,8 @@ void ck_map_add_scenery(int fid, int tile) {
     ck_rendering_add_scenery(fid, tile);
 }
 
-void ck_map_add_scenery(const std::string& key, int tile) {
-    ck_rendering_add_custom_scenery(key, tile);
-}
-
 void ck_map_add_tile(int fid, int tile) {
     ck_rendering_add_tile(fid, tile);
-}
-
-void ck_map_add_tile(const std::string& key, int tile) {
-    ck_rendering_add_custom_tile(key, tile);
 }
 
 // ffi
@@ -100,16 +92,8 @@ void ck_map_add_scenery_fid(int fid, int tile) {
     ck_map_add_scenery(fid, tile);
 }
 
-void ck_map_add_scenery_key(const char* key, int tile) {
-    ck_rendering_add_custom_scenery(key, tile);
-}
-
 void ck_map_add_tile_fid(int fid, int tile) {
     ck_rendering_add_tile(fid, tile);
-}
-
-void ck_map_add_tile_key(const char* key, int tile) {
-    ck_rendering_add_custom_tile(key, tile);
 }
 
 int ck_map_register_object(int pid, int tile) {
@@ -138,8 +122,7 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
 
-        if (src.key != nullptr) ck_rendering_add_custom_tile(src.key, src.tile);
-        else ck_rendering_add_tile(src.fid, src.tile);
+        ck_rendering_add_tile(src.fid, src.tile);
     }
 }
 
@@ -153,8 +136,7 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
 
         CkSceneryInstance instance;
         instance.tile = src.tile;
-        if (src.key != nullptr) instance.assetKey = src.key;
-        else instance.fid = src.fid;
+        instance.fid = src.fid;
 
         gPersistentScenery.push_back(instance);
     }

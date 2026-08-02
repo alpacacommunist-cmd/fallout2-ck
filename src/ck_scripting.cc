@@ -8,7 +8,6 @@
 
 #include "ck_registry/ck_registry.h"
 
-#include "ck_assets/ck_asset_registry.h"
 #include "ck_proto/ck_proto_cache.h"
 
 #include "ck_state/ck_state.h"
@@ -23,7 +22,6 @@ lua_State* gLuaState = nullptr;
 #include "ck_log.h"
 static const Logger log("CK Scripting");
 
-CkAssetRegistry gAssetRegistry;
 
 // l_ck_monitor_print -> ckMonitorPrint -> fallout2.monitor.print
 int l_ck_monitor_print(lua_State* L) {

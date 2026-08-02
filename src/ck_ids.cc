@@ -100,3 +100,7 @@ int make_sid_modified(fallout::Object* obj, int lua_id) {
 }
 
 } // namespace ck
+
+int ck_ids_make_ck_fid(int custom_frm_id) {
+    return ck::ids::make_ck_fid(custom_frm_id);
+}

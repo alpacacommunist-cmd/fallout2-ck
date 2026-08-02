@@ -7,12 +7,9 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
-#include "ck_assets/ck_asset_registry.h"
 
 #include "ck_log.h"
 static const Logger log("CK Rendering");
-
-extern CkAssetRegistry gAssetRegistry;
 
 std::vector<CkSceneryInstance> gPersistentScenery;
 std::vector<CkTileInstance> gPersistentTiles;
@@ -100,29 +97,10 @@ void ck_rendering_add_scenery(int fid, int tile) {
     gPersistentScenery.insert(it, instance);
 }
 
-void ck_rendering_add_custom_scenery(const std::string& key, int tile) {
-    CkSceneryInstance instance;
-    instance.tile     = tile;
-    instance.assetKey = key;
-
-	auto it = std::upper_bound(gPersistentScenery.begin(), gPersistentScenery.end(), instance,
-	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
-		return a.tile < b.tile;
-	});
-    gPersistentScenery.insert(it, instance);
-}
-
 void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance inst;
     inst.tile      = tile;
     inst.fid       = fid;
-    gPersistentTiles.push_back(inst);
-}
-
-void ck_rendering_add_custom_tile(const std::string& key, int tile) {
-    CkTileInstance inst;
-    inst.tile     = tile;
-    inst.assetKey = key;
     gPersistentTiles.push_back(inst);
 }
 
@@ -150,16 +128,6 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     blit_sub_buffer(cached->frameData, cached->width, x, y, cached->width, cached->height, rect);
 }
 
-static void draw_custom_asset(CkFrm* frm, int screenX, int screenY, fallout::Rect* rect, int dir = 0) {
-    if (frm->frames[dir].empty()) return;
-    const CkFrmFrame& frame = frm->frames[dir][0];
-
-    int offsetX = screenX + 16 + frame.offsetX - (frame.width / 2);
-    int offsetY = screenY + 12 + frame.offsetY - frame.height;
-
-    blit_sub_buffer(frame.pixels.data(), frame.width, offsetX, offsetY, frame.width, frame.height, rect);
-}
-
 static int ck_rendering_tiles(fallout::Rect* rect) {
     const int TILE_PADDING_X = 80;
     const int TILE_PADDING_Y = 40;
@@ -174,12 +142,6 @@ static int ck_rendering_tiles(fallout::Rect* rect) {
         }
 
         visible_count++;
-
-        if (tile_instance.isCustomAsset()) {
-            CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, tile_instance.assetKey);
-            if (frm) draw_custom_asset(frm, screenX, screenY, rect);
-            continue;
-        }
 
         tileRenderFloorExternal(tile_instance.fid, screenX, screenY, rect);
     }
@@ -201,12 +163,6 @@ static int ck_rendering_scenery(fallout::Rect* rect) {
         }
 
         visible_count++;
-
-        if (scenery.isCustomAsset()) {
-            CkFrm* frm = ck_assets_resolve_frm(gAssetRegistry, scenery.assetKey);
-            if (frm) draw_custom_asset(frm, screenX, screenY, rect);
-            continue;
-        }
 
         const CachedArt* cached = get_or_cache_art(scenery.fid);
         if (cached == nullptr || cached->frameData == nullptr) continue;

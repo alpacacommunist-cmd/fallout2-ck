@@ -36,7 +36,6 @@ local function apply_manifest(manifest)
   if not manifest then return end
 
   if manifest.assets then
-    assets.register(manifest.id, manifest.assets)
   end
 
   if manifest.locale then

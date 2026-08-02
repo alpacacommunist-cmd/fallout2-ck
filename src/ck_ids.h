@@ -1,6 +1,8 @@
 #ifndef CK_IDS_H
 #define CK_IDS_H
 
+#include "ck_api.h"
+
 namespace fallout {
 	struct Object;
 }
@@ -45,5 +47,7 @@ int make_sid_created(fallout::Object* obj, int lua_id);
 int make_sid_modified(fallout::Object* obj, int lua_id);
 
 } // namespace ck
+
+CK_API int ck_ids_make_ck_fid(int custom_frm_id);
 
 #endif

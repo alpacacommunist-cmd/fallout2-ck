@@ -3,12 +3,11 @@
 #include "ck_ids.h"
 
 namespace ck::assets {
-
     // [frm_id] -> "/mods/my_mod/art/..."
     static std::unordered_map<int, std::string> g_custom_paths;
     static int g_next_free_frm_id = ck::ids::CK_FRM_BASE;
 
-    int ck_assets_register_path(const char* path) {
+    int register_path(const char* path) {
         if (!path || g_next_free_frm_id > ck::ids::CK_FRM_LIMIT) {
             return -1;
         }
@@ -35,5 +34,8 @@ namespace ck::assets {
     bool is_ck_frm(int fid) {
         return ck::ids::is_ck_frm(fid);
     }
+}
 
+int ck_assets_register_path(const char* path) {
+    return ck::assets::register_path(path);
 }
