@@ -31,6 +31,20 @@ int script_type_for_object(fallout::Object* object) {
     }
 }
 
+bool is_ck_frm(int fid) {
+    int object_type = (fid >> 24) & 0x0F;
+    int frm_id      = fid & 0xFFF;
+    return (object_type == CK_ASSET_TRANSPORT_TYPE && frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT);
+}
+
+int frm_id_from_fid(int fid) {
+    return fid & 0xFFF;
+}
+
+int make_ck_fid(int custom_frm_id) {
+    return (CK_ASSET_TRANSPORT_TYPE << 24) | (custom_frm_id & 0xFFF);
+}
+
 int clean_sid(int full_sid) {
     return full_sid & 0x00FFFFFF;
 }
@@ -70,7 +84,6 @@ int make_modified_sid(int lua_id) {
 int make_full_sid(int script_type, int custom_sid) {
     return (script_type << 24) | (custom_sid & 0x00FFFFFF);
 }
-
 
 int make_sid_created(fallout::Object* obj, int lua_id) {
     int script_type = script_type_for_object(obj);
