@@ -124,6 +124,7 @@ ffi.cdef[[
 
   // --- Assets ---
   int ck_assets_register_path(const char* path);
+  int ck_ids_frm_id_from_fid(int fid);
 
   // --- IDS ---
   int ck_ids_make_ck_fid(int custom_frm_id);
@@ -204,6 +205,17 @@ ffi.cdef[[
   void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bottom);
   void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data);
   void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data);
+
+  // --- Knowledge ---
+  typedef struct {
+    int id;
+    const char* name;
+    const char* description;
+    int frm_id;
+  } CkKnowledgeFFI;
+
+  void ck_knowledge_clear_cache();
+  void ck_knowledge_push_cache(const CkKnowledgeFFI* data);
 ]]
 
 return ffi

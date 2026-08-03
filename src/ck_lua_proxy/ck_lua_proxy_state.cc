@@ -12,7 +12,6 @@ extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
-    extern int get_state_tile;
     extern int get_state_data;
 
 	extern int state_sync_load;
@@ -89,10 +88,6 @@ namespace ck::proxy {
         }
 
         return result;
-    }
-
-    int get_state_tile(int map_id, const std::string& lua_tag) {
-        return execute_proxy_call<int>(detail::get_state_tile, g_current_mod_id, map_id, lua_tag);
     }
 
 	ObjectState get_object_state(int map_id, const std::string& lua_tag) {

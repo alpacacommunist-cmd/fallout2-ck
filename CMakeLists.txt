@@ -52,6 +52,8 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
 
+    src/ck_knowledge/ck_knowledge.cc
+
     src/ck_area/ck_area.cc
     src/game_time/ck_game_time.cc
     src/map/ck_map.cc

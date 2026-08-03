@@ -17,25 +17,25 @@ namespace ck::proxy::detail {
     int clear_registry        = LUA_NOREF;
     int clear_dialogs         = LUA_NOREF;
     int load_and_init_mod     = LUA_NOREF;
-    int get_state_tile        = LUA_NOREF;
     int get_state_data        = LUA_NOREF;
     int state_sync_load       = LUA_NOREF;
     int state_sync_save       = LUA_NOREF;
+    int knowledge_sync        = LUA_NOREF;
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
 const std::array<LuaHookBinding, 11> hooks = {{
-	{ "ck.system.events",     "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
-	{ "ck.system.events",     "on_map_update",         &ck::proxy::detail::on_map_update },
-	{ "ck.system.events",     "on_proc",               &ck::proxy::detail::on_proc },
-	{ "ck.fallout2.state",    "clear_tracked_objects", &ck::proxy::detail::clear_tracked_objects },
-	{ "ck.fallout2.objects",  "clear_registry",        &ck::proxy::detail::clear_registry },
-	{ "ck.fallout2.dialogue", "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
-	{ "ck.system.loader",     "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
-	{ "ck.fallout2.state",    "get_state_tile",        &ck::proxy::detail::get_state_tile },
-	{ "ck.fallout2.state",    "get_state_data",        &ck::proxy::detail::get_state_data },
-	{ "ck.fallout2.state",    "sync_load",             &ck::proxy::detail::state_sync_load },
-	{ "ck.fallout2.state",    "sync_save",             &ck::proxy::detail::state_sync_save }
+	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
+	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
+	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
+	{ "ck.fallout2.state",     "clear_tracked_objects", &ck::proxy::detail::clear_tracked_objects },
+	{ "ck.fallout2.objects",   "clear_registry",        &ck::proxy::detail::clear_registry },
+	{ "ck.fallout2.dialogue",  "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
+	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
+	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
+	{ "ck.fallout2.state",     "sync_load",             &ck::proxy::detail::state_sync_load },
+	{ "ck.fallout2.state",     "sync_save",             &ck::proxy::detail::state_sync_save },
+	{ "ck.fallout2.knowledge", "sync",                  &ck::proxy::detail::knowledge_sync }
 }};
 
 static int cache_module_function(const char* module_name, const char* function_name) {
