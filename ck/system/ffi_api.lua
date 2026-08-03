@@ -124,7 +124,7 @@ ffi.cdef[[
 
   // --- Assets ---
   int ck_assets_register_path(const char* path);
-  int ck_ids_frm_id_from_fid(int fid);
+  int ck_ids_art_id_from_fid(int fid);
 
   // --- IDS ---
   int ck_ids_make_ck_fid(int custom_frm_id);

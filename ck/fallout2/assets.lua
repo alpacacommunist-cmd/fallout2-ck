@@ -17,10 +17,6 @@ function assets.resolve(asset_string)
 
   resource_path = string.lower(resource_path)
 
-  if not string.match(resource_path, "%.frm$") then
-    resource_path = resource_path .. ".frm"
-  end
-
   local full_path = string.format("../mods/%s/assets/%s", mod_id, resource_path)
 
   local assigned_frm_id = ffi.C.ck_assets_register_path(full_path)

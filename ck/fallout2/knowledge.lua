@@ -14,14 +14,14 @@ function knowledge.sync()
     if static_info then
       local full_desc = static_info.ranks[state.rank].desc .. "\n\n[ Progress: " .. state.progress .. "/50 ]"
 
-      fid    = assets.resolve(static_info.frm)
-      frm_id = ffi.C.ck_ids_frm_id_from_fid(fid)
+      fid    = assets.resolve(static_info.art)
+      art_id = ffi.C.ck_ids_art_id_from_fid(fid)
 
       local ffi_data = ffi.new("CkKnowledgeFFI")
       ffi_data.id = id
       ffi_data.name = string.format("%s (%d)", static_info.name, state.rank)
       ffi_data.description = full_desc
-      ffi_data.frm_id = frm_id
+      ffi_data.frm_id = art_id
 
       ffi.C.ck_knowledge_push_cache(ffi_data)
     end
@@ -34,7 +34,7 @@ function knowledge.register(config)
 
   knowledge.registry[config.id] = {
     name        = config.name,
-    frm         = config.frm,
+    art         = config.art,
     max_rank    = config.max_rank or 1,
     ranks       = config.ranks or {},
     next_level  = config.next_level or function(rank) return 50 end

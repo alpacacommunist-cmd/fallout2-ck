@@ -46,7 +46,7 @@ bool is_ck_frm(int fid) {
     }
 }
 
-int frm_id_from_fid(int fid) {
+int art_id_from_fid(int fid) {
     return fid & 0xFFF;
 }
 
@@ -114,6 +114,6 @@ int ck_ids_make_ck_fid(int custom_frm_id) {
     return ck::ids::make_ck_fid(custom_frm_id);
 }
 
-int ck_ids_frm_id_from_fid(int fid) {
-    return ck::ids::frm_id_from_fid(fid);
+int ck_ids_art_id_from_fid(int fid) {
+    return ck::ids::art_id_from_fid(fid);
 }
