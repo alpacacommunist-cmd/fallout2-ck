@@ -4,8 +4,6 @@
 
 #include "ck_api.h"
 
-#include <string>
-
 extern "C" const char* ck_get_current_mod_id();
 extern "C" bool        ck_in_combat();
 void ck_dispatcher_on_map_enter();
@@ -18,7 +16,6 @@ namespace ck {
 
 	void on_map_enter();
 	void on_before_map_enter();
-
 
 	int current_map_id();
 	bool map_has_camera_borders(int map_index);

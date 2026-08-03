@@ -6,35 +6,35 @@ local ffi = require('ffi')
 local path_to_fid_cache = {}
 
 function assets.resolve(asset_string)
-    if path_to_fid_cache[asset_string] then
-        return path_to_fid_cache[asset_string]
-    end
+  if path_to_fid_cache[asset_string] then
+    return path_to_fid_cache[asset_string]
+  end
 
-    local mod_id, resource_path = asset_string:match("([^:]+):(.+)")
-    if not mod_id or not resource_path then
-        error("Invalid asset string format: " .. tostring(asset_string))
-    end
+  local mod_id, resource_path = asset_string:match("([^:]+):(.+)")
+  if not mod_id or not resource_path then
+    error("Invalid asset string format: " .. tostring(asset_string))
+  end
 
-    resource_path = string.lower(resource_path)
+  resource_path = string.lower(resource_path)
 
-    if not string.match(resource_path, "%.frm$") then
-      resource_path = resource_path .. ".frm"
-    end
+  if not string.match(resource_path, "%.frm$") then
+    resource_path = resource_path .. ".frm"
+  end
 
-    local full_path = string.format("../mods/%s/assets/%s", mod_id, resource_path)
+  local full_path = string.format("../mods/%s/assets/%s", mod_id, resource_path)
 
-    local assigned_frm_id = ffi.C.ck_assets_register_path(full_path)
-    if assigned_frm_id == -1 then
-      log.error("Failed to register custom asset path (limit reached?): " .. full_path)
-    end
+  local assigned_frm_id = ffi.C.ck_assets_register_path(full_path)
+  if assigned_frm_id == -1 then
+    log.error("Failed to register custom asset path (limit reached?): " .. full_path)
+  end
 
-    local final_fid = ffi.C.ck_ids_make_ck_fid(assigned_frm_id)
+  local fid = ffi.C.ck_ids_make_ck_fid(assigned_frm_id)
 
-    path_to_fid_cache[asset_string] = final_fid
+  path_to_fid_cache[asset_string] = fid
 
-    log.info("Resolved '%s' -> FID: 0x%X (Path: %s)", asset_string, final_fid, full_path)
+  log.debug("Resolved '%s' -> FID: 0x%X (Path: %s)", asset_string, fid, full_path)
 
-    return final_fid
+  return fid
 end
 
 return assets

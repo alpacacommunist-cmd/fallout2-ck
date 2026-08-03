@@ -7,6 +7,7 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
+#include "ck_assets/ck_asset_registry.h"
 
 #include "ck_log.h"
 static const Logger log("CK Rendering");
@@ -83,6 +84,7 @@ void ck_rendering_clear_art_cache() {
         }
     }
     gArtCache.clear();
+    ck::assets::clear();
 }
 
 void ck_rendering_add_scenery(int fid, int tile) {

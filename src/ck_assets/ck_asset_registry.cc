@@ -4,6 +4,9 @@
 #include <unordered_map>
 #include <string>
 
+#include "ck_log.h"
+static const Logger log("CK Asset Registry");
+
 namespace ck::assets {
     // [frm_id] -> "/mods/my_mod/art/..."
     static std::unordered_map<int, std::string> g_custom_paths;
@@ -16,6 +19,8 @@ namespace ck::assets {
 
         int assigned_id = g_next_free_frm_id++;
         g_custom_paths[assigned_id] = path;
+
+        log.debug("assigned asset path: {} to id: {}", path, assigned_id);
 
         return assigned_id;
     }
@@ -31,6 +36,8 @@ namespace ck::assets {
     void clear() {
         g_custom_paths.clear();
         g_next_free_frm_id = ck::ids::CK_FRM_BASE;
+
+        log.debug("Registry cleared, next_frm_id: {}", g_next_free_frm_id);
     }
 
     bool is_ck_frm(int fid) {
