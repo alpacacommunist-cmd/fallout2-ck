@@ -75,8 +75,6 @@ function events.on_map_update(ticks)
     end
   end
 
-  state.update_tracked_objects(ticks)
-
   events.emit('onMapUpdate', ticks)
 end
 

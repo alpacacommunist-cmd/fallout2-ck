@@ -3,10 +3,9 @@ local assets = require('ck.fallout2.assets')
 
 local knowledge = {}
 local log       = ck.log.new('events.lua')
-local utils     = require('ck.system.utils')
 
-knowledge.registry   = {}
-knowledge.dude_state = {}
+knowledge.registry     = {}
+knowledge.player_state = state.db.player.knowledge
 
 function knowledge.register(config)
   assert(config.id,   "Unique knowledge ID is required!")
@@ -24,11 +23,9 @@ function knowledge.register(config)
 end
 
 function knowledge.grant(id)
-  if not knowledge.dude_state[id] then
-    knowledge.dude_state[id] = { rank = 1, progress = 0 }
+  if not knowledge.player_state[id] then
+    knowledge.player_state[id] = { rank = 1, progress = 0 }
     log.debug("Dude learned new knowledge: %s", knowledge.registry[id].name)
-
-    utils.print_table(knowledge.dude_state, log)
   end
 end
 

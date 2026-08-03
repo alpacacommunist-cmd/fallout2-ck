@@ -1,25 +1,26 @@
 -- ck/fallout2/state.lua
-local ffi = require("ffi")
+local ffi   = require("ffi")
+local utils = require('ck.system.utils')
 
 local map = require('ck.fallout2.map')
 
 local state = {}
-
 local log   = ck.log.new('state.lua')
-local utils = require('ck.system.utils')
 
-local db = {
-  global = {},
-  maps   = {}
-}
+local db_init_state = { player = { knowledge = {} }, global = {}, maps = {} }
+state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
 
 local tracked_objects = {}
 
 -- gets marshalld json -> lua from backend
 function state.sync_load(loaded_db)
-  db = loaded_db or { global = {}, maps = {} }
-  db.global = db.global or {}
-  db.maps   = db.maps or {}
+  state.db = loaded_db
+
+  state.db.player = state.db.player or db_init_state.player
+  state.db.global = state.db.global or db_init_state.global
+  state.db.maps   = state.db.maps or db_init_state.maps
+
+  utils.print_table(state.db, log)
 end
 
 -- returns lua, backend marshalls it to json and saves
@@ -27,25 +28,23 @@ function state.sync_save()
   local current_map_id = map.get_id()
 
   if current_map_id ~= -1 then
-    db.maps[current_map_id] = db.maps[current_map_id] or {}
+    state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
 
     for lua_id, entry in pairs(tracked_objects) do
-      db.maps[current_map_id][entry.mod_id] = db.maps[current_map_id][entry.mod_id] or {}
-      db.maps[current_map_id][entry.mod_id][entry.tag] = db.maps[current_map_id][entry.mod_id][entry.tag] or {}
-
-      local current_data = db.maps[current_map_id][entry.mod_id][entry.tag]
+      state.db.maps[current_map_id][entry.mod_id] = state.db.maps[current_map_id][entry.mod_id] or {}
+      state.db.maps[current_map_id][entry.mod_id][entry.tag] = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
 
       if entry.object.tile then
-        current_data.tile =  entry.object:tile()
+        state.db.maps[current_map_id][entry.mod_id][entry.tag].tile = entry.object:tile()
       end
 
       if entry.object.hp then
-        db.maps[current_map_id][entry.mod_id][entry.tag].hp = entry.object:hp()
+        state.db.maps[current_map_id][entry.mod_id][entry.tag].hp = entry.object:hp()
       end
     end
   end
 
-  return db
+  return state.db
 end
 
 function state.track(object_instance, options)
@@ -65,12 +64,9 @@ function state.track(object_instance, options)
   end
 
   local lua_id = object_instance.lua_id
-  local interval_seconds = options.save_interval_seconds or 5
-  local interval_ticks = interval_seconds * 10
 
   tracked_objects[lua_id] = {
-    mod_id = mod_id, tag = object_instance.tag, object = object_instance,
-    interval = interval_ticks, next_tick = 0
+    mod_id = mod_id, tag = object_instance.tag, object = object_instance
   }
 
   log.info(string.format("Started tracking object '%s' for mod '%s'", object_instance.tag, mod_id))
@@ -84,28 +80,6 @@ function state.untrack(lua_id)
     tracked_objects[lua_id] = nil
 
     log.info(string.format("Stopped tracking object '%s' for mod '%s' (Object Destroyed)", tostring(tag), tostring(mod_id)))
-  end
-end
-
-function state.update_tracked_objects(current_ticks)
-  local map_id = map.get_id()
-
-  if map_id  == -1 then return end
-
-  for lua_id, entry in pairs(tracked_objects) do
-    if current_ticks >= entry.next_tick then
-      entry.next_tick = current_ticks + entry.interval
-
-      local tile = entry.object:tile()
-
-      db.maps[map_id] = db.maps[map_id] or {}
-      db.maps[map_id][entry.mod_id] = db.maps[map_id][entry.mod_id] or {}
-      db.maps[map_id][entry.mod_id][entry.tag] = db.maps[map_id][entry.mod_id][entry.tag] or {}
-
-      db.maps[map_id][entry.mod_id][entry.tag].tile = tile
-
-      -- if entry.obj.type == "critter" then ...
-    end
   end
 end
 
@@ -129,15 +103,15 @@ local function get_mod_storage(section, mod_id)
   local map_id = map.get_id()
 
   if section == "global" then
-    db.global[mod_id] = db.global[mod_id] or {}
+    state.db.global[mod_id] = state.db.global[mod_id] or {}
 
-    return db.global[mod_id]
+    return state.db.global[mod_id]
   elseif section == "maps" then
     if map_id == -1 then return nil end
 
-    db.maps[map_id] = db.maps[map_id] or {}
-    db.maps[map_id][mod_id] = db.maps[map_id][mod_id] or {}
-    return db.maps[target_map][m_id]
+    state.db.maps[map_id] = state.db.maps[map_id] or {}
+    state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
+    return state.db.maps[target_map][m_id]
   end
 end
 
@@ -153,23 +127,21 @@ function state.get_local(key, default, mod_id)
 end
 
 function state.set_global(mod_id, sub_section, key, value)
-  db.global[mod_id] = db.global[mod_id] or {}
-  db.global[mod_id][sub_section] = db.global[mod_id][sub_section] or {}
-  db.global[mod_id][sub_section][key] = value
+  state.db.global[mod_id] = state.db.global[mod_id] or {}
+  state.db.global[mod_id][sub_section] = state.db.global[mod_id][sub_section] or {}
+  state.db.global[mod_id][sub_section][key] = value
 end
 
 function state.get_global(mod_id, sub_section, key)
-  if db.global[mod_id] and db.global[mod_id][sub_section] then
-    return db.global[mod_id][sub_section][key]
+  if state.db.global[mod_id] and state.db.global[mod_id][sub_section] then
+    return state.db.global[mod_id][sub_section][key]
   end
   return nil
 end
 
 function state.get_stored_object_data(mod_id, map_id, tag)
-  -- utils.print_table(db, log)
-
-  if db.maps[map_id] and db.maps[map_id][mod_id] and db.maps[map_id][mod_id][tag] then
-    return db.maps[map_id][mod_id][tag]
+  if state.db.maps[map_id] and state.db.maps[map_id][mod_id] and state.db.maps[map_id][mod_id][tag] then
+    return state.db.maps[map_id][mod_id][tag]
   end
 
   return nil
