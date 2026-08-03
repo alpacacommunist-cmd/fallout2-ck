@@ -35,13 +35,6 @@ namespace fallout {
 	void tileWindowRefreshRect(Rect* rect, int elevation);
 	int tileGetTileInDirection(int tile, int rotation, int distance);
 
-    int reg_anim_begin(int requestOptions);
-    int reg_anim_end();
-	int reg_anim_clear(Object* a1);
-    int animationIsBusy(Object* obj);
-    int animationRegisterMoveToTile(Object* obj, int tile, int elevation, int a4, int a5);
-    int animationRegisterAnimate(Object* obj, int anim_id, int a3);
-
 	extern int gElevation;
 	extern unsigned char _colorTable[32768];
 }

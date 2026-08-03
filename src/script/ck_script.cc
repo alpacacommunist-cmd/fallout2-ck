@@ -11,7 +11,7 @@
 #include <cstring>
 
 #include "ck_log.h"
-static const Logger log("CK Script");
+static const Logger logger("CK Script");
 
 namespace ck {
 	int gLastDialogChoice = -1;
@@ -22,7 +22,7 @@ namespace ck {
 	static std::unordered_map<int, fallout::Script> g_lua_scripts;
 
 	void reset_dummy_script() {
-		log.debug("RESET lua_scripts");
+		logger.debug("RESET lua_scripts");
 		g_lua_scripts.clear();
 	}
 
@@ -72,7 +72,7 @@ namespace ck {
 		if (meta == nullptr) return false; // game loading
 
 		if (meta->mod_id.empty()) {
-			log.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
+			logger.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
 			return false;
 		}
 
@@ -90,7 +90,7 @@ namespace ck {
 			return true;
 		}
 
-		log.warn("unhandled proc: {} for id: {}", proc, lua_id);
+		logger.warn("unhandled proc: {} for id: {}", proc, lua_id);
 		return false;
 	}
 

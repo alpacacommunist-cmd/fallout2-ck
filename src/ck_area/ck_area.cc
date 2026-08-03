@@ -1,5 +1,3 @@
-#include "map.h"
-
 #include "ck_area/ck_area.h"
 
 #include "ce_config/ck_config_maps.h"
@@ -11,8 +9,10 @@
 #include <format>
 #include <cstring>
 
+#include "map.h"
+
 #include "ck_log.h"
-static const Logger log("CK Locations");
+static const Logger logger("CK Locations");
 
 namespace ck {
 	static int g_current_loading_map_id = -1;
@@ -36,7 +36,7 @@ namespace ck {
 	int area_resolve_id_for_city_match(int map_index) {
         auto it = g_map_id_to_original.find(map_index);
         if (it != g_map_id_to_original.end()) {
-            log.debug("Translating dynamic map ID {} back to original {} for worldmap area match", map_index, it->second);
+            logger.debug("Translating dynamic map ID {} back to original {} for worldmap area match", map_index, it->second);
             return it->second;
         }
         return map_index;
@@ -82,13 +82,13 @@ namespace ck {
 		strncpy(resolved_path, final_path.c_str(), sizeof(resolved_path) - 1);
 		resolved_path[sizeof(resolved_path) - 1] = '\0';
 
-		log.debug("Redirecting asset path for map: {} -> {}", name, resolved_path);
+		logger.debug("Redirecting asset path for map: {} -> {}", name, resolved_path);
 		return resolved_path;
 	}
 
 	void area_on_map_header_set(fallout::MapHeader* header) {
 		if (g_current_loading_map_id != -1 && header != nullptr) {
-			log.info("Memory patching map header index: {} -> {}", header->index, g_current_loading_map_id);
+			logger.info("Memory patching map header index: {} -> {}", header->index, g_current_loading_map_id);
 
 			header->index = g_current_loading_map_id;
 		}
@@ -132,7 +132,7 @@ namespace ck {
         g_map_id_redirects[original_map_id] = map_id;
 		g_map_id_to_original[map_id]        = original_map_id;
 
-        log.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
+        logger.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
         return map_id;
     }
 

@@ -8,6 +8,7 @@
 #include "object/critter/ck_stats.h"
 
 #include "combat_defs.h"
+#include "animation.h"
 
 #include <cstring>
 
@@ -160,7 +161,7 @@ int ck_anim_move_to(void* ptr, int tile, int elevation) {
 int ck_anim_play(void* ptr, int anim_id) {
 	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
 
-	return fallout::animationRegisterAnimate(object, anim_id, 0);
+	return fallout::animationRegisterAnimate(object, static_cast<fallout::AnimationType>(anim_id), 0);
 }
 
 int ck_anim_clear(void* ptr) {

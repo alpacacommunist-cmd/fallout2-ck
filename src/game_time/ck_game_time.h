@@ -7,6 +7,12 @@
 void ck_dispatcher_on_day_passed();
 void ck_dispatcher_on_time_advance(int hours, int minutes);
 
+namespace fallout {
+    unsigned int gameTimeGetTime();
+    void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr);
+    int gameTimeGetHour();
+}
+
 namespace ck {
 	void on_day_passed();
 	void on_after_rest(int hours, int minutes);

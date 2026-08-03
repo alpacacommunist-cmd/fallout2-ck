@@ -10,7 +10,7 @@
 #include "ck_assets/ck_asset_registry.h"
 
 #include "ck_log.h"
-static const Logger log("CK Rendering");
+static const Logger logger("CK Rendering");
 
 std::vector<CkSceneryInstance> gPersistentScenery;
 std::vector<CkTileInstance> gPersistentTiles;
@@ -196,7 +196,7 @@ void ck_rendering_render(fallout::Rect* rect) {
     if (now - last_log_time >= std::chrono::seconds(2)) {
         last_log_time = now;
 
-        log.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
+        logger.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
                 visible_tiles, gPersistentTiles.size(),
                 visible_scenery, gPersistentScenery.size());
     }

@@ -1,8 +1,5 @@
-#include <iostream>
-
 #include "ck_utils.h"
 #include "game_time/ck_game_time.h"
-#include "scripts.h"
 
 namespace ck {
 

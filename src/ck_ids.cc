@@ -1,6 +1,16 @@
 #include "ck_ids.h"
 #include "obj_types.h"
-#include "scripts.h"
+
+namespace fallout {
+    typedef enum ScriptType {
+        SCRIPT_TYPE_SYSTEM, // s_system
+        SCRIPT_TYPE_SPATIAL, // s_spatial
+        SCRIPT_TYPE_TIMED, // s_time
+        SCRIPT_TYPE_ITEM, // s_item
+        SCRIPT_TYPE_CRITTER, // s_critter
+        SCRIPT_TYPE_COUNT,
+    } ScriptType;
+}
 
 namespace ck::ids {
 

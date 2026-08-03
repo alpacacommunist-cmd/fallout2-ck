@@ -5,6 +5,8 @@ project(fallout2-ck C CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(ExternalProject)
+find_package(SDL2 REQUIRED)
+
 set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
 set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")
 set(LUAJIT_LIB "${LUAJIT_SRC_DIR}/src/libluajit.a")
@@ -82,6 +84,7 @@ target_include_directories(fallout2-ck PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
     "${LUAJIT_INCLUDE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src/"
+     ${SDL2_INCLUDE_DIRS}
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
