@@ -99,15 +99,6 @@ fallout::Object* ck_object_create(int pid, int tile) {
 	return nullptr;
 }
 
-fallout::Object* ck_object_create_at(int fid, int tile) {
-	fallout::Object* object = ck_object_create(BLOCKER_PID, tile);
-
-	if (object == nullptr) return nullptr;
-	object->fid = fid;
-
-	return object;
-}
-
 int ck_object_register(int pid, int tile, const LuaMeta& meta) {
 	fallout::Object* object = ck_object_create(pid, tile);
 

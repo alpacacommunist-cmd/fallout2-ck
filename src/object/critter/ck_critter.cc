@@ -7,13 +7,16 @@
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_stats.h"
 
-#include "object.h"
 #include "combat_defs.h"
 
 #include <cstring>
 
 #include "ck_log.h"
 static const Logger log("CK Critter");
+
+namespace fallout {
+    typedef struct Rect { int left; int top; int right; int bottom; } Rect;
+}
 
 static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 	int unique_pid = 0;

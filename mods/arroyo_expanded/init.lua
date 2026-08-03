@@ -9,6 +9,7 @@ local behaviors   = require('ck.fallout2.objects.critters.behaviors')
 local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
 local skills      = require('ck.fallout2.objects.critters.skills')
+local knowledge   = require('ck.fallout2.knowledge')
 
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
@@ -32,6 +33,21 @@ events.on('skill_used', function(skill, success_count, skill_bonus)
   log.info('bonus: ' .. tostring(skill_bonus))
 end)
 
+local KN_SCORPION_HARVEST = knowledge.register({
+  id       = 1,
+  name     = "Scorpion Harvesting",
+  frm      = "arroyo_expanded:skilldex/scorpion_icon",
+  max_rank = 3,
+  next_level = function(rank)
+    return rank * 25
+  end,
+  ranks = {
+    [1] = { desc = "You can cut off Radscorpion tails, but your cuts are messy and dangerous. Tails are heavy." },
+    [2] = { desc = "Your cuts are clean. Tails now weigh 2 lbs instead of 4, and merchants value them more." },
+    [3] = { desc = "Master Harvester. You extract pure venom glands alongside the tail, perfect for antidote crafting." }
+  }
+})
+
 events.on('onMapEnter', function()
   local map_id = map.get_id()
 
@@ -39,6 +55,8 @@ events.on('onMapEnter', function()
   monitor.print("Entered map!")
 
   if map_id ~= 4 then return end
+
+  -- knowledge.grant(KN_SCORPION_HARVEST)
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },

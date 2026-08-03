@@ -64,7 +64,7 @@ function state.track(object_instance, options)
     return
   end
 
-  local lua_id = object_instance.id
+  local lua_id = object_instance.lua_id
   local interval_seconds = options.save_interval_seconds or 5
   local interval_ticks = interval_seconds * 10
 
@@ -188,6 +188,5 @@ function state.get_state_tile(mod_id, map_id, tag)
 
   if data then return data.tile else return -1 end
 end
-
 
 return state
