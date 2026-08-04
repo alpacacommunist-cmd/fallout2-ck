@@ -1,14 +1,12 @@
 #include "ck_debug_overlay/ck_debug_overlay.h"
 #include "ck_debug_overlay/ck_debug_overlay_hexes.h"
 #include "ck_debug_overlay/ck_debug_object_format.h"
-#include "ck_input.h"
+#include "ck_input/ck_input.h"
 
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
 #include "object/ck_object.h"
 #include "map/ck_map_camera_borders.h"
-
-#include <unordered_set>
 
 #include "game_sound.h"
 

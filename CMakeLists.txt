@@ -54,6 +54,8 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
 
+    src/ck_input/ck_input.cc
+
     src/ck_knowledge/ck_knowledge.cc
 
     src/ck_area/ck_area.cc
@@ -79,7 +81,6 @@ add_dependencies(fallout2-ck luajit_project)
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
     "${LUAJIT_INCLUDE}"
@@ -99,16 +100,11 @@ target_link_libraries(fallout2-ck PUBLIC
     dl
 )
 
-set(CE_BRIDGE_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/ck_input.cc"
-)
-
 foreach(TARGET fallout2-ce mapper-ce)
     if(TARGET ${TARGET})
-        target_sources(${TARGET} PRIVATE ${CE_BRIDGE_SOURCES})
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
         target_link_libraries(${TARGET} fallout2-ck)
-        set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE) # Для работы LuaJIT FFI
+        set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE)
     endif()
 endforeach()
 
