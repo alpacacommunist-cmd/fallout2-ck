@@ -13,26 +13,22 @@
 #include <cstring>
 
 #include "ck_log.h"
-static const Logger log("CK Critter");
-
-namespace fallout {
-    typedef struct Rect { int left; int top; int right; int bottom; } Rect;
-}
+static const Logger logger("CK Critter");
 
 static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 	int unique_pid = 0;
 
 	if (fallout::proto_new(&unique_pid, ck::ids::object_types::CRITTER) != 0) {
-		log.error("Couldn't allocate new prototype for '{}'", lua_tag);
+		logger.error("Couldn't allocate new prototype for '{}'", lua_tag);
 		return -1;
 	}
 
 	if (fallout::proto_copy_proto(base_pid, unique_pid) != 0) {
-		log.error("Couldn't copy prototype data for '{}'", lua_tag);
+		logger.error("Couldn't copy prototype data for '{}'", lua_tag);
 		return -1;
 	}
 
-	log.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
+	logger.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
 	return unique_pid;
 }
 
@@ -101,7 +97,7 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
 	fallout::Object* obj = ck::registry::get_object(lua_id);
 
     if (!obj) {
-        log.warn("ck_critter_float_msg: Object with LuaID {} not found in any registry", lua_id);
+        logger.warn("ck_critter_float_msg: Object with LuaID {} not found in any registry", lua_id);
         return;
     }
 
@@ -149,7 +145,7 @@ CritterLua ck_critter_register(int pid, int tile, const char* tag) {
 }
 
 int ck_anim_begin(void* ptr, int request_options) {
-	return fallout::reg_anim_begin(request_options);
+	return fallout::reg_anim_begin(static_cast<fallout::AnimationRequestOptions>(request_options));
 }
 
 int ck_anim_move_to(void* ptr, int tile, int elevation) {
@@ -183,7 +179,7 @@ bool ck_critter_process_turn(void* ptr, int lua_id) {
 	if (!ptr) return false; auto* critter = static_cast<fallout::Object*>(ptr);
 
 	if (critter->data.critter.combat.ap <= 0) {
-		log.info("combat_turn_run for {}", lua_id);
+		logger.info("combat_turn_run for {}", lua_id);
 		fallout::_combat_turn_run();
 		return true;
 	}
