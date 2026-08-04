@@ -4,13 +4,12 @@
 #include "ck_utils.h"
 #include "ck_encoding.h"
 
-
 #include "ck_registry/ck_registry.h"
-
 #include "ck_proto/ck_proto_cache.h"
 
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+#include "ck_i18n/ck_i18n.h"
 
 #include <lua.hpp>
 #include "ck_lua_proxy/ck_lua_proxy.h"
@@ -162,6 +161,7 @@ void ck_scripting_set_language() {
     }
 
     logger.info("System language: {}", fallout::settings.system.language);
+    ck::i18n::load_language(fallout::settings.system.language);
 
     lua_pushstring(gLuaState, fallout::settings.system.language.c_str());
     lua_pcall(gLuaState, 1, 0, 0);
