@@ -50,4 +50,8 @@ function player.set_base_stat(stat, value)
   ffi.C.player_set_base_stat(stats.MAP[stat], value)
 end
 
+function player.pid()
+  return ffi.C.player_get_pid()
+end
+
 return player

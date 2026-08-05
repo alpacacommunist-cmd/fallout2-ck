@@ -1,10 +1,11 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
-local ffi    = require('ffi')
 
 local objects = require('ck.fallout2.objects')
 local state   = require('ck.fallout2.state')
 local log     = ck.log.new('events.lua')
+
+local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local events = {
   -- listeners stack
@@ -53,8 +54,8 @@ function events.emit_for_mod(mod_id, event_name, ...)
 
   if event_name == "critter_killed" then
     -- args[1] - victim, args[2] - killer
-    if args[1] then args[1] = ffi.cast("CkObjectFFI*", args[1]) end
-    if args[2] then args[2] = ffi.cast("CkObjectFFI*", args[2]) end
+    if args[1] then args[1] = object_ffi.from_ptr(args[1]) end
+    if args[2] then args[2] = object_ffi.from_ptr(args[2]) end
   end
 
   for index, callback in ipairs(callbacks) do

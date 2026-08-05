@@ -30,8 +30,24 @@ object_ffi.collection = {
   }
 }
 
+function object_ffi.from_ptr(light_user_data_ptr)
+  if not light_user_data_ptr or light_user_data_ptr == ffi.NULL then
+    return nil
+  end
+
+  return ffi.cast("CkObjectFFI*", light_user_data_ptr)
+end
+
 function object_ffi:restore()
   return ffi.C.ck_registry_restore_modified_object(self.c_ptr)
+end
+
+function object_ffi:get_name()
+  return ffi.string(self.name)
+end
+
+function object_ffi:get_mod_id()
+  return ffi.string(self.mod_id)
 end
 
 function object_ffi:is_critter()
@@ -56,16 +72,20 @@ function object_ffi:bind()
 end
 
 ffi.metatype("CkObjectFFI", {
-  __index = function(self, key)
-    if object_ffi[key] then return object_ffi[key] end
-
-    -- ???
-    -- if self.lua_id ~= -1 and objects.registry[self.lua_id] then
-    --   return objects.registry[self.lua_id][key]
-    -- end
-
-    return nil
-  end
+  __index = object_ffi
 })
+
+-- ffi.metatype("CkObjectFFI", {
+--   __index = function(self, key)
+--     if object_ffi[key] then return object_ffi[key] end
+--
+--     -- ???
+--     -- if self.lua_id ~= -1 and objects.registry[self.lua_id] then
+--     --   return objects.registry[self.lua_id][key]
+--     -- end
+--
+--     return nil
+--   end
+-- })
 
 return object_ffi

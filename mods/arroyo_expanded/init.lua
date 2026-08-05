@@ -1,4 +1,6 @@
 -- mods/arroyo_expanded/init.lua
+local ffi = require('ffi')
+
 local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
@@ -50,7 +52,12 @@ local KN_SCORPION_HARVEST = knowledge.register({
 
 events.on('critter_killed', function(victim, killer)
   log.info("victim pid: " .. tostring(victim.pid))
-  log.info("killed pid: " .. tostring(killer.pid))
+  log.info("killer pid: " .. tostring(killer.pid))
+
+  log.info("victim name: " .. victim:get_name())
+  log.info("killer name: " .. killer:get_name())
+
+  log.info("mod_id: " .. victim:get_mod_id())
 end)
 
 events.on('onMapEnter', function()
