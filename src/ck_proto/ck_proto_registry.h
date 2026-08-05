@@ -1,9 +1,13 @@
-#ifndef CK_PROTO_CACHE_H
-#define CK_PROTO_CACHE_H
+#ifndef CK_PROTO_REGISTRY_H
+#define CK_PROTO_REGISTRY_H
 
 #include "ck_api.h"
 
 #include <string>
+
+namespace fallout {
+    struct Object;
+}
 
 namespace ck::proto {
     struct CustomProtoInfo {
@@ -22,6 +26,9 @@ namespace ck::proto {
     int register_prototype(int base_pid, int object_type, const std::string& lua_tag);
 
     const CustomProtoInfo* find_by_pid(int pid);
+
+    void convert_custom_items_to_base(fallout::Object* critter);
+    void restore_custom_items_from_base(fallout::Object* critter);
 }
 
 CK_API int ck_proto_register(int base_pid, int object_type, const char* lua_tag);

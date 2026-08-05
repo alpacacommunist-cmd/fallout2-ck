@@ -28,6 +28,8 @@ namespace ck::proto {
     void registry_clear() {
         registry_by_pid.clear();
         tag_to_pid_mapping.clear();
+
+        logger.debug("Registry cleared");
     }
 
     int register_prototype(int source_pid, int object_type, const std::string& lua_tag) {
@@ -55,6 +57,7 @@ namespace ck::proto {
         registry_by_pid[pid] = info;
         tag_to_pid_mapping[lua_tag] = pid;
 
+        logger.info("registered new pid: {}", pid);
         return pid;
     }
 

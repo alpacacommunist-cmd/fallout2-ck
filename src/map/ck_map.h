@@ -11,7 +11,26 @@ void ck_dispatcher_on_map_enter();
 bool ck_debug_overlay_enabled();
 void ck_debug_overlay_toggle();
 
+namespace fallout {
+    struct Object;
+	extern Object* gDude;
+
+	int  mapGetCurrentMap();
+	bool _combat_reload_map();
+
+	// tile.h
+	int squareTileFromTile(int tile);
+
+	extern int* gMapLocalVars;
+	extern int  gMapLocalVarsLength;
+}
+
 namespace ck {
+    namespace proto {
+        void registry_clear();
+        void restore_custom_items_from_base(fallout::Object* critter);
+    }
+
 	void reset_dummy_script();
 
 	void on_map_enter();
@@ -22,16 +41,6 @@ namespace ck {
 	bool map_is_camera_position_allowed(int tile);
 }
 
-namespace fallout {
-	int  mapGetCurrentMap();
-	bool _combat_reload_map();
-
-	// tile.h
-	int squareTileFromTile(int tile);
-
-	extern int* gMapLocalVars;
-	extern int  gMapLocalVarsLength;
-}
 
 int  ck_map_get_floor_fid(int tile, int elevation);
 void ck_map_add_scenery(int fid, int tile);

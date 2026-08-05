@@ -1,7 +1,6 @@
 #ifndef CK_SCRIPTING_H
 #define CK_SCRIPTING_H
 
-#include <string>
 #include "ck_api.h"
 
 extern "C" bool ck_in_combat();

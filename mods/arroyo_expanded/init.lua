@@ -14,6 +14,9 @@ local skills      = require('ck.fallout2.objects.critters.skills')
 local knowledge   = require('ck.fallout2.knowledge')
 local proto       = require("ck.fallout2.proto")
 
+local golen_tail
+local PID_RADSCORPION_TAIL = 92
+
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
   log.info(player.stats.intelligence)
@@ -22,6 +25,10 @@ events.on('onGameLoaded', function()
 
   -- player.set_skill(skills.MAP['melee_weapons'], 10)
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
+
+  golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
+  golden_tail:set_cost(450)
+    :set_weight(2)
 end)
 
 events.on('onModReload', function()
@@ -51,8 +58,6 @@ local KN_SCORPION_HARVEST = knowledge.register({
   }
 })
 
-local golen_tail
-
 events.on('critter_killed', function(victim, killer)
   log.info("victim pid: " .. tostring(victim.pid))
   log.info("killer pid: " .. tostring(killer.pid))
@@ -66,11 +71,7 @@ events.on('critter_killed', function(victim, killer)
 end)
 
 events.on('onMapEnter', function()
-  local PID_RADSCORPION_TAIL = 92
-
-  golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
-  :set_cost(450)
-  :set_weight(2)
+  -- golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
 
   local map_id = map.get_id()
 

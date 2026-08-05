@@ -6,6 +6,7 @@
 
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/ck_proto_cache.h"
+#include "ck_proto/ck_proto_registry.h"
 
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
@@ -207,6 +208,7 @@ void ck_scripting_on_before_game_save() {
 
 	ck::registry::deleted::unhide();
 	ck::registry::modified::restore_sids();
+    ck::proto::convert_custom_items_to_base(fallout::gDude);
 }
 
 void ck_scripting_on_game_save(const char* path) {
@@ -216,6 +218,7 @@ void ck_scripting_on_game_save(const char* path) {
 
 	ck::registry::deleted::hide();
 	ck::registry::modified::reapply_sids();
+    ck::proto::restore_custom_items_from_base(fallout::gDude);
 }
 
 void ck_scripting_load_game_slot(int slot) {
