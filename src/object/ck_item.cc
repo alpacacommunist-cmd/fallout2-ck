@@ -4,6 +4,9 @@
 #include "object.h"
 #include "proto.h"
 
+#include "ck_log.h"
+static const Logger logger("CK Script");
+
 namespace ck {
 	void clear_inventory(fallout::Object* object) {
 		fallout::Inventory* inventory = &(object->data.inventory);
@@ -35,8 +38,6 @@ namespace ck {
 			return false;
 		}
 
-		new_item->flags |= fallout::OBJECT_NO_SAVE;
-
 		fallout::objectSetLocation(new_item, 0, 0, nullptr);
 
 		if (fallout::itemAdd(owner, new_item, count) != 0) {
@@ -45,6 +46,11 @@ namespace ck {
 		}
 
 		fallout::_obj_disconnect(new_item, nullptr);
+
+        if (fallout::critterFlagCheck(owner->pid, fallout::CRITTER_NO_STEAL)) {
+            logger.info("DROPPING ITEMS ON THE GROUND");
+            fallout::itemDropAll(owner, owner->tile);
+        }
 
 		return true;
 	}

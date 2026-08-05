@@ -16,6 +16,7 @@ local ffi     = require('ffi')
 local Object  = require('ck.fallout2.classes.object')
 local Critter = require('ck.fallout2.classes.critter')
 local objects = require('ck.fallout2.objects')
+local items   = require('ck.fallout2.objects.items')
 
 object_ffi = {}
 
@@ -36,6 +37,11 @@ function object_ffi.from_ptr(light_user_data_ptr)
   end
 
   return ffi.cast("CkObjectFFI*", light_user_data_ptr)
+end
+
+function object_ffi:give_item(item_pid, count)
+  items.add(self.c_ptr, item_pid, count)
+  print(tostring(items.count(self.c_ptr, item_pid)))
 end
 
 function object_ffi:restore()

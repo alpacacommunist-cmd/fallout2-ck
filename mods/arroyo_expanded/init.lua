@@ -58,6 +58,15 @@ events.on('critter_killed', function(victim, killer)
   log.info("killer name: " .. killer:get_name())
 
   log.info("mod_id: " .. victim:get_mod_id())
+
+  victim:give_item(items.PID_KNIFE, 1)
+  victim:give_item(items.PID_STIMPAK, 5)
+
+  -- local found_objects = map.find_by_pid(16777328)
+  -- for index, obj in ipairs(found_objects) do
+  --   print(tostring(index))
+  --   obj:give_item(items.PID_STIMPAK, 5)
+  -- end
 end)
 
 events.on('onMapEnter', function()
