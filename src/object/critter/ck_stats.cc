@@ -1,7 +1,5 @@
 #include "object/critter/ck_stats.h"
 
-#include <stdexcept>
-
 #include "ck_log.h"
 static const Logger log("CK Stats");
 

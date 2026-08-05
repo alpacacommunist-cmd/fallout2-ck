@@ -12,7 +12,6 @@ static fallout::Object* ck_object_blocker_at(int tile) {
 }
 
 namespace ck::object {
-
 	void to_ffi(CkObjectFFI& destination, fallout::Object* source, bool is_global) {
 		if (!source) return;
 

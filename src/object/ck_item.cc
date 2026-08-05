@@ -5,7 +5,7 @@
 #include "proto.h"
 
 #include "ck_log.h"
-static const Logger logger("CK Script");
+static const Logger logger("CK Item");
 
 namespace ck {
 	void clear_inventory(fallout::Object* object) {

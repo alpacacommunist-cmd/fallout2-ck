@@ -206,6 +206,12 @@ ffi.cdef[[
   void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int pid, CKExitGridData data);
   void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data);
 
+  // --- Proto ---
+
+  int ck_proto_register(int base_pid, int object_type, const char* lua_tag);
+  int ck_proto_set_item_cost(int pid, int new_cost);
+  int ck_proto_set_item_weight(int pid, int new_weight);
+
   // --- Knowledge ---
   typedef struct {
     int id;

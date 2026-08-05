@@ -12,6 +12,7 @@ local items       = require('ck.fallout2.objects.items')
 local quests      = require('ck.fallout2.quests')
 local skills      = require('ck.fallout2.objects.critters.skills')
 local knowledge   = require('ck.fallout2.knowledge')
+local proto       = require("ck.fallout2.proto")
 
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
@@ -50,6 +51,8 @@ local KN_SCORPION_HARVEST = knowledge.register({
   }
 })
 
+local golen_tail
+
 events.on('critter_killed', function(victim, killer)
   log.info("victim pid: " .. tostring(victim.pid))
   log.info("killer pid: " .. tostring(killer.pid))
@@ -59,17 +62,16 @@ events.on('critter_killed', function(victim, killer)
 
   log.info("mod_id: " .. victim:get_mod_id())
 
-  victim:give_item(items.PID_KNIFE, 1)
-  victim:give_item(items.PID_STIMPAK, 5)
-
-  -- local found_objects = map.find_by_pid(16777328)
-  -- for index, obj in ipairs(found_objects) do
-  --   print(tostring(index))
-  --   obj:give_item(items.PID_STIMPAK, 5)
-  -- end
+  victim:give_item(golden_tail.pid, 1)
 end)
 
 events.on('onMapEnter', function()
+  local PID_RADSCORPION_TAIL = 92
+
+  golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
+  :set_cost(450)
+  :set_weight(2)
+
   local map_id = map.get_id()
 
   monitor.print("Map id: " .. tostring(map_id))
