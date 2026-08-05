@@ -13,8 +13,7 @@ static fallout::Object* ck_object_blocker_at(int tile) {
 
 namespace ck::object {
 
-namespace {
-	void build_ffi_struct(CkObjectFFI& destination, fallout::Object* source) {
+	void to_ffi(CkObjectFFI& destination, fallout::Object* source, bool is_global) {
 		if (!source) return;
 
 		destination.c_ptr     = static_cast<void*>(source);
@@ -27,11 +26,12 @@ namespace {
 		destination.rotation  = source->rotation;
 
 		destination.name      = fallout::objectGetName(source);
-
 		destination.lua_id    = ck::registry::find_by_ptr(source);
-		destination.mod_id    = ck_get_current_mod_id();
+
+        if (!is_global) {
+            destination.mod_id = ck_get_current_mod_id();
+        }
 	}
-}
 
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
@@ -52,7 +52,7 @@ namespace {
 
         fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
         while (object != nullptr && count < max_count) {
-            build_ffi_struct(buffer[count], object);
+            to_ffi(buffer[count], object);
 
             count++;
             object = fallout::objectFindNextAtLocation();
@@ -67,7 +67,7 @@ namespace {
 		fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
 		while (object != nullptr && count < max_count) {
 			if (object->pid == pid) {
-				build_ffi_struct(buffer[count], object);
+				to_ffi(buffer[count], object);
 				count++;
 			}
 

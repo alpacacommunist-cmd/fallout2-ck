@@ -3,8 +3,11 @@
 
 #include "ck_api.h"
 
+struct CkObjectFFI;
+
 void ck_dispatcher_on_map_update(int ticks);
 bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
+void ck_dispatcher_on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer);
 
 namespace fallout {
     struct Object;
@@ -30,6 +33,7 @@ namespace ck {
 
 	bool owns_sid(int sid);
 	void on_map_update(unsigned int ticks);
+    void handle_global_script_proc_event(int sid, int proc);
 	bool script_try_handle(int sid, int proc);
 }
 

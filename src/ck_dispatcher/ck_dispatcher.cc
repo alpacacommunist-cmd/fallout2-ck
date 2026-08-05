@@ -2,6 +2,7 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
 #include "ck_registry/ck_registry.h"
+#include "object/ck_object.h"
 
 #include <algorithm>
 #include <string>
@@ -57,7 +58,7 @@ void ck_dispatcher_on_map_update(int ticks) {
 bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
 	if (!object_mod_id) {
 		log.warn("ck_dispatcher_on_proc called with null object_mod_id");
-		return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
+		// return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
 	}
 
 	ModContextGuard guard(object_mod_id);
@@ -80,6 +81,10 @@ void ck_dispatcher_on_time_advance(int hours, int minutes) {
 
 void ck_dispatcher_on_skill_used(int skill, int success_count, int bonus) {
 	ck_dispatcher_emit("skill_used", skill, success_count, bonus);
+}
+
+void ck_dispatcher_on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
+    ck_dispatcher_emit("critter_killed", victim, killer);
 }
 
 void ck_dispatcher_on_day_passed() {

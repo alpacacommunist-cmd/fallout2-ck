@@ -48,6 +48,11 @@ local KN_SCORPION_HARVEST = knowledge.register({
   }
 })
 
+events.on('critter_killed', function(victim, killer)
+  log.info("victim pid: " .. tostring(victim.pid))
+  log.info("killed pid: " .. tostring(killer.pid))
+end)
+
 events.on('onMapEnter', function()
   local map_id = map.get_id()
 

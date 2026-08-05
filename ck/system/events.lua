@@ -1,5 +1,6 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
+local ffi    = require('ffi')
 
 local objects = require('ck.fallout2.objects')
 local state   = require('ck.fallout2.state')
@@ -10,7 +11,7 @@ local events = {
   available_listeners = { 'onGameStart', 'onModReload',
     'onDayPassed', 'onHourPassed', 'onTimeAdvance',
     'onBeforeGameLoad', 'onGameLoaded',
-    'onDialogStart', 'skill_used',
+    'onDialogStart', 'skill_used', 'critter_killed',
     'onMapEnter', 'onMapUpdate'
   },
 
@@ -49,6 +50,12 @@ function events.emit_for_mod(mod_id, event_name, ...)
   if not callbacks or #callbacks == 0 then return end
 
   local args = { ... }
+
+  if event_name == "critter_killed" then
+    -- args[1] - victim, args[2] - killer
+    if args[1] then args[1] = ffi.cast("CkObjectFFI*", args[1]) end
+    if args[2] then args[2] = ffi.cast("CkObjectFFI*", args[2]) end
+  end
 
   for index, callback in ipairs(callbacks) do
     local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)

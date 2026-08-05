@@ -6,13 +6,15 @@
 #include <initializer_list>
 #include <variant>
 
+struct CkObjectFFI;
+
 namespace ck::proxy {
 	void on_map_update(int ticks);
 
 	bool proxy_emit_start(const char* mod_id, const char* event_name);
 	void proxy_emit_end(const char* mod_id, const char* event_name, int total_args);
 
-	using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool>;
+    using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool, const CkObjectFFI*>;
     void  emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args);
 
 	template<typename... Args>

@@ -6,6 +6,7 @@
 #include "game_dialog.h"
 
 #include "script/ck_script.h"
+#include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 
 #include <cstring>
@@ -93,6 +94,28 @@ namespace ck {
 		logger.warn("unhandled proc: {} for id: {}", proc, lua_id);
 		return false;
 	}
+
+    void handle_global_script_proc_event(int sid, int proc) {
+        if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
+
+        fallout::Script* script = nullptr;
+        if (fallout::scriptGetScript(sid, &script) == -1 || script == nullptr) return;
+
+        fallout::Object* victim_ptr = script->owner;
+        if (victim_ptr == nullptr || PID_TYPE(victim_ptr->pid) != fallout::OBJ_TYPE_CRITTER) return;
+
+        fallout::Object* killer_ptr = script->source;
+
+        CkObjectFFI victim{}, killer{};
+
+        ck::object::to_ffi(victim, victim_ptr, true);
+
+        if (killer_ptr) {
+            ck::object::to_ffi(killer, killer_ptr, true);
+        }
+
+        ck_dispatcher_on_critter_killed(&victim, &killer);
+    }
 
 	int dialog_init_ui() {
 		return fallout::_gdialogInitFromScript(-1, 0);

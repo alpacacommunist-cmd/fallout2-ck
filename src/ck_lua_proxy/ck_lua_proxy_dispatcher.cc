@@ -18,6 +18,10 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::proxy {
+    static void push_arg(const CkObjectFFI* val) {
+        lua_pushlightuserdata(gLuaState, const_cast<CkObjectFFI*>(val));
+    }
+
     void on_map_update(int ticks) {
 		execute_proxy_call<bool>(detail::on_map_update, ticks);
     }
