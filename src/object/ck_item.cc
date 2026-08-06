@@ -1,4 +1,5 @@
 #include "object/ck_item.h"
+#include "ck_proto/ck_proto_registry.h"
 
 #include "item.h"
 #include "object.h"
@@ -47,6 +48,10 @@ namespace ck {
 
 		fallout::_obj_disconnect(new_item, nullptr);
 
+        if (ck::proto::find_by_pid(item_pid)) {
+            ck::proto::track_item(new_item, item_pid);
+        }
+
         if (fallout::critterFlagCheck(owner->pid, fallout::CRITTER_NO_STEAL)) {
             logger.info("DROPPING ITEMS ON THE GROUND");
             fallout::itemDropAll(owner, owner->tile);
@@ -54,7 +59,6 @@ namespace ck {
 
 		return true;
 	}
-
 }
 
 int ck_inventory_count(void* container_ptr, int item_pid) {

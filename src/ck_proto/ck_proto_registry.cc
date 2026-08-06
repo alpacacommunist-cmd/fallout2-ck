@@ -1,8 +1,9 @@
 #include "ck_proto_registry.h"
 #include <vector>
+#include <unordered_map>
 
 #include "proto_types.h"
-#include "item.h"
+#include "obj_types.h"
 
 #include "ck_log.h"
 static const Logger logger("CK Item");
@@ -18,10 +19,47 @@ extern "C" const char* ck_get_current_mod_id();
 namespace ck::proto {
     namespace {
         std::vector<CustomProto> registry_protos;
+        std::unordered_map<fallout::Object*, int> tracked_items;
     }
 
     void registry_clear() {
         registry_protos.clear();
+    }
+
+    void track_item(fallout::Object* item_ptr, int pid) {
+        if (!item_ptr) return;
+        tracked_items[item_ptr] = pid;
+
+        logger.debug("tracking item: {}", pid);
+    }
+
+    void untrack_item(fallout::Object* item_ptr) {
+        tracked_items.erase(item_ptr);
+    }
+
+    void clear_tracked_items() {
+        tracked_items.clear();
+    }
+
+    void restore_source_pids() {
+        for (auto& [item_ptr, custom_pid] : tracked_items) {
+            if (!item_ptr) continue;
+
+            const CustomProto* proto = find_by_pid(custom_pid);
+            if (proto) {
+                item_ptr->id = custom_pid;
+                item_ptr->pid = proto->source_pid;
+            }
+        }
+    }
+
+    void reapply_custom_pids() {
+        for (auto& [item_ptr, custom_pid] : tracked_items) {
+            if (!item_ptr) continue;
+
+            item_ptr->pid = custom_pid;
+            item_ptr->id = 0;
+        }
     }
 
     void rebuild_custom_prototypes() {
@@ -40,6 +78,44 @@ namespace ck::proto {
 
             proto.pid = unique_pid;
         }
+    }
+
+    void rebuild_tracked_items() {
+        clear_tracked_items();
+        rebuild_custom_prototypes();
+
+        for (int elevation = 0; elevation < 3; elevation++) {
+            fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
+
+            while (object != nullptr) {
+                if (ck::proto::find_by_pid(object->id)) {
+                    logger.debug("Re-tracking map object from storage ID: {}", object->id);
+
+                    track_item(object, object->id);
+                    object->pid = object->id;
+                    object->id  = 0;
+                }
+
+                fallout::Inventory* inventory = &(object->data.inventory);
+                if (inventory && inventory->items) {
+                    for (int i = 0; i < inventory->length; i++) {
+                        fallout::Object* item = inventory->items[i].item;
+
+                        if (item && ck::proto::find_by_pid(item->id)) {
+                            logger.debug("Re-tracking inventory item from storage ID: {}", item->id);
+
+                            track_item(item, item->id);
+                            item->pid = item->id;
+                            item->id  = 0;
+                        }
+                    }
+                }
+
+                object = fallout::objectFindNextAtElevation();
+            }
+        }
+
+        logger.info("Custom items tracking registry successfully rebuilt via engine iterators.");
     }
 
     int register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data) {
@@ -78,7 +154,7 @@ namespace ck::proto {
         return -1;
     }
 
-    const CustomProto* find_by_runtime_pid(int runtime_pid) {
+    const CustomProto* find_by_pid(int runtime_pid) {
         for (const auto& proto : registry_protos) {
             if (proto.pid == runtime_pid) return &proto;
         }

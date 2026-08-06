@@ -4,7 +4,6 @@
 static const Logger log("CK Registry [Created]");
 
 namespace ck::registry::created {
-
     int add(fallout::Object* obj, const LuaMeta& meta) {
         if (!obj) return -1;
         int id = next_lua_id();

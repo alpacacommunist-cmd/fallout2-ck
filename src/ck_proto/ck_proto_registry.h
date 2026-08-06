@@ -8,6 +8,9 @@
 
 namespace fallout {
     struct Object;
+
+    Object* objectFindFirstAtElevation(int elevation);
+    Object* objectFindNextAtElevation();
 }
 
 namespace ck::proto {
@@ -28,12 +31,19 @@ namespace ck::proto {
         int price;
     };
 
+    void track_item(fallout::Object* item_ptr, int custom_pid);
+    void untrack_item(fallout::Object* item_ptr);
+    void restore_source_pids();
+    void reapply_custom_pids();
+    void clear();
+
     void registry_clear();
     void rebuild_custom_prototypes();
+    void rebuild_tracked_items();
     int  register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data);
 
     int  get_pid_by_tag(const std::string& lua_tag);
-    const CustomProto* find_by_runtime_pid(int runtime_pid);
+    const CustomProto* find_by_pid(int runtime_pid);
 
     const std::vector<CustomProto>& get_all_protos();
 }
