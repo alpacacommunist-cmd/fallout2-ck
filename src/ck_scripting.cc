@@ -182,6 +182,8 @@ void ck_scripting_on_engine_ready() {
 	}
 
 	gProtoCache.initialize("build/proto_cache.db");
+
+    ck_dispatcher_on_engine_ready();
 }
 
 void ck_scripting_on_object_destroyed(fallout::Object* object) {
@@ -208,7 +210,7 @@ void ck_scripting_on_before_game_save() {
 
 	ck::registry::deleted::unhide();
 	ck::registry::modified::restore_sids();
-    ck::proto::convert_custom_items_to_base(fallout::gDude);
+    // ck::proto::convert_custom_items_to_base(fallout::gDude);
 }
 
 void ck_scripting_on_game_save(const char* path) {
@@ -218,7 +220,7 @@ void ck_scripting_on_game_save(const char* path) {
 
 	ck::registry::deleted::hide();
 	ck::registry::modified::reapply_sids();
-    ck::proto::restore_custom_items_from_base(fallout::gDude);
+    // ck::proto::restore_custom_items_from_base(fallout::gDude);
 }
 
 void ck_scripting_load_game_slot(int slot) {

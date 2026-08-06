@@ -4,35 +4,41 @@
 #include "ck_api.h"
 
 #include <string>
+#include <vector>
 
 namespace fallout {
     struct Object;
 }
 
 namespace ck::proto {
-    struct CustomProtoInfo {
+    struct CustomProto {
         int pid;
         int source_pid;
         int object_type;
+
+        int weight;
+        int price;
 
         std::string lua_tag;
         std::string mod_id;
     };
 
-    void registry_init();
+    struct CustomProtoFFI {
+        int weight;
+        int price;
+    };
 
     void registry_clear();
+    void rebuild_custom_prototypes();
+    int  register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data);
 
-    int register_prototype(int base_pid, int object_type, const std::string& lua_tag);
+    int  get_pid_by_tag(const std::string& lua_tag);
+    const CustomProto* find_by_runtime_pid(int runtime_pid);
 
-    const CustomProtoInfo* find_by_pid(int pid);
-
-    void convert_custom_items_to_base(fallout::Object* critter);
-    void restore_custom_items_from_base(fallout::Object* critter);
+    const std::vector<CustomProto>& get_all_protos();
 }
 
-CK_API int ck_proto_register(int base_pid, int object_type, const char* lua_tag);
-CK_API int ck_proto_set_item_cost(int pid, int new_cost);
-CK_API int ck_proto_set_item_weight(int pid, int new_weight);
+CK_API int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data);
+CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
 
 #endif

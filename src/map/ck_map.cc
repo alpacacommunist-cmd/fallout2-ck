@@ -5,6 +5,7 @@
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
+#include "ck_proto/ck_proto_registry.h"
 
 #include "map_defs.h"
 
@@ -18,10 +19,10 @@ namespace fallout {
 
 namespace ck {
     void on_map_enter() {
+        ck::proto::rebuild_custom_prototypes();
+
         ck_dispatcher_on_map_enter();
         ck_rendering_refresh();
-
-        // ck::proto::restore_custom_items_from_base(fallout::gDude);
 
         if (ck_in_combat()) fallout::_combat_reload_map();
     }
@@ -30,7 +31,6 @@ namespace ck {
         log.debug("on_before_map_load");
 
         ck::reset_dummy_script();
-        ck::proto::registry_clear();
         ck::registry::on_map_exit();
 
         ck_rendering_clear();

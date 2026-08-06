@@ -26,11 +26,6 @@ namespace fallout {
 }
 
 namespace ck {
-    namespace proto {
-        void registry_clear();
-        void restore_custom_items_from_base(fallout::Object* critter);
-    }
-
 	void reset_dummy_script();
 
 	void on_map_enter();

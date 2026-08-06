@@ -7,9 +7,12 @@ struct CkObjectFFI;
 
 namespace fallout {
     struct Object;
+
+    int mapGetCurrentMap();
 }
 
 void ck_dispatcher_on_game_start();
+void ck_dispatcher_on_engine_ready();
 void ck_dispatcher_on_game_loaded();
 
 void ck_dispatcher_on_day_passed();

@@ -9,7 +9,7 @@ local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local events = {
   -- listeners stack
-  available_listeners = { 'onGameStart', 'onModReload',
+  available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
     'onDayPassed', 'onHourPassed', 'onTimeAdvance',
     'onBeforeGameLoad', 'onGameLoaded',
     'onDialogStart', 'skill_used', 'critter_killed',

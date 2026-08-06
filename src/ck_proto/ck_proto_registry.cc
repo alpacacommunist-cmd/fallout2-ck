@@ -1,5 +1,5 @@
 #include "ck_proto_registry.h"
-#include <unordered_map>
+#include <vector>
 
 #include "proto_types.h"
 #include "item.h"
@@ -17,119 +17,85 @@ extern "C" const char* ck_get_current_mod_id();
 
 namespace ck::proto {
     namespace {
-        std::unordered_map<int, CustomProtoInfo> registry_by_pid;
-        std::unordered_map<std::string, int> tag_to_pid_mapping;
-    }
-
-    void registry_init() {
-        registry_clear();
+        std::vector<CustomProto> registry_protos;
     }
 
     void registry_clear() {
-        registry_by_pid.clear();
-        tag_to_pid_mapping.clear();
-
-        logger.debug("Registry cleared");
+        registry_protos.clear();
     }
 
-    int register_prototype(int source_pid, int object_type, const std::string& lua_tag) {
-        auto it = tag_to_pid_mapping.find(lua_tag);
-        if (it != tag_to_pid_mapping.end()) {
-            return it->second;
+    void rebuild_custom_prototypes() {
+        for (auto& proto : registry_protos) {
+            int unique_pid = 0;
+            if (fallout::proto_new(&unique_pid, proto.object_type) != 0) continue;
+            if (fallout::proto_copy_proto(proto.source_pid, unique_pid) != 0) continue;
+
+            fallout::Proto* generic_proto = nullptr;
+            if (fallout::protoGetProto(unique_pid, &generic_proto) == 0 && generic_proto != nullptr) {
+                fallout::ItemProto* item_proto = (fallout::ItemProto*)generic_proto;
+
+                item_proto->cost   = proto.price;
+                item_proto->weight = proto.weight;
+            }
+
+            proto.pid = unique_pid;
         }
-
-        int pid = 0;
-        if (fallout::proto_new(&pid, object_type) != 0) {
-            return -1;
-        }
-
-        if (fallout::proto_copy_proto(source_pid, pid) != 0) {
-            return -1;
-        }
-
-        CustomProtoInfo info;
-        info.pid = pid;
-        info.source_pid = source_pid;
-        info.object_type = object_type;
-        info.lua_tag = lua_tag;
-        info.mod_id = ck_get_current_mod_id();
-
-        registry_by_pid[pid] = info;
-        tag_to_pid_mapping[lua_tag] = pid;
-
-        logger.info("registered new pid: {}", pid);
-        return pid;
     }
 
-    const CustomProtoInfo* find_by_pid(int pid) {
-        auto it = registry_by_pid.find(pid);
-        return (it != registry_by_pid.end()) ? &it->second : nullptr;
-    }
+    int register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data) {
+        std::string tag(lua_tag);
 
-    void convert_custom_items_to_base(fallout::Object* critter) {
-        if (!critter) return;
-
-        fallout::Inventory* inventory = &(critter->data.inventory);
-        if (!inventory || !inventory->items) return;
-
-        for (int i = 0; i < inventory->length; i++) {
-            fallout::Object* item = inventory->items[i].item;
-            if (!item) continue;
-
-            const CustomProtoInfo* info = find_by_pid(item->pid);
-            if (info) {
-                item->id  = item->pid;
-                item->pid = info->source_pid;
-
-                logger.debug("Saved custom item {} as base PID {}", info->lua_tag, info->source_pid);
+        for (auto& proto : registry_protos) {
+            if (proto.lua_tag == tag) {
+                return proto.pid;
             }
         }
+
+        CustomProto proto;
+        proto.pid         = 0;
+        proto.source_pid  = source_pid;
+        proto.object_type = object_type;
+        proto.weight      = ffi_data.weight;
+        proto.price       = ffi_data.price;
+        proto.lua_tag     = tag;
+        proto.mod_id      = ck_get_current_mod_id();
+
+        registry_protos.push_back(proto);
+
+        rebuild_custom_prototypes();
+
+        for (const auto& p : registry_protos) {
+            if (p.lua_tag == tag) return p.pid;
+        }
+
+        return -1;
     }
 
-    void restore_custom_items_from_base(fallout::Object* critter) {
-        if (!critter) return;
-
-        fallout::Inventory* inventory = &(critter->data.inventory);
-        if (!inventory || !inventory->items) return;
-
-        for (int i = 0; i < inventory->length; i++) {
-            fallout::Object* item = inventory->items[i].item;
-            if (!item) continue;
-
-            if (find_by_pid(item->id)) {
-                item->pid = item->id;
-                item->id  = 0;
-
-                logger.debug("Restored custom item PID {}", item->pid);
-            }
+    int get_pid_by_tag(const std::string& lua_tag) {
+        for (const auto& proto : registry_protos) {
+            if (proto.lua_tag == lua_tag) return proto.pid;
         }
+        return -1;
+    }
+
+    const CustomProto* find_by_runtime_pid(int runtime_pid) {
+        for (const auto& proto : registry_protos) {
+            if (proto.pid == runtime_pid) return &proto;
+        }
+        return nullptr;
+    }
+
+    const std::vector<CustomProto>& get_all_protos() {
+        return registry_protos;
     }
 }
 
+int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data) {
+    if (!lua_tag || !ffi_data) return -1;
+    return ck::proto::register_prototype(source_pid, object_type, lua_tag, *ffi_data);
+}
 
-int ck_proto_register(int base_pid, int object_type, const char* lua_tag) {
+int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
-    return ck::proto::register_prototype(base_pid, object_type, std::string(lua_tag));
-}
-
-int ck_proto_set_item_cost(int pid, int new_cost) {
-    fallout::Proto* generic_proto = nullptr;
-    if (fallout::protoGetProto(pid, &generic_proto) != 0 || generic_proto == nullptr) {
-        return -1;
-    }
-
-    fallout::ItemProto* item_proto = (fallout::ItemProto*)generic_proto;
-    item_proto->cost = new_cost;
-    return 0;
-}
-
-int ck_proto_set_item_weight(int pid, int new_weight) {
-    fallout::Proto* generic_proto = nullptr;
-    if (fallout::protoGetProto(pid, &generic_proto) != 0 || generic_proto == nullptr) {
-        return -1;
-    }
-
-    fallout::ItemProto* item_proto = (fallout::ItemProto*)generic_proto;
-    item_proto->weight = new_weight;
-    return 0;
+    return ck::proto::get_pid_by_tag(std::string(lua_tag));
 }

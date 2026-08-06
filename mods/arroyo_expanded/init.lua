@@ -14,8 +14,16 @@ local skills      = require('ck.fallout2.objects.critters.skills')
 local knowledge   = require('ck.fallout2.knowledge')
 local proto       = require("ck.fallout2.proto")
 
-local golen_tail
-local PID_RADSCORPION_TAIL = 92
+local golden_tail
+events.on('onEngineReady', function()
+  local PID_RADSCORPION_TAIL = 92
+  golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
+    price = 600,
+    weight = 3
+  })
+
+  print("PID: " .. tostring(golden_tail.pid))
+end)
 
 events.on('onGameLoaded', function()
   log.info(player.stats.strength)
@@ -25,10 +33,6 @@ events.on('onGameLoaded', function()
 
   -- player.set_skill(skills.MAP['melee_weapons'], 10)
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
-
-  golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
-  golden_tail:set_cost(450)
-    :set_weight(2)
 end)
 
 events.on('onModReload', function()
@@ -70,11 +74,7 @@ events.on('critter_killed', function(victim, killer)
   victim:give_item(golden_tail.pid, 1)
 end)
 
-events.on('onMapEnter', function()
-  -- golden_tail = proto.create_item(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail")
-
-  local map_id = map.get_id()
-
+events.on('onMapEnter', function(map_id)
   monitor.print("Map id: " .. tostring(map_id))
   monitor.print("Entered map!")
 

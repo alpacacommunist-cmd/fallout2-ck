@@ -71,6 +71,10 @@ void ck_dispatcher_on_game_start() {
 	ck_dispatcher_emit("onGameStart");
 }
 
+void ck_dispatcher_on_engine_ready() {
+	ck_dispatcher_emit("onEngineReady");
+}
+
 void ck_dispatcher_on_game_loaded() {
 	ck_dispatcher_emit("onGameLoaded");
 }
@@ -101,7 +105,7 @@ void ck_dispatcher_on_map_enter() {
 	ck::proxy::clear_dialogs();
 
 	g_last_update_ticks = 0;
-	ck_dispatcher_emit("onMapEnter");
+	ck_dispatcher_emit("onMapEnter", fallout::mapGetCurrentMap());
 }
 
 // ffi
