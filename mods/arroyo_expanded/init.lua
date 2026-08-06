@@ -66,8 +66,8 @@ events.on('critter_killed', function(victim, killer)
   log.info("victim pid: " .. tostring(victim.pid))
   log.info("killer pid: " .. tostring(killer.pid))
 
-  log.info("victim name: " .. victim:get_name())
-  log.info("killer name: " .. killer:get_name())
+  -- log.info("victim name: " .. victim:get_name())
+  -- log.info("killer name: " .. killer:get_name())
 
   log.info("mod_id: " .. victim:get_mod_id())
 
