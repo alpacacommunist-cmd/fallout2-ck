@@ -47,6 +47,7 @@ namespace ck::proto {
     };
     void sync_custom_items_on_map(SyncMode mode);
 
+    void memory_clear();
     void registry_clear();
     void rebuild_custom_prototypes();
     int  get_custom_proto(int pid, fallout::Proto** protoPtr);
@@ -58,11 +59,9 @@ namespace ck::proto {
     const CustomProto* find_by_pid(int runtime_pid);
 
     const std::vector<CustomProto>& get_all_protos();
-    int export_to_state(CustomProtoLuaView* buffer, int max_count);
 }
 
 CK_API int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data);
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
-CK_API int ck_proto_get_custom_protos(CustomProtoLuaView* buffer, int max_count);
 
 #endif

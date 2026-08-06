@@ -8,7 +8,6 @@
 
 #include "obj_types.h"
 
-#include <cstdlib>
 #include <cstring>
 #include <algorithm>
 
@@ -41,9 +40,8 @@ namespace ck::proto {
     struct CustomProtoNode { int pid; fallout::Proto* memory; };
 
     namespace {
-        std::vector<CustomProto> registry_protos;
+        std::vector<CustomProto> registry_protos; // attribute patches
         std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
-        std::unordered_map<fallout::Object*, int> tracked_items;
     }
 
     void sync_custom_items_on_map(SyncMode mode) {
@@ -86,7 +84,10 @@ namespace ck::proto {
                     }
                 } else { // Restore
                     if (ck::ids::is_ck_item_pid(object->id)) {
-                        object->pid = object->id;
+                        auto it = id_translation_table.find(object->id);
+                        if (it != id_translation_table.end()) {
+                            object->pid = it->second;
+                        }
                         object->id  = 0;
                     }
                 }
@@ -107,7 +108,10 @@ namespace ck::proto {
                             }
                         } else { // Restore
                             if (ck::ids::is_ck_item_pid(item->id)) {
-                                item->pid = item->id;
+                                auto it_item = id_translation_table.find(item->id);
+                                if (it_item != id_translation_table.end()) {
+                                    item->pid = it_item->second;
+                                }
                                 item->id  = 0;
                             }
                         }
@@ -175,12 +179,11 @@ namespace ck::proto {
     }
 
     int get_custom_proto(int pid, fallout::Proto** protoPtr) {
-        auto it = std::find_if(g_custom_protos.begin(), g_custom_protos.end(),
-                [pid](const auto& node) { logger.info("proto request: {}", pid); return node.pid == pid; });
-
-        if (it != g_custom_protos.end()) {
-            *protoPtr = it->memory;
-            return 0;
+        for (const auto& node : g_custom_protos) {
+            if (node.pid == pid) {
+                *protoPtr = node.memory;
+                return 0;
+            }
         }
 
         return -1;
@@ -237,14 +240,6 @@ namespace ck::proto {
     const std::vector<CustomProto>& get_all_protos() {
         return registry_protos;
     }
-
-    int export_to_state(CustomProtoLuaView* buffer, int max_count) {
-        std::vector<CustomProtoLuaView> state_vector;
-        for (auto& custom_proto : registry_protos)
-            state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
-
-        return registry_protos.size();
-    }
 }
 
 int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data) {
@@ -255,8 +250,4 @@ int ck_proto_register(int source_pid, int object_type, const char* lua_tag, cons
 int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
     return ck::proto::get_pid_by_tag(std::string(lua_tag));
-}
-
-int ck_proto_get_custom_protos(CustomProtoLuaView* buffer, int max_count) {
-    return ck::proto::export_to_state(buffer, max_count);
 }

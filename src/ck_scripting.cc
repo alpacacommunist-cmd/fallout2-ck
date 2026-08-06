@@ -143,6 +143,7 @@ void ck_on_scripts_reset() {
 // Exit
 void ck_scripting_exit() {
 	ck_lua_proxy_shutdown();
+    ck::proto::memory_clear();
 
     if (gLuaState != nullptr) {
         logger.info("ck_scripting_exit");
