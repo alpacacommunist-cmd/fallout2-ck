@@ -15,6 +15,7 @@ namespace ck::proxy {
 	void push_arg(const char* val);
 	void push_arg(const std::string& val);
 	void push_arg(bool val);
+    void push_arg(const void* val);
 
 	bool safe_pcall_with_traceback(int nargs, int nresults);
 

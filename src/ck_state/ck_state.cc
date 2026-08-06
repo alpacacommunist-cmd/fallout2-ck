@@ -4,7 +4,6 @@
 
 #include <fstream>
 #include <string>
-#include <algorithm>
 
 static picojson::value g_game_state;
 

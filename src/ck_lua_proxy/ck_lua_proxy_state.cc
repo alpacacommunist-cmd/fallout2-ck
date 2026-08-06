@@ -13,6 +13,8 @@ extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
     extern int get_state_data;
+    extern int get_proto_list;
+    extern int receive_proto_list;
 
 	extern int state_sync_load;
     extern int state_sync_save;
@@ -73,6 +75,17 @@ static picojson::value lua_to_picojson(lua_State* L, int idx) {
 }
 
 namespace ck::proxy {
+    void internal_iterate_lua_array(std::function<void()> element_callback) {
+        if (!lua_istable(gLuaState, -1)) return;
+
+        lua_pushnil(gLuaState);
+
+        while (lua_next(gLuaState, -2) != 0) {
+            element_callback();
+            lua_pop(gLuaState, 1);
+        }
+    }
+
 	template<typename... Args>
     ObjectState execute_proxy_call_state(int func_ref, Args... args) {
         LuaStackGuard guard;
@@ -88,6 +101,17 @@ namespace ck::proxy {
         }
 
         return result;
+    }
+
+    std::vector<CustomProtoState> get_proto_list() {
+        auto parse_proto = []() -> CustomProtoState {
+            CustomProtoState state;
+            state.id  = read_table_int("id", 0);
+            state.tag = read_table_string("tag", "");
+            return state;
+        };
+
+        return execute_proxy_call_vector<CustomProtoState>(detail::get_proto_list, parse_proto);
     }
 
 	ObjectState get_object_state(int map_id, const std::string& lua_tag) {
@@ -122,5 +146,4 @@ namespace ck::proxy {
         lua_pop(gLuaState, 1);
         return result;
     }
-
 }
