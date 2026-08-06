@@ -1,9 +1,14 @@
 #include "ck_proto_registry.h"
+#include "ck_ids.h"
+
 #include <vector>
 #include <unordered_map>
 
-#include "proto_types.h"
 #include "obj_types.h"
+
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
 
 #include "ck_log.h"
 static const Logger logger("CK Item");
@@ -12,13 +17,33 @@ namespace fallout {
     int proto_new(int* pid, int object_type);
     int proto_copy_proto(int source_pid, int destination_pid);
     int protoGetProto(int pid, fallout::Proto** proto);
+
+    const size_t _proto_sizes[11] = {
+        sizeof(ItemProto),    // 0x84
+        sizeof(CritterProto), // 0x1A0
+        sizeof(SceneryProto), // 0x38
+        sizeof(WallProto),    // 0x24
+        sizeof(TileProto),    // 0x1C
+        sizeof(MiscProto),    // 0x1C
+        0,
+        0,
+        0,
+        0,
+        0,
+    };
 }
 
 extern "C" const char* ck_get_current_mod_id();
 
 namespace ck::proto {
+    struct CustomProtoNode {
+        int pid;
+        fallout::Proto* memory;
+    };
+
     namespace {
         std::vector<CustomProto> registry_protos;
+        std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
         std::unordered_map<fallout::Object*, int> tracked_items;
     }
 
@@ -63,21 +88,51 @@ namespace ck::proto {
     }
 
     void rebuild_custom_prototypes() {
+        for (auto& node : g_custom_protos) {
+            std::free(node.memory);
+        }
+        g_custom_protos.clear();
+
+        int current_pid = ck::ids::CK_ITEM_PID_START;
+
         for (auto& proto : registry_protos) {
-            int unique_pid = 0;
-            if (fallout::proto_new(&unique_pid, proto.object_type) != 0) continue;
-            if (fallout::proto_copy_proto(proto.source_pid, unique_pid) != 0) continue;
+            if (current_pid >= ck::ids::CK_ITEM_PID_LIMIT) break;
 
-            fallout::Proto* generic_proto = nullptr;
-            if (fallout::protoGetProto(unique_pid, &generic_proto) == 0 && generic_proto != nullptr) {
-                fallout::ItemProto* item_proto = (fallout::ItemProto*)generic_proto;
-
-                item_proto->cost   = proto.price;
-                item_proto->weight = proto.weight;
+            fallout::Proto* src_proto = nullptr;
+            if (fallout::protoGetProto(proto.source_pid, &src_proto) != 0 || src_proto == nullptr) {
+                continue;
             }
 
-            proto.pid = unique_pid;
+            size_t proto_size = fallout::_proto_sizes[ck::ids::object_types::ITEM];
+            void* allocated_mem = std::malloc(proto_size);
+
+            std::memcpy(allocated_mem, src_proto, proto_size);
+            fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
+
+            custom_proto->pid = current_pid;
+
+            fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(custom_proto);
+            item_proto->cost   = proto.price;
+            item_proto->weight = proto.weight;
+
+            g_custom_protos.push_back({ current_pid, custom_proto });
+
+            proto.pid = current_pid;
+
+            current_pid++;
         }
+    }
+
+    int get_custom_proto(int pid, fallout::Proto** protoPtr) {
+        auto it = std::find_if(g_custom_protos.begin(), g_custom_protos.end(),
+                [pid](const auto& node) { return node.pid == pid; });
+
+        if (it != g_custom_protos.end()) {
+            *protoPtr = it->memory;
+            return 0;
+        }
+
+        return -1;
     }
 
     void rebuild_tracked_items() {

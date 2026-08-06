@@ -16,6 +16,10 @@ constexpr int CK_MODIFIED_START    = 6000;
 constexpr int CK_MODIFIED_LIMIT    = 10000;
 constexpr int CK_SID_LIMIT         = 15000;
 
+
+constexpr int CK_ITEM_PID_START  = 10000;
+constexpr int CK_ITEM_PID_LIMIT  = 15000;
+
 namespace object_types {
 	constexpr int ITEM       = 0;
     constexpr int CRITTER    = 1;
@@ -32,6 +36,8 @@ constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
 int  make_ck_fid(int custom_frm_id);
+
+bool is_ck_item_pid(int pid);
 
 bool is_ck_sid(int sid);
 bool is_created_sid(int sid);

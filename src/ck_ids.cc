@@ -56,6 +56,10 @@ bool is_ck_frm(int fid) {
     }
 }
 
+bool is_ck_item_pid(int pid) {
+    return pid >= CK_ITEM_PID_START && pid < CK_ITEM_PID_LIMIT;
+}
+
 int art_id_from_fid(int fid) {
     return fid & 0xFFF;
 }

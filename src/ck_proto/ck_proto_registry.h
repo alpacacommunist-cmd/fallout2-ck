@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "proto_types.h"
+
 namespace fallout {
     struct Object;
 
@@ -39,6 +41,8 @@ namespace ck::proto {
 
     void registry_clear();
     void rebuild_custom_prototypes();
+    int  get_custom_proto(int pid, fallout::Proto** protoPtr);
+
     void rebuild_tracked_items();
     int  register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data);
 
