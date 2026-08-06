@@ -1,6 +1,7 @@
 #include "ck_proto_registry.h"
 #include "ck_ids.h"
 #include "ck_messages/ck_messages.h"
+#include "ck_lua_proxy/ck_lua_proxy_state.h"
 
 #include <vector>
 #include <unordered_map>
@@ -26,21 +27,18 @@ namespace fallout {
         sizeof(WallProto),    // 0x24
         sizeof(TileProto),    // 0x1C
         sizeof(MiscProto),    // 0x1C
-        0,
-        0,
-        0,
-        0,
-        0,
+        0, 0, 0, 0, 0,
     };
 }
 
 extern "C" const char* ck_get_current_mod_id();
 
+namespace ck::proxy::detail {
+    extern int receive_proto_list;
+}
+
 namespace ck::proto {
-    struct CustomProtoNode {
-        int pid;
-        fallout::Proto* memory;
-    };
+    struct CustomProtoNode { int pid; fallout::Proto* memory; };
 
     namespace {
         std::vector<CustomProto> registry_protos;
@@ -49,6 +47,31 @@ namespace ck::proto {
     }
 
     void sync_custom_items_on_map(SyncMode mode) {
+        std::unordered_map<int, int> id_translation_table;
+
+        if (mode == SyncMode::Prepare) {
+            std::vector<CustomProtoLuaView> state_vector;
+            for (auto& custom_proto : registry_protos)
+                state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
+
+            proxy::execute_proxy_call<bool>(proxy::detail::receive_proto_list, state_vector.data(), (int)state_vector.size());
+        } else {
+            std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
+
+            for (const auto& proto_state : state_protos) {
+                auto it = std::find_if(registry_protos.begin(), registry_protos.end(),
+                        [&proto_state](const auto& p) { return p.lua_tag == proto_state.tag; });
+
+                if (it != registry_protos.end()) {
+                    id_translation_table[proto_state.id] = it->pid;
+                }
+            }
+
+            for (auto& proto_state : state_protos) {
+                logger.info("proto_tag: {}, proto_id: {}", proto_state.tag, proto_state.id);
+            }
+        }
+
         for (int elevation = 0; elevation < 3; elevation++) {
             fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
 
@@ -61,7 +84,7 @@ namespace ck::proto {
                             object->pid = proto->source_pid;
                         }
                     }
-                } else {
+                } else { // Restore
                     if (ck::ids::is_ck_item_pid(object->id)) {
                         object->pid = object->id;
                         object->id  = 0;
@@ -214,6 +237,14 @@ namespace ck::proto {
     const std::vector<CustomProto>& get_all_protos() {
         return registry_protos;
     }
+
+    int export_to_state(CustomProtoLuaView* buffer, int max_count) {
+        std::vector<CustomProtoLuaView> state_vector;
+        for (auto& custom_proto : registry_protos)
+            state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
+
+        return registry_protos.size();
+    }
 }
 
 int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data) {
@@ -224,4 +255,8 @@ int ck_proto_register(int source_pid, int object_type, const char* lua_tag, cons
 int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
     return ck::proto::get_pid_by_tag(std::string(lua_tag));
+}
+
+int ck_proto_get_custom_protos(CustomProtoLuaView* buffer, int max_count) {
+    return ck::proto::export_to_state(buffer, max_count);
 }
