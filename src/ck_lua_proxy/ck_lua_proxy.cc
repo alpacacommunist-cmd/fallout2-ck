@@ -2,6 +2,7 @@
 
 #include <lua.hpp>
 #include <array>
+#include <cstdint>
 
 #include "ck_log.h"
 static const Logger log("CK Lua Proxy");
@@ -18,13 +19,15 @@ namespace ck::proxy::detail {
     int clear_dialogs         = LUA_NOREF;
     int load_and_init_mod     = LUA_NOREF;
     int get_state_data        = LUA_NOREF;
+    int get_proto_list        = LUA_NOREF;
+    int receive_proto_list    = LUA_NOREF;
     int state_sync_load       = LUA_NOREF;
     int state_sync_save       = LUA_NOREF;
     int knowledge_sync        = LUA_NOREF;
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 11> hooks = {{
+const std::array<LuaHookBinding, 13> hooks = {{
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
@@ -33,6 +36,8 @@ const std::array<LuaHookBinding, 11> hooks = {{
 	{ "ck.fallout2.dialogue",  "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
 	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
+	{ "ck.fallout2.state",     "get_proto_list",        &ck::proxy::detail::get_proto_list },
+	{ "ck.fallout2.state",     "receive_proto_list",    &ck::proxy::detail::receive_proto_list },
 	{ "ck.fallout2.state",     "sync_load",             &ck::proxy::detail::state_sync_load },
 	{ "ck.fallout2.state",     "sync_save",             &ck::proxy::detail::state_sync_save },
 	{ "ck.fallout2.knowledge", "sync",                  &ck::proxy::detail::knowledge_sync }
@@ -99,6 +104,9 @@ namespace ck::proxy {
 	void push_arg(const char* val)       { lua_pushstring(gLuaState, val); }
 	void push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
 	void push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
+    void push_arg(const void* val) {
+        lua_pushnumber(gLuaState, static_cast<double>(reinterpret_cast<uintptr_t>(val)));
+    }
 
 	bool safe_pcall_with_traceback(int nargs, int nresults) {
 		int func_idx = lua_gettop(gLuaState) - nargs;

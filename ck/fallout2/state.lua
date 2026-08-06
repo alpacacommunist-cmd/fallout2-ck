@@ -20,7 +20,7 @@ function state.sync_load(loaded_db)
   state.db.global = state.db.global or db_init_state.global
   state.db.maps   = state.db.maps or db_init_state.maps
 
-  utils.print_table(state.db, log)
+  -- utils.print_table(state.db.proto_list, log)
 end
 
 -- returns lua, backend marshalls it to json and saves
@@ -45,6 +45,27 @@ function state.sync_save()
   end
 
   return state.db
+end
+
+function state.get_proto_list()
+  return state.db.proto_list
+end
+
+function state.receive_proto_list(data_address, size)
+  local protos = ffi.cast("CustomProtoLuaView*", data_address)
+
+  state.db.proto_list = table_new(size, 0)
+
+  for index = 0, size - 1 do
+    local proto = protos[index]
+
+    local pid     = proto.pid
+    local lua_tag = ffi.string(proto.lua_tag)
+
+    table.insert(state.db.proto_list, { id = pid, tag = lua_tag })
+
+    log.debug(string.format("Index: %d, PID: %d, Tag: %s", index, pid, lua_tag))
+  end
 end
 
 function state.track(object_instance, options)
