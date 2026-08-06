@@ -48,10 +48,6 @@ namespace ck {
 
 		fallout::_obj_disconnect(new_item, nullptr);
 
-        if (ck::proto::find_by_pid(item_pid)) {
-            ck::proto::track_item(new_item, item_pid);
-        }
-
         if (fallout::critterFlagCheck(owner->pid, fallout::CRITTER_NO_STEAL)) {
             logger.info("DROPPING ITEMS ON THE GROUND");
             fallout::itemDropAll(owner, owner->tile);

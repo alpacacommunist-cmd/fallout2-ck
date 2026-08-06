@@ -33,11 +33,11 @@ namespace ck::proto {
         int price;
     };
 
-    void track_item(fallout::Object* item_ptr, int custom_pid);
-    void untrack_item(fallout::Object* item_ptr);
-    void restore_source_pids();
-    void reapply_custom_pids();
-    void clear();
+    enum class SyncMode {
+        Prepare,
+        Restore
+    };
+    void sync_custom_items_on_map(SyncMode mode);
 
     void registry_clear();
     void rebuild_custom_prototypes();

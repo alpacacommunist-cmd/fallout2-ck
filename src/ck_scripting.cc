@@ -189,7 +189,6 @@ void ck_scripting_on_engine_ready() {
 void ck_scripting_on_object_destroyed(fallout::Object* object) {
     logger.debug("object_destroyed");
 	ck::registry::created::remove_by_ptr(object);
-    ck::proto::untrack_item(object);
 }
 
 // loadsave.cc
@@ -212,7 +211,7 @@ void ck_scripting_on_before_game_save() {
 
 	ck::registry::deleted::unhide();
 	ck::registry::modified::restore_sids();
-    ck::proto::restore_source_pids();
+    ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
 }
 
 void ck_scripting_on_game_save(const char* path) {
@@ -222,7 +221,7 @@ void ck_scripting_on_game_save(const char* path) {
 
 	ck::registry::deleted::hide();
 	ck::registry::modified::reapply_sids();
-    ck::proto::reapply_custom_pids();
+    ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 }
 
 void ck_scripting_load_game_slot(int slot) {

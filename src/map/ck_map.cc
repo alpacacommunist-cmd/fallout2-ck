@@ -19,7 +19,7 @@ namespace fallout {
 
 namespace ck {
     void on_map_enter() {
-        ck::proto::rebuild_tracked_items();
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 
         ck_dispatcher_on_map_enter();
         ck_rendering_refresh();
