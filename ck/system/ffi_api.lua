@@ -207,9 +207,11 @@ ffi.cdef[[
   void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data);
 
   // --- Proto ---
+
   typedef struct {
-    int weight;
-    int price;
+    int weight; int price;
+
+    const char* name; const char* description;
   } CustomProtoFFI;
 
   int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI* ffi_data);

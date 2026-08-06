@@ -12,6 +12,8 @@ function proto.register_prototype(source_pid, lua_tag, config)
 
   ffi_data.price  = config.price  or 0
   ffi_data.weight = config.weight or 0
+  ffi_data.name   = config.name or ""
+  ffi_data.description   = config.description or ""
 
   local initial_pid = ffi.C.ck_proto_register(source_pid, proto.types.ITEM, lua_tag, ffi_data)
   if initial_pid == -1 then

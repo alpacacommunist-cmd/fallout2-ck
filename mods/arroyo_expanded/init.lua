@@ -18,6 +18,8 @@ local golden_tail
 events.on('onEngineReady', function()
   local PID_RADSCORPION_TAIL = 92
   golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
+    name = "Золотой хвост скорпиона",
+    description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
     price = 600,
     weight = 3
   })

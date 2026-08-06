@@ -1,12 +1,12 @@
 #include "ck_messages/ck_messages.h"
 #include "ck_log.h"
+#include "ck_encoding.h"
 #include <unordered_map>
 #include <algorithm>
 
-static const Logger log("CK Messages");
+static const Logger logger("CK Messages");
 
 namespace ck {
-
 	static std::unordered_map<std::string, std::unordered_map<int, std::string>> g_strings;
 	static std::unordered_map<fallout::MessageList*, std::string> g_list_registry;
 
@@ -23,9 +23,10 @@ namespace ck {
 
 	void messages_add_string(std::string_view msg_file, int msg_id, std::string_view text) {
 		std::string file_key = normalize_path(std::string(msg_file));
-		g_strings[file_key][msg_id] = text;
+        std::string converted = utf8_to_cp1251(text);
+		g_strings[file_key][msg_id] = converted;
 
-		log.debug("Registered string for {}: [{}] = {}", file_key, msg_id, text);
+		logger.debug("Registered string for {}: [{}] = {}", file_key, msg_id, text);
 	}
 
 	void messages_on_list_loaded(fallout::MessageList* list, const char* path) {
@@ -33,7 +34,7 @@ namespace ck {
 
 		std::string file_key = normalize_path(path);
 
-		if (!g_list_registry.contains(list)) log.debug("Bound MessageList {:p} to file: {}", (void*)list, file_key);
+		if (!g_list_registry.contains(list)) logger.debug("Bound MessageList {:p} to file: {}", (void*)list, file_key);
 
 		g_list_registry[list] = file_key;
 	}
@@ -51,7 +52,7 @@ namespace ck {
 		const std::string& file_key = list_it->second;
 
 		// if (file_key == "map.msg") {
-		// 	log.debug("Engine requested map.msg ID: {}, current default text: '{}'", num, default_text ? default_text : "NULL");
+		// 	logger.debug("Engine requested map.msg ID: {}, current default text: '{}'", num, default_text ? default_text : "NULL");
 		// }
 
 		auto file_it = g_strings.find(file_key);
@@ -67,7 +68,7 @@ namespace ck {
 		g_strings.clear();
 		g_list_registry.clear();
 
-		log.info("Runtime message registries cleared");
+		logger.info("Runtime message registries cleared");
 	}
 
 }

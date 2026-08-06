@@ -1,5 +1,6 @@
 #include "ck_proto_registry.h"
 #include "ck_ids.h"
+#include "ck_messages/ck_messages.h"
 
 #include <vector>
 #include <unordered_map>
@@ -125,6 +126,7 @@ namespace ck::proto {
             fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
 
             custom_proto->pid = current_pid;
+            custom_proto->messageId = current_pid * 100;
 
             fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(custom_proto);
             item_proto->cost   = proto.price;
@@ -133,6 +135,17 @@ namespace ck::proto {
             g_custom_protos.push_back({ current_pid, custom_proto });
 
             proto.pid = current_pid;
+
+            int msg_name_id = current_pid * 100;
+            int msg_desc_id = (current_pid * 100) + 1;
+
+            if (!proto.name.empty()) {
+                ck::messages_add_string("pro_item.msg", msg_name_id, proto.name.c_str());
+            }
+
+            if (!proto.description.empty()) {
+                ck::messages_add_string("pro_item.msg", msg_desc_id, proto.description.c_str());
+            }
 
             current_pid++;
         }
@@ -163,8 +176,13 @@ namespace ck::proto {
         proto.pid         = 0;
         proto.source_pid  = source_pid;
         proto.object_type = object_type;
+
         proto.weight      = ffi_data.weight;
         proto.price       = ffi_data.price;
+
+        proto.name        = std::string(ffi_data.name);
+        proto.description = std::string(ffi_data.description);
+
         proto.lua_tag     = tag;
         proto.mod_id      = ck_get_current_mod_id();
 

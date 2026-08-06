@@ -8,6 +8,7 @@
 #include "object/critter/ck_stats.h"
 
 #include "combat_defs.h"
+#include "geometry.h"
 #include "animation.h"
 
 #include <cstring>
@@ -124,7 +125,7 @@ void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
 	}
 
 	fallout::Rect rect;
-	std::string converted = utf8_to_cp1251(text);
+	std::string converted = utf8_to_cp1251(std::string_view(text));
 
 	std::vector<char> safe_buffer(converted.size() + 5, '\0');
 	std::memcpy(safe_buffer.data(), converted.c_str(), converted.size());

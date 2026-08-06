@@ -26,7 +26,7 @@ static const Logger logger("CK Scripting");
 int l_ck_monitor_print(lua_State* L) {
 	const char* message = luaL_checkstring(L, 1);
 
-	if (message != nullptr) fallout::displayMonitorAddMessage(utf8_to_cp1251(message).c_str());
+	if (message != nullptr) fallout::displayMonitorAddMessage(utf8_to_cp1251(std::string_view(message)).c_str());
 
 	return 0;
 }

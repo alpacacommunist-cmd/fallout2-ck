@@ -24,6 +24,9 @@ namespace ck::proto {
         int weight;
         int price;
 
+        std::string name;
+        std::string description;
+
         std::string lua_tag;
         std::string mod_id;
     };
@@ -31,6 +34,9 @@ namespace ck::proto {
     struct CustomProtoFFI {
         int weight;
         int price;
+
+        const char* name;
+        const char* description;
     };
 
     enum class SyncMode {
