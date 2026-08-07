@@ -46,11 +46,27 @@ namespace ck::proto {
     namespace {
         std::vector<CustomProto> registry_protos; // attribute patches
         std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
+
+        std::unordered_map<int, int> id_translation_table; // id -> pid table; id keeps custom pid
+    }
+
+    static void prepare_object_for_save(fallout::Object* object) {
+        const CustomProto* proto = find_by_pid(object->pid);
+        if (proto) {
+            object->id  = object->pid;
+            object->pid = proto->source_pid;
+        }
+    }
+
+    static void restore_object_after_save(fallout::Object* object) {
+        auto it = id_translation_table.find(object->id);
+        if (it != id_translation_table.end()) {
+            object->pid = it->second;
+        }
+        object->id = 0;
     }
 
     void sync_custom_items_on_map(SyncMode mode) {
-        std::unordered_map<int, int> id_translation_table;
-
         if (mode == SyncMode::Prepare) {
             std::vector<CustomProtoLuaView> state_vector;
             for (auto& custom_proto : registry_protos)
@@ -80,19 +96,11 @@ namespace ck::proto {
             while (object != nullptr) {
                 if (mode == SyncMode::Prepare) {
                     if (ck::ids::is_ck_item_pid(object->pid)) {
-                        const CustomProto* proto = find_by_pid(object->pid);
-                        if (proto) {
-                            object->id  = object->pid;
-                            object->pid = proto->source_pid;
-                        }
+                        prepare_object_for_save(object);
                     }
-                } else { // Restore
+                } else { // SyncMode::Restore
                     if (ck::ids::is_ck_item_pid(object->id)) {
-                        auto it = id_translation_table.find(object->id);
-                        if (it != id_translation_table.end()) {
-                            object->pid = it->second;
-                        }
-                        object->id  = 0;
+                        restore_object_after_save(object);
                     }
                 }
 
@@ -104,19 +112,11 @@ namespace ck::proto {
 
                         if (mode == SyncMode::Prepare) {
                             if (ck::ids::is_ck_item_pid(item->pid)) {
-                                const CustomProto* proto = find_by_pid(item->pid);
-                                if (proto) {
-                                    item->id = item->pid;
-                                    item->pid = proto->source_pid;
-                                }
+                                prepare_object_for_save(item);
                             }
-                        } else { // Restore
+                        } else { // SyncMode::Restore
                             if (ck::ids::is_ck_item_pid(item->id)) {
-                                auto it_item = id_translation_table.find(item->id);
-                                if (it_item != id_translation_table.end()) {
-                                    item->pid = it_item->second;
-                                }
-                                item->id  = 0;
+                                restore_object_after_save(item);
                             }
                         }
                     }
