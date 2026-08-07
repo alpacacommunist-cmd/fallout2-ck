@@ -57,7 +57,7 @@ end)
 local KN_SCORPION_HARVEST = knowledge.register({
   id       = 1,
   name     = "Scorpion Harvesting",
-  art      = "arroyo_expanded:skilldex/scorpion.frm",
+  art      = "arroyo_expanded:skilldex/scorpperk.frm",
   max_rank = 3,
   next_level = function(rank)
     return rank * 25
