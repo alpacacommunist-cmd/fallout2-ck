@@ -9,6 +9,7 @@
 #include "obj_types.h"
 
 #include <cstring>
+#include <memory>
 #include <algorithm>
 
 #include "ck_log.h"
@@ -37,7 +38,10 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::proto {
-    struct CustomProtoNode { int pid; fallout::Proto* memory; };
+    struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
+    using UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;
+
+    struct CustomProtoNode { int pid; UniqueProtoPtr memory; };
 
     namespace {
         std::vector<CustomProto> registry_protos; // attribute patches
@@ -124,9 +128,6 @@ namespace ck::proto {
     }
 
     void memory_clear() {
-        for (auto& node : g_custom_protos) {
-            std::free(node.memory);
-        }
         g_custom_protos.clear();
     }
 
@@ -159,7 +160,8 @@ namespace ck::proto {
             item_proto->cost   = proto.price;
             item_proto->weight = proto.weight;
 
-            g_custom_protos.push_back({ current_pid, custom_proto });
+            UniqueProtoPtr custom_proto_ptr(custom_proto);
+            g_custom_protos.push_back({ current_pid, std::move(custom_proto_ptr) });
 
             proto.pid = current_pid;
 
@@ -186,7 +188,7 @@ namespace ck::proto {
     int get_custom_proto(int pid, fallout::Proto** protoPtr) {
         for (const auto& node : g_custom_protos) {
             if (node.pid == pid) {
-                *protoPtr = node.memory;
+                *protoPtr = node.memory.get();
                 return 0;
             }
         }
