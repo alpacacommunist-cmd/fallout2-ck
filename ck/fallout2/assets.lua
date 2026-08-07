@@ -5,7 +5,9 @@ local ffi = require('ffi')
 
 local path_to_fid_cache = {}
 
-function assets.resolve(asset_string)
+function assets.resolve(asset_string, art_type)
+  art_type = art_type or 6
+
   if path_to_fid_cache[asset_string] then
     return path_to_fid_cache[asset_string]
   end
@@ -28,7 +30,7 @@ function assets.resolve(asset_string)
     log.error("Failed to register custom asset path (limit reached?): " .. full_path)
   end
 
-  local fid = ffi.C.ck_ids_make_ck_fid(assigned_frm_id)
+  local fid = ffi.C.ck_ids_make_ck_fid(assigned_frm_id, art_type)
 
   path_to_fid_cache[asset_string] = fid
 

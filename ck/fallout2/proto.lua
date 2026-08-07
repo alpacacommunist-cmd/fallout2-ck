@@ -15,6 +15,8 @@ function proto.register_prototype(source_pid, lua_tag, config)
   ffi_data.name   = config.name or ""
   ffi_data.description   = config.description or ""
 
+  ffi_data.inv_fid = config.inv_fid or -1
+
   local initial_pid = ffi.C.ck_proto_register(source_pid, proto.types.ITEM, lua_tag, ffi_data)
   if initial_pid == -1 then
     error("Failed to declare custom prototype: " .. tostring(lua_tag))

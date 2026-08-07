@@ -127,7 +127,7 @@ ffi.cdef[[
   int ck_ids_art_id_from_fid(int fid);
 
   // --- IDS ---
-  int ck_ids_make_ck_fid(int custom_frm_id);
+  int ck_ids_make_ck_fid(int custom_frm_id, int art_type);
 
   // --- Dialogue ---
   bool ck_dialog_init_ui();
@@ -210,6 +210,8 @@ ffi.cdef[[
 
   typedef struct {
     int weight; int price;
+
+    int inv_fid;
 
     const char* name; const char* description;
   } CustomProtoFFI;

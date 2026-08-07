@@ -29,13 +29,13 @@ namespace object_types {
     constexpr int MISC       = 5;
 }
 
-constexpr int CK_FRM_BASE              = 1000;
+constexpr int CK_FRM_BASE              = 2000;
 constexpr int CK_FRM_LIMIT             = 4095; // 0xFFF
 constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
 
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
-int  make_ck_fid(int custom_frm_id);
+int  make_ck_fid(int custom_frm_id, int art_type = CK_ASSET_TRANSPORT_TYPE);
 
 bool is_ck_item_pid(int pid);
 
@@ -54,7 +54,7 @@ int make_sid_modified(fallout::Object* obj, int lua_id);
 
 } // namespace ck
 
-CK_API int ck_ids_make_ck_fid(int custom_frm_id);
+CK_API int ck_ids_make_ck_fid(int custom_frm_id, int art_type = ck::ids::CK_ASSET_TRANSPORT_TYPE);
 CK_API int ck_ids_art_id_from_fid(int fid);
 
 #endif

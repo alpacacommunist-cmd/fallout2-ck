@@ -174,6 +174,11 @@ namespace ck::proto {
                 ck::messages_add_string("pro_item.msg", msg_desc_id, proto.description.c_str());
             }
 
+            if (ck::ids::is_ck_frm(proto.inv_fid)) {
+                logger.error("FID: {}", proto.inv_fid);
+                item_proto->inventoryFid = proto.inv_fid;
+            }
+
             current_pid++;
         }
     }
@@ -208,6 +213,8 @@ namespace ck::proto {
 
         proto.name        = std::string(ffi_data.name);
         proto.description = std::string(ffi_data.description);
+
+        proto.inv_fid     = ffi_data.inv_fid;
 
         proto.lua_tag     = tag;
         proto.mod_id      = ck_get_current_mod_id();

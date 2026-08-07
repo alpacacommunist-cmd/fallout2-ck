@@ -10,6 +10,7 @@
 !/gamedir/test.sh
 
 mods/*/assets/
+!/mods/arroyo_expanded/assets
 mods/*/maps/
 
 tests_env/SAVEGAME/**

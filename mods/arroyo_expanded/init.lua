@@ -13,17 +13,22 @@ local quests      = require('ck.fallout2.quests')
 local skills      = require('ck.fallout2.objects.critters.skills')
 local knowledge   = require('ck.fallout2.knowledge')
 local proto       = require("ck.fallout2.proto")
+local assets      = require("ck.fallout2.assets")
 
 local golden_tail
 events.on('onEngineReady', function()
   local PID_RADSCORPION_TAIL = 92
+  inv_fid = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
+
   golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
     name = "Золотой хвост скорпиона",
     description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
     price = 600,
+    inv_fid = inv_fid,
     weight = 3
   })
 
+  log.error("inv fid: " .. tostring(inv_fid))
   print("PID: " .. tostring(golden_tail.pid))
 end)
 

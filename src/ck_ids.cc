@@ -1,6 +1,9 @@
 #include "ck_ids.h"
 #include "obj_types.h"
 
+#include "ck_log.h"
+static const Logger logger("CK IDS");
+
 namespace fallout {
     typedef enum ScriptType {
         SCRIPT_TYPE_SYSTEM, // s_system
@@ -42,18 +45,9 @@ int script_type_for_object(fallout::Object* object) {
 }
 
 bool is_ck_frm(int fid) {
-    int object_type = (fid >> 24) & 0x0F;
     int frm_id      = fid & 0xFFF;
 
-    if (frm_id < CK_FRM_BASE || frm_id > CK_FRM_LIMIT) return false;
-
-    switch (object_type) {
-        case 6:  // fallout::OBJ_TYPE_INTERFACE
-        case 10: // fallout::OBJ_TYPE_SKILLDEX
-            return true;
-        default:
-            return false;
-    }
+    return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
 }
 
 bool is_ck_item_pid(int pid) {
@@ -64,8 +58,9 @@ int art_id_from_fid(int fid) {
     return fid & 0xFFF;
 }
 
-int make_ck_fid(int custom_frm_id) {
-    return (CK_ASSET_TRANSPORT_TYPE << 24) | (custom_frm_id & 0xFFF);
+int make_ck_fid(int custom_frm_id, int art_type) {
+    logger.info("ART_TYPE: {}", art_type);
+    return ((art_type & 0xF) << 24) | (custom_frm_id & 0xFFF);
 }
 
 int clean_sid(int full_sid) {
@@ -124,8 +119,9 @@ int make_sid_modified(fallout::Object* obj, int lua_id) {
 
 } // namespace ck
 
-int ck_ids_make_ck_fid(int custom_frm_id) {
-    return ck::ids::make_ck_fid(custom_frm_id);
+int ck_ids_make_ck_fid(int custom_frm_id, int art_type) {
+    logger.info("ART_TYPE: {}", art_type);
+    return ck::ids::make_ck_fid(custom_frm_id, art_type);
 }
 
 int ck_ids_art_id_from_fid(int fid) {

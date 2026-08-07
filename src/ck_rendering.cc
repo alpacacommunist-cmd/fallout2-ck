@@ -84,7 +84,7 @@ void ck_rendering_clear_art_cache() {
         }
     }
     gArtCache.clear();
-    ck::assets::clear();
+    // ck::assets::clear();
 }
 
 void ck_rendering_add_scenery(int fid, int tile) {
