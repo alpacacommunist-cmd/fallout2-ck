@@ -49,6 +49,7 @@ namespace ck::proto {
         Prepare,
         Restore
     };
+
     void sync_custom_items_on_map(SyncMode mode);
 
     void memory_clear();
@@ -57,7 +58,9 @@ namespace ck::proto {
     int  get_custom_proto(int pid, fallout::Proto** protoPtr);
 
     void rebuild_tracked_items();
+
     int  register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data);
+    int  bind_prototype_script(int pid);
 
     int  get_pid_by_tag(const std::string& lua_tag);
     const CustomProto* find_by_pid(int runtime_pid);

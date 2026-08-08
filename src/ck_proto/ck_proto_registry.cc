@@ -44,9 +44,12 @@ namespace ck::proto {
     struct CustomProtoNode { int pid; UniqueProtoPtr memory; };
 
     namespace {
+        int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+
         std::vector<CustomProto> registry_protos; // attribute patches
         std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
 
+        std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid
         std::unordered_map<int, int> id_translation_table; // id -> pid table; id keeps custom pid
     }
 
@@ -55,14 +58,30 @@ namespace ck::proto {
         if (proto) {
             object->id  = object->pid;
             object->pid = proto->source_pid;
+
+            fallout::Proto* source_proto = nullptr;
+            if (fallout::protoGetProto(proto->source_pid, &source_proto) == 0 && source_proto) {
+                object->sid = source_proto->sid;
+            } else {
+                object->sid = -1;
+            }
         }
     }
 
     static void restore_object_after_save(fallout::Object* object) {
         auto it = id_translation_table.find(object->id);
         if (it != id_translation_table.end()) {
-            object->pid = it->second;
+            int pid = it->second;
+
+            object->pid = pid;
+
+            fallout::Proto* generic_proto = nullptr;
+            if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
+                fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
+                object->sid = item_proto->sid;
+            }
         }
+
         object->id = 0;
     }
 
@@ -95,11 +114,11 @@ namespace ck::proto {
 
             while (object != nullptr) {
                 if (mode == SyncMode::Prepare) {
-                    if (ck::ids::is_ck_item_pid(object->pid)) {
+                    if (ck::ids::is_ck_pid(object->pid)) {
                         prepare_object_for_save(object);
                     }
                 } else { // SyncMode::Restore
-                    if (ck::ids::is_ck_item_pid(object->id)) {
+                    if (ck::ids::is_ck_pid(object->id)) {
                         restore_object_after_save(object);
                     }
                 }
@@ -111,11 +130,11 @@ namespace ck::proto {
                         if (!item) continue;
 
                         if (mode == SyncMode::Prepare) {
-                            if (ck::ids::is_ck_item_pid(item->pid)) {
+                            if (ck::ids::is_ck_pid(item->pid)) {
                                 prepare_object_for_save(item);
                             }
                         } else { // SyncMode::Restore
-                            if (ck::ids::is_ck_item_pid(item->id)) {
+                            if (ck::ids::is_ck_pid(item->id)) {
                                 restore_object_after_save(item);
                             }
                         }
@@ -133,6 +152,8 @@ namespace ck::proto {
 
     void registry_clear() {
         registry_protos.clear();
+        g_proto_sid_to_pid.clear();
+        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
     }
 
     void rebuild_custom_prototypes() {
@@ -232,6 +253,31 @@ namespace ck::proto {
         return -1;
     }
 
+    int bind_prototype_script(int pid) {
+        for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
+            if (registered_pid == pid) return sid;
+        }
+
+        if (g_next_proto_sid >= ck::ids::CK_PROTO_SID_LIMIT) {
+            logger.error("Prototype SIDs limit reached!");
+            return -1;
+        }
+
+        int assigned_sid = g_next_proto_sid++;
+        int proto_sid    = ck::ids::make_proto_sid(assigned_sid);
+
+        g_proto_sid_to_pid[proto_sid] = pid;
+
+        fallout::Proto* generic_proto = nullptr;
+        if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
+            fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
+            item_proto->sid = proto_sid;
+        }
+
+        logger.debug("Bound custom prototype PID {} to runtime PROTO_SID {}", pid, assigned_sid);
+        return assigned_sid;
+    }
+
     int get_pid_by_tag(const std::string& lua_tag) {
         for (const auto& proto : registry_protos) {
             if (proto.lua_tag == lua_tag) return proto.pid;
@@ -259,4 +305,9 @@ int ck_proto_register(int source_pid, int object_type, const char* lua_tag, cons
 int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
     return ck::proto::get_pid_by_tag(std::string(lua_tag));
+}
+
+int ck_proto_bind(int pid) {
+    if (!ck::ids::is_ck_pid(pid)) return -1;
+    return ck::proto::bind_prototype_script(pid);
 }

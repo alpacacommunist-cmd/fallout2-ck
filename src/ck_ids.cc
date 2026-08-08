@@ -50,7 +50,7 @@ bool is_ck_frm(int fid) {
     return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
 }
 
-bool is_ck_item_pid(int pid) {
+bool is_ck_pid(int pid) {
     return pid >= CK_ITEM_PID_START && pid < CK_ITEM_PID_LIMIT;
 }
 
@@ -70,6 +70,11 @@ int clean_sid(int full_sid) {
 bool is_ck_sid(int sid) {
 	int clean = clean_sid(sid);
     return (clean >= CK_SID_BASE && clean <= CK_SID_LIMIT);
+}
+
+bool is_proto_sid(int sid) {
+    int clean = clean_sid(sid);
+    return clean >= CK_PROTO_SID_START && clean < CK_PROTO_SID_LIMIT;
 }
 
 bool is_created_sid(int sid) {
@@ -101,6 +106,10 @@ int make_modified_sid(int lua_id) {
 
 int make_full_sid(int script_type, int custom_sid) {
     return (script_type << 24) | (custom_sid & 0x00FFFFFF);
+}
+
+int make_proto_sid(int custom_sid) {
+    return (fallout::SCRIPT_TYPE_ITEM << 24) | (custom_sid & 0x00FFFFFF);
 }
 
 int make_sid_created(fallout::Object* obj, int lua_id) {

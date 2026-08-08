@@ -14,11 +14,13 @@ constexpr int CK_CREATED_START     = 2000;
 constexpr int CK_CREATED_LIMIT     = 6000;
 constexpr int CK_MODIFIED_START    = 6000;
 constexpr int CK_MODIFIED_LIMIT    = 10000;
-constexpr int CK_SID_LIMIT         = 15000;
-
+constexpr int CK_SID_LIMIT         = 16000;
 
 constexpr int CK_ITEM_PID_START  = 10000;
 constexpr int CK_ITEM_PID_LIMIT  = 15000;
+
+constexpr int CK_PROTO_SID_START = 15000;
+constexpr int CK_PROTO_SID_LIMIT = 16000;
 
 namespace object_types {
 	constexpr int ITEM       = 0;
@@ -37,9 +39,10 @@ bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
 int  make_ck_fid(int custom_frm_id, int art_type = CK_ASSET_TRANSPORT_TYPE);
 
-bool is_ck_item_pid(int pid);
+bool is_ck_pid(int pid);
 
 bool is_ck_sid(int sid);
+bool is_proto_sid(int sid);
 bool is_created_sid(int sid);
 bool is_modified_sid(int sid);
 int  lua_id_from_sid(int sid);
@@ -47,6 +50,7 @@ int  lua_id_from_sid(int sid);
 int make_created_sid(int lua_id);
 int make_modified_sid(int lua_id);
 int make_full_sid(int script_type, int custom_sid);
+int make_proto_sid(int custom_sid);
 int clean_sid(int full_sid);
 
 int make_sid_created(fallout::Object* obj, int lua_id);
