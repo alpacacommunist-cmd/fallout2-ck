@@ -2,6 +2,7 @@
 local unpack = table.unpack or unpack
 
 local objects = require('ck.fallout2.objects')
+local proto   = require('ck.fallout2.proto')
 local state   = require('ck.fallout2.state')
 local log     = ck.log.new('events.lua')
 
@@ -91,6 +92,16 @@ function events.on_proc(lua_id, proc_id, fixed_param)
 
   if not object then return false end
   return object:_handle_proc(proc_id, fixed_param)
+end
+
+function events.on_proto_proc(pid, proc_id, fixed_param)
+  local proto = proto.registry[pid]
+
+  log.info(string.format("pid: %d, proc_id: %d", pid, proc_id))
+  log.info("PROTO: " .. proto.pid)
+
+  if not proto then return false end
+  return proto:_handle_proc(proc_id, fixed_param)
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua

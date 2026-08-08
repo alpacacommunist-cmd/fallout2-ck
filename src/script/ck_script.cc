@@ -8,6 +8,7 @@
 #include "script/ck_script.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
+#include "ck_proto/ck_proto_registry.h"
 
 #include <cstring>
 
@@ -64,8 +65,30 @@ namespace ck {
 		ck_dispatcher_on_map_update(ticks);
 	}
 
+    bool script_proto_handle(int sid, int proc) {
+        int pid = ck::proto::get_pid_by_sid(sid);
+
+		fallout::Script* script = script_get_dummy(sid);
+
+		int fixed_param = script->fixedParam;
+		script->scriptOverrides = 0;
+
+        std::string mod_id = std::string("GLOBAL");
+		bool handled_in_lua = ck_dispatcher_on_proto_proc(pid, proc, fixed_param, mod_id.c_str());
+
+		if (handled_in_lua) {
+			script->scriptOverrides = 1;
+			return true;
+		}
+
+		logger.warn("unhandled proc: {} for sid: {}", proc, sid);
+		return false;
+    }
+
 	bool script_try_handle(int sid, int proc) {
 		if (!ck::ids::is_ck_sid(sid)) return false;
+
+        if (ck::ids::is_proto_sid(sid)) return script_proto_handle(sid, proc);
 
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 		const LuaMeta* meta = ck::registry::get_meta(lua_id);

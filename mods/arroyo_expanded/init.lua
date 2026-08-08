@@ -28,7 +28,15 @@ events.on('onEngineReady', function()
     weight = 3
   })
 
-  log.error("inv fid: " .. tostring(inv_fid))
+  golden_tail:bind()
+    :on('use', function()
+      log.info(string.format("hello world [from golden scorpion tail PID: %s]", golden_tail.pid))
+    end)
+    :on('look_at', function()
+      log.info("hi")
+      return true
+    end)
+
   print("PID: " .. tostring(golden_tail.pid))
 end)
 

@@ -14,13 +14,13 @@ constexpr int CK_CREATED_START     = 2000;
 constexpr int CK_CREATED_LIMIT     = 6000;
 constexpr int CK_MODIFIED_START    = 6000;
 constexpr int CK_MODIFIED_LIMIT    = 10000;
+constexpr int CK_PROTO_SID_START   = 10000;
+constexpr int CK_PROTO_SID_LIMIT   = 11000;
 constexpr int CK_SID_LIMIT         = 16000;
 
-constexpr int CK_ITEM_PID_START  = 10000;
-constexpr int CK_ITEM_PID_LIMIT  = 15000;
+constexpr int CK_PID_START  = 10000;
+constexpr int CK_PID_LIMIT  = 15000;
 
-constexpr int CK_PROTO_SID_START = 15000;
-constexpr int CK_PROTO_SID_LIMIT = 16000;
 
 namespace object_types {
 	constexpr int ITEM       = 0;

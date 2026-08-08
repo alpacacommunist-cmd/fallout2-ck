@@ -220,6 +220,7 @@ ffi.cdef[[
 
   int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI* ffi_data);
   int ck_proto_get_pid_by_tag(const char* lua_tag);
+  int ck_proto_bind(int pid);
 
   // --- Knowledge ---
   typedef struct {

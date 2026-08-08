@@ -67,6 +67,19 @@ bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char*
 	return result;
 }
 
+bool ck_dispatcher_on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
+	if (!object_mod_id) {
+		log.warn("ck_dispatcher_on_proc called with null object_mod_id");
+		// return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
+	}
+
+	ModContextGuard guard(object_mod_id);
+	bool result = ck::proxy::on_proto_proc(pid, proc_id, fixed_param, object_mod_id);
+
+	return result;
+}
+
+
 void ck_dispatcher_on_game_start() {
 	ck_dispatcher_emit("onGameStart");
 }

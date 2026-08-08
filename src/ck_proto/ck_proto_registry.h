@@ -63,6 +63,7 @@ namespace ck::proto {
     int  bind_prototype_script(int pid);
 
     int  get_pid_by_tag(const std::string& lua_tag);
+    int get_pid_by_sid(int sid);
     const CustomProto* find_by_pid(int runtime_pid);
 
     const std::vector<CustomProto>& get_all_protos();
@@ -70,5 +71,6 @@ namespace ck::proto {
 
 CK_API int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data);
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
+CK_API int ck_proto_bind(int pid);
 
 #endif

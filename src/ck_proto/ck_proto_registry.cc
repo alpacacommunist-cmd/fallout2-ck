@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #include "ck_log.h"
-static const Logger logger("CK Item");
+static const Logger logger("CK Proto Registry");
 
 namespace fallout {
     int proto_new(int* pid, int object_type);
@@ -49,8 +49,8 @@ namespace ck::proto {
         std::vector<CustomProto> registry_protos; // attribute patches
         std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
 
-        std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid
         std::unordered_map<int, int> id_translation_table; // id -> pid table; id keeps custom pid
+        std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
     }
 
     static void prepare_object_for_save(fallout::Object* object) {
@@ -153,15 +153,15 @@ namespace ck::proto {
     void registry_clear() {
         registry_protos.clear();
         g_proto_sid_to_pid.clear();
-        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+        g_next_proto_sid = ck::ids::CK_PROTO_SID_START + 1;
     }
 
     void rebuild_custom_prototypes() {
         memory_clear();
-        int current_pid = ck::ids::CK_ITEM_PID_START;
+        int current_pid = ck::ids::CK_PID_START;
 
         for (auto& proto : registry_protos) {
-            if (current_pid >= ck::ids::CK_ITEM_PID_LIMIT) break;
+            if (current_pid >= ck::ids::CK_PID_LIMIT) break;
 
             fallout::Proto* src_proto = nullptr;
             if (fallout::protoGetProto(proto.source_pid, &src_proto) != 0 || src_proto == nullptr) {
@@ -198,7 +198,6 @@ namespace ck::proto {
             }
 
             if (ck::ids::is_ck_frm(proto.inv_fid)) {
-                logger.error("FID: {}", proto.inv_fid);
                 item_proto->inventoryFid = proto.inv_fid;
             }
 
@@ -274,14 +273,21 @@ namespace ck::proto {
             item_proto->sid = proto_sid;
         }
 
-        logger.debug("Bound custom prototype PID {} to runtime PROTO_SID {}", pid, assigned_sid);
-        return assigned_sid;
+        logger.debug("Bound custom prototype PID {} to SID {} ({})", pid, assigned_sid, proto_sid);
+        return proto_sid;
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
         for (const auto& proto : registry_protos) {
             if (proto.lua_tag == lua_tag) return proto.pid;
         }
+        return -1;
+    }
+
+    int get_pid_by_sid(int sid) {
+        auto it = g_proto_sid_to_pid.find(sid);
+        if (it != g_proto_sid_to_pid.end()) return it->second;
+
         return -1;
     }
 

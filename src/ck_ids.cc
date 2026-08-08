@@ -51,7 +51,7 @@ bool is_ck_frm(int fid) {
 }
 
 bool is_ck_pid(int pid) {
-    return pid >= CK_ITEM_PID_START && pid < CK_ITEM_PID_LIMIT;
+    return pid >= CK_PID_START && pid < CK_PID_LIMIT;
 }
 
 int art_id_from_fid(int fid) {
@@ -92,7 +92,9 @@ int lua_id_from_sid(int sid) {
 
     if (is_modified_sid(sid))     return clean - CK_MODIFIED_START;
     if (is_created_sid(sid))      return clean - CK_CREATED_START;
+    if (is_proto_sid(sid))        return clean - CK_PROTO_SID_START;
     if (is_ck_sid(sid))           return clean - CK_SID_BASE;
+
     return -1;
 }
 
