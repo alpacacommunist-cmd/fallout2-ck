@@ -1,14 +1,13 @@
 -- ck/fallout2/dialogue.lua
 local ffi = require("ffi")
 
-local C = ffi.C
-
-ck.dialogue.set_reply    = C.ck_dialog_set_reply
-ck.dialogue.add_option   = C.ck_dialog_add_option
-ck.dialogue.go           = C.ck_dialog_go
-ck.dialogue.exit         = C.ck_dialog_exit
-ck.dialogue.init_ui      = C.ck_dialog_init_ui
-ck.dialogue.close_ui     = C.ck_dialog_close_ui
+ck.dialogue = {}
+ck.dialogue.set_reply    = ffi.C.ck_dialog_set_reply
+ck.dialogue.add_option   = ffi.C.ck_dialog_add_option
+ck.dialogue.go           = ffi.C.ck_dialog_go
+ck.dialogue.exit         = ffi.C.ck_dialog_exit
+ck.dialogue.init_ui      = ffi.C.ck_dialog_init_ui
+ck.dialogue.close_ui     = ffi.C.ck_dialog_close_ui
 
 local dialogue = {
   -- npc_id -> dialog function

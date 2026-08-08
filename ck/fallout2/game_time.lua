@@ -1,12 +1,12 @@
 -- ck/fallout2/game_time.lua
 local ffi = require("ffi")
 
-local C = ffi.C
+ck.game_time = {}
 
-ck.game_time.get_year  = C.ck_game_get_year
-ck.game_time.get_day   = C.ck_game_get_day
-ck.game_time.get_month = C.ck_game_get_month
-ck.game_time.get_hour  = C.ck_game_get_hour
+ck.game_time.get_year  = ffi.C.ck_game_get_year
+ck.game_time.get_day   = ffi.C.ck_game_get_day
+ck.game_time.get_month = ffi.C.ck_game_get_month
+ck.game_time.get_hour  = ffi.C.ck_game_get_hour
 
 --
 --  FFI END

@@ -21,14 +21,10 @@ lua_State* gLuaState = nullptr;
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
 
+void ck_print_monitor_message(const char* message) {
+    std::string converted = utf8_to_cp1251(std::string_view(message));
 
-// l_ck_monitor_print -> ckMonitorPrint -> fallout2.monitor.print
-int l_ck_monitor_print(lua_State* L) {
-	const char* message = luaL_checkstring(L, 1);
-
-	if (message != nullptr) fallout::displayMonitorAddMessage(utf8_to_cp1251(std::string_view(message)).c_str());
-
-	return 0;
+    fallout::displayMonitorAddMessage(converted.c_str());
 }
 
 // ck scripting reload mods
@@ -58,11 +54,6 @@ void ck_reload_mods() {
 void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
 	ck::registry::clear_resources_for_mod(target_mod_id);
 }
-
-static const luaL_Reg CK_GLOBAL_FUNCTIONS[] = {
-    {"ckMonitorPrint",     l_ck_monitor_print},
-    {nullptr,              nullptr}
-};
 
 // Init
 
@@ -106,7 +97,6 @@ void ck_scripting_init(int argc, char** argv) {
     }
 
 	lua_pushvalue(gLuaState, LUA_GLOBALSINDEX);
-    luaL_setfuncs(gLuaState, CK_GLOBAL_FUNCTIONS, 0);
     lua_pop(gLuaState, 1);
 
     if (luaL_loadfile(gLuaState, "../ck/system/bootstrap.lua") != LUA_OK) {
@@ -143,7 +133,6 @@ void ck_on_scripts_reset() {
 // Exit
 void ck_scripting_exit() {
 	ck_lua_proxy_shutdown();
-    ck::proto::memory_clear();
 
     if (gLuaState != nullptr) {
         logger.info("ck_scripting_exit");
@@ -229,10 +218,6 @@ void ck_scripting_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
 
-const char* ck_testing_get_current_suite() {
-    return g_test_suite_name.c_str();
-}
-
-void ck_testing_set_current_suite(const char* name) {
-    g_test_suite_name = std::string(name);
-}
+const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
+void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
+void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_message(message); }

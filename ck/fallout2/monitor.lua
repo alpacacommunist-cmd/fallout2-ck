@@ -2,10 +2,13 @@
 
 local monitor = {}
 
-function monitor.print(message)
-  print("[Lua Facade Debug]: " .. tostring(message))
+local ffi = require('ffi')
+local log = ck.log.new('minitor.log')
 
-  ckMonitorPrint(message)
+function monitor.print(message)
+  log.debug(message)
+
+  ffi.C.ck_scripting_monitor_print_message(message)
 end
 
 return monitor

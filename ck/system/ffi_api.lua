@@ -13,6 +13,7 @@ ffi.cdef[[
   const char* ck_get_current_mod_id();
 
   void ck_scripting_load_game_slot(int slot);
+  void ck_scripting_monitor_print_message(const char* message);
 
   // --- Tests ---
   const char* ck_testing_get_current_suite();

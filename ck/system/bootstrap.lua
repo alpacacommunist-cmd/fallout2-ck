@@ -4,10 +4,7 @@ package.path = package.path .. ";../?.lua;../?/init.lua"
 require('ck.system.ffi_api')
 local ffi = require("ffi")
 
-ffi.cdef[[
-  bool ck_dispatcher_load_mod(const char* mod_id);
-]]
-
+ck = {}
 ck.log = require('ck.system.log')
 
 local log    = ck.log.new("CK Bootstrap")
