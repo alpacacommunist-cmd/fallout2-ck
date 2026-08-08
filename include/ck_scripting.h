@@ -18,6 +18,7 @@ namespace fallout {
 	void displayMonitorAddMessage(const char* str);
 
 	void mainMenuWindowFree();
+    int soundPlayFile(const char* name);
 
 	int  ck_load_game_slot(int slot);
 }
@@ -48,5 +49,6 @@ CK_API void ck_scripting_load_game_slot(int slot);
 CK_API const char* ck_testing_get_current_suite();
 CK_API void ck_testing_set_current_suite(const char* name);
 CK_API void ck_scripting_monitor_print_message(const char* message);
+CK_API void ck_sound_play_sfx(const char* name);
 
 #endif // CK_SCRIPTING_H

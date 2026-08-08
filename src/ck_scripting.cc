@@ -57,7 +57,7 @@ void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
 
 // Init
 
-static bool is_test_mode           = false;
+static bool is_test_mode = false;
 static std::string g_test_suite_name = std::string();
 
 static int    g_game_argc = 0;
@@ -221,3 +221,4 @@ void ck_scripting_load_game_slot(int slot) {
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
 void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
+void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }

@@ -14,6 +14,7 @@ local skills      = require('ck.fallout2.objects.critters.skills')
 local knowledge   = require('ck.fallout2.knowledge')
 local proto       = require("ck.fallout2.proto")
 local assets      = require("ck.fallout2.assets")
+local sfx         = require('ck.fallout2.sound_sfx')
 
 local golden_tail
 events.on('onEngineReady', function()
@@ -36,7 +37,7 @@ events.on('onEngineReady', function()
       log.info(string.format("hello world [from golden scorpion tail PID: %s]", golden_tail.pid))
     end)
     :on('look_at', function()
-      log.info("hi")
+      sfx.play("animal1")
     end)
 
   print("PID: " .. tostring(golden_tail.pid))
