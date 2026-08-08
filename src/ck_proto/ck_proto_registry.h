@@ -31,6 +31,8 @@ namespace ck::proto {
 
         int inv_fid;
 
+        bool usable;
+
         std::string lua_tag;
         std::string mod_id;
     };
@@ -40,6 +42,8 @@ namespace ck::proto {
         int price;
 
         int inv_fid;
+
+        bool usable;
 
         const char* name;
         const char* description;

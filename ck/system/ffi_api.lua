@@ -213,6 +213,8 @@ ffi.cdef[[
 
     int inv_fid;
 
+    bool usable;
+
     const char* name; const char* description;
   } CustomProtoFFI;
 

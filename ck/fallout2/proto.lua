@@ -6,6 +6,7 @@ local proto = {}
 proto.PROC_NAMES = {
   [3]  = "description",
   [4]  = "pickup",
+  [5]  = "drop",
   [6]  = "use",
   [11] = "talk",
   -- [12] = "critter", -- doesn't work bc gScriptsLists, using own on_map_update from ck_script.cc
@@ -35,6 +36,8 @@ function proto.register_prototype(source_pid, lua_tag, config)
   ffi_data.description   = config.description or ""
 
   ffi_data.inv_fid = config.inv_fid or -1
+
+  ffi_data.usable = config.usable or false
 
   local pid = ffi.C.ck_proto_register(source_pid, proto.types.ITEM, lua_tag, ffi_data)
   if pid == -1 then

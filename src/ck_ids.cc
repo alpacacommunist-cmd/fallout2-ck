@@ -92,7 +92,7 @@ int lua_id_from_sid(int sid) {
 
     if (is_modified_sid(sid))     return clean - CK_MODIFIED_START;
     if (is_created_sid(sid))      return clean - CK_CREATED_START;
-    if (is_proto_sid(sid))        return clean - CK_PROTO_SID_START;
+    if (is_proto_sid(sid))        return clean + CK_PROTO_SID_START;
     if (is_ck_sid(sid))           return clean - CK_SID_BASE;
 
     return -1;

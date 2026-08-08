@@ -21,11 +21,14 @@ events.on('onEngineReady', function()
   inv_fid = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
 
   golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
-    name = "Золотой хвост скорпиона",
+    name        = "Золотой хвост скорпиона",
     description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
-    price = 600,
+    price  = 600,
+    weight = 3,
+
     inv_fid = inv_fid,
-    weight = 3
+
+    -- usable = true
   })
 
   golden_tail:bind()
@@ -34,7 +37,6 @@ events.on('onEngineReady', function()
     end)
     :on('look_at', function()
       log.info("hi")
-      return true
     end)
 
   print("PID: " .. tostring(golden_tail.pid))

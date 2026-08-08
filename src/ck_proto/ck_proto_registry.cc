@@ -153,7 +153,7 @@ namespace ck::proto {
     void registry_clear() {
         registry_protos.clear();
         g_proto_sid_to_pid.clear();
-        g_next_proto_sid = ck::ids::CK_PROTO_SID_START + 1;
+        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
     }
 
     void rebuild_custom_prototypes() {
@@ -180,6 +180,10 @@ namespace ck::proto {
             fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(custom_proto);
             item_proto->cost   = proto.price;
             item_proto->weight = proto.weight;
+
+            if (proto.usable) {
+                item_proto->extendedFlags |= fallout::ItemProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
+            }
 
             UniqueProtoPtr custom_proto_ptr(custom_proto);
             g_custom_protos.push_back({ current_pid, std::move(custom_proto_ptr) });
@@ -238,6 +242,8 @@ namespace ck::proto {
 
         proto.inv_fid     = ffi_data.inv_fid;
 
+        proto.usable      = ffi_data.usable;
+
         proto.lua_tag     = tag;
         proto.mod_id      = ck_get_current_mod_id();
 
@@ -265,7 +271,7 @@ namespace ck::proto {
         int assigned_sid = g_next_proto_sid++;
         int proto_sid    = ck::ids::make_proto_sid(assigned_sid);
 
-        g_proto_sid_to_pid[proto_sid] = pid;
+        g_proto_sid_to_pid[assigned_sid] = pid;
 
         fallout::Proto* generic_proto = nullptr;
         if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
@@ -285,7 +291,9 @@ namespace ck::proto {
     }
 
     int get_pid_by_sid(int sid) {
-        auto it = g_proto_sid_to_pid.find(sid);
+        int clean_sid = ck::ids::clean_sid(sid);
+
+        auto it = g_proto_sid_to_pid.find(clean_sid);
         if (it != g_proto_sid_to_pid.end()) return it->second;
 
         return -1;
