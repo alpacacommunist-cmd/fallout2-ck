@@ -30,6 +30,7 @@ namespace ck::proto {
         std::string description;
 
         int inv_fid;
+        int ground_fid;
 
         bool usable;
 
@@ -42,6 +43,7 @@ namespace ck::proto {
         int price;
 
         int inv_fid;
+        int ground_fid;
 
         bool usable;
 
@@ -68,6 +70,7 @@ namespace ck::proto {
 
     int  get_pid_by_tag(const std::string& lua_tag);
     int get_pid_by_sid(int sid);
+    int get_sid_by_pid(int pid);
     const CustomProto* find_by_pid(int runtime_pid);
 
     const std::vector<CustomProto>& get_all_protos();

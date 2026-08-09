@@ -75,10 +75,9 @@ namespace ck::proto {
 
             object->pid = pid;
 
-            fallout::Proto* generic_proto = nullptr;
-            if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
-                fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
-                object->sid = item_proto->sid;
+            fallout::Proto* custom_proto = nullptr;
+            if (fallout::protoGetProto(pid, &custom_proto) == 0 && custom_proto) {
+                object->sid = custom_proto->sid;
             }
         }
 
@@ -205,6 +204,10 @@ namespace ck::proto {
                 item_proto->inventoryFid = proto.inv_fid;
             }
 
+            if (ck::ids::is_ck_frm(proto.ground_fid)) {
+                item_proto->fid = proto.ground_fid;
+            }
+
             current_pid++;
         }
     }
@@ -241,6 +244,7 @@ namespace ck::proto {
         proto.description = std::string(ffi_data.description);
 
         proto.inv_fid     = ffi_data.inv_fid;
+        proto.ground_fid  = ffi_data.ground_fid;
 
         proto.usable      = ffi_data.usable;
 
@@ -298,6 +302,15 @@ namespace ck::proto {
 
         return -1;
     }
+
+    int get_sid_by_pid(int pid) {
+        for (const auto& [clean_sid, registered_pid] : g_proto_sid_to_pid) {
+            if (registered_pid == pid) return ck::ids::make_proto_sid(clean_sid);
+        }
+
+        return -1;
+    }
+
 
     const CustomProto* find_by_pid(int runtime_pid) {
         for (const auto& proto : registry_protos) {

@@ -19,7 +19,8 @@ local sfx         = require('ck.fallout2.sound_sfx')
 local golden_tail
 events.on('onEngineReady', function()
   local PID_RADSCORPION_TAIL = 92
-  inv_fid = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
+  inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
+  ground_fid = assets.resolve("arroyo_expanded:skilldex/scorpg_ground.frm", 0)
 
   golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
     name        = "Золотой хвост скорпиона",
@@ -27,7 +28,8 @@ events.on('onEngineReady', function()
     price  = 600,
     weight = 3,
 
-    inv_fid = inv_fid,
+    inv_fid    = inv_fid,
+    ground_fid = ground_fid,
 
     -- usable = true
   })
@@ -37,7 +39,7 @@ events.on('onEngineReady', function()
       log.info(string.format("hello world [from golden scorpion tail PID: %s]", golden_tail.pid))
     end)
     :on('look_at', function()
-      sfx.play("animal1")
+      sfx.play("geiger")
     end)
 
   print("PID: " .. tostring(golden_tail.pid))
