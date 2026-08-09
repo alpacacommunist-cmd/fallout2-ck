@@ -54,7 +54,7 @@ end
 function state.receive_proto_list(data_address, size)
   local protos = ffi.cast("CustomProtoLuaView*", data_address)
 
-  state.db.proto_list = table_new(size, 0)
+  state.db.proto_list = {}
 
   for index = 0, size - 1 do
     local proto = protos[index]

@@ -35,7 +35,8 @@ function proto.register_prototype(source_pid, lua_tag, config)
   ffi_data.name   = config.name or ""
   ffi_data.description   = config.description or ""
 
-  ffi_data.inv_fid = config.inv_fid or -1
+  ffi_data.inv_fid    = config.inv_fid or -1
+  ffi_data.ground_fid = config.ground_fid or -1
 
   ffi_data.usable = config.usable or false
 

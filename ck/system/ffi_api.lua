@@ -216,6 +216,7 @@ ffi.cdef[[
     int weight; int price;
 
     int inv_fid;
+    int ground_fid;
 
     bool usable;
 

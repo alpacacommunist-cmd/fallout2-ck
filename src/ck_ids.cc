@@ -45,8 +45,9 @@ int script_type_for_object(fallout::Object* object) {
 }
 
 bool is_ck_frm(int fid) {
-    int frm_id      = fid & 0xFFF;
+    if (fid == -1) return false;
 
+    int frm_id      = fid & 0xFFF;
     return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
 }
 
