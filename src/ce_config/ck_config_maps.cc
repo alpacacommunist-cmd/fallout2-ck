@@ -14,7 +14,7 @@ namespace ck::config_maps {
     }
 
     int get_next_index() {
-		return ck::config_find_next_free_index("maps.txt", "", "Map");
+		return ck::config_find_next_free_index("data\\maps.txt", "", "Map");
     }
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
