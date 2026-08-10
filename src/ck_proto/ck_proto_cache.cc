@@ -130,7 +130,7 @@ bool CkProtoCache::buildFromEngine() {
     }
 
     for (int type = 0; type < fallout::OBJ_TYPE_COUNT; type++) {
-        int maxId = fallout::proto_max_id(type);
+        int maxId = fallout::proto_max_id(static_cast<fallout::ObjectType>(type));
         if (maxId <= 1) continue;
 
         for (int id = 1; id < maxId; id++) {

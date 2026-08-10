@@ -83,7 +83,7 @@ static void mode_palette() {
 
 static bool ck_is_tile_blocking(int tile) {
     fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-    return blocker != nullptr && FID_TYPE(blocker->fid) != fallout::OBJ_TYPE_CRITTER;
+    return blocker != nullptr && fallout::objectTypeFromFid(blocker->fid) != fallout::OBJ_TYPE_CRITTER;
 }
 
 static HexState ck_hex_state_for_tile(int tile) {
@@ -139,7 +139,7 @@ static void change_export_mode() {
 
     if (gCurrentExportMode == ExportMode::FULL_DUMP)
         fallout::displayMonitorAddMessage("Overlay Export Mode: FULL DUMP");
-	else if (gCurrentExportMode == ExportMode::LUA_TILES)
+    else if (gCurrentExportMode == ExportMode::LUA_TILES)
         fallout::displayMonitorAddMessage("Overlay Export Mode: LUA_TILES");
 }
 
@@ -156,7 +156,7 @@ static void mode_main_dude_scan() {
 
 	for (int direction = 0; direction < 6; direction++) {
 		for (int distance = 1; distance <= radius; distance++) {
-			int tile = fallout::tileGetTileInDirection(dude->tile, direction, distance);
+			int tile = fallout::tileGetTileInDirection(dude->tile, static_cast<fallout::Rotation>(direction), distance);
 
 			if (!hexGridTileIsValid(tile)) continue;
 			if (ck_debug_overlay_find_hex(tile) != nullptr) continue;

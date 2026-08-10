@@ -27,7 +27,7 @@ static_assert(ck::ids::object_types::MISC    == fallout::OBJ_TYPE_MISC,    "MISC
 int script_type_for_object(fallout::Object* object) {
     if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
 
-    int object_type = PID_TYPE(object->pid);
+    int object_type = fallout::objectTypeFromPid(object->pid);
 
     switch (object_type) {
 		case fallout::OBJ_TYPE_CRITTER:

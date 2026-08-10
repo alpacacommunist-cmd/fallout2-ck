@@ -19,7 +19,7 @@ static const Logger logger("CK Critter");
 static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 	int unique_pid = 0;
 
-	if (fallout::proto_new(&unique_pid, ck::ids::object_types::CRITTER) != 0) {
+	if (fallout::proto_new(&unique_pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
 		logger.error("Couldn't allocate new prototype for '{}'", lua_tag);
 		return -1;
 	}

@@ -4,7 +4,7 @@
 #include "geometry/landscape.h"
 
 #include "proto_types.h"
-#include "object.h"
+#include "obj_types.h"
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
@@ -13,7 +13,7 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
         while (obj != nullptr) {
             fallout::Object* nextObj = fallout::objectFindNextAtLocation();
 
-            if (FID_TYPE(obj->fid) != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
+            if (fallout::objectTypeFromFid(obj->fid) != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
                 if (visible) {
                     obj->flags &= ~fallout::OBJECT_HIDDEN;
 
@@ -78,7 +78,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 			obj->data.misc.map       = data.target_map;
 			obj->data.misc.tile      = data.target_tile;
 			obj->data.misc.elevation = data.target_elevation;
-			obj->data.misc.rotation  = data.target_rotation;
+			obj->data.misc.rotation  = static_cast<fallout::Rotation>(data.target_rotation);
 		}
 	});
 }
@@ -94,6 +94,6 @@ void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridDa
         obj->data.misc.map       = data->target_map;
         obj->data.misc.tile      = data->target_tile;
         obj->data.misc.elevation = data->target_elevation;
-        obj->data.misc.rotation  = data->target_rotation;
+        obj->data.misc.rotation  = static_cast<fallout::Rotation>(data->target_rotation);
     }
 }

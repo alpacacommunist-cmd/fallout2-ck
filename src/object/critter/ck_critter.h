@@ -17,6 +17,8 @@ namespace fallout {
     struct Rect;
 
 	enum CombatState : unsigned int;
+    enum ObjectType : int;
+
 	extern CombatState gCombatState;
 
 	int mapGetCurrentMap();
@@ -26,7 +28,7 @@ namespace fallout {
 	bool _combatai_want_to_join(Object* a1);
     void _combat_turn_run();
 
-	int proto_new(int* pid, int type);
+	int proto_new(int* pid, fallout::ObjectType type);
 	int proto_copy_proto(int srcPid, int dstPid);
 
 	void critterKill(Object* critter, int anim, bool refreshRect);

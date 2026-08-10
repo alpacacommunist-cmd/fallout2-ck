@@ -8,6 +8,9 @@ extern "C" const char* ck_get_current_mod_id();
 
 namespace fallout {
     struct Object;
+    extern Object* gEgg;
+    extern Object* gDude;
+
 	extern int gElevation;
 
 	int tileGetRotationTo(int tile1, int tile2);

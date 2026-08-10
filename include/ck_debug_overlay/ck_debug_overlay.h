@@ -15,6 +15,7 @@ namespace fallout {
 #define HEX_GRID_WIDTH (200)
 #define HEX_GRID_HEIGHT (200)
 #define HEX_GRID_SIZE (HEX_GRID_WIDTH * HEX_GRID_HEIGHT)
+    enum Rotation : int;
 
 	struct Rect;
 	struct Object;
@@ -24,7 +25,8 @@ namespace fallout {
 	int  mouseGetEvent();
 	void mouseGetPosition(int* out_x, int* out_y);
 
-	int  tileGetTileInDirection(int tile, int rotation, int distance);
+    int tileGetTileInDirection(int tile, Rotation rotation, int distance);
+
 	int  tileFromScreenXY(int x, int y, bool ignoreBounds);
 	void tileWindowRefresh();
 

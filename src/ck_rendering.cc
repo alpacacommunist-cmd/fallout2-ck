@@ -38,9 +38,9 @@ static const CachedArt* get_or_cache_art(int fid) {
     CachedArt cached;
     cached.art = art;
     cached.cacheEntry = entry;
-    cached.width = fallout::artGetWidth(art, 0, 0);
-    cached.height = fallout::artGetHeight(art, 0, 0);
-    cached.frameData = fallout::artGetFrameData(art, 0, 0);
+    cached.width = fallout::artGetWidth(art, 0, static_cast<fallout::Rotation>(0));
+    cached.height = fallout::artGetHeight(art, 0, static_cast<fallout::Rotation>(0));
+    cached.frameData = fallout::artGetFrameData(art, 0, static_cast<fallout::Rotation>(0));
 
     gArtCache[fid] = cached;
     return &gArtCache[fid];
@@ -172,8 +172,8 @@ static int ck_rendering_scenery(fallout::Rect* rect) {
         int frameX = 0, frameY = 0;
         int rotationX = 0, rotationY = 0;
 
-        fallout::artGetFrameOffsets(cached->art, 0, 0, &frameX, &frameY);
-        fallout::artGetRotationOffsets(cached->art, 0, &rotationX, &rotationY);
+        fallout::artGetFrameOffsets(cached->art, 0, static_cast<fallout::Rotation>(0), &frameX, &frameY);
+        fallout::artGetRotationOffsets(cached->art, static_cast<fallout::Rotation>(0), &rotationX, &rotationY);
 
         int screenCenterX = screenX + 16, screenCenterY = screenY + 12;
 

@@ -25,7 +25,7 @@ namespace ck::debug {
 			int objIndex = 0;
 
 			while (obj != nullptr) {
-				int objType = FID_TYPE(obj->fid);
+				int objType = fallout::objectTypeFromFid(obj->fid);
 
 				log.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
 						objIndex, fallout::objectGetName(obj), obj->id, objType, obj->pid, obj->fid, obj->sid,
@@ -96,7 +96,7 @@ namespace ck::debug {
                     d.misc.map,
                     d.misc.tile,
                     d.misc.elevation,
-                    d.misc.rotation,
+                    static_cast<int>(d.misc.rotation),
                     d.flags
                 );
 
