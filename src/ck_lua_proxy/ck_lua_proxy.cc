@@ -11,6 +11,8 @@ extern lua_State* gLuaState;
 extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
+    int load_and_init_mod     = LUA_NOREF;
+    int reload_mods           = LUA_NOREF;
     int emit_for_mod          = LUA_NOREF;
     int on_map_update         = LUA_NOREF;
     int on_proc               = LUA_NOREF;
@@ -18,7 +20,6 @@ namespace ck::proxy::detail {
     int clear_tracked_objects = LUA_NOREF;
     int clear_registry        = LUA_NOREF;
     int clear_dialogs         = LUA_NOREF;
-    int load_and_init_mod     = LUA_NOREF;
     int get_state_data        = LUA_NOREF;
     int get_proto_list        = LUA_NOREF;
     int receive_proto_list    = LUA_NOREF;
@@ -28,7 +29,9 @@ namespace ck::proxy::detail {
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 14> hooks = {{
+const std::array<LuaHookBinding, 15> hooks = {{
+	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
+    { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
@@ -36,7 +39,6 @@ const std::array<LuaHookBinding, 14> hooks = {{
 	{ "ck.fallout2.state",     "clear_tracked_objects", &ck::proxy::detail::clear_tracked_objects },
 	{ "ck.fallout2.objects",   "clear_registry",        &ck::proxy::detail::clear_registry },
 	{ "ck.fallout2.dialogue",  "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
-	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
 	{ "ck.fallout2.state",     "get_proto_list",        &ck::proxy::detail::get_proto_list },
 	{ "ck.fallout2.state",     "receive_proto_list",    &ck::proxy::detail::receive_proto_list },

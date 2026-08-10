@@ -22,6 +22,10 @@ lua_State* gLuaState = nullptr;
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
 
+namespace ck::proxy::detail {
+    extern int reload_mods;
+}
+
 void ck_print_monitor_message(const char* message) {
     std::string converted = utf8_to_cp1251(std::string_view(message));
 
@@ -31,25 +35,8 @@ void ck_print_monitor_message(const char* message) {
 // ck scripting reload mods
 void ck_reload_mods() {
 	logger.info("ck_reload_mods");
-    if (gLuaState == nullptr) {
-		logger.error("Cannot reload mods: Lua state is null");
-        return;
-    }
 
-    lua_getglobal(gLuaState, "ckReloadMods");
-
-    if (!lua_isfunction(gLuaState, -1)) {
-		logger.error("ckReloadMods() is not defined");
-        lua_pop(gLuaState, 1);
-        return;
-    }
-
-    if (lua_pcall(gLuaState, 0, 0, 0) != LUA_OK) {
-		logger.error("Reload Error: {}", lua_tostring(gLuaState, -1));
-
-        lua_pop(gLuaState, 1);
-		return;
-    }
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
 }
 
 void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
@@ -264,7 +251,6 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 
     return true;
 }
-
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
