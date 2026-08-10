@@ -1,6 +1,8 @@
 -- bootstrap.lua
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
+local bootstrap = {}
+
 require('ck.system.ffi_api')
 local ffi = require("ffi")
 
@@ -10,7 +12,7 @@ ck.log = require('ck.system.log')
 local log    = ck.log.new("CK Bootstrap")
 local loader = require('ck.system.loader')
 
-_G["ckBootstrapMods"] = function()
+function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")
 
   local success_load, active_mods = pcall(require, "mods")
@@ -30,3 +32,5 @@ _G["ckBootstrapMods"] = function()
 
   log.info("Bootstrap complete! All mods loaded safely.")
 end
+
+return bootstrap

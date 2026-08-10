@@ -12,9 +12,7 @@
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_i18n/ck_i18n.h"
 
-#include <lua.hpp>
 #include "ck_lua_proxy/ck_lua_proxy.h"
-lua_State* gLuaState = nullptr;
 
 #include "settings.h"
 #include "obj_types.h"
@@ -24,6 +22,7 @@ static const Logger logger("CK Scripting");
 
 namespace ck::proxy::detail {
     extern int reload_mods;
+    extern int bootstrap;
 }
 
 void ck_print_monitor_message(const char* message) {
@@ -69,49 +68,9 @@ void ck_scripting_init(int argc, char** argv) {
         logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
     }
 
-    gLuaState = luaL_newstate();
-    if (!gLuaState) {
-        logger.error("Failed to initialize LuaJIT state!");
-        return;
-    }
-
-    luaL_openlibs(gLuaState);
-
-    lua_newtable(gLuaState);
-    lua_setglobal(gLuaState, "ck");
-
-    for (const char* subtable : {"assets", "rendering", "game_time", "dialogue", "map"}) {
-        ck_create_global_subtable("ck", subtable);
-    }
-
-	lua_pushvalue(gLuaState, LUA_GLOBALSINDEX);
-    lua_pop(gLuaState, 1);
-
-    if (luaL_loadfile(gLuaState, "../ck/system/bootstrap.lua") != LUA_OK) {
-        logger.error("Failed to load bootstrap.lua (Syntax Error):\n{}", lua_tostring(gLuaState, -1));
-        lua_pop(gLuaState, 1);
-        return;
-    }
-
-    if (!safe_pcall_with_traceback(gLuaState, 0, 0)) {
-        logger.error("Bootstrap Runtime Error:\n{}", lua_tostring(gLuaState, -1));
-        lua_pop(gLuaState, 1);
-        return;
-    }
-
-    ck_lua_proxy_init();
-
-    lua_getglobal(gLuaState, "ckBootstrapMods");
-    if (!lua_isfunction(gLuaState, -1)) {
-        logger.error("Global function 'ckBootstrapMods' not found!");
-        lua_pop(gLuaState, 1);
-        return;
-    }
-
-    if (!safe_pcall_with_traceback(gLuaState, 0, 0)) {
-        logger.error("Runtime error during mod bootstrapping:\n{}", lua_tostring(gLuaState, -1));
-        lua_pop(gLuaState, 1);
-    }
+    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
+    ck::proxy::cache_functions();
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
 }
 
 void ck_on_scripts_reset() {
@@ -120,7 +79,7 @@ void ck_on_scripts_reset() {
 
 // Exit
 void ck_scripting_exit() {
-	ck_lua_proxy_shutdown();
+    ck::proxy::shutdown();
 
     if (gLuaState != nullptr) {
         logger.info("ck_scripting_exit");

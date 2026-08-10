@@ -7,10 +7,12 @@
 #include "ck_log.h"
 static const Logger log("CK Lua Proxy");
 
-extern lua_State* gLuaState;
+lua_State* gLuaState = nullptr;
+
 extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
+    int bootstrap             = LUA_NOREF;
     int load_and_init_mod     = LUA_NOREF;
     int reload_mods           = LUA_NOREF;
     int emit_for_mod          = LUA_NOREF;
@@ -29,7 +31,8 @@ namespace ck::proxy::detail {
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 15> hooks = {{
+const std::array<LuaHookBinding, 16> hooks = {{
+	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
 	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
@@ -70,25 +73,19 @@ static int cache_module_function(const char* module_name, const char* function_n
 	return ref;
 }
 
-void ck_lua_proxy_init() {
-    for (const auto& hook : hooks) {
-        *hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
+static void set_load_paths(std::string_view package_path) {
+    // get package.path, add package_path
+    lua_getglobal(gLuaState, "package");
+    lua_getfield(gLuaState, -1, "path");
+    std::string current_path = lua_tostring(gLuaState, -1);
 
-        if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
-    }
+    // "current_paths;package_path"
+    current_path += ";";
+    current_path += package_path;
 
-    log.info("successfully initialized and cached Lua hooks.");
-}
-
-void ck_lua_proxy_shutdown() {
-    for (const auto& hook : hooks) {
-        int* ref_ptr = hook.target_ref;
-
-        if (*ref_ptr != LUA_NOREF) {
-            luaL_unref(gLuaState, LUA_REGISTRYINDEX, *ref_ptr);
-            *ref_ptr = LUA_NOREF;
-        }
-    }
+    lua_pushstring(gLuaState, current_path.c_str());
+    lua_setfield(gLuaState, -3, "path"); // writes back to package.path
+    lua_pop(gLuaState, 2); // clear stack (package, old string)
 }
 
 namespace ck::proxy {
@@ -181,5 +178,37 @@ namespace ck::proxy {
     bool read_table_bool(const char* key, bool default_val) { return read_table_value<bool>(key, default_val); }
     std::string read_table_string(const char* key, const std::string& default_val) {
         return read_table_value<std::string>(key, default_val);
+    }
+
+    void init_lua_state(std::string_view package_path) {
+        gLuaState = luaL_newstate();
+        if (!gLuaState) {
+            log.error("Failed to initialize LuaJIT state!");
+            return;
+        }
+
+        luaL_openlibs(gLuaState);
+        set_load_paths(package_path);
+    }
+
+    void cache_functions() {
+        for (const auto& hook : hooks) {
+            *hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
+
+            if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
+        }
+
+        log.info("successfully initialized and cached Lua hooks.");
+    }
+
+    void shutdown() {
+        for (const auto& hook : hooks) {
+            int* ref_ptr = hook.target_ref;
+
+            if (*ref_ptr != LUA_NOREF) {
+                luaL_unref(gLuaState, LUA_REGISTRYINDEX, *ref_ptr);
+                *ref_ptr = LUA_NOREF;
+            }
+        }
     }
 }

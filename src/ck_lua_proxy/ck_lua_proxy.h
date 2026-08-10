@@ -62,6 +62,10 @@ namespace ck::proxy {
 
 		return result;
 	}
+
+    void init_lua_state(std::string_view package_path);
+    void cache_functions();
+    void shutdown();
 }
 
 #endif
