@@ -11,7 +11,15 @@ namespace ck {
 
 namespace fallout {
     struct Object;
+    struct Rect;
+
 	extern Object* gDude;
+
+    extern int gElevation;
+	extern unsigned char _colorTable[32768];
+
+	int  textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
+	void tileWindowRefreshRect(Rect* rect, int elevation);
 
 	void tileWindowRefresh();
 	void animationStop();
@@ -50,5 +58,6 @@ CK_API const char* ck_testing_get_current_suite();
 CK_API void ck_testing_set_current_suite(const char* name);
 CK_API void ck_scripting_monitor_print_message(const char* message);
 CK_API void ck_sound_play_sfx(const char* name);
+CK_API bool ck_object_float_msg(void* ptr, const char* text, int msg_type = 1);
 
 #endif // CK_SCRIPTING_H

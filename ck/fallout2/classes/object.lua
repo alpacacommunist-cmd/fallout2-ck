@@ -92,6 +92,10 @@ function Object:restore()
   return ffi.C.ck_registry_restore_modified_object(self.c_ptr)
 end
 
+function Object:float_message(text, type)
+  return ffi.C.ck_object_float_msg(self.c_ptr, text, type)
+end
+
 function Object:id()
   return ffi.C.ck_object_get_id(self.c_ptr)
 end

@@ -77,7 +77,6 @@ ffi.cdef[[
   bool ck_critter_is_busy(void* ptr);
 
   // --- Critter Stats & Base ---
-  void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
   int  ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   int  ck_critter_get_bonus_stat(void* ptr, int stat);
@@ -106,6 +105,7 @@ ffi.cdef[[
   int ck_object_get_tile(void* c_ptr);
   int ck_object_get_sid(void* c_ptr);
   char* ck_object_get_name(void* ptr);
+  bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
   // --- Stats metadata ---
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));

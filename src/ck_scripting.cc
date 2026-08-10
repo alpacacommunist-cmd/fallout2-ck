@@ -17,6 +17,7 @@
 lua_State* gLuaState = nullptr;
 
 #include "settings.h"
+#include "obj_types.h"
 
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
@@ -217,6 +218,53 @@ void ck_scripting_on_game_save(const char* path) {
 void ck_scripting_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
+
+// ffi
+
+bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
+	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
+
+    if (!object) {
+        return false;
+    }
+
+    if (object->elevation != fallout::gElevation) return false;
+
+	int color = fallout::_colorTable[32747], background_color = fallout::_colorTable[0], font = 101;
+
+	switch (msg_type) {
+		case 1: // (FLOATING_MESSAGE_TYPE_WHITE)
+			color = fallout::_colorTable[32767];
+			break;
+		case 2: // (FLOATING_MESSAGE_TYPE_RED)
+			color = fallout::_colorTable[31744];
+			break;
+		case 3: // (FLOATING_MESSAGE_TYPE_GREEN)
+			color = fallout::_colorTable[992];
+			break;
+		case 4: // (FLOATING_MESSAGE_TYPE_BLUE)
+			color = fallout::_colorTable[31];
+			break;
+		default: // YELLOW
+			color = fallout::_colorTable[32747];
+			break;
+	}
+
+	fallout::Rect rect;
+	std::string converted = utf8_to_cp1251(std::string_view(text));
+
+	std::vector<char> safe_buffer(converted.size() + 5, '\0');
+	std::memcpy(safe_buffer.data(), converted.c_str(), converted.size());
+
+	char* safe_text_ptr = safe_buffer.data();
+
+	if (fallout::textObjectAdd(object, safe_text_ptr, font, color, background_color, &rect) != -1) {
+		fallout::tileWindowRefreshRect(&rect, object->elevation);
+	}
+
+    return true;
+}
+
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }

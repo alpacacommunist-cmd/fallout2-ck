@@ -9,7 +9,7 @@ extern "C" {
 
     int player_stat(...);
 
-    void ck_critter_float_msg(...);
+    void ck_object_float_msg(...);
 
 	void ck_get_skills_metadata(...);
 }
@@ -25,7 +25,7 @@ static void* const volatile ck_ffi_exports[] = {
 
     (void*)&player_stat,
 
-    (void*)&ck_critter_float_msg,
+    (void*)&ck_object_float_msg,
 
     (void*)&ck_get_skills_metadata
 };

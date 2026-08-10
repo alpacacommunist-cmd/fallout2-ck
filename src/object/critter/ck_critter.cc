@@ -1,4 +1,3 @@
-#include "ck_encoding.h"
 #include "ck_ids.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 
@@ -8,7 +7,6 @@
 #include "object/critter/ck_stats.h"
 
 #include "combat_defs.h"
-#include "geometry.h"
 #include "animation.h"
 
 #include <cstring>
@@ -94,48 +92,6 @@ namespace ck {
 	}
 }
 
-void ck_critter_float_msg(int lua_id, const char* text, int msg_type = 1) {
-	fallout::Object* obj = ck::registry::get_object(lua_id);
-
-    if (!obj) {
-        logger.warn("ck_critter_float_msg: Object with LuaID {} not found in any registry", lua_id);
-        return;
-    }
-
-    if (obj->elevation != fallout::gElevation) return;
-
-	int color = fallout::_colorTable[32747], background_color = fallout::_colorTable[0], font = 101;
-
-	switch (msg_type) {
-		case 1: // (FLOATING_MESSAGE_TYPE_WHITE)
-			color = fallout::_colorTable[32767];
-			break;
-		case 2: // (FLOATING_MESSAGE_TYPE_RED)
-			color = fallout::_colorTable[31744];
-			break;
-		case 3: // (FLOATING_MESSAGE_TYPE_GREEN)
-			color = fallout::_colorTable[992];
-			break;
-		case 4: // (FLOATING_MESSAGE_TYPE_BLUE)
-			color = fallout::_colorTable[31];
-			break;
-		default: // YELLOW
-			color = fallout::_colorTable[32747];
-			break;
-	}
-
-	fallout::Rect rect;
-	std::string converted = utf8_to_cp1251(std::string_view(text));
-
-	std::vector<char> safe_buffer(converted.size() + 5, '\0');
-	std::memcpy(safe_buffer.data(), converted.c_str(), converted.size());
-
-	char* safe_text_ptr = safe_buffer.data();
-
-	if (fallout::textObjectAdd(obj, safe_text_ptr, font, color, background_color, &rect) != -1) {
-		fallout::tileWindowRefreshRect(&rect, obj->elevation);
-	}
-}
 
 bool ck_in_combat() {
 	return (fallout::gCombatState & fallout::COMBAT_STATE_IN_COMBAT) != 0;

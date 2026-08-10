@@ -33,12 +33,7 @@ namespace fallout {
 
 	void critterKill(Object* critter, int anim, bool refreshRect);
 
-	int  textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
-	void tileWindowRefreshRect(Rect* rect, int elevation);
 	int tileGetTileInDirection(int tile, int rotation, int distance);
-
-	extern int gElevation;
-	extern unsigned char _colorTable[32768];
 }
 
 namespace ck {
@@ -51,7 +46,6 @@ namespace ck {
 int ck_map_get_id();
 
 CK_API bool ck_in_combat();
-CK_API void ck_critter_float_msg(int lua_id, const char* text, int msg_type);
 CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag);
 CK_API bool ck_critter_in_combat();
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);

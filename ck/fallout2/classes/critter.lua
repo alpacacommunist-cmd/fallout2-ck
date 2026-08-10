@@ -73,10 +73,6 @@ function Critter:set_behavior(behavior_fn, ...)
   return self
 end
 
-function Critter:float_message(text, type)
-  ffi.C.ck_critter_float_msg(self.lua_id, text, type)
-end
-
 function Critter:is_busy()
   return ffi.C.ck_critter_is_busy(self.c_ptr)
 end
