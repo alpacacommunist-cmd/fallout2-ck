@@ -9,6 +9,11 @@ namespace ck {
 	void on_map_enter();
 }
 
+namespace ck::proxy::detail {
+    extern int reload_mods;
+    extern int bootstrap;
+}
+
 namespace fallout {
     struct Object;
     struct Rect;
@@ -31,7 +36,6 @@ namespace fallout {
 	int  ck_load_game_slot(int slot);
 }
 
-
 void ck_map_clear_camera_borders();
 
 void ck_reload_mods();
@@ -48,8 +52,6 @@ void ck_on_scripts_reset();
 // state
 void ck_scripting_on_before_game_save();
 void ck_scripting_on_game_save(const char* path);
-
-int ck_get_config_int(const char* key, int default_value);
 
 CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
 CK_API void ck_scripting_load_game_slot(int slot);

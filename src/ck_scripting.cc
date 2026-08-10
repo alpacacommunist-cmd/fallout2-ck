@@ -20,11 +20,6 @@
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
 
-namespace ck::proxy::detail {
-    extern int reload_mods;
-    extern int bootstrap;
-}
-
 void ck_print_monitor_message(const char* message) {
     std::string converted = utf8_to_cp1251(std::string_view(message));
 
