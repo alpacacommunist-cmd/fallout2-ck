@@ -7,6 +7,7 @@
 
 namespace fallout {
     typedef struct Dictionary Config;
+    typedef Dictionary ConfigSection;
 }
 
 namespace ck {

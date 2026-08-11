@@ -1,5 +1,6 @@
 #include "ce_config/ck_config_city.h"
 #include "ce_config/ck_config_patch.h"
+#include "config.h"
 
 #include <format>
 
@@ -12,8 +13,47 @@ namespace ck::config_city {
         return std::format("Area {:02d}", area_id);
     }
 
-	int get_next_index() {
-        return ck::config_find_next_free_index("data\\city.txt", "", "Area");
+    int next_index() {
+        fallout::Config cfg;
+
+        if (!fallout::configInit(&cfg)) return -1;
+        if (!configRead(&cfg, "data\\city.txt", true)) return 0;
+
+        int idx = 0;
+        char section[64];
+
+        while (true) {
+            snprintf(section, sizeof(section), "Area %02d", idx);
+            char* dummy_str = nullptr;
+
+            if (!fallout::configGetString(&cfg, section, "area_name", &dummy_str)) break;
+            idx++;
+        }
+
+        fallout::configFree(&cfg);
+
+        return idx;
+    }
+
+    int next_entrance_index(const char* section_name) {
+        fallout::Config cfg;
+
+        if (!fallout::configInit(&cfg)) return -1;
+        if (!configRead(&cfg, "data\\city.txt", true)) return 0;
+
+        int ent_idx = 0;
+        char key[64];
+
+        while (true) {
+            snprintf(key, sizeof(key), "entrance_%d", ent_idx);
+            char* dummy_str = nullptr;
+
+            if (!fallout::configGetString(&cfg, section_name, key, &dummy_str)) break;
+            ent_idx++;
+        }
+
+        fallout::configFree(&cfg);
+        return ent_idx;
     }
 
     int expand_location(const std::string& mod_id, int area_id,
@@ -21,7 +61,7 @@ namespace ck::config_city {
 		std::string area_section = format_section(area_id);
 		std::string city_path = "data/city.txt";
 
-		int target_entrance_id = ck::config_find_next_free_index(city_path, area_section, "entrance_");
+		int target_entrance_id = next_entrance_index(area_section.c_str());
 
 		std::string entrance_key = "entrance_" + std::to_string(target_entrance_id);
 		std::string entrance_value = std::format("On,{},{},{},-1,-1,0", x, y, map_lookup_name);
@@ -37,7 +77,7 @@ namespace ck::config_city {
                           int world_x, int world_y, const std::string& size) {
 
         int next_area_index = -1;
-        if (next_area_index == -1) next_area_index = get_next_index();
+        if (next_area_index == -1) next_area_index = next_index();
 
         std::string city_path = "data/city.txt";
         int area_idx = -1;
