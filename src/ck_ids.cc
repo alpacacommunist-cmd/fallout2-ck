@@ -60,7 +60,6 @@ int art_id_from_fid(int fid) {
 }
 
 int make_ck_fid(int custom_frm_id, int art_type) {
-    logger.info("ART_TYPE: {}", art_type);
     return ((art_type & 0xF) << 24) | (custom_frm_id & 0xFFF);
 }
 

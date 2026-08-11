@@ -124,7 +124,7 @@ void ck_dispatcher_on_map_enter() {
 // ffi
 
 bool ck_dispatcher_load_mod(const char* mod_id) {
-	log.info("mod_id: {}", mod_id);
+	log.info("reloading mod_id: {}", mod_id);
 	if (!ck::proxy::is_ready() || !mod_id) return false;
 
 	std::string target_mod(mod_id);
@@ -154,6 +154,6 @@ void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 
     ModContextGuard guard(mod_id);
-    ck::proxy::emit_for_mod(mod_id, event_name);
+    ck::proxy::emit_for_mod(mod_id, event_name, fallout::mapGetCurrentMap());
 }
 

@@ -84,6 +84,7 @@ function loader.reload_mods()
 
   for _, mod_id in ipairs(reloadable_mods) do
     local target_prefix = "mods." .. mod_id
+    log.info("Reloading: " .. mod_id)
 
     events.clear_for_mod(mod_id)
     objects.clear_for_mod(mod_id)
@@ -99,10 +100,7 @@ function loader.reload_mods()
         log.info("Unloaded: " .. mod_name)
       end
     end
-  end
 
-  for _, mod_id in ipairs(reloadable_mods) do
-    log.info("Reloading: " .. mod_id)
     local success = ffi.C.ck_dispatcher_load_mod(mod_id)
 
     if success then
@@ -113,7 +111,5 @@ function loader.reload_mods()
 
   log.info("Reload complete!")
 end
-
-_G["ckReloadMods"] = loader.reload_mods
 
 return loader
