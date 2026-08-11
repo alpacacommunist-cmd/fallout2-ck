@@ -98,19 +98,25 @@ namespace ck {
 
 	int area_register_map(const CkAreaMapFFI& data) {
         std::string current_mod = ck_get_current_mod_id();
-
         std::string map_file_name = data.map_file;
+
+        std::string map_file_upper = map_file_name;
+        std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
+        std::string map_file_lower = map_file_name;
+        std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
+
+        if (gMapPaths.find(map_file_lower) != gMapPaths.end()) {
+            logger.error("Mod '{}' failed to register map: file '{}.MAP' is already in use by another map/location!",
+                    current_mod, map_file_name);
+            return -1;
+        }
+
         std::string name          = data.name;
         std::string sub_name      = data.sub_name;
         std::string music         = data.music;
         std::string sfx           = data.sfx;
 
         int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music, sfx);
-
-        std::string map_file_upper = map_file_name;
-        std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
-        std::string map_file_lower = map_file_name;
-        std::transform(map_file_lower.begin(), map_file_lower.end(), map_file_lower.begin(), ::tolower);
 
         std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
         gMapPaths[map_file_lower]    = map_file_path;

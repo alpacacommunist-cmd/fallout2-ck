@@ -17,7 +17,7 @@ namespace ck::config_city {
         fallout::Config cfg;
 
         if (!fallout::configInit(&cfg)) return -1;
-        if (!configRead(&cfg, "data\\city.txt", true)) return 0;
+        if (!fallout::configRead(&cfg, "data\\city.txt", true)) return 0;
 
         int idx = 0;
         char section[64];

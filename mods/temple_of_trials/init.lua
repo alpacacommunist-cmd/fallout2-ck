@@ -10,25 +10,9 @@ local stats     = require('ck.fallout2.objects.critters.stats')
 
 local outskirts = require('.outskirts')
 local utils     = require('ck.system.utils')
-
-local new_map_id = locations.register_map({
-    map_file = 'tstcv',
-    name     = "Secret Hunting Grounds",
-    music    = "07desert",
-    sfx      = "gntlwin1:25, gntlwind:25, dogbark:20, dogbark1:20, gustwind:5, gustwin1:5"
-})
-
-log.warn("MAP ID: " .. tostring(new_map_id))
-
-entrance_id = locations.expand(0, {
-    lookup_name = "Secret Hunting Grounds",
-    townmap_x   = 150,
-    townmap_y   = 220
-})
+--
 
 map.register_borders(126, {left = 95, right = 113, top = 82, bottom = 110})
-
-log.warn("ENTRANCE ID: " .. tostring(entrance_id))
 
 events.on('onModReload', function()
   map.rendering_refresh()
@@ -51,10 +35,6 @@ events.on('onMapEnter', function()
   local map_id = map.get_id()
 
   if map_id ~= 4 then return end
-
-  map.exit_grid.spawn_in_line(22748, 25156, {
-    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
-}, 2)
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
     name        = 'Ralph',

@@ -7,11 +7,11 @@ local game_time = require('ck.fallout2.game_time')
 local locations = require('ck.fallout2.locations')
 local map       = require('ck.fallout2.map')
 
--- local new_hunting_grounds = locations.override_map(35,{
---   map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
--- })
---
--- log.info("new_hunting_grounds id: " .. new_hunting_grounds)
+local new_hunting_grounds = locations.override_map(35,{
+  map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
+})
+
+log.info("new_hunting_grounds id: " .. new_hunting_grounds)
 
 -- new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
 -- local test_caves_id = locations.register_map({
@@ -21,8 +21,23 @@ local map       = require('ck.fallout2.map')
 --     music    = "07desert"
 -- })
 -- locations.expand(new_location_id, { lookup_name = "Secret Caves" })
+-- log.info(string.format('test_caves_id: (area) %d -> map_id %d', new_location_id, test_caves_id))
 --
--- log.info('test caves id: ' .. tostring(test_caves_id))
+local new_map_id = locations.register_map({
+    map_file = 'tstcv2',
+    name     = "Secret Hunting Grounds",
+    sub_name = "Arroyo",
+    music    = "07desert",
+    sfx      = "gntlwin1:25, gntlwind:25, dogbark:20, dogbark1:20, gustwind:5, gustwin1:5"
+})
+
+entrance_id = locations.expand(0, {
+    lookup_name = "Secret Hunting Grounds",
+    townmap_x   = 150,
+    townmap_y   = 220
+})
+log.info("new_arroyo_map: " .. tostring(new_map_id))
+
 --
 -- events.on('onMapEnter', function()
 --   local map_id = map.get_id()
@@ -37,6 +52,16 @@ local map       = require('ck.fallout2.map')
 --     monitor.print("already was here")
 --   end
 -- end)
+
+events.on('onMapEnter', function()
+  local map_id = map.get_id()
+
+  if map_id ~= 4 then return end
+
+  map.exit_grid.spawn_in_line(22748, 25156, {
+    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
+}, 2)
+end)
 
 events.on('onDayPassed', function()
   local date = game_time.get_date()

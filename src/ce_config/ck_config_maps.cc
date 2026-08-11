@@ -18,7 +18,7 @@ namespace ck::config_maps {
         fallout::Config cfg;
 
         if (!fallout::configInit(&cfg)) return -1;
-        if (!configRead(&cfg, "data\\maps.txt", true)) return 0;
+        if (!fallout::configRead(&cfg, "data\\maps.txt", true)) return 0;
 
         int idx = 0;
         char section[64];
@@ -43,25 +43,8 @@ namespace ck::config_maps {
         std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
 
         std::string maps_txt_path = "data/maps.txt";
-        int map_index = -1;
 
-        // check if map is already registered
-        for (const auto& [mod, file_maps] : g_config_patches) {
-            auto file_it = file_maps.find(normalize_config_path(maps_txt_path));
-            if (file_it == file_maps.end()) continue;
-
-            for (const auto& [section, keys] : file_it->second) {
-                auto name_it = keys.find("map_name");
-                if (name_it != keys.end() && name_it->second == map_file_upper) {
-                    map_index = std::stoi(section.substr(4)); // "Map XXX" -> get xxx
-                    log.info("Map reload/override detected for '{}': retaining existing ID {}", map_file_name, map_index);
-                    break;
-                }
-            }
-            if (map_index != -1) break;
-        }
-
-        if (map_index == -1) map_index = next_index();
+        int map_index = next_index();
 
         std::string map_section = format_section(map_index);
         log.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
