@@ -1,5 +1,6 @@
 #include "ce_config/ck_config_patch.h"
 #include "ce_config/ck_config_maps.h"
+#include "config.h"
 #include <format>
 #include <string_view>
 #include <algorithm>
@@ -13,8 +14,26 @@ namespace ck::config_maps {
         return std::format("Map {:03d}", map_id);
     }
 
-    int get_next_index() {
-		return ck::config_find_next_free_index("data\\maps.txt", "", "Map");
+    int next_index() {
+        fallout::Config cfg;
+
+        if (!fallout::configInit(&cfg)) return -1;
+        if (!configRead(&cfg, "data\\maps.txt", true)) return 0;
+
+        int idx = 0;
+        char section[64];
+
+        while (true) {
+            snprintf(section, sizeof(section), "Map %03d", idx);
+            char* dummy_str = nullptr;
+
+            if (!fallout::configGetString(&cfg, section, "lookup_name", &dummy_str)) break;
+            idx++;
+        }
+
+        fallout::configFree(&cfg);
+
+        return idx;
     }
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
@@ -42,7 +61,7 @@ namespace ck::config_maps {
             if (map_index != -1) break;
         }
 
-        if (map_index == -1) map_index = get_next_index();
+        if (map_index == -1) map_index = next_index();
 
         std::string map_section = format_section(map_index);
         log.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
