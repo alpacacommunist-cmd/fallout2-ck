@@ -155,7 +155,6 @@ namespace ck {
 }
 
 int ck_area_register_location(const char* name, int worldX, int worldY, const char* size) {
-
 	return ck::area_register_location(name, worldX, worldY, size);
 }
 

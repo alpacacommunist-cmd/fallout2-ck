@@ -62,6 +62,10 @@ void ck_scripting_init(int argc, char** argv) {
     if (is_test_mode) {
         logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
     }
+
+    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
+    ck::proxy::cache_functions();
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
 }
 
 void ck_on_scripts_reset() {
@@ -110,10 +114,6 @@ void ck_scripting_on_engine_ready() {
 	}
 
 	gProtoCache.initialize("build/proto_cache.db");
-
-    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
-    ck::proxy::cache_functions();
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
 
     ck_dispatcher_on_engine_ready();
 }

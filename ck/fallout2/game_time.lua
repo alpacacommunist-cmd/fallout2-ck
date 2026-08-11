@@ -29,7 +29,7 @@ function game_time.get_date()
 end
 
 function game_time.get_total_days()
-  return math.floor(C.ck_game_get_time() / (10 * 60 * 60 * 24))
+  return math.floor(ffi.C.ck_game_get_time() / (10 * 60 * 60 * 24))
 end
 
 function game_time.get_time_of_day()
