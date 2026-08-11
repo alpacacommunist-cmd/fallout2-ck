@@ -72,7 +72,7 @@ namespace ck {
 		const bool scanning_sections = sec_str.empty();
 
 		fallout::File* f = fallout::fileOpen(path_norm.c_str(), "rt");
-		if (f == nullptr) f = fallout::fileOpen(("data\\data\\" + path_norm).c_str(), "rt");
+		if (f == nullptr) f = fallout::fileOpen(("data\\" + path_norm).c_str(), "rt");
 
 		if (f != nullptr) {
 			char line[1024];
@@ -88,7 +88,6 @@ namespace ck {
 
 					if (scanning_sections) {
 						if (current_sec.starts_with(prefix_str)) {
-							// ФИКС: Обязательно триммим остаток строки, чтобы убрать пробел перед числом!
 							std::string_view idx_view = trim_string(current_sec.substr(prefix_str.size()));
 							int idx = 0;
 							if (try_parse_int(idx_view, idx)) {
