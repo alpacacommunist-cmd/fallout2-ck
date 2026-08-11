@@ -2,13 +2,14 @@
 #include "ce_config/ck_config_maps.h"
 #include "config.h"
 #include <format>
-#include <string_view>
 #include <algorithm>
+#include <unordered_set>
 
 #include "ck_log.h"
 static const Logger log("CK Maps Config");
 
 namespace ck::config_maps {
+    static std::unordered_set<std::string> g_registered_lookup_names;
 
     std::string format_section(int map_id) {
         return std::format("Map {:03d}", map_id);
@@ -20,14 +21,23 @@ namespace ck::config_maps {
         if (!fallout::configInit(&cfg)) return -1;
         if (!fallout::configRead(&cfg, "data\\maps.txt", true)) return 0;
 
+        g_registered_lookup_names.clear();
+
         int idx = 0;
         char section[64];
 
         while (true) {
             snprintf(section, sizeof(section), "Map %03d", idx);
-            char* dummy_str = nullptr;
+            char* lookup_name = nullptr;
 
-            if (!fallout::configGetString(&cfg, section, "lookup_name", &dummy_str)) break;
+            if (!fallout::configGetString(&cfg, section, "lookup_name", &lookup_name)) break;
+
+            if (lookup_name) {
+                std::string name_lower(lookup_name);
+                std::transform(name_lower.begin(), name_lower.end(), name_lower.begin(), ::tolower);
+                g_registered_lookup_names.insert(name_lower);
+            }
+
             idx++;
         }
 
@@ -39,15 +49,26 @@ namespace ck::config_maps {
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
 				const std::string& name, const std::string& music, const std::string& sfx) {
 
+        std::string name_lower = name;
+        std::transform(name_lower.begin(), name_lower.end(), name_lower.begin(), ::tolower);
+        int map_index = next_index();
+
+        if (g_registered_lookup_names.find(name_lower) != g_registered_lookup_names.end()) {
+            log.error("Mod '{}' failed to register map! lookup_name '{}' is already in use!",
+                    mod_id, name);
+
+            return -1;
+        }
+
         std::string map_file_upper = map_file_name;
         std::transform(map_file_upper.begin(), map_file_upper.end(), map_file_upper.begin(), ::toupper);
 
         std::string maps_txt_path = "data/maps.txt";
 
-        int map_index = next_index();
-
         std::string map_section = format_section(map_index);
         log.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
+
+        g_registered_lookup_names.insert(name_lower);
 
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "lookup_name", name);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "map_name",    map_file_upper);

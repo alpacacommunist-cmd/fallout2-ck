@@ -3,11 +3,14 @@
 #include "config.h"
 
 #include <format>
+#include <algorithm>
+#include <unordered_set>
 
 #include "ck_log.h"
 static const Logger log("CK City");
 
 namespace ck::config_city {
+    static std::unordered_set<std::string> g_registered_area_names;
 
     std::string format_section(int area_id) {
         return std::format("Area {:02d}", area_id);
@@ -19,14 +22,22 @@ namespace ck::config_city {
         if (!fallout::configInit(&cfg)) return -1;
         if (!fallout::configRead(&cfg, "data\\city.txt", true)) return 0;
 
+        g_registered_area_names.clear();
+
         int idx = 0;
         char section[64];
 
         while (true) {
             snprintf(section, sizeof(section), "Area %02d", idx);
-            char* dummy_str = nullptr;
+            char* area_name = nullptr;
 
-            if (!fallout::configGetString(&cfg, section, "area_name", &dummy_str)) break;
+            if (!fallout::configGetString(&cfg, section, "area_name", &area_name)) break;
+            if (area_name) {
+                std::string area_lower(area_name);
+                std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
+                g_registered_area_names.insert(area_lower);
+            }
+
             idx++;
         }
 
@@ -76,18 +87,24 @@ namespace ck::config_city {
 	int register_location(const std::string& mod_id, const std::string& name,
                           int world_x, int world_y, const std::string& size) {
 
-        int next_area_index = -1;
-        if (next_area_index == -1) next_area_index = next_index();
+        std::string area_lower = name;
+        std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
+        int area_index = next_index();
+
+        if (g_registered_area_names.find(area_lower) != g_registered_area_names.end()) {
+            log.error("Mod '{}' failed to register location! area_name '{}' is already in use!",
+                    mod_id, name);
+            return -1;
+        }
 
         std::string city_path = "data/city.txt";
-        int area_idx = -1;
 
-        if (area_idx == -1) area_idx = next_area_index++;
-
-        std::string area_section = format_section(area_idx);
+        std::string area_section = format_section(area_index);
         std::string world_pos = std::format("{},{}", world_x, world_y);
 
-        log.info("Registered worldmap area: {} (ID: {})", name, area_idx);
+        log.info("Registered worldmap area: {} (ID: {})", name, area_index);
+
+        g_registered_area_names.insert(area_lower);
 
         ck::config_patch_add(mod_id, city_path, area_section, "area_name",             name);
         ck::config_patch_add(mod_id, city_path, area_section, "world_pos",             world_pos);
@@ -96,6 +113,6 @@ namespace ck::config_city {
         ck::config_patch_add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
         ck::config_patch_add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
 
-        return area_idx;
+        return area_index;
     }
 }

@@ -117,6 +117,7 @@ namespace ck {
         std::string sfx           = data.sfx;
 
         int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music, sfx);
+        if (map_index == -1) return -1;
 
         std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
         gMapPaths[map_file_lower]    = map_file_path;
@@ -134,6 +135,7 @@ namespace ck {
 
 	int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
         int map_id = ck::area_register_map(data);
+        if (map_id == -1) return -1;
 
         g_map_id_redirects[original_map_id] = map_id;
 		g_map_id_to_original[map_id]        = original_map_id;
@@ -144,8 +146,9 @@ namespace ck {
 
 	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
 		int location_index = ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
-        ck::messages_add_string("map.msg", 1500 + location_index, name);
+        if (location_index == -1) return -1;
 
+        ck::messages_add_string("map.msg", 1500 + location_index, name);
 		return location_index;
 	}
 
@@ -157,7 +160,6 @@ namespace ck {
 
 		return target_entrance_id;
     }
-
 }
 
 int ck_area_register_location(const char* name, int worldX, int worldY, const char* size) {
