@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "ck_scripting.h"
-#include "ck_utils.h"
 #include "ck_encoding.h"
 
 #include "ck_registry/ck_registry.h"
@@ -22,14 +21,12 @@ static const Logger logger("CK Scripting");
 
 void ck_print_monitor_message(const char* message) {
     std::string converted = utf8_to_cp1251(std::string_view(message));
-
     fallout::displayMonitorAddMessage(converted.c_str());
 }
 
 // ck scripting reload mods
 void ck_reload_mods() {
 	logger.info("ck_reload_mods");
-
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
 }
 
@@ -76,12 +73,8 @@ void ck_on_scripts_reset() {
 void ck_scripting_exit() {
     ck::proxy::shutdown();
 
-    if (gLuaState != nullptr) {
-        logger.info("ck_scripting_exit");
-        logger.info("Shutting down LuaJIT backend...");
-        lua_close(gLuaState);
-        gLuaState = nullptr;
-    }
+    logger.info("ck_scripting_exit");
+    logger.info("Shutting down LuaJIT backend...");
 }
 
 void ck_scripting_set_language() {
@@ -90,7 +83,6 @@ void ck_scripting_set_language() {
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
 }
 
-// this is called from fallout2-ce once interface is ready
 void ck_scripting_on_game_start() {
 	ck_dispatcher_on_game_start();
 }
@@ -154,11 +146,7 @@ void ck_scripting_load_game_slot(int slot) {
 
 bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
-
-    if (!object) {
-        return false;
-    }
-
+    if (!object) return false;
     if (object->elevation != fallout::gElevation) return false;
 
 	int color = fallout::_colorTable[32747], background_color = fallout::_colorTable[0], font = 101;

@@ -1,8 +1,6 @@
-#include "ck_utils.h"
 #include "game_time/ck_game_time.h"
 
 namespace ck {
-
 	void on_day_passed() {
 		ck_dispatcher_on_day_passed();
 	}
@@ -15,7 +13,6 @@ namespace ck {
 	void on_time_advance(int hours, int minutes) {
 		ck_dispatcher_on_time_advance(hours, minutes);
 	}
-
 }
 
 // ffi
