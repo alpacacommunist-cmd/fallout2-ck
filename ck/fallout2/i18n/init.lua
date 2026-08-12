@@ -87,7 +87,7 @@ function i18n.bind(mod_id)
   return proxy
 end
 
-function ckSetLanguage(lang)
+function i18n.set_language(lang)
   local low_lang = lang:lower()
   i18n.language = LANGUAGE_MAP[low_lang] or low_lang
 

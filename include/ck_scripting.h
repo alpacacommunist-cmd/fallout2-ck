@@ -12,6 +12,7 @@ namespace ck {
 namespace ck::proxy::detail {
     extern int reload_mods;
     extern int bootstrap;
+    extern int set_language;
 }
 
 namespace fallout {

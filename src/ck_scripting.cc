@@ -85,19 +85,9 @@ void ck_scripting_exit() {
 }
 
 void ck_scripting_set_language() {
-    if (gLuaState == nullptr) return;
-
-    lua_getglobal(gLuaState, "ckSetLanguage");
-    if (!lua_isfunction(gLuaState, -1)) {
-        lua_pop(gLuaState, 1);
-        return;
-    }
-
     logger.info("System language: {}", fallout::settings.system.language);
     ck::i18n::load_language(fallout::settings.system.language);
-
-    lua_pushstring(gLuaState, fallout::settings.system.language.c_str());
-    lua_pcall(gLuaState, 1, 0, 0);
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
 }
 
 // this is called from fallout2-ce once interface is ready
