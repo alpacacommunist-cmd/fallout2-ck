@@ -11,6 +11,7 @@ ffi.cdef[[
   void ck_config_clear_mod_patches(const char* mod_id);
 
   const char* ck_get_current_mod_id();
+  size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size);
 
   void ck_scripting_load_game_slot(int slot);
 

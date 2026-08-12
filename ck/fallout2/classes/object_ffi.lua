@@ -18,6 +18,8 @@ local Critter = require('ck.fallout2.classes.critter')
 local objects = require('ck.fallout2.objects')
 local items   = require('ck.fallout2.objects.items')
 
+local encoding = require('ck.fallout2.encoding')
+
 object_ffi = {}
 
 object_ffi.collection = {
@@ -49,7 +51,7 @@ function object_ffi:restore()
 end
 
 function object_ffi:get_name()
-  return ffi.string(self.name)
+  return encoding.cp1251_to_utf8(ffi.string(self.name))
 end
 
 function object_ffi:get_mod_id()
