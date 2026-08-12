@@ -16,7 +16,7 @@ function encoding.cp1251_to_utf8(raw_c_str)
 
   if in_len == 0 then return "" end
 
-  local max_size = (in_len * 2) + 1
+  local max_size = (in_len * 3) + 1
   local buf = ffi.new("char[?]", max_size)
 
   local written = ffi.C.ck_cp1251_to_utf8(raw_c_str, buf, max_size)

@@ -96,28 +96,30 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
     size_t out_idx = 0;
     size_t in_idx = 0;
 
-    while (in_cp1251[in_idx] != '\0' && out_idx + 3 < max_size) {
+    // Оставляем 1 байт под финальный '\0', то есть max_size - 1
+    // Для кириллицы нужно максимум 2 байта, поэтому проверяем out_idx + 1 < max_size - 1
+    while (in_cp1251[in_idx] != '\0' && out_idx + 1 < max_size - 1) {
         unsigned char c = in_cp1251[in_idx];
 
         if (c < 0x80) {
             out_utf8[out_idx++] = c;
-        } else if (c >= 0xC0 && c <= 0xDF) { // А..Я
+        } else if (c >= 0xC0 && c <= 0xEF) {
+            // Объединяем А..Я и а..п, так как у них одинаковое смещение -0x30 и первый байт 0xD0
             out_utf8[out_idx++] = (char)0xD0;
-            out_utf8[out_idx++] = (char)(c - 0x30); // 0xC0 -> 0x90 ('А')
-        } else if (c >= 0xE0 && c <= 0xEF) { // а..п (Коварная группа!)
-            out_utf8[out_idx++] = (char)0xD0;
-            out_utf8[out_idx++] = (char)(c - 0x30); // 0xE0 -> 0xB0 ('а')
-        } else if (c >= 0xF0 && c <= 0xFF) { // р..я
+            out_utf8[out_idx++] = (char)(c - 0x30);
+        } else if (c >= 0xF0 && c <= 0xFF) {
+            // р..я: первый байт 0xD1, смещение -0x70 (0xF0 -> 0x80)
             out_utf8[out_idx++] = (char)0xD1;
-            out_utf8[out_idx++] = (char)(c - 0x60); // 0xF0 -> 0x80 ('р')
-        } else if (c == 0xA8) { // Ё
+            out_utf8[out_idx++] = (char)(c - 0x70);
+        } else if (c == 0xA8) { // Ё -> 0xD0 0x81
             out_utf8[out_idx++] = (char)0xD0;
             out_utf8[out_idx++] = (char)0x81;
-        } else if (c == 0xB8) { // ё
+        } else if (c == 0xB8) { // ё -> 0xD1 0x91
             out_utf8[out_idx++] = (char)0xD1;
             out_utf8[out_idx++] = (char)0x91;
         } else {
-            // спецсимволы (кавычки, тире) оставляем как есть
+            // Псевдографика, кавычки-елочки (0xAB, 0xBB) и тире из CP1251
+            // Если они не входят в ASCII (<0x80), в чистом UTF-8 они должны быть 3-байтовыми.
             out_utf8[out_idx++] = c;
         }
         in_idx++;
