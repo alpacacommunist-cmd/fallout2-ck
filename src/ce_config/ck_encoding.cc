@@ -101,10 +101,15 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
 
         if (c < 0x80) {
             out_utf8[out_idx++] = c;
-        } else if (c >= 0xC0 && c <= 0xFF) { // А..я
-            int code = c - 0xC0 + 0x410;
-            out_utf8[out_idx++] = (char)(0xD0 + (code - 0x400) / 64);
-            out_utf8[out_idx++] = (char)(0x90 + (code - 0x400) % 64);
+        } else if (c >= 0xC0 && c <= 0xDF) { // А..Я
+            out_utf8[out_idx++] = (char)0xD0;
+            out_utf8[out_idx++] = (char)(c - 0x30); // 0xC0 -> 0x90 ('А')
+        } else if (c >= 0xE0 && c <= 0xEF) { // а..п (Коварная группа!)
+            out_utf8[out_idx++] = (char)0xD0;
+            out_utf8[out_idx++] = (char)(c - 0x30); // 0xE0 -> 0xB0 ('а')
+        } else if (c >= 0xF0 && c <= 0xFF) { // р..я
+            out_utf8[out_idx++] = (char)0xD1;
+            out_utf8[out_idx++] = (char)(c - 0x60); // 0xF0 -> 0x80 ('р')
         } else if (c == 0xA8) { // Ё
             out_utf8[out_idx++] = (char)0xD0;
             out_utf8[out_idx++] = (char)0x81;
@@ -112,6 +117,7 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
             out_utf8[out_idx++] = (char)0xD1;
             out_utf8[out_idx++] = (char)0x91;
         } else {
+            // спецсимволы (кавычки, тире) оставляем как есть
             out_utf8[out_idx++] = c;
         }
         in_idx++;
@@ -120,3 +126,5 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
     out_utf8[out_idx] = '\0';
     return out_idx;
 }
+
+// какая же боль ёпты

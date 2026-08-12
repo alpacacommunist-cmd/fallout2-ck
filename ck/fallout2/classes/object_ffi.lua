@@ -51,7 +51,8 @@ function object_ffi:restore()
 end
 
 function object_ffi:get_name()
-  return encoding.cp1251_to_utf8(ffi.string(self.name))
+  local name = encoding.cp1251_to_utf8(self.name)
+  return name
 end
 
 function object_ffi:get_mod_id()
@@ -70,7 +71,7 @@ function object_ffi:bind()
 
   if not object then
     if self:is_critter() then
-      object = Critter.new(self.lua_id, { name = ffi.string(self.name) }, ffi.string(self.name), self.mod_id)
+      object = Critter.new(self.lua_id, { name = self:get_name() }, self:get_name(), self.mod_id)
     else
       object = Object.new(self.lua_id, {}, self.mod_id)
     end
