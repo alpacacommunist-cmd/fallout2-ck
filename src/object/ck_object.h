@@ -5,11 +5,20 @@
 #include "ck_api.h"
 
 namespace fallout {
+#define HEX_GRID_WIDTH (200)
+#define HEX_GRID_HEIGHT (200)
+#define HEX_GRID_SIZE (HEX_GRID_WIDTH * HEX_GRID_HEIGHT)
 	struct Object;
+    enum Rotation : int;
 
 	extern int gElevation;
 
 	char* objectGetName(Object* obj);
+    int tileGetTileInDirection(int tile, Rotation rotation, int distance);
+}
+
+inline bool hexGridTileIsValid(int tile) {
+	return tile >= 0 && tile < HEX_GRID_SIZE;
 }
 
 const int BLOCKER_PID=0x2000158;  // dummy collision object
@@ -41,7 +50,7 @@ namespace ck::object {
 
 bool ck_object_blocking(int tile);
 
-fallout::Object* ck_object_create(int pid, int tile);
+fallout::Object* ck_object_create(int pid, int tile, bool search_free_tile = false);
 fallout::Object* ck_object_create_at(int fid, int tile);
 
 int ck_object_register(int pid, int tile, const LuaMeta& meta);

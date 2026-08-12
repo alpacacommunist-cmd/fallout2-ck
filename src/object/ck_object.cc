@@ -83,17 +83,33 @@ bool ck_object_blocking(int tile) {
 	return blocker != nullptr; // something blocks tile
 }
 
-fallout::Object* ck_object_create(int pid, int tile) {
-	if (ck_object_blocking(tile)) return nullptr;
+fallout::Object* ck_object_create(int pid, int tile, bool search_free_tile) {
+	if (ck_object_blocking(tile) && !search_free_tile) return nullptr;
 
 	fallout::Object* object = nullptr;
-
 	if (fallout::objectCreateWithPid(&object, pid) == 0) {
-		fallout::objectSetLocation(object, tile, fallout::gElevation, nullptr);
 		object->flags |= fallout::OBJECT_NO_SAVE;
-
-		return object;
 	}
+
+    if (ck_object_blocking(tile)) {
+        const int radius = 3;
+
+        for (int direction = 0; direction < 6; direction++) {
+            for (int distance = 1; distance <= radius; distance++) {
+                int new_tile = fallout::tileGetTileInDirection(tile, static_cast<fallout::Rotation>(direction), distance);
+
+                if (!hexGridTileIsValid(new_tile)) continue;
+                if (ck_object_blocking(new_tile)) continue;
+
+                tile = new_tile;
+            }
+        }
+    }
+
+    if (object) {
+        fallout::objectSetLocation(object, tile, fallout::gElevation, nullptr);
+        return object;
+    }
 
 	return nullptr;
 }

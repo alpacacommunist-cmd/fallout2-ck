@@ -33,7 +33,7 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 
 namespace ck {
 	fallout::Object* create_critter(int pid, int tile) {
-		fallout::Object* critter = ck_object_create(pid, tile);
+		fallout::Object* critter = ck_object_create(pid, tile, true);
 
 		if (critter != nullptr) {
 			return critter;

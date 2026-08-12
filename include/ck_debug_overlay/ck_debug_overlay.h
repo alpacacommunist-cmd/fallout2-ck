@@ -12,9 +12,6 @@ enum class ExportMode {
 
 namespace fallout {
 #define MOUSE_EVENT_LEFT_BUTTON_REPEAT 0x04
-#define HEX_GRID_WIDTH (200)
-#define HEX_GRID_HEIGHT (200)
-#define HEX_GRID_SIZE (HEX_GRID_WIDTH * HEX_GRID_HEIGHT)
     enum Rotation : int;
 
 	struct Rect;
@@ -36,10 +33,6 @@ namespace fallout {
 	char* objectGetName(Object* obj);
 	Object* _obj_blocking_at(Object* excludeObj, int tile_num, int elev);
 	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
-}
-
-inline bool hexGridTileIsValid(int tile) {
-	return tile >= 0 && tile < HEX_GRID_SIZE;
 }
 
 bool ck_debug_overlay_enabled();
