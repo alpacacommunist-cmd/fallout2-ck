@@ -10,7 +10,9 @@ namespace fallout {
 	struct UniqueObject;
 	struct Rect;
 
-    bool critterFlagCheck(int pid, int flag);
+    enum CritterFlags : int;
+
+    bool critterFlagCheck(int pid, CritterFlags flag);
 
     int itemAdd(Object* owner, Object* itemToAdd, int quantity);
     int itemDropAll(Object* critter, int tile);

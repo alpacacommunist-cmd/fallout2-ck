@@ -9,13 +9,14 @@ namespace fallout {
     struct Object;
 	struct Attack;
 	enum Skill : int;
+    enum DudeState : int;
 
 	extern Object* gDude;
 
 	int skillGetValue(Object* critter, Skill skill);
 	int critterGetStat(Object* critter, int stat);
 	bool dudeIsSneaking();
-	bool dudeHasState(int state);
+    bool dudeHasState(DudeState state);
 	bool skillIsTagged(int skill);
 }
 

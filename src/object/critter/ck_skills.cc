@@ -3,7 +3,6 @@
 
 #include "skill_defs.h"
 #include "random.h"
-#include "item.h"
 #include "proto.h"
 
 
@@ -83,7 +82,7 @@ namespace ck::skills {
 
 		on_use_complete(attacker, skill, target, is_success, combat_bonus);
 
-		if ((fallout::dudeIsSneaking() || fallout::dudeHasState(0)))
+		if ((fallout::dudeIsSneaking() || fallout::dudeHasState(fallout::DudeState(0))))
 			on_use_complete(fallout::gDude, fallout::SKILL_SNEAK, target, is_success, (combat_bonus/2));
     }
 
