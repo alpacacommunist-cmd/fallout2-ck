@@ -181,7 +181,7 @@ namespace ck::proto {
             item_proto->weight = proto.weight;
 
             if (proto.usable) {
-                item_proto->extendedFlags |= fallout::ItemProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
+                item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
             }
 
             UniqueProtoPtr custom_proto_ptr(custom_proto);
