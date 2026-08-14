@@ -121,6 +121,10 @@ ffi.cdef[[
   int  player_add_skill(int skill, int value);
   int  player_set_skill(int skill, int value);
 
+  // --- Perks ---
+  void ck_get_perks_metadata(void (*callback)(const char* name, int value));
+
+
   // --- Items ---
   bool ck_inventory_add(void* container_ptr, int item_pid, int count);
   int  ck_inventory_count(void* container_ptr, int item_pid);

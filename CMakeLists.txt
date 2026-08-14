@@ -60,6 +60,7 @@ add_library(fallout2-ck STATIC
     src/ck_i18n/ck_i18n.cc
 
     src/ck_knowledge/ck_knowledge.cc
+    src/ck_perks/ck_perks.cc
 
     src/ck_area/ck_area.cc
     src/game_time/ck_game_time.cc
