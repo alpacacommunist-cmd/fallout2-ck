@@ -1,11 +1,18 @@
 local ffi = require("ffi")
-local stats = require("ck.fallout2.objects.critters.stats")
-local skills = require('ck.fallout2.objects.critters.skills')
 local utils = require('ck.system.utils')
 
-local stats_proxy  = stats.create_proxy(ffi.C.player_stat)
-local skills_proxy = skills.create_proxy(ffi.C.player_skill)
+local stats  = require("ck.fallout2.objects.critters.stats")
+local skills = require('ck.fallout2.objects.critters.skills')
+
+-- stats
+local stats_proxy    = stats.create_proxy(ffi.C.player_stat)
 local pc_stats_proxy = stats.create_pc_proxy(ffi.C.player_pc_stat)
+
+-- skills
+local skills_proxy = skills.create_proxy(ffi.C.player_skill)
+
+-- perks
+local perks_proxy = perks.create_proxy(ffi.C.player_perk)
 
 local player = {
   id = nil,
@@ -15,6 +22,9 @@ local player = {
 
   skills    = skills_proxy,
   skill     = ffi.C.player_skill,
+
+  perks = perks_proxy,
+  perk  = ffi.C.player_perk
 }
 
 setmetatable(player, {
