@@ -61,6 +61,11 @@ function player.set_base_stat(stat, value)
   ffi.C.player_set_base_stat(stats.MAP[stat], value)
 end
 
+function player.add_perk_rank(perk)
+  if not perks.MAP[perk] then return end
+  ffi.C.player_perk_add_rank(perks.MAP[perk])
+end
+
 function player.pid()
   return ffi.C.player_get_pid()
 end

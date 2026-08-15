@@ -34,6 +34,10 @@ namespace ck::perks {
     int get_rank(fallout::Object* critter, fallout::Perk perk) {
         return fallout::perkGetRank(critter, perk);
     }
+
+    int add_rank(fallout::Object* critter, fallout::Perk perk) {
+        return fallout::perkAddForce(critter, perk);
+    }
 }
 
 void ck_get_perks_metadata(void (*callback)(const char* name, int value)) {
@@ -44,4 +48,10 @@ int player_perk(int perk_id) {
     if (perk_id < fallout::Perk::PERK_FIRST || perk_id > fallout::Perk::PERK_COUNT) return -1;
 
     return ck::perks::get_rank(fallout::gDude, fallout::Perk(perk_id));
+}
+
+int player_perk_add_rank(int perk_id) {
+    if (perk_id < fallout::Perk::PERK_FIRST || perk_id > fallout::Perk::PERK_COUNT) return -1;
+
+    return ck::perks::add_rank(fallout::gDude, fallout::Perk(perk_id));
 }

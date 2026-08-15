@@ -124,7 +124,7 @@ ffi.cdef[[
   // --- Perks ---
   void ck_get_perks_metadata(void (*callback)(const char* name, int value));
   int player_perk(int perk_id);
-
+  int player_perk_add_rank(int perk_id);
 
   // --- Items ---
   bool ck_inventory_add(void* container_ptr, int item_pid, int count);
