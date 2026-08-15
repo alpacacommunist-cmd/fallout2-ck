@@ -51,10 +51,10 @@ events.on('onGameLoaded', function()
   log.info(player.gender)
   log.info(player.level)
 
-  -- player.set_skill(skills.MAP['melee_weapons'], 10)
+  -- player.set_skill('melee_weapons', 10)
   player.add_perk_rank('toughness')
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
-  log.info('tougness: ' .. tostring(player.perks.toughness))
+  log.info('tougness: ' .. tostring(player.perks.toughness.rank))
 end)
 
 events.on('onModReload', function()

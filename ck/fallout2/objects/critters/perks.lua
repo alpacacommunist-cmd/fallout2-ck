@@ -20,7 +20,9 @@ function perks.create_proxy(read_perk_fn)
   setmetatable(proxy, {
     __index = function(_, key)
       local c_perk = PERKS_MAP[key]
-      if    c_perk then return read_perk_fn(c_perk) end
+      if    c_perk then
+        return { rank = read_perk_fn(c_perk), id = c_perk }
+      end
 
       return nil
     end
