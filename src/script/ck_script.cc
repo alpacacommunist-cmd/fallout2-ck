@@ -141,7 +141,7 @@ namespace ck {
     }
 
 	int dialog_init_ui() {
-		return fallout::_gdialogInitFromScript(-1, 0);
+		return fallout::_gdialogInitFromScript(-1, fallout::HeadFidget(0));
 	}
 
 	void dialog_set_reply(const char* text) {
