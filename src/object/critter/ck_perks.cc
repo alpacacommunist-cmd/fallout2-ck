@@ -1,4 +1,5 @@
 #include "perk_defs.h"
+#include "object/critter/ck_perks.h"
 
 #include "ck_log.h"
 static const Logger log("CK Perks");
@@ -30,9 +31,17 @@ static_assert(sizeof(g_perk_names) / sizeof(g_perk_names[0]) == fallout::Perk::P
               "perk names / perk_defs.h mismatch!");
 
 namespace ck::perks {
+    int get_rank(fallout::Object* critter, fallout::Perk perk) {
+        return fallout::perkGetRank(critter, perk);
+    }
 }
 
 void ck_get_perks_metadata(void (*callback)(const char* name, int value)) {
     for (int i = 0; i < fallout::Perk::PERK_COUNT; ++i) callback(g_perk_names[i], i);
 }
 
+int player_perk(int perk_id) {
+    if (perk_id < fallout::Perk::PERK_FIRST || perk_id > fallout::Perk::PERK_COUNT) return -1;
+
+    return ck::perks::get_rank(fallout::gDude, fallout::Perk(perk_id));
+}

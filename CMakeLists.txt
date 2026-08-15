@@ -60,7 +60,6 @@ add_library(fallout2-ck STATIC
     src/ck_i18n/ck_i18n.cc
 
     src/ck_knowledge/ck_knowledge.cc
-    src/ck_perks/ck_perks.cc
 
     src/ck_area/ck_area.cc
     src/game_time/ck_game_time.cc
@@ -71,6 +70,7 @@ add_library(fallout2-ck STATIC
     src/object/critter/ck_critter.cc
     src/object/critter/ck_stats.cc
     src/object/critter/ck_skills.cc
+    src/object/critter/ck_perks.cc
     src/object/ck_item.cc
 
     src/ck_debug_overlay/ck_debug_overlay.cc

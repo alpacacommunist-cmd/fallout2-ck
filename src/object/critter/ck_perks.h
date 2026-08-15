@@ -8,11 +8,13 @@ namespace fallout {
 	extern Object* gDude;
 
     enum Perk : int;
+    int perkGetRank(Object* critter, Perk perk);
 }
 
 namespace ck::perks {
 }
 
 CK_API void ck_get_perks_metadata(void (*callback)(const char* name, int value));
+CK_API int player_perk(int perk_id);
 
 #endif
