@@ -3,6 +3,7 @@ local utils = require('ck.system.utils')
 
 local stats  = require("ck.fallout2.objects.critters.stats")
 local skills = require('ck.fallout2.objects.critters.skills')
+local perks  = require('ck.fallout2.objects.critters.perks')
 
 -- stats
 local stats_proxy    = stats.create_proxy(ffi.C.player_stat)

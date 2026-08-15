@@ -53,6 +53,7 @@ events.on('onGameLoaded', function()
 
   -- player.set_skill(skills.MAP['melee_weapons'], 10)
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
+  log.info('tougness: ' .. tostring(player.perks.toughness))
 end)
 
 events.on('onModReload', function()

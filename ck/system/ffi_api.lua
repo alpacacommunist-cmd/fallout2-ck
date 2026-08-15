@@ -123,6 +123,7 @@ ffi.cdef[[
 
   // --- Perks ---
   void ck_get_perks_metadata(void (*callback)(const char* name, int value));
+  int player_perk(int perk_id);
 
 
   // --- Items ---
