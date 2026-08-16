@@ -7,6 +7,7 @@ local behaviors = require('ck.fallout2.objects.critters.behaviors')
 local locations = require('ck.fallout2.locations')
 local player    = require('ck.fallout2.player')
 local stats     = require('ck.fallout2.objects.critters.stats')
+local items     = require('ck.fallout2.objects.items')
 
 local outskirts = require('.outskirts')
 local utils     = require('ck.system.utils')
@@ -53,11 +54,14 @@ events.on('onMapEnter', function(map_id)
     description = 'Ralph the Wanderer'
   })
 
-  if (ralph) then
-    ralph.stats = { max_hp = 10, hp = 1 }
+  ralph.stats = { max_hp = 10, hp = 1 }
 
-    ralph:set_behavior(behaviors.wander, 3)
-    state.track(ralph, { save_interval_seconds = 5 })
+  ralph:set_behavior(behaviors.wander, 3)
+  state.track(ralph, { save_interval_seconds = 5 })
+
+  if (not ralph.is_dead) then
+    ralph:give_item(items.PID_KNIFE, 1)
+    ralph:give_item(items.PID_STIMPAK, 5)
   end
 end)
 

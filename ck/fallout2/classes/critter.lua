@@ -17,30 +17,31 @@ function Critter.new(lua_id, config, tag, mod_id)
   setmetatable(self, Critter)
 
   self.tag = tag
+  self.in_combat = false
+  self.active_behavior = nil
   self.is_dead = self:hp() <= 0
 
   if (self.is_dead) then
     log.debug(string.format("critter %s is dead!", self.name))
   end
 
-  -- behivours
-  self.active_behavior = nil
-  self._is_moving = false
-  self._action_queue   = {}
-  self._next_behavior_tick = 0
-  self._behavior_interval  = 20
+  if (not self.is_dead) then
+    -- behivours
+    self._is_moving = false
+    self._action_queue   = {}
+    self._next_behavior_tick = 0
+    self._behavior_interval  = 20
 
-  -- stats
-  self._stats_proxy = stats.create_proxy(function(stat_id)
-    local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-    local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+    -- stats
+    self._stats_proxy = stats.create_proxy(function(stat_id)
+      local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+      local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
 
-    return base + bonus
-  end)
+      return base + bonus
+    end)
 
-  if config and config.stats then self.stats = config.stats end
-
-  self.in_combat = false
+    if config and config.stats then self.stats = config.stats end
+  end
 
   return self
 end
