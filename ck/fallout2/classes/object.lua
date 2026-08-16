@@ -91,7 +91,10 @@ function Object:_handle_proc(proc_id, fixed_param)
       log.info('Critter destroyed: ' .. tostring(self.lua_id))
 
       self.is_dead = true
-      ffi.C.ck_critter_kill(self.lua_id)
+      -- objects.registry[self.lua_id] = nil
+      -- corpse_lua_id = ffi.C.ck_critter_kill(self.lua_id)
+      -- if (corpse_lua_id != -1) then
+      -- end
 
       return true
     end

@@ -96,7 +96,7 @@ ffi.cdef[[
   CritterLua ck_critter_register(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
   // --- Critter Events
-  bool ck_critter_kill(int lua_id);
+  int ck_critter_kill(int lua_id);
   bool ck_critter_process_turn(void* ptr, int lua_id);
 
   // --- Critter HP ---

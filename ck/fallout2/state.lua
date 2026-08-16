@@ -37,6 +37,8 @@ function state.sync_save()
 
       if entry.object.tile    then entry_state.tile    = entry.object:tile() end
       if entry.object.hp      then entry_state.hp      = entry.object:hp() end
+      if entry.object.elevation then entry_state.elevation = entry.object.elevation end
+
       entry_state.id   = entry.object:id()
 
       state.db.maps[current_map_id][entry.mod_id][entry.tag] = entry_state

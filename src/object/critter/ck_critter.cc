@@ -78,7 +78,8 @@ namespace ck {
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
 
-		if (state.tile != -1) tile = state.tile;
+        if (state.elevation != -1) elevation = state.elevation;
+		if (state.tile != -1)      tile = state.tile;
 
         if (state.hp > 0 || state.id == -1) { // either alive or first spawn
             if (!lua_tag.empty()) {
@@ -101,7 +102,7 @@ namespace ck {
 
         } else {
             fallout::Object* corpse;
-            fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+            fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
 
             while (object != nullptr) {
                 if (object->id == state.id) {
@@ -120,23 +121,22 @@ namespace ck {
         return { lua_id, ck_get_current_mod_id() };
 	}
 
-	bool critter_kill(int lua_id) {
+	int critter_kill(int lua_id) {
 		const CkCreatedObject* object = ck::registry::created::get(lua_id);
-		if (!object || !object->ptr) return false;
+		if (!object || !object->ptr) return -1;
 
 		object->ptr->pid    = object->meta.source_pid;
         object->ptr->sid    = -1;
 		object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
 
-        ck::registry::created::remove_by_ptr(object->ptr);
-        // ck::registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
-		// _combat_delete_critter(object->ptr);
-		//
-		// if (fallout::gDude->data.critter.combat.whoHitMe == object->ptr) {
-		// 	fallout::gDude->data.critter.combat.whoHitMe = nullptr;
-		// }
+        std::string mod_id = std::move(object->meta.mod_id), lua_tag = std::move(object->meta.tag);
+        int source_pid     = object->meta.source_pid;
+        fallout::Object* corpse = object->ptr;
 
-		return true;
+        ck::registry::created::remove_by_ptr(object->ptr);
+        int modified_lua_id = ck::registry::modified::add(corpse, { std::move(mod_id), std::move(lua_tag), source_pid, -1 });
+
+		return modified_lua_id;
 	}
 }
 
@@ -206,7 +206,7 @@ bool ck_critter_process_turn(void* ptr, int lua_id) {
 	return true;
 }
 
-bool ck_critter_kill(int lua_id) {
+int ck_critter_kill(int lua_id) {
 	return ck::critter_kill(lua_id);
 }
 
