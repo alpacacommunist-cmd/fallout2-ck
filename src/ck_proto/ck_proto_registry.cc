@@ -16,8 +16,6 @@
 static const Logger logger("CK Proto Registry");
 
 namespace fallout {
-    int proto_new(int* pid, int object_type);
-    int proto_copy_proto(int source_pid, int destination_pid);
     int protoGetProto(int pid, fallout::Proto** proto);
 
     const size_t _proto_sizes[11] = {

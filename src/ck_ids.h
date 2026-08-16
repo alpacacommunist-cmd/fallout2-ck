@@ -52,6 +52,7 @@ int make_modified_sid(int lua_id);
 int make_full_sid(int script_type, int custom_sid);
 int make_proto_sid(int custom_sid);
 int clean_sid(int full_sid);
+int clean_pid(int full_pid);
 
 int make_sid_created(fallout::Object* obj, int lua_id);
 int make_sid_modified(fallout::Object* obj, int lua_id);

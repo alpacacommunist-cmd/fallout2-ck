@@ -67,6 +67,10 @@ int clean_sid(int full_sid) {
     return full_sid & 0x00FFFFFF;
 }
 
+int clean_pid(int full_pid) {
+    return full_pid & 0x00FFFFFF;
+}
+
 bool is_ck_sid(int sid) {
 	int clean = clean_sid(sid);
     return (clean >= CK_SID_BASE && clean <= CK_SID_LIMIT);

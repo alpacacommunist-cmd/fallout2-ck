@@ -8,12 +8,17 @@
 #include "ck_messages/ck_messages.h"
 
 #include "combat_defs.h"
+#include "proto_types.h"
 #include "animation.h"
 
 #include <cstring>
 
 #include "ck_log.h"
 static const Logger logger("CK Critter");
+
+namespace fallout {
+    int protoGetProto(int pid, fallout::Proto** proto);
+}
 
 static int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params) {
 	int unique_pid = 0;
@@ -28,8 +33,16 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag, const
 		return -1;
 	}
 
-    int msg_name_id = unique_pid * 100;
+    int clean_pid = ck::ids::clean_pid(unique_pid);
+
+    int msg_name_id = clean_pid * 100;
     int msg_desc_id = msg_name_id + 1;
+
+    fallout::Proto* generic_proto = nullptr;
+    if (fallout::protoGetProto(unique_pid, &generic_proto) == 0 && generic_proto) {
+        fallout::CritterProto* critter_proto = reinterpret_cast<fallout::CritterProto*>(generic_proto);
+        critter_proto->messageId = msg_name_id;
+    }
 
     if (params->name) {
         std::string_view name(params->name);

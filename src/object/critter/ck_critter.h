@@ -19,7 +19,6 @@ extern "C" const char* ck_get_current_mod_id();
 namespace fallout {
     struct Object;
     struct Rect;
-    struct Proto;
 
 	extern int gElevation;
 
@@ -38,7 +37,6 @@ namespace fallout {
 
 	int proto_new(int* pid, fallout::ObjectType type);
 	int proto_copy_proto(int srcPid, int dstPid);
-    int protoGetProto(int pid, Proto** protoPtr);
 
 	void critterKill(Object* critter, int anim, bool refreshRect);
 
