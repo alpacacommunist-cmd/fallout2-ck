@@ -6,11 +6,11 @@ static const Logger log("CK Registry [Created]");
 namespace ck::registry::created {
     int add(fallout::Object* obj, const LuaMeta& meta) {
         if (!obj) return -1;
-        int id = next_lua_id();
+        int lua_id = next_lua_id();
 
-        g_created_objects[id] = CkCreatedObject{ obj, id, meta };
-        g_ptr_to_lua_id[obj] = id;
-        return id;
+        g_created_objects[lua_id] = CkCreatedObject{ obj, lua_id, meta };
+        g_ptr_to_lua_id[obj] = lua_id;
+        return lua_id;
     }
 
 	void clear_for_mod(std::string_view mod_id) {

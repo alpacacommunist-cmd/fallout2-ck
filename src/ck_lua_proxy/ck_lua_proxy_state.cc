@@ -98,6 +98,7 @@ namespace ck::proxy {
         if (lua_istable(gLuaState, -1)) {
             result.tile = read_table_int("tile", -1);
             result.hp   = read_table_int("hp", -1);
+            result.id   = read_table_int("id", -1);
         }
 
         return result;

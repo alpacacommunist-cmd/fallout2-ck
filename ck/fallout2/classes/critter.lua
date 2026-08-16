@@ -17,7 +17,11 @@ function Critter.new(lua_id, config, tag, mod_id)
   setmetatable(self, Critter)
 
   self.tag = tag
-  self.is_dead = false
+  self.is_dead = self:hp() <= 0
+
+  if (self.is_dead) then
+    log.debug(string.format("critter %s is dead!", self.name))
+  end
 
   -- behivours
   self.active_behavior = nil
@@ -65,6 +69,8 @@ function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end
 function Critter:set_hp(hp) return ffi.C.ck_critter_set_current_hp(self.c_ptr, hp) end
 
 function Critter:set_behavior(behavior_fn, ...)
+  if self.is_dead then return false end
+
   if type(behavior_fn) ~= "function" then
     log.error("is not a function: " .. tostring(behavior_fn))
   else
@@ -75,6 +81,8 @@ function Critter:set_behavior(behavior_fn, ...)
 end
 
 function Critter:is_busy()
+  if self.is_dead then return true end
+
   return ffi.C.ck_critter_is_busy(self.c_ptr)
 end
 
@@ -120,6 +128,8 @@ end
 function Critter:_handle_proc(proc_id, fixed_param)
   -- check if proc is already handled in Object
   if Object._handle_proc(self, proc_id, fixed_param) then return true end
+
+  if self.is_dead then return false end
 
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end

@@ -37,7 +37,6 @@ function state.sync_save()
 
       if entry.object.tile    then entry_state.tile    = entry.object:tile() end
       if entry.object.hp      then entry_state.hp      = entry.object:hp() end
-      if entry.object.is_dead then entry_state.is_dead = true end
       entry_state.id   = entry.object:id()
 
       state.db.maps[current_map_id][entry.mod_id][entry.tag] = entry_state
@@ -173,13 +172,6 @@ function state.get_state_data(mod_id, map_id, tag)
   data = state.get_stored_object_data(mod_id, map_id, tag)
 
   if data then return data else return {} end
-end
-
-function state.get_state_tile(mod_id, map_id, tag)
-  log.debug(string.format("mod_id: %s, map_id: %d, tag: %s", mod_id, map_id, tag))
-  data = state.get_stored_object_data(mod_id, map_id, tag)
-
-  if data then return data.tile else return -1 end
 end
 
 return state

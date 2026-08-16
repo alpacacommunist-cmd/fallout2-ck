@@ -1,5 +1,4 @@
 #include "ck_registry.h"
-#include <algorithm>
 
 #include "obj_types.h"
 

@@ -10,7 +10,7 @@
 namespace picojson { class value; }
 
 namespace ck::proxy {
-	struct ObjectState { int tile = -1; int hp = -1; };
+	struct ObjectState { int tile = -1; int hp = -1; int id = -1; bool is_dead = false; };
     struct CustomProtoState { int id = 0; std::string tag; };
 
     template <typename T, typename... Args>

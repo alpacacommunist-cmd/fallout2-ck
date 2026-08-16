@@ -53,12 +53,13 @@ events.on('onMapEnter', function(map_id)
     description = 'Ralph the Wanderer'
   })
 
-  ralph.stats = { max_hp = 10, hp = 1 }
+  if (ralph) then
+    ralph.stats = { max_hp = 10, hp = 1 }
 
-  ralph:set_behavior(behaviors.wander, 3)
-  state.track(ralph, { save_interval_seconds = 5 })
+    ralph:set_behavior(behaviors.wander, 3)
+    state.track(ralph, { save_interval_seconds = 5 })
+  end
 end)
-
 
 events.on('onMapEnter', function()
   if map.get_id() ~= 126 then return end

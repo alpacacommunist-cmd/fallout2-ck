@@ -16,6 +16,8 @@ namespace fallout {
     struct Object;
     struct Rect;
 
+	extern int gElevation;
+
 	enum CombatState : unsigned int;
     enum ObjectType : int;
 
@@ -34,6 +36,9 @@ namespace fallout {
 	void critterKill(Object* critter, int anim, bool refreshRect);
 
 	int tileGetTileInDirection(int tile, int rotation, int distance);
+
+    Object* objectFindFirstAtLocation(int elevation, int tile);
+    Object* objectFindNextAtLocation();
 }
 
 namespace ck {

@@ -44,6 +44,8 @@ namespace ck {
 
 	CritterLua register_critter(int pid, int tile, const char* tag) {
 		int map_id          = fallout::mapGetCurrentMap();
+        int source_pid      = pid;
+        int lua_id          = 1;
 
 		std::string mod_id  = ck_get_current_mod_id();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
@@ -51,29 +53,44 @@ namespace ck {
 
 		if (state.tile != -1) tile = state.tile;
 
-		int source_pid = pid;
+        if (state.hp >= 0) {
+            if (!lua_tag.empty()) {
+                int unique_pid = allocate_unique_proto(pid, lua_tag);
+                if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
 
-		if (!lua_tag.empty()) {
-			int unique_pid = allocate_unique_proto(pid, lua_tag);
-			if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
+                pid = unique_pid;
+            }
 
-			pid = unique_pid;
-		}
+            fallout::Object* critter = create_critter(pid, tile);
+            if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
-		fallout::Object* critter = create_critter(pid, tile);
-		if (critter == nullptr) return { -1, ck_get_current_mod_id() };
+            ck::critter_adjust_hp(critter, state.hp);
 
-		if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
+            LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
+            lua_id = ck::registry::created::add(critter, meta);
 
-		int lua_id = -1;
-		LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
+            critter->sid = ck::ids::make_sid_created(critter, lua_id);
+            critter->data.critter.combat.team = 0;
 
-		lua_id = ck::registry::created::add(critter, meta);
+        } else {
+            fallout::Object* corpse;
+            fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
 
-		critter->sid = ck::ids::make_sid_created(critter, lua_id);
-		critter->data.critter.combat.team = 0;
+            while (object != nullptr) {
+                if (object->id == state.id) {
+                    corpse = object;
+                    break;
+                }
 
-		return { lua_id, ck_get_current_mod_id() };
+                object = fallout::objectFindNextAtLocation();
+            }
+
+            if (corpse != nullptr) {
+                lua_id = ck::registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
+            }
+        }
+
+        return { lua_id, ck_get_current_mod_id() };
 	}
 
 	bool critter_kill(int lua_id) {
@@ -85,6 +102,7 @@ namespace ck {
 		object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
 
         ck::registry::created::remove_by_ptr(object->ptr);
+        // ck::registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
 		// _combat_delete_critter(object->ptr);
 		//
 		// if (fallout::gDude->data.critter.combat.whoHitMe == object->ptr) {
