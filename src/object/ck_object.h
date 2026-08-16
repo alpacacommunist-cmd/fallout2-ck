@@ -67,6 +67,7 @@ CK_API int   ck_object_get_id(void* ptr);
 CK_API int   ck_object_get_tile(void* ptr);
 CK_API int   ck_object_get_sid(void* ptr);
 CK_API char* ck_object_get_name(void* ptr);
+CK_API int ck_object_get_type(void* ptr);
 
 CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
 CK_API int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);

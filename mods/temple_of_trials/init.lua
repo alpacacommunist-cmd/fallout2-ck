@@ -31,9 +31,7 @@ events.on('onGameLoaded', function()
   -- player.set_base_stat('endurance', 7)
 end)
 
-events.on('onMapEnter', function()
-  local map_id = map.get_id()
-
+events.on('onMapEnter', function(map_id)
   if map_id ~= 4 then return end
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
@@ -46,6 +44,21 @@ events.on('onMapEnter', function()
   ralph:set_behavior(behaviors.wander, 3)
   state.track(ralph, { save_interval_seconds = 5 })
 end)
+
+events.on('onMapEnter', function(map_id)
+  if map_id ~= 72 then return end
+
+  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, {
+    name        = 'Ralph The Second',
+    description = 'Ralph the Wanderer'
+  })
+
+  ralph.stats = { max_hp = 10, hp = 1 }
+
+  ralph:set_behavior(behaviors.wander, 3)
+  state.track(ralph, { save_interval_seconds = 5 })
+end)
+
 
 events.on('onMapEnter', function()
   if map.get_id() ~= 126 then return end

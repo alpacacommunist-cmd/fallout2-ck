@@ -80,8 +80,11 @@ namespace ck {
 		const CkCreatedObject* object = ck::registry::created::get(lua_id);
 		if (!object || !object->ptr) return false;
 
-		// object->ptr->pid = object->meta.source_pid;
-		// object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+		object->ptr->pid    = object->meta.source_pid;
+        object->ptr->sid    = -1;
+		object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+
+        ck::registry::created::remove_by_ptr(object->ptr);
 		// _combat_delete_critter(object->ptr);
 		//
 		// if (fallout::gDude->data.critter.combat.whoHitMe == object->ptr) {

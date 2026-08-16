@@ -14,6 +14,12 @@ local objects = {
     [22] = "timed",
     -- [23] = "map_update", -- doesn't work bc gScriptsLists, using own on_map_update from ck_script.cc
     [24] = "push"
+  },
+
+  TYPES = {
+    [0] = 'item', [1] = 'critter', [2] = 'scenery',
+    [3] = 'wall', [4] = 'tile', [5] = 'misc', [6] = 'interface', [7] = 'inventory',
+    [8] = 'head', [9] = 'background'
   }
 }
 

@@ -80,8 +80,16 @@ function Object:_handle_proc(proc_id, fixed_param)
 
   elseif event_name == "destroy" then
     log.info('Object destroyed: ' .. tostring(self.lua_id))
-    -- ffi.C.ck_critter_kill(self.lua_id)
-    --
+
+    if self:type() == 'critter' then
+      log.info('Critter destroyed: ' .. tostring(self.lua_id))
+      self.is_dead = true
+
+      ffi.C.ck_critter_kill(self.lua_id)
+
+      return true
+    end
+
     return false
   end
 
@@ -106,6 +114,10 @@ end
 
 function Object:name()
   return ffi.string(ffi.C.ck_object_get_name(self.c_ptr))
+end
+
+function Object:type()
+  return objects.TYPES[ffi.C.ck_object_get_type(self.c_ptr)]
 end
 
 function Object:give_item(item_pid, count)

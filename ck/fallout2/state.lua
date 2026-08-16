@@ -32,15 +32,15 @@ function state.sync_save()
 
     for lua_id, entry in pairs(tracked_objects) do
       state.db.maps[current_map_id][entry.mod_id] = state.db.maps[current_map_id][entry.mod_id] or {}
-      state.db.maps[current_map_id][entry.mod_id][entry.tag] = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
+      local entry_state = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
+      -- state.db.maps[current_map_id][entry.mod_id][entry.tag] = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
 
-      if entry.object.tile then
-        state.db.maps[current_map_id][entry.mod_id][entry.tag].tile = entry.object:tile()
-      end
+      if entry.object.tile    then entry_state.tile    = entry.object:tile() end
+      if entry.object.hp      then entry_state.hp      = entry.object:hp() end
+      if entry.object.is_dead then entry_state.is_dead = true end
+      entry_state.id   = entry.object:id()
 
-      if entry.object.hp then
-        state.db.maps[current_map_id][entry.mod_id][entry.tag].hp = entry.object:hp()
-      end
+      state.db.maps[current_map_id][entry.mod_id][entry.tag] = entry_state
     end
   end
 

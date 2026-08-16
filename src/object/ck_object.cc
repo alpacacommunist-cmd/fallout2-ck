@@ -75,6 +75,10 @@ namespace ck::object {
 
 		return count;
 	}
+
+    int type(int pid) {
+        return static_cast<int>(fallout::objectTypeFromPid(pid));
+    }
 }
 
 bool ck_object_blocking(int tile) {
@@ -154,6 +158,11 @@ int ck_object_get_sid(void* ptr) {
 char* ck_object_get_name(void* ptr) {
 	if (!ptr) return nullptr; fallout::Object* object = static_cast<fallout::Object*>(ptr);
 	return fallout::objectGetName(object);
+}
+
+int ck_object_get_type(void* ptr) {
+	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+	return ck::object::type(object->pid);
 }
 
 int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {

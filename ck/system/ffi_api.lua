@@ -108,6 +108,7 @@ ffi.cdef[[
   int ck_object_get_tile(void* c_ptr);
   int ck_object_get_sid(void* c_ptr);
   char* ck_object_get_name(void* ptr);
+  int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
   // --- Stats metadata ---

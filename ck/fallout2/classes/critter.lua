@@ -17,15 +17,16 @@ function Critter.new(lua_id, config, tag, mod_id)
   setmetatable(self, Critter)
 
   self.tag = tag
+  self.is_dead = false
 
+  -- behivours
   self.active_behavior = nil
-
   self._is_moving = false
   self._action_queue   = {}
-
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
+  -- stats
   self._stats_proxy = stats.create_proxy(function(stat_id)
     local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
     local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
@@ -153,6 +154,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
 end
 
 function Critter:_handle_map_update(current_ticks)
+  if self.is_dead then return false end
   if ffi.C.ck_in_combat() then return end
 
   -- 1: handle object's on:('map_update')
