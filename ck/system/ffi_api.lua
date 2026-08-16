@@ -80,6 +80,7 @@ ffi.cdef[[
   bool ck_critter_is_busy(void* ptr);
 
   // --- Critter Stats & Base ---
+  int  ck_critter_get_gender(void* ptr);
   int  ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   int  ck_critter_get_bonus_stat(void* ptr, int stat);

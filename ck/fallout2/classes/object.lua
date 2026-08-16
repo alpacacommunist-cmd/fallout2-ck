@@ -61,13 +61,17 @@ function Object:_handle_proc(proc_id, fixed_param)
   -- defaults
   if event_name == "look_at" then
     if self.name then
-      monitor.print(ck_t('you_see', self.name))
+      if self:type() == 'critter' and self.is_dead then
+        monitor.print(ck_t('you_see_dead', self.name))
+      else
+        monitor.print(ck_t('you_see', self.name))
+      end
 
       return true
     end
 
   elseif event_name == "description" then
-    if self.description then
+    if self.description and not self.is_dead then
       monitor.print(self.description)
 
       return true
@@ -83,8 +87,8 @@ function Object:_handle_proc(proc_id, fixed_param)
 
     if self:type() == 'critter' then
       log.info('Critter destroyed: ' .. tostring(self.lua_id))
-      self.is_dead = true
 
+      self.is_dead = true
       ffi.C.ck_critter_kill(self.lua_id)
 
       return true

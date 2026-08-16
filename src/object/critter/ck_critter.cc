@@ -53,7 +53,7 @@ namespace ck {
 
 		if (state.tile != -1) tile = state.tile;
 
-        if (state.hp >= 0) {
+        if (state.hp > 0 || state.id == -1) { // either alive or first spawn
             if (!lua_tag.empty()) {
                 int unique_pid = allocate_unique_proto(pid, lua_tag);
                 if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
@@ -64,7 +64,7 @@ namespace ck {
             fallout::Object* critter = create_critter(pid, tile);
             if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
-            ck::critter_adjust_hp(critter, state.hp);
+            if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
             lua_id = ck::registry::created::add(critter, meta);
@@ -151,6 +151,13 @@ bool ck_critter_is_busy(void* ptr) {
 	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
 
 	return fallout::animationIsBusy(obj) == -1;
+}
+
+int ck_critter_get_gender(void* ptr) {
+	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
+
+    fallout::Gender gender = static_cast<fallout::Gender>(fallout::critterGetStat(obj, fallout::STAT_GENDER));
+	return static_cast<int>(gender);
 }
 
 bool ck_critter_process_turn(void* ptr, int lua_id) {
