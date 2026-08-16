@@ -50,7 +50,7 @@ namespace ck {
 	fallout::Object* create_critter(int pid, int tile, int elevation);
 	CritterLua register_critter(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
-	int critter_kill(int lua_id);
+	bool critter_kill(int lua_id);
 }
 
 int ck_map_get_id();
@@ -66,6 +66,6 @@ CK_API int ck_anim_end();
 CK_API int  ck_critter_get_gender(void* ptr);
 CK_API bool ck_critter_is_busy(void* ptr);
 CK_API bool ck_critter_process_turn(void* ptr, int lua_id);
-CK_API int ck_critter_kill(int lua_id);
+CK_API bool ck_critter_kill(int lua_id);
 
 #endif

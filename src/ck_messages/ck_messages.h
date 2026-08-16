@@ -1,7 +1,6 @@
 #ifndef CK_MESSAGES_H
 #define CK_MESSAGES_H
 
-#include <string>
 #include <string_view>
 
 namespace fallout {
@@ -9,6 +8,7 @@ namespace fallout {
 }
 
 namespace ck {
+    bool messages_has_string(std::string_view msg_file, int msg_id);
     void messages_add_string(std::string_view msg_file, int msg_id, std::string_view text);
     void messages_clear();
 

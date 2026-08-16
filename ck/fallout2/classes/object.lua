@@ -91,12 +91,18 @@ function Object:_handle_proc(proc_id, fixed_param)
       log.info('Critter destroyed: ' .. tostring(self.lua_id))
 
       self.is_dead = true
-      -- objects.registry[self.lua_id] = nil
-      -- corpse_lua_id = ffi.C.ck_critter_kill(self.lua_id)
-      -- if (corpse_lua_id != -1) then
+      ffi.C.ck_critter_kill(self.lua_id)
+      -- if (self.tag) then -- only for tagged critters
+      --   objects.registry[self.lua_id] = nil
+      --
+      --   self.lua_id = corpse_lua_id
+      --   self.c_ptr  = ffi.C.ck_object_get_ptr(self.lua_id)
+      --   self.sid    = ffi.C.ck_object_get_sid(self.c_ptr)
+      --
+      --   objects.registry[corpse_lua_id] = self
       -- end
 
-      return true
+      return false
     end
 
     return false

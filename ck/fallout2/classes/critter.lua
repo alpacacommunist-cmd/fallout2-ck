@@ -47,7 +47,7 @@ function Critter.new(lua_id, config, tag, mod_id)
 end
 
 function Critter:__index(key)
-  if key == "stats" then return self._stats_proxy end
+  if key == "stats" and not self.is_dead then return self._stats_proxy end
 
   local val = rawget(Critter, key)
   if val ~= nil then return val end
@@ -56,7 +56,7 @@ function Critter:__index(key)
 end
 
 function Critter:__newindex(key, value)
-  if key == "stats" then
+  if key == "stats" and not self.is_dead then
     self._stats_pending = value
 
     stats.assign(self.c_ptr, value)

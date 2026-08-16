@@ -3,7 +3,7 @@ local system = {}
 system.translations = {
   en = {
     you_see     = "You see %s.",
-    you_see_dead   = "You see remains of: %s.",
+    you_see_dead   = "You see the remains of: %s.",
 
     he_looks_dead  = "He looks: dead",
     she_looks_dead = "She looks: dead",

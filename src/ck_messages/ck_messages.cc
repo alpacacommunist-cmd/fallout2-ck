@@ -21,6 +21,16 @@ namespace ck {
 		return result;
 	}
 
+    bool messages_has_string(std::string_view msg_file, int msg_id) {
+        std::string file_key = normalize_path(std::string(msg_file));
+
+        auto file_it = g_strings.find(file_key);
+        if (file_it == g_strings.end()) return false;
+
+        auto& inner_map = file_it->second;
+        return inner_map.find(msg_id) != inner_map.end();
+    }
+
 	void messages_add_string(std::string_view msg_file, int msg_id, std::string_view text) {
 		std::string file_key = normalize_path(std::string(msg_file));
         std::string converted = utf8_to_cp1251(text);
