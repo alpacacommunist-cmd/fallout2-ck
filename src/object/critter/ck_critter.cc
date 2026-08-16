@@ -5,6 +5,7 @@
 #include "ck_registry/ck_registry.h"
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_stats.h"
+#include "ck_messages/ck_messages.h"
 
 #include "combat_defs.h"
 #include "animation.h"
@@ -14,7 +15,7 @@
 #include "ck_log.h"
 static const Logger logger("CK Critter");
 
-static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
+static int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params) {
 	int unique_pid = 0;
 
 	if (fallout::proto_new(&unique_pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
@@ -26,6 +27,19 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag) {
 		logger.error("Couldn't copy prototype data for '{}'", lua_tag);
 		return -1;
 	}
+
+    int msg_name_id = unique_pid * 100;
+    int msg_desc_id = msg_name_id + 1;
+
+    if (params->name) {
+        std::string_view name(params->name);
+        if (!name.empty()) ck::messages_add_string("pro_crit.msg", msg_name_id, params->name);
+    }
+
+    if (params->description) {
+        std::string_view description(params->description);
+        if (!description.empty()) ck::messages_add_string("pro_crit.msg", msg_desc_id, params->description);
+    }
 
 	logger.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
 	return unique_pid;
@@ -42,7 +56,7 @@ namespace ck {
 		return nullptr;
 	}
 
-	CritterLua register_critter(int pid, int tile, const char* tag) {
+	CritterLua register_critter(int pid, int tile, const char* tag, const CritterLuaProtoParams* params) {
 		int map_id          = fallout::mapGetCurrentMap();
         int source_pid      = pid;
         int lua_id          = 1;
@@ -55,7 +69,7 @@ namespace ck {
 
         if (state.hp > 0 || state.id == -1) { // either alive or first spawn
             if (!lua_tag.empty()) {
-                int unique_pid = allocate_unique_proto(pid, lua_tag);
+                int unique_pid = allocate_unique_proto(pid, lua_tag, params);
                 if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
 
                 pid = unique_pid;
@@ -118,8 +132,8 @@ bool ck_in_combat() {
 	return (fallout::gCombatState & fallout::COMBAT_STATE_IN_COMBAT) != 0;
 }
 
-CritterLua ck_critter_register(int pid, int tile, const char* tag) {
-	return ck::register_critter(pid, tile, tag);
+CritterLua ck_critter_register(int pid, int tile, const char* tag, const CritterLuaProtoParams* params) {
+	return ck::register_critter(pid, tile, tag, params);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

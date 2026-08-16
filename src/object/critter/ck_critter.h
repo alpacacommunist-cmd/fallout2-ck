@@ -9,12 +9,17 @@ struct CritterLua {
     const char* mod_id;
 };
 
+struct CritterLuaProtoParams {
+    const char* name;
+    const char* description;
+};
+
 extern "C" const char* ck_get_current_mod_id();
-int ck_dispatcher_get_state_tile(int map_id, const char* lua_tag);
 
 namespace fallout {
     struct Object;
     struct Rect;
+    struct Proto;
 
 	extern int gElevation;
 
@@ -33,6 +38,7 @@ namespace fallout {
 
 	int proto_new(int* pid, fallout::ObjectType type);
 	int proto_copy_proto(int srcPid, int dstPid);
+    int protoGetProto(int pid, Proto** protoPtr);
 
 	void critterKill(Object* critter, int anim, bool refreshRect);
 
@@ -44,7 +50,7 @@ namespace fallout {
 
 namespace ck {
 	fallout::Object* create_critter(int pid, int tile);
-	CritterLua register_critter(int pid, int tile, const char* tag);
+	CritterLua register_critter(int pid, int tile, const char* tag, const CritterLuaProtoParams* params);
 
 	bool critter_kill(int lua_id);
 }
@@ -52,7 +58,7 @@ namespace ck {
 int ck_map_get_id();
 
 CK_API bool ck_in_combat();
-CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag);
+CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag, const CritterLuaProtoParams* params);
 CK_API bool ck_critter_in_combat();
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
