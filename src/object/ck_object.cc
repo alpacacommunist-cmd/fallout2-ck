@@ -7,8 +7,8 @@
 #include "ck_log.h"
 static const Logger log("CK Object");
 
-static fallout::Object* ck_object_blocker_at(int tile) {
-	return fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
+	return fallout::_obj_blocking_at(nullptr, tile, elevation);
 }
 
 namespace ck::object {
@@ -81,21 +81,21 @@ namespace ck::object {
     }
 }
 
-bool ck_object_blocking(int tile) {
-	fallout::Object* blocker = ck_object_blocker_at(tile);
+bool ck_object_blocking(int tile, int elevation) {
+	fallout::Object* blocker = ck_object_blocker_at(tile, elevation);
 
 	return blocker != nullptr; // something blocks tile
 }
 
-fallout::Object* ck_object_create(int pid, int tile, bool search_free_tile) {
-	if (ck_object_blocking(tile) && !search_free_tile) return nullptr;
+fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_free_tile) {
+	if (ck_object_blocking(tile, elevation) && !search_free_tile) return nullptr;
 
 	fallout::Object* object = nullptr;
 	if (fallout::objectCreateWithPid(&object, pid) == 0) {
 		object->flags |= fallout::OBJECT_NO_SAVE;
 	}
 
-    if (ck_object_blocking(tile)) {
+    if (ck_object_blocking(tile, elevation)) {
         const int radius = 3;
 
         for (int direction = 0; direction < 6; direction++) {
@@ -103,7 +103,7 @@ fallout::Object* ck_object_create(int pid, int tile, bool search_free_tile) {
                 int new_tile = fallout::tileGetTileInDirection(tile, static_cast<fallout::Rotation>(direction), distance);
 
                 if (!hexGridTileIsValid(new_tile)) continue;
-                if (ck_object_blocking(new_tile)) continue;
+                if (ck_object_blocking(new_tile, elevation)) continue;
 
                 tile = new_tile;
             }
@@ -111,7 +111,7 @@ fallout::Object* ck_object_create(int pid, int tile, bool search_free_tile) {
     }
 
     if (object) {
-        fallout::objectSetLocation(object, tile, fallout::gElevation, nullptr);
+        fallout::objectSetLocation(object, tile, elevation, nullptr);
         return object;
     }
 
@@ -172,3 +172,4 @@ int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
 int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
     return ck::object::find_by_pid(pid, buffer, max_count);
 }
+

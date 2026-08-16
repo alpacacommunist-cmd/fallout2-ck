@@ -1,5 +1,6 @@
 -- ck/fallout2/behaviors.lua
 local geometry = require('ck.fallout2.map.geometry')
+local ffi = require('ffi')
 local behaviors = {}
 
 function behaviors.wander(radius)
@@ -18,9 +19,11 @@ function behaviors.wander(radius)
     if #available_tiles > 1 then
       local target_tile = available_tiles[math.random(1, #available_tiles)]
 
-      critter._is_moving = true
-      critter:animate():walk_to(target_tile):submit()
-      critter._is_moving = false
+      if not ffi.C.ck_tile_is_blocked(target_tile, critter.elevation) then
+        critter._is_moving = true
+        critter:animate():walk_to(target_tile):submit()
+        critter._is_moving = false
+      end
     end
   end
 end

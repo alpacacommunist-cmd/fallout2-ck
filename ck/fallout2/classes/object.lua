@@ -22,6 +22,8 @@ function Object.new(lua_id, config, mod_id)
   self.name        = config.name
   self.description = config.description
 
+  self.elevation = config.elevation
+
   self.handlers = {}
 
   objects.registry[lua_id] = self

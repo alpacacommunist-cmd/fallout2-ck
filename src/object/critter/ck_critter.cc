@@ -59,8 +59,8 @@ static int allocate_unique_proto(int base_pid, const std::string& lua_tag, const
 }
 
 namespace ck {
-	fallout::Object* create_critter(int pid, int tile) {
-		fallout::Object* critter = ck_object_create(pid, tile, true);
+	fallout::Object* create_critter(int pid, int tile, int elevation) {
+		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
 
 		if (critter != nullptr) {
 			return critter;
@@ -69,7 +69,7 @@ namespace ck {
 		return nullptr;
 	}
 
-	CritterLua register_critter(int pid, int tile, const char* tag, const CritterLuaProtoParams* params) {
+	CritterLua register_critter(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
 		int map_id          = fallout::mapGetCurrentMap();
         int source_pid      = pid;
         int lua_id          = 1;
@@ -88,7 +88,7 @@ namespace ck {
                 pid = unique_pid;
             }
 
-            fallout::Object* critter = create_critter(pid, tile);
+            fallout::Object* critter = create_critter(pid, tile, elevation);
             if (critter == nullptr) return { -1, ck_get_current_mod_id() };
 
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
@@ -145,8 +145,8 @@ bool ck_in_combat() {
 	return (fallout::gCombatState & fallout::COMBAT_STATE_IN_COMBAT) != 0;
 }
 
-CritterLua ck_critter_register(int pid, int tile, const char* tag, const CritterLuaProtoParams* params) {
-	return ck::register_critter(pid, tile, tag, params);
+CritterLua ck_critter_register(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
+	return ck::register_critter(pid, tile, elevation, tag, params);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

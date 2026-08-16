@@ -66,6 +66,7 @@ CK_API void ck_map_batch_tiles(const CkFFITile* tiles, int count);
 CK_API void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count);
 CK_API void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count);
 CK_API void ck_map_batch_clear(const CkFFIClear* tiles, int count);
-
+CK_API bool ck_tile_is_blocked(int tile, int elevation);
+CK_API int ck_current_elevation();
 
 #endif

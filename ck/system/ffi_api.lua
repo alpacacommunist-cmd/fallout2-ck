@@ -93,7 +93,7 @@ ffi.cdef[[
   typedef struct { int lua_id; const char* mod_id; } CritterLua;
   typedef struct { const char* name; const char* description; } CritterLuaProtoParams;
 
-  CritterLua ck_critter_register(int pid, int tile, const char* tag, const CritterLuaProtoParams* params);
+  CritterLua ck_critter_register(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
@@ -181,6 +181,8 @@ ffi.cdef[[
 
   // --- remove object ---
   void ck_object_remove_at(int tile);
+  bool ck_tile_is_blocked(int tile, int elevation);
+  int ck_current_elevation();
 
   // --- add object/render
   int  ck_map_get_id();

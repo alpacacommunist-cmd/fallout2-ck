@@ -47,8 +47,8 @@ namespace fallout {
 }
 
 namespace ck {
-	fallout::Object* create_critter(int pid, int tile);
-	CritterLua register_critter(int pid, int tile, const char* tag, const CritterLuaProtoParams* params);
+	fallout::Object* create_critter(int pid, int tile, int elevation);
+	CritterLua register_critter(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
 	bool critter_kill(int lua_id);
 }
@@ -56,7 +56,7 @@ namespace ck {
 int ck_map_get_id();
 
 CK_API bool ck_in_combat();
-CK_API CritterLua ck_critter_register(int pid, int tile, const char* tag, const CritterLuaProtoParams* params);
+CK_API CritterLua ck_critter_register(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 CK_API bool ck_critter_in_combat();
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);

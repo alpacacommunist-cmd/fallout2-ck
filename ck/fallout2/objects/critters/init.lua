@@ -9,11 +9,14 @@ local state        = require('ck.fallout2.state')
 local critters = {}
 
 function critters.register(tag, pid, tile, config)
+  config = config or {}
+  config.elevation = config.elevation or ffi.C.ck_current_elevation()
+
   local params = ffi.new("CritterLuaProtoParams")
   params.name        = config.name or ""
   params.description = config.description or ""
 
-  local critter_data = ffi.C.ck_critter_register(pid, tile, tag, params);
+  local critter_data = ffi.C.ck_critter_register(pid, tile, config.elevation, tag, params);
 
   if critter_data.lua_id == -1 then
     print("Failed to register critter (FFI)!")
@@ -24,7 +27,10 @@ function critters.register(tag, pid, tile, config)
 end
 
 function critters.create(pid, tile, config)
-  local critter_data = ffi.C.ck_critter_register(pid, tile, nil, nil)
+  config = config or {}
+  config.elevation = config.elevation or ffi.C.ck_current_elevation()
+
+  local critter_data = ffi.C.ck_critter_register(pid, tile, config.elevation, nil, nil)
 
   if critter_data.lua_id == -1 then
     log.error("Failed to create critter (FFI)!")
