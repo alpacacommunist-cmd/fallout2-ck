@@ -21,6 +21,8 @@ namespace fallout {
 	// tile.h
 	int squareTileFromTile(int tile);
 
+    void mapEdgeFree();
+
 	extern int* gMapLocalVars;
 	extern int  gMapLocalVarsLength;
 }

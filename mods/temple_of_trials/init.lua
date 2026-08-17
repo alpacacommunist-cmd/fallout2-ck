@@ -49,9 +49,11 @@ end)
 events.on('onMapEnter', function(map_id)
   if map_id ~= 72 then return end
 
-  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, {
+  -- local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, {
+  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 18536, {
     name        = 'Ralph The Second',
-    description = 'Ralph the Wanderer'
+    description = 'Ralph the Wanderer',
+    elevation = 1
   })
 
   ralph.stats = { max_hp = 10, hp = 1 }
@@ -62,6 +64,10 @@ events.on('onMapEnter', function(map_id)
   if (not ralph.is_dead) then
     ralph:give_item(items.PID_KNIFE, 1)
     ralph:give_item(items.PID_STIMPAK, 5)
+  end
+
+  if (map.elevation() == 1) then
+    map.tools.objects.brush(19907, 2, 0.3, {33555377, 33555378, 33555379})
   end
 end)
 

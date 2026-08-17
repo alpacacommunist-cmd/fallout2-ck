@@ -97,4 +97,8 @@ function map.find_by_pid(pid, max_count)
   return results
 end
 
+function map.elevation()
+  return ffi.C.ck_current_elevation()
+end
+
 return map

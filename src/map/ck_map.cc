@@ -33,6 +33,7 @@ namespace ck {
         ck::reset_dummy_script();
         ck::registry::on_map_exit();
 
+        fallout::mapEdgeFree();
         ck_rendering_clear();
 
         if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();

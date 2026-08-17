@@ -26,6 +26,11 @@ void ck_print_monitor_message(const char* message) {
 
 // ck scripting reload mods
 void ck_reload_mods() {
+    if (ck_in_combat()) {
+        fallout::displayMonitorAddMessage("Disabled in combat");
+        return;
+    }
+
 	logger.info("ck_reload_mods");
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
 }

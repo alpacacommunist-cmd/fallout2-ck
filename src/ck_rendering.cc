@@ -7,7 +7,6 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
-#include "ck_assets/ck_asset_registry.h"
 
 #include "ck_log.h"
 static const Logger logger("CK Rendering");
