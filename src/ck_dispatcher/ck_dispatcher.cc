@@ -118,7 +118,7 @@ void ck_dispatcher_on_map_enter() {
 	ck::proxy::clear_dialogs();
 
 	g_last_update_ticks = 0;
-	ck_dispatcher_emit("onMapEnter", fallout::mapGetCurrentMap());
+	ck_dispatcher_emit("onMapEnter", ck::current_map_id());
 }
 
 // ffi
@@ -154,6 +154,6 @@ void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 
     ModContextGuard guard(mod_id);
-    ck::proxy::emit_for_mod(mod_id, event_name, fallout::mapGetCurrentMap());
+    ck::proxy::emit_for_mod(mod_id, event_name, ck::current_map_id());
 }
 

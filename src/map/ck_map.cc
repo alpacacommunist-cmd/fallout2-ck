@@ -39,7 +39,7 @@ namespace ck {
         if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
     }
 
-    int current_map_id() { return fallout::mapGetCurrentMap(); }
+    int current_map_id() { return static_cast<int>(fallout::mapGetCurrentMap()); }
 
     bool map_has_camera_borders(int map_index) {
         return ck::map::borders::has_borders_for_map(map_index);

@@ -15,7 +15,9 @@ namespace fallout {
     struct Object;
 	extern Object* gDude;
 
-	int  mapGetCurrentMap();
+    enum Map : int;
+
+	Map  mapGetCurrentMap();
 	bool _combat_reload_map();
 
 	// tile.h
