@@ -93,7 +93,7 @@ namespace ck::debug {
             case 5: // OBJ_TYPE_MISC
                 return std::format(
                     "  [Misc Data] Map: {}, Tile: {}, Elev: {}, Rot: {}, Flags: {:#x}",
-                    d.misc.map,
+                    static_cast<int>(d.misc.map),
                     d.misc.tile,
                     d.misc.elevation,
                     static_cast<int>(d.misc.rotation),

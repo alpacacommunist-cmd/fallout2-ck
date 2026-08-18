@@ -75,7 +75,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 		fallout::Object* obj = ck::registry::created::get_object(lua_id);
 
 		if (obj != nullptr) {
-			obj->data.misc.map       = data.target_map;
+			obj->data.misc.map       = fallout::Map(data.target_map);
 			obj->data.misc.tile      = data.target_tile;
 			obj->data.misc.elevation = data.target_elevation;
 			obj->data.misc.rotation  = static_cast<fallout::Rotation>(data.target_rotation);
@@ -91,7 +91,7 @@ void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridDa
 
     fallout::Object* obj = ck::registry::created::get_object(lua_id);
     if (obj != nullptr) {
-        obj->data.misc.map       = data->target_map;
+        obj->data.misc.map       = fallout::Map(data->target_map);
         obj->data.misc.tile      = data->target_tile;
         obj->data.misc.elevation = data->target_elevation;
         obj->data.misc.rotation  = static_cast<fallout::Rotation>(data->target_rotation);

@@ -53,6 +53,8 @@ events.on('onGameLoaded', function()
 
   -- player.set_skill('melee_weapons', 10)
   player.add_perk_rank('toughness')
+  player.add_perk_rank('toughness')
+  player.add_perk_rank('rad_resistance')
   log.info('small_guns: ' .. tostring(player.skills.small_guns))
   log.info('tougness: ' .. tostring(player.perks.toughness.rank))
 end)
