@@ -89,6 +89,7 @@ ffi.cdef[[
   int  player_pc_stat(int stat);
   int  player_set_base_stat(int stat, int value);
   int  player_set_bonus_stat(int stat, int value);
+  int  player_give_experience(int xp);
 
   typedef struct { int lua_id; const char* mod_id; } CritterLua;
   typedef struct { const char* name; const char* description; } CritterLuaProtoParams;

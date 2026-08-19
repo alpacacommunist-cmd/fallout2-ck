@@ -94,6 +94,7 @@ int player_stat(int stat)    { return ck::critter_base_stat(fallout::gDude, stat
 int player_pc_stat(int stat) { return ck::critter_pc_stat(stat); }
 int player_set_base_stat(int stat, int value) { return ck_critter_set_base_stat(fallout::gDude, stat, value); }
 int player_set_bonus_stat(int stat, int value) { return ck_critter_set_bonus_stat(fallout::gDude, stat, value); }
+int player_give_experience(int xp) { return fallout::pcAddExperience(xp); }
 
 int ck_critter_get_hp(void* ptr) {
     return with_critter(ptr, 0, [](auto* c) { return ck::critter_get_hp(c); });

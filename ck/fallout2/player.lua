@@ -63,6 +63,10 @@ function player.add_perk_rank(perk)
   ffi.C.player_perk_add_rank(perks.MAP[perk])
 end
 
+function player.add_experience(xp)
+  return ffi.C.player_give_experience(xp);
+end
+
 function player.pid()
   return ffi.C.player_get_pid()
 end

@@ -99,6 +99,7 @@ events.on('critter_killed', function(victim, killer)
 end)
 
 events.on('onMapEnter', function(map_id)
+  player.add_experience(155000)
   monitor.print("Map id: " .. tostring(map_id))
   monitor.print("Entered map!")
 
