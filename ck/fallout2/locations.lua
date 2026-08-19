@@ -41,20 +41,4 @@ function locations.register_map(config)
   return ffi.C.ck_area_register_map(data)
 end
 
-function locations.override_map(map_id, config)
-  assert(type(map_id) == "number", "map_id number required!")
-  assert(config.map_file,  "map_file is required!")
-  assert(config.name,      "name is required!")
-
-  local data = ffi.new("CkAreaMapFFI")
-
-  data.map_file  = config.map_file
-  data.name      = config.name
-  data.sub_name  = config.sub_name or ""
-  data.music     = config.music or "17arroyo"
-  data.sfx       = config.sfx   or "gntlwin1:25, gustwin1:5"
-
-  return ffi.C.ck_area_override_map(map_id, data)
-end
-
 return locations

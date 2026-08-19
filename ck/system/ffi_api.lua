@@ -162,8 +162,6 @@ ffi.cdef[[
   int ck_game_get_time();
 
   // --- Locations ---
-  int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
-  int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 
   typedef struct {
     const char* map_file;
@@ -174,7 +172,8 @@ ffi.cdef[[
   } CkAreaMapFFI;
 
   int ck_area_register_map(const CkAreaMapFFI* data);
-  int ck_area_override_map(int map_id, const CkAreaMapFFI* data);
+  int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
+  int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 
   // --- Map ---
   int  ck_map_get_mvar(int index);

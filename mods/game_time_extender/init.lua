@@ -7,12 +7,6 @@ local game_time = require('ck.fallout2.game_time')
 local locations = require('ck.fallout2.locations')
 local map       = require('ck.fallout2.map')
 
--- local new_hunting_grounds = locations.override_map(35,{
---   map_file = 'tstcv', name = "Hunting Grounds", sub_name = "", music = "07desert"
--- })
---
--- log.info("new_hunting_grounds id: " .. new_hunting_grounds)
-
 new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
 local test_caves_id = locations.register_map({
     map_file = 'tstcv',
