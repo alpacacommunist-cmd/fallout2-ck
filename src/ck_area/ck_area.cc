@@ -17,30 +17,30 @@ static const Logger logger("CK Locations");
 namespace ck {
 	static int g_current_loading_map_id = -1;
 
-	static std::unordered_map<int, int> g_map_id_to_original;
-	static std::unordered_map<int, int> g_map_id_redirects;           // orig_ID -> ck_ID
+	// static std::unordered_map<int, int> g_map_id_to_original;
+	// static std::unordered_map<int, int> g_map_id_redirects;           // orig_ID -> ck_ID
     static std::unordered_map<std::string, std::string> gMapPaths; // lowercase_name -> full path
     static std::unordered_map<std::string, int> gRuntimeMaps;      // lowercase_name -> ck_id_ID
 
-	int area_resolve_map_id(int original_map_id) {
-		auto it = g_map_id_redirects.find(original_map_id);
-		if (it != g_map_id_redirects.end()) {
-			g_current_loading_map_id = it->second;
-			return it->second;
-		}
+	// int area_resolve_map_id(int original_map_id) {
+	// 	auto it = g_map_id_redirects.find(original_map_id);
+	// 	if (it != g_map_id_redirects.end()) {
+	// 		g_current_loading_map_id = it->second;
+	// 		return it->second;
+	// 	}
+	//
+	// 	g_current_loading_map_id = -1;
+	// 	return original_map_id;
+	// }
 
-		g_current_loading_map_id = -1;
-		return original_map_id;
-	}
-
-	int area_resolve_id_for_city_match(int map_index) {
-        auto it = g_map_id_to_original.find(map_index);
-        if (it != g_map_id_to_original.end()) {
-            logger.debug("Translating dynamic map ID {} back to original {} for worldmap area match", map_index, it->second);
-            return it->second;
-        }
-        return map_index;
-    }
+	// int area_resolve_id_for_city_match(int map_index) {
+	//        auto it = g_map_id_to_original.find(map_index);
+	//        if (it != g_map_id_to_original.end()) {
+	//            logger.debug("Translating dynamic map ID {} back to original {} for worldmap area match", map_index, it->second);
+	//            return it->second;
+	//        }
+	//        return map_index;
+	//    }
 
 	const char* area_resolve_path(const char* name) {
 		if (name == nullptr) return nullptr;
@@ -133,16 +133,16 @@ namespace ck {
 		return map_index;
 	}
 
-	int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
-        int map_id = ck::area_register_map(data);
-        if (map_id == -1) return -1;
-
-        g_map_id_redirects[original_map_id] = map_id;
-		g_map_id_to_original[map_id]        = original_map_id;
-
-        logger.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
-        return map_id;
-    }
+	// int area_override_map(int original_map_id, const CkAreaMapFFI& data) {
+	//        int map_id = ck::area_register_map(data);
+	//        if (map_id == -1) return -1;
+	//
+	//        g_map_id_redirects[original_map_id] = map_id;
+	// 	g_map_id_to_original[map_id]        = original_map_id;
+	//
+	//        logger.info("Redirect established: original ID {} -> {}", original_map_id, map_id);
+	//        return map_id;
+	//    }
 
 	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
 		int location_index = ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
@@ -172,11 +172,11 @@ int ck_area_register_map(const CkAreaMapFFI* data) {
     return ck::area_register_map(*data);
 }
 
-int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {
-	if (!data) return -1;
-
-    return ck::area_override_map(original_map_id, *data);
-}
+// int ck_area_override_map(int original_map_id, const CkAreaMapFFI* data) {
+// 	if (!data) return -1;
+//
+//     return ck::area_override_map(original_map_id, *data);
+// }
 
 int ck_area_expand_location(int area_id, const char* map_lookup_name, int townmap_x, int townmap_y) {
 	if (!map_lookup_name) return -1;
