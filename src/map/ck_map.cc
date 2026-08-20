@@ -101,7 +101,7 @@ void ck_map_add_scenery_fid(int fid, int tile) { ck_map_add_scenery(fid, tile); 
 void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y) { ck_map_add_roof_scenery(fid, tile, offset_y); }
 
 void ck_map_add_tile_fid(int fid, int tile) { ck_map_add_tile(fid, tile); }
-void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id) { ck_map_add_roof_tile(fid, tile, roof_block_id); }
+void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id ) { ck_map_add_roof_tile(fid, tile, roof_block_id); }
 
 int ck_map_register_object(int pid, int tile) {
     const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
@@ -155,7 +155,6 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
     for (int index = 0; index < count; ++index) {
         const auto& src = blockers[index];
-
         if (src.tile != -1) ck_map_create_blocker_at(src.tile);
     }
 }
@@ -163,15 +162,9 @@ void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
 void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
     for (int index = 0; index < count; ++index) {
         const auto& src = tiles[index];
-
         if (src.tile != -1) ck::object::remove_at(src.tile);
     }
 }
 
-bool ck_tile_is_blocked(int tile, int elevation) {
-    return ck_object_blocking(tile, elevation);
-}
-
-int ck_current_elevation() {
-    return fallout::gElevation;
-}
+bool ck_tile_is_blocked(int tile, int elevation) { return ck_object_blocking(tile, elevation); }
+int ck_current_elevation() { return fallout::gElevation; }

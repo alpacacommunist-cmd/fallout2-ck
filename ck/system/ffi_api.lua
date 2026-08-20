@@ -193,6 +193,8 @@ ffi.cdef[[
   void ck_map_create_object_fid(int fid, int tile);
   int  ck_map_register_object(int artId, int tile);
 
+  void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id);
+  void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y);
 
   typedef struct { int left; int right; int top; int bottom; } CkCameraBorders;
   void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders);

@@ -47,14 +47,14 @@ void ck_map_add_scenery(int fid, int tile);
 void ck_map_add_tile(int fid, int tile);
 
 void ck_map_add_roof_scenery(int fid, int tile);
-void ck_map_add_roof_tile(int fid, int tile, int roof_block_id);
+void ck_map_add_roof_tile(int fid, int tile);
 
 CK_API int  ck_map_get_id();
 
 CK_API void ck_map_add_scenery_fid(int fid, int tile);
 CK_API void ck_map_add_tile_fid(int fid, int tile);
 
-CK_API void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id);
+CK_API void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id = -1);
 CK_API void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y = 0);
 
 CK_API int  ck_map_create_blocker_at(int tile);

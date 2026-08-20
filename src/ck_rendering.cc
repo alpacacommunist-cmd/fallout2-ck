@@ -149,16 +149,71 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     blit_sub_buffer(cached->frameData, cached->width, x, y, cached->width, cached->height, rect);
 }
 
+static void ck_rendering_update_roof_visibility() {
+    if (fallout::gDude == nullptr) return;
+
+    int player_tile = fallout::gDude->tile;
+    int active_roof_block_id = -1;
+
+    for (const auto &tile_instance : gRoofTiles) {
+        if (tile_instance.tile == player_tile) {
+            active_roof_block_id = tile_instance.roof_block_id;
+            break;
+        }
+    }
+
+    bool state_changed = false;
+
+    for (auto &tile_instance : gRoofTiles) {
+        bool should_hide = (tile_instance.roof_block_id != -1 && tile_instance.roof_block_id == active_roof_block_id);
+        bool is_currently_hidden = (tile_instance.flags & ObjectFlags::OBJECT_HIDDEN) != 0;
+
+        if (should_hide != is_currently_hidden) {
+            if (should_hide) {
+                tile_instance.flags |= ObjectFlags::OBJECT_HIDDEN;
+            } else {
+                tile_instance.flags &= ObjectFlags::OBJECT_HIDDEN;
+            }
+            state_changed = true;
+        }
+    }
+
+    // for (auto& scenery_instance : gRoofScenery) {
+    //     bool should_hide = (scenery_instance.roof_block_id != -1 &&
+    //                         scenery_instance.roof_block_id == active_roof_block_id);
+    //
+    //     bool is_currently_hidden = (scenery_instance.flags & 0x01) != 0;
+    //
+    //     if (should_hide != is_currently_hidden) {
+    //         if (should_hide) {
+    //             scenery_instance.flags |= 0x01;
+    //         } else {
+    //             scenery_instance.flags &= ~0x01;
+    //         }
+    //         state_changed = true;
+    //     }
+    // }
+
+    if (state_changed) {
+        fallout::tileWindowRefresh();
+    }
+}
+
 static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInstance>& tiles, CkRenderLayer layer) {
     const int TILE_PADDING_X = 80;
     const int TILE_PADDING_Y = 40;
     int visible_count = 0;
 
     for (const auto& tile_instance : tiles) {
+        if (tile_instance.flags & 0x01) {
+            continue;
+        }
+
         int screenX, screenY;
         tileToScreenXY(tile_instance.tile, &screenX, &screenY);
 
         if (layer == CkRenderLayer::Roof) {
+            // screenY += tile_instance.offset_y;
             screenY -= 96;
         }
 
@@ -168,7 +223,11 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
 
         visible_count++;
 
-        fallout::tileRenderRoofExternal(tile_instance.fid, screenX, screenY, rect);
+        if (layer == CkRenderLayer::Roof) {
+            fallout::tileRenderRoofExternal(tile_instance.fid, screenX, screenY, rect);
+        } else {
+            fallout::tileRenderFloorExternal(tile_instance.fid, screenX, screenY, rect);
+        }
     }
 
     return visible_count;
@@ -231,6 +290,8 @@ namespace ck::rendering {
     }
 
     void roof(fallout::Rect* rect) {
+        ck_rendering_update_roof_visibility();
+
         int visible_tiles   = ck_rendering_tiles(rect, gRoofTiles, CkRenderLayer::Roof);
         int visible_scenery = ck_rendering_scenery(rect, gRoofScenery, CkRenderLayer::Roof);
 
@@ -241,8 +302,8 @@ namespace ck::rendering {
             last_log_time = now;
 
             logger.debug("Culling info [roof]: Tiles: {}/{} | Scenery: {}/{}",
-                    visible_tiles, gTiles.size(),
-                    visible_scenery, gScenery.size());
+                    visible_tiles, gRoofTiles.size(),
+                    visible_scenery, gRoofScenery.size());
         }
     }
 }

@@ -52,6 +52,8 @@ end
 
 -- [Render] roofs
 function map.render.roof.tile(value, tile, roof_block_id)
+  roof_block_id = roof_block_id or -1
+
   local fid = (type(value) == "string") and assets.resolve(value) or value
   ffi.C.ck_map_add_roof_tile_fid(fid, tile, roof_block_id)
 end

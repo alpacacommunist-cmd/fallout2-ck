@@ -11,6 +11,15 @@ outskirts.mountain_tiles = {
   { fid = 0x040005E4, tile = 12890 }
 }
 
+outskirts.warehouse_roofs = {
+  { fid = 0x040005E5, tile = 13893, roof_block_id = 1 },
+  { fid = 0x040005E4, tile = 14896, roof_block_id = 1 },
+  { fid = 0x040005E4, tile = 15498, roof_block_id = 1 },
+  { fid = 0x040005E4, tile = 15098, roof_block_id = 1 },
+  { fid = 0x040005E4, tile = 15899, roof_block_id = 1 },
+  { fid = 0x040005E4, tile = 12890, roof_block_id = 1 }
+}
+
 outskirts.mountain_scenery = {
   -- left cliff
   { fid = 0x020002C0, tile = 12290 },
