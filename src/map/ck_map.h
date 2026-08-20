@@ -65,24 +65,6 @@ CK_API int  ck_map_register_object(int artId, int tile);
 CK_API int  ck_map_get_mvar(int index);
 CK_API void ck_map_set_mvar(int index, int value);
 
-struct CkFFITile {
-    int tile;
-    int fid;
-    int roof_block_id;
-};
-
-struct CkFFIScenery { int tile; int fid; };
-struct CkFFIBlocker { int tile; int fid; };
-struct CkFFIClear { int tile; };
-
-CK_API void ck_map_batch_tiles(const CkFFITile* tiles, int count);
-CK_API void ck_map_batch_roof_tiles(const CkFFITile* tiles, int count);
-
-CK_API void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count);
-
-CK_API void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count);
-CK_API void ck_map_batch_clear(const CkFFIClear* tiles, int count);
-
 CK_API bool ck_tile_is_blocked(int tile, int elevation);
 CK_API int ck_current_elevation();
 
