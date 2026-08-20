@@ -11,8 +11,11 @@
 #include "ck_log.h"
 static const Logger logger("CK Rendering");
 
-std::vector<CkSceneryInstance> gPersistentScenery;
-std::vector<CkTileInstance> gPersistentTiles;
+std::vector<CkSceneryInstance> gScenery;
+std::vector<CkTileInstance> gTiles;
+
+std::vector<CkSceneryInstance> gRoofScenery;
+std::vector<CkTileInstance> gRoofTiles;
 
 struct CachedArt {
     fallout::Art* art = nullptr;
@@ -91,26 +94,26 @@ void ck_rendering_add_scenery(int fid, int tile) {
     instance.tile = tile;
     instance.fid  = fid;
 
-	auto it = std::upper_bound(gPersistentScenery.begin(), gPersistentScenery.end(), instance,
+	auto it = std::upper_bound(gScenery.begin(), gScenery.end(), instance,
 	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
 		return a.tile < b.tile;
 	});
-    gPersistentScenery.insert(it, instance);
+    gScenery.insert(it, instance);
 }
 
 void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance inst;
     inst.tile      = tile;
     inst.fid       = fid;
-    gPersistentTiles.push_back(inst);
+    gTiles.push_back(inst);
 }
 
 void ck_rendering_clear() {
-	gPersistentScenery.clear();
-	gPersistentTiles.clear();
+	gScenery.clear();
+	gTiles.clear();
 
-	gPersistentScenery.shrink_to_fit();
-	gPersistentTiles.shrink_to_fit();
+	gScenery.shrink_to_fit();
+	gTiles.shrink_to_fit();
 
 	ck_rendering_clear_art_cache();
 }
@@ -129,14 +132,23 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     blit_sub_buffer(cached->frameData, cached->width, x, y, cached->width, cached->height, rect);
 }
 
-static int ck_rendering_tiles(fallout::Rect* rect) {
+enum class CkRenderLayer {
+    Floor,
+    Roof
+};
+
+static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInstance>& tiles, CkRenderLayer layer) {
     const int TILE_PADDING_X = 80;
     const int TILE_PADDING_Y = 40;
     int visible_count = 0;
 
-    for (const auto& tile_instance : gPersistentTiles) {
+    for (const auto& tile_instance : tiles) {
         int screenX, screenY;
         tileToScreenXY(tile_instance.tile, &screenX, &screenY);
+
+        if (layer == CkRenderLayer::Roof) {
+            screenY -= 96;
+        }
 
         if (!is_tile_visible(screenX, screenY, &fallout::tileWindowRect(), TILE_PADDING_X, TILE_PADDING_Y)) {
             continue;
@@ -144,20 +156,24 @@ static int ck_rendering_tiles(fallout::Rect* rect) {
 
         visible_count++;
 
-        tileRenderFloorExternal(tile_instance.fid, screenX, screenY, rect);
+        fallout::tileRenderRoofExternal(tile_instance.fid, screenX, screenY, rect, 0);
     }
 
     return visible_count;
 }
 
-static int ck_rendering_scenery(fallout::Rect* rect) {
+static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkSceneryInstance>& scenery_list, CkRenderLayer layer) {
     const int SCENERY_PADDING_X = 160;
     const int SCENERY_PADDING_Y = 240;
     int visible_count = 0;
 
-    for (const auto& scenery : gPersistentScenery) {
+    for (const auto& scenery : scenery_list) {
         int screenX, screenY;
         tileToScreenXY(scenery.tile, &screenX, &screenY);
+
+        if (layer == CkRenderLayer::Roof) {
+            screenY += scenery.offset_y;
+        }
 
         if (!is_tile_visible(screenX, screenY, &fallout::tileWindowRect(), SCENERY_PADDING_X, SCENERY_PADDING_Y)) {
             continue;
@@ -187,8 +203,8 @@ static int ck_rendering_scenery(fallout::Rect* rect) {
 
 namespace ck::rendering {
     void floor(fallout::Rect* rect) {
-        int visible_tiles   = ck_rendering_tiles(rect);
-        int visible_scenery = ck_rendering_scenery(rect);
+        int visible_tiles   = ck_rendering_tiles(rect, gTiles, CkRenderLayer::Floor);
+        int visible_scenery = ck_rendering_scenery(rect, gScenery, CkRenderLayer::Floor);
 
         static auto last_log_time = std::chrono::steady_clock::now();
         auto now = std::chrono::steady_clock::now();
@@ -196,14 +212,26 @@ namespace ck::rendering {
         if (now - last_log_time >= std::chrono::seconds(2)) {
             last_log_time = now;
 
-            logger.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
-                    visible_tiles, gPersistentTiles.size(),
-                    visible_scenery, gPersistentScenery.size());
+            logger.debug("Culling info [floor]: Tiles: {}/{} | Scenery: {}/{}",
+                    visible_tiles, gTiles.size(),
+                    visible_scenery, gScenery.size());
         }
     }
 
     void roof(fallout::Rect* rect) {
+        int visible_tiles   = ck_rendering_tiles(rect, gRoofTiles, CkRenderLayer::Roof);
+        int visible_scenery = ck_rendering_scenery(rect, gRoofScenery, CkRenderLayer::Roof);
+
+        static auto last_log_time = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
+
+        if (now - last_log_time >= std::chrono::seconds(2)) {
+            last_log_time = now;
+
+            logger.debug("Culling info [roof]: Tiles: {}/{} | Scenery: {}/{}",
+                    visible_tiles, gTiles.size(),
+                    visible_scenery, gScenery.size());
+        }
     }
 }
-
 

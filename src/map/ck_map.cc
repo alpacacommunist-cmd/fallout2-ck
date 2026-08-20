@@ -133,7 +133,7 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
     if (count <= 0) return;
 
-    gPersistentScenery.reserve(gPersistentScenery.size() + count);
+    gScenery.reserve(gScenery.size() + count);
 
     for (int i = 0; i < count; ++i) {
         const auto& src = sceneries[i];
@@ -142,10 +142,10 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
         instance.tile = src.tile;
         instance.fid = src.fid;
 
-        gPersistentScenery.push_back(instance);
+        gScenery.push_back(instance);
     }
 
-    std::sort(gPersistentScenery.begin(), gPersistentScenery.end(),
+    std::sort(gScenery.begin(), gScenery.end(),
               [](const CkSceneryInstance& a, const CkSceneryInstance& b) { return a.tile < b.tile; });
 }
 

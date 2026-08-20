@@ -10,20 +10,21 @@ namespace fallout {
 
 struct CkSceneryInstance {
     int tile;
+    int offset_y = 0;
     int fid = -1;
-
-    bool isCustomAsset() const { return fid == -1; }
 };
 
 struct CkTileInstance {
     int tile;
+    int offset_y = 0;
     int fid = -1;
-
-    bool isCustomAsset() const { return fid == -1; }
 };
 
-extern std::vector<CkSceneryInstance> gPersistentScenery;
-extern std::vector<CkTileInstance> gPersistentTiles;
+extern std::vector<CkSceneryInstance> gScenery;
+extern std::vector<CkTileInstance> gTiles;
+
+extern std::vector<CkSceneryInstance> gRoofScenery;
+extern std::vector<CkTileInstance> gRoofTiles;
 
 const std::vector<CkSceneryInstance>& ck_rendering_get_scenery();
 const std::vector<CkTileInstance>& ck_rendering_get_tiles();
