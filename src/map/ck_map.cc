@@ -79,26 +79,28 @@ int get_roof_fid(int tile, int elevation) {
 }
 
 void ck_map_add_scenery(int fid, int tile) {
-    ck_rendering_add_scenery(fid, tile);
+    ck_rendering_add_scenery(fid, tile, CkRenderLayer::Floor, 0);
+}
+void ck_map_add_tile(int fid, int tile) {
+    ck_rendering_add_tile(fid, tile, CkRenderLayer::Floor);
 }
 
-void ck_map_add_tile(int fid, int tile) {
-    ck_rendering_add_tile(fid, tile);
+void ck_map_add_roof_scenery(int fid, int tile, int offset_y) {
+    ck_rendering_add_scenery(fid, tile, CkRenderLayer::Roof, offset_y);
+}
+void ck_map_add_roof_tile(int fid, int tile) {
+    ck_rendering_add_tile(fid, tile, CkRenderLayer::Roof);
 }
 
 // ffi
 
-int ck_map_get_id() {
-    return ck::current_map_id();
-}
+int ck_map_get_id() { return ck::current_map_id(); }
 
-void ck_map_add_scenery_fid(int fid, int tile) {
-    ck_map_add_scenery(fid, tile);
-}
+void ck_map_add_scenery_fid(int fid, int tile) { ck_map_add_scenery(fid, tile); }
+void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y) { ck_map_add_roof_scenery(fid, tile, offset_y); }
 
-void ck_map_add_tile_fid(int fid, int tile) {
-    ck_rendering_add_tile(fid, tile);
-}
+void ck_map_add_tile_fid(int fid, int tile)      { ck_map_add_tile(fid, tile); }
+void ck_map_add_roof_tile_fid(int fid, int tile) { ck_map_add_roof_tile(fid, tile); }
 
 int ck_map_register_object(int pid, int tile) {
     const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
@@ -126,7 +128,7 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
 
-        ck_rendering_add_tile(src.fid, src.tile);
+        ck_rendering_add_tile(src.fid, src.tile, CkRenderLayer::Floor);
     }
 }
 

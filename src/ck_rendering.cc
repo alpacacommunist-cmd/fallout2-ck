@@ -89,31 +89,40 @@ void ck_rendering_clear_art_cache() {
     // ck::assets::clear();
 }
 
-void ck_rendering_add_scenery(int fid, int tile) {
+void ck_rendering_add_scenery(int fid, int tile, CkRenderLayer layer, int offset_y) {
     CkSceneryInstance instance;
     instance.tile = tile;
+    instance.offset_y = offset_y;
     instance.fid  = fid;
 
-	auto it = std::upper_bound(gScenery.begin(), gScenery.end(), instance,
-	[](const CkSceneryInstance& a, const CkSceneryInstance& b) {
-		return a.tile < b.tile;
-	});
-    gScenery.insert(it, instance);
+    auto& target_vector = (layer == CkRenderLayer::Roof) ? gRoofScenery : gScenery;
+
+    auto it = std::upper_bound(target_vector.begin(), target_vector.end(), instance,
+            [](const CkSceneryInstance& a, const CkSceneryInstance& b) {
+                return a.tile < b.tile;
+            });
+
+    target_vector.insert(it, instance);
 }
 
-void ck_rendering_add_tile(int fid, int tile) {
+void ck_rendering_add_tile(int fid, int tile, CkRenderLayer layer) {
     CkTileInstance inst;
-    inst.tile      = tile;
-    inst.fid       = fid;
-    gTiles.push_back(inst);
+    inst.tile = tile;
+    inst.fid = fid;
+
+    auto &target_vector = (layer == CkRenderLayer::Roof) ? gRoofTiles : gTiles;
+
+    target_vector.push_back(inst);
 }
 
 void ck_rendering_clear() {
-	gScenery.clear();
-	gTiles.clear();
+    auto clear_vector = [](auto& vec) {
+        vec.clear();
+        vec.shrink_to_fit();
+    };
 
-	gScenery.shrink_to_fit();
-	gTiles.shrink_to_fit();
+    clear_vector(gScenery); clear_vector(gTiles);
+    clear_vector(gRoofScenery); clear_vector(gRoofTiles);
 
 	ck_rendering_clear_art_cache();
 }
@@ -131,11 +140,6 @@ static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
 
     blit_sub_buffer(cached->frameData, cached->width, x, y, cached->width, cached->height, rect);
 }
-
-enum class CkRenderLayer {
-    Floor,
-    Roof
-};
 
 static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInstance>& tiles, CkRenderLayer layer) {
     const int TILE_PADDING_X = 80;
