@@ -50,31 +50,32 @@ namespace ck {
     }
 }
 
+static int square_tile_data_for_tile(int tile, int elevation) {
+    if (!fallout::hexGridTileIsValid(tile) || elevation < 0 || elevation > 2) return -1;
+
+    int square_tile = fallout::squareTileFromTile(tile);
+
+    if (!fallout::squareGridTileIsValid(square_tile)) return -1;
+    if (fallout::_square[elevation] == nullptr) return -1;
+
+    int square_data = fallout::_square[elevation]->field_0[square_tile];
+    return square_data;
+}
+
+// ref: [static void op_get_tile_fid(Program* program)]
 int ck_map_get_floor_fid(int tile, int elevation) {
-    if (!fallout::hexGridTileIsValid(tile) || elevation < 0 || elevation >= 3) return -1;
-
-    int squareTile = fallout::squareTileFromTile(tile);
-    if (!fallout::squareGridTileIsValid(squareTile)) return -1;
-
-    int squareData  = fallout::_square[elevation]->field_0[squareTile];
-    int floor_index = squareData & 0x3FFF;
+    int square_data = square_tile_data_for_tile(tile, elevation);
+    int floor_index = square_data & 0x3FFF;
 
     return 0x04000000 | floor_index;
 }
 
-int get_roof_fid(int tile, int elevation) {
-    if (!fallout::hexGridTileIsValid(tile) || elevation < 0 || elevation >= 3) return -1;
-
-    int squareTile = fallout::squareTileFromTile(tile);
-    if (!fallout::squareGridTileIsValid(squareTile)) return -1;
-
-    if (fallout::_square[elevation] == nullptr) return -1;
-
-    int squareData = fallout::_square[elevation]->field_0[squareTile];
-    int roof_index = (squareData >> 16) & 0x3FFF;
+// ref: [static void op_get_tile_fid(Program* program)]
+int ck_map_get_roof_fid(int tile, int elevation) {
+    int square_data = square_tile_data_for_tile(tile, elevation);
+    int roof_index = (square_data >> 16) & 0x3FFF;
 
     if (roof_index == 0) return -1;
-
     return 0x01000000 | roof_index;
 }
 
@@ -82,14 +83,14 @@ void ck_map_add_scenery(int fid, int tile) {
     ck_rendering_add_scenery(fid, tile, CkRenderLayer::Floor, 0);
 }
 void ck_map_add_tile(int fid, int tile) {
-    ck_rendering_add_tile(fid, tile, CkRenderLayer::Floor);
+    ck_rendering_add_tile(fid, tile);
 }
 
 void ck_map_add_roof_scenery(int fid, int tile, int offset_y) {
     ck_rendering_add_scenery(fid, tile, CkRenderLayer::Roof, offset_y);
 }
-void ck_map_add_roof_tile(int fid, int tile) {
-    ck_rendering_add_tile(fid, tile, CkRenderLayer::Roof);
+void ck_map_add_roof_tile(int fid, int tile, int roof_block_id) {
+    ck_rendering_add_tile_roof(fid, tile, roof_block_id);
 }
 
 // ffi
@@ -99,8 +100,8 @@ int ck_map_get_id() { return ck::current_map_id(); }
 void ck_map_add_scenery_fid(int fid, int tile) { ck_map_add_scenery(fid, tile); }
 void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y) { ck_map_add_roof_scenery(fid, tile, offset_y); }
 
-void ck_map_add_tile_fid(int fid, int tile)      { ck_map_add_tile(fid, tile); }
-void ck_map_add_roof_tile_fid(int fid, int tile) { ck_map_add_roof_tile(fid, tile); }
+void ck_map_add_tile_fid(int fid, int tile) { ck_map_add_tile(fid, tile); }
+void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id) { ck_map_add_roof_tile(fid, tile, roof_block_id); }
 
 int ck_map_register_object(int pid, int tile) {
     const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
@@ -128,7 +129,7 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
 
-        ck_rendering_add_tile(src.fid, src.tile, CkRenderLayer::Floor);
+        ck_rendering_add_tile(src.fid, src.tile);
     }
 }
 

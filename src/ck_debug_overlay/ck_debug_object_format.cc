@@ -15,7 +15,9 @@ namespace ck::debug {
 			int tileX = grid_width - 1 - tile % grid_width;
 			int tileY = tile / grid_width;
 
-			log.raw("SELECTED tile={} ({}, {}), fid: {}", tile, tileX, tileY, ck_map_get_floor_fid(tile, fallout::gElevation));
+			log.raw("SELECTED tile={} ({}, {}), floor fid: {}, roof fid: {}", tile, tileX, tileY,
+                    ck_map_get_floor_fid(tile, fallout::gElevation), ck_map_get_roof_fid(tile, fallout::gElevation)
+                   );
 
 			if (fallout::isExitGridAt(tile, fallout::gElevation)) {
 				log.warn("EXIT GRID ON TILE");

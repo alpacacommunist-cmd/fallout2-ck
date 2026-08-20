@@ -51,9 +51,9 @@ function map.render.floor.overlay(value, tile)
 end
 
 -- [Render] roofs
-function map.render.roof.tile(value, tile)
+function map.render.roof.tile(value, tile, roof_block_id)
   local fid = (type(value) == "string") and assets.resolve(value) or value
-  ffi.C.ck_map_add_roof_tile_fid(fid, tile)
+  ffi.C.ck_map_add_roof_tile_fid(fid, tile, roof_block_id)
 end
 
 function map.render.roof.overlay(value, tile, offset_y)

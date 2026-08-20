@@ -40,20 +40,21 @@ namespace ck {
 	bool map_is_camera_position_allowed(int tile);
 }
 
-int  ck_map_get_floor_fid(int tile, int elevation);
+int ck_map_get_floor_fid(int tile, int elevation);
+int ck_map_get_roof_fid(int tile, int elevation);
 
 void ck_map_add_scenery(int fid, int tile);
 void ck_map_add_tile(int fid, int tile);
 
 void ck_map_add_roof_scenery(int fid, int tile);
-void ck_map_add_roof_tile(int fid, int tile);
+void ck_map_add_roof_tile(int fid, int tile, int roof_block_id);
 
 CK_API int  ck_map_get_id();
 
 CK_API void ck_map_add_scenery_fid(int fid, int tile);
 CK_API void ck_map_add_tile_fid(int fid, int tile);
 
-CK_API void ck_map_add_roof_tile_fid(int fid, int tile);
+CK_API void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id);
 CK_API void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y = 0);
 
 CK_API int  ck_map_create_blocker_at(int tile);

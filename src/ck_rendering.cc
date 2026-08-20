@@ -105,15 +105,23 @@ void ck_rendering_add_scenery(int fid, int tile, CkRenderLayer layer, int offset
     target_vector.insert(it, instance);
 }
 
-void ck_rendering_add_tile(int fid, int tile, CkRenderLayer layer) {
+void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance inst;
     inst.tile = tile;
     inst.fid = fid;
 
-    auto &target_vector = (layer == CkRenderLayer::Roof) ? gRoofTiles : gTiles;
-
-    target_vector.push_back(inst);
+    gTiles.push_back(inst);
 }
+
+void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
+    CkTileInstance inst;
+    inst.tile = tile;
+    inst.fid = fid;
+    inst.roof_block_id = roof_block_id;
+
+    gRoofTiles.push_back(inst);
+}
+
 
 void ck_rendering_clear() {
     auto clear_vector = [](auto& vec) {
