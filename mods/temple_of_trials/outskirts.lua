@@ -11,14 +11,30 @@ outskirts.mountain_tiles = {
   { fid = 0x040005E4, tile = 12890 }
 }
 
-outskirts.warehouse_roofs = {
-  { fid = 0x040005E5, tile = 13893, roof_block_id = 1 },
-  { fid = 0x040005E4, tile = 14896, roof_block_id = 1 },
-  { fid = 0x040005E4, tile = 15498, roof_block_id = 1 },
-  { fid = 0x040005E4, tile = 15098, roof_block_id = 1 },
-  { fid = 0x040005E4, tile = 15899, roof_block_id = 1 },
-  { fid = 0x040005E4, tile = 12890, roof_block_id = 1 }
+outskirts.church_roofs = {
+  { fid = 0x040005E5, tile = 18284, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18484, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18485, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18486, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18684, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18685, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18686, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18885, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 18886, roof_block_id = 1 },
 }
+
+outskirts.warehouse_roofs = {
+  { fid = 67109713, tile = 18693, roof_block_id = 2 },
+  { fid = 67109755, tile = 18694, roof_block_id = 2 },
+  { fid = 67109713, tile = 18893, roof_block_id = 2 },
+  { fid = 67109713, tile = 18894, roof_block_id = 2 },
+  { fid = 67109755, tile = 18895, roof_block_id = 2 },
+  { fid = 67109755, tile = 18896, roof_block_id = 2 },
+  { fid = 67109713, tile = 19093, roof_block_id = 2 },
+  { fid = 67109713, tile = 19094, roof_block_id = 2 },
+  { fid = 67109713, tile = 19095, roof_block_id = 2 }
+}
+
 
 outskirts.mountain_scenery = {
   -- left cliff

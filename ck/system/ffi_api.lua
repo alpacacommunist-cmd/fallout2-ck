@@ -201,12 +201,14 @@ ffi.cdef[[
   void ck_map_clear_camera_borders_for_mod(const char* mod_id);
 
   // --- Map Batch ---
-  typedef struct { int tile; int fid; } CkFFITile;
+  typedef struct { int tile; int fid; int roof_block_id; } CkFFITile;
   typedef struct { int tile; int fid; } CkFFIScenery;
   typedef struct { int tile; int fid; } CkFFIBlocker;
   typedef struct { int tile; } CkFFIClear;
 
   void ck_map_batch_tiles(const CkFFITile* tiles, int count);
+  void ck_map_batch_roof_tiles(const CkFFITile* tiles, int count);
+
   void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count);
   void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count);
   void ck_map_batch_clear(const CkFFIClear* tiles, int count);

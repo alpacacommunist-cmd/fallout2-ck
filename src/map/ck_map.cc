@@ -76,7 +76,7 @@ int ck_map_get_roof_fid(int tile, int elevation) {
     int roof_index = (square_data >> 16) & 0x3FFF;
 
     if (roof_index == 0) return -1;
-    return 0x01000000 | roof_index;
+    return 0x04000000 | roof_index; // just the fid
 }
 
 void ck_map_add_scenery(int fid, int tile) {
@@ -126,11 +126,35 @@ void ck_map_set_mvar(int index, int value) {
 }
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
+    if (count <= 0) return;
+
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
-
         ck_rendering_add_tile(src.fid, src.tile);
     }
+}
+
+void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
+    if (count <= 0) return;
+
+    gRoofTiles.reserve(gRoofTiles.size() + count);
+
+    for (int i = 0; i < count; ++i) {
+        const auto &src = tiles[i];
+
+        CkTileInstance instance;
+        instance.tile = src.tile;
+        instance.fid = src.fid;
+        instance.roof_block_id = src.roof_block_id;
+        instance.flags = 0;
+
+        gRoofTiles.push_back(instance);
+    }
+
+    std::sort(gRoofTiles.begin(), gRoofTiles.end(),
+        [](const CkTileInstance& a, const CkTileInstance& b) {
+            return a.tile < b.tile;
+        });
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {

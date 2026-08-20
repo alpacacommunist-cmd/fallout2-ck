@@ -1,9 +1,9 @@
 -- ck/fallout2/map/batch.lua
 local ffi = require("ffi")
 
-local batch = {}
+local batch = { floor = {}, roof = {} }
 
-function batch.tiles(tiles)
+function batch.floor.tiles(tiles)
   local count = #tiles
   if count == 0 then return end
 
@@ -21,6 +21,22 @@ function batch.tiles(tiles)
   end
 
   ffi.C.ck_map_batch_tiles(tiles_array, count)
+end
+
+function batch.roof.tiles(tiles)
+  local count = #tiles
+  if count == 0 then return end
+
+  local tiles_array = ffi.new("CkFFITile[?]", count)
+
+  for index = 1, count do
+    local tile = tiles[index]
+    tiles_array[index - 1].tile = tile.tile
+    tiles_array[index - 1].fid  = (type(tile.fid) == "number") and tile.fid or -1
+    tiles_array[index - 1].roof_block_id = tile.roof_block_id or -1
+  end
+
+  ffi.C.ck_map_batch_roof_tiles(tiles_array, count)
 end
 
 function batch.scenery(scenery)
