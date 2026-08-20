@@ -19,26 +19,10 @@ static bool gCameraSquareDrawn = false;
 static bool gAreaVisibilitySwitch = true;
 static ExportMode gCurrentExportMode = ExportMode::FULL_DUMP;
 
-bool ck_debug_overlay_enabled() { return gDebugOverlayEnabled; }
-
-void ck_debug_overlay_toggle() {
-	gDebugOverlayEnabled = !gDebugOverlayEnabled;
-
-	if (gDebugOverlayEnabled) {
-		fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
-
-		fallout::tileWindowRefresh();
-	} else {
-		fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
-
-		ck_debug_overlay_render_clear();
-	}
-}
-
 // different modes, work in progress
 
 static void mode_palette() {
-	if (!ck_debug_overlay_enabled()) return;
+	if (!ck::debug_overlay::enabled()) return;
 	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
 
 	static int lastTile = -1;
@@ -291,24 +275,34 @@ static void mode_main() {
 }
 
 
-void ck_debug_overlay_render(fallout::Rect* rect) {
-	// if (showDialogBox(title, nullptr, 0, 169, 131, _colorTable[32328], nullptr, _colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
+namespace ck::debug_overlay {
+    bool enabled() { return gDebugOverlayEnabled; }
 
-	if (!gDebugOverlayEnabled) return;
+    void toggle() {
+        gDebugOverlayEnabled = !gDebugOverlayEnabled;
 
-	ck_debug_overlay_persistent_hexes(rect);
+        if (gDebugOverlayEnabled) {
+            fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
 
-	// shift + lmb to select area
-	// ctrl + lmb to clear selection
-	mode_main();
+            fallout::tileWindowRefresh();
+        } else {
+            fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
 
-	if (gNeedsRefresh) {
-		gNeedsRefresh = false;
-		fallout::tileWindowRefresh();
-	}
+            ck_debug_overlay_render_clear();
+        }
+    }
 
-	// shift + lmb to paint
-	// lclick to get color
-	// mode_palette();
+    void render(fallout::Rect* rect) {
+        if (!gDebugOverlayEnabled) return;
+
+        ck_debug_overlay_persistent_hexes(rect);
+        mode_main();
+
+        if (gNeedsRefresh) {
+            gNeedsRefresh = false;
+            fallout::tileWindowRefresh();
+        }
+        // mode_palette();
+    }
 }
 

@@ -34,7 +34,7 @@ namespace ck {
         fallout::mapEdgeFree();
         ck_rendering_clear();
 
-        if (ck_debug_overlay_enabled()) ck_debug_overlay_toggle();
+        if (ck::debug_overlay::enabled()) ck::debug_overlay::toggle();
     }
 
     int current_map_id() { return static_cast<int>(fallout::mapGetCurrentMap()); }

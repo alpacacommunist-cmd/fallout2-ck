@@ -8,8 +8,10 @@ extern "C" const char* ck_get_current_mod_id();
 extern "C" bool        ck_in_combat();
 void ck_dispatcher_on_map_enter();
 
-bool ck_debug_overlay_enabled();
-void ck_debug_overlay_toggle();
+namespace ck::debug_overlay {
+    bool enabled();
+    void toggle();
+}
 
 namespace fallout {
     struct Object;

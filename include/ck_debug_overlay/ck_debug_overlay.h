@@ -35,9 +35,12 @@ namespace fallout {
 	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
 }
 
-bool ck_debug_overlay_enabled();
-void ck_debug_overlay_toggle();
 
-void ck_debug_overlay_render(fallout::Rect* rect);
+namespace ck::debug_overlay {
+    bool enabled();
+    void toggle();
+
+    void render(fallout::Rect* rect);
+}
 
 #endif
