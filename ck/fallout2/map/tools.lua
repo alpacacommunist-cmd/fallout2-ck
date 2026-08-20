@@ -41,29 +41,29 @@ local function generic_mask(anchor_tile, mask_table, mapping, apply_fn)
   end
 end
 
-tools.render = {}
+tools.render = { floor = {}, roof = {} }
 
-function tools.render.brush(center_tile, radius, density, pool, config)
+function tools.render.floor.brush(center_tile, radius, density, pool, config)
   config = config or {}
   generic_brush(center_tile, radius, density, function(tile)
     local asset = pool[math.random(#pool)]
     if config.type == "tile" then
-      map_ref.render.tile(asset, tile)
+      map_ref.render.floor.tile(asset, tile)
     else
-      map_ref.render.overlay(asset, tile)
+      map_ref.render.floor.overlay(asset, tile)
     end
   end)
 end
 
-function tools.render.mask(anchor_tile, mask_table, mapping)
+function tools.render.floor.mask(anchor_tile, mask_table, mapping)
   generic_mask(anchor_tile, mask_table, mapping, function(tile, element)
     local pool = element.assets or element.fids
     if pool then
       local asset = pool[math.random(#pool)]
       if element.type == "tile" then
-        map_ref.render.tile(asset, tile)
+        map_ref.render.floor.tile(asset, tile)
       else
-        map_ref.render.overlay(asset, tile)
+        map_ref.render.floor.overlay(asset, tile)
       end
     end
 
@@ -71,21 +71,21 @@ function tools.render.mask(anchor_tile, mask_table, mapping)
   end)
 end
 
-tools.objects = {}
+tools.objects = { floor = {}, roof = {} }
 
-function tools.objects.brush(center_tile, radius, density, pid_pool)
+function tools.objects.floor.brush(center_tile, radius, density, pid_pool)
   generic_brush(center_tile, radius, density, function(tile)
     local pid = pid_pool[math.random(#pid_pool)]
-    map_ref.objects.create(pid, tile)
+    map_ref.objects.floor.create(pid, tile)
   end)
 end
 
-function tools.objects.mask(anchor_tile, mask_table, mapping)
+function tools.objects.floor.mask(anchor_tile, mask_table, mapping)
   generic_mask(anchor_tile, mask_table, mapping, function(tile, element)
     local pool = element.pids
     if pool then
       local pid = pool[math.random(#pool)]
-      map_ref.objects.create(pid, tile)
+      map_ref.objects.floor.create(pid, tile)
     end
   end)
 end

@@ -24,26 +24,45 @@ map.physics = {
   remove_blocker = ffi.C.ck_object_remove_at
 }
 
-map.objects = {}
+-- Objects
+map.objects = { floor = {}, roof = {}}
 
-function map.objects.create(pid, tile)
+function map.objects.floor.create(pid, tile)
   ffi.C.ck_map_register_object(pid, tile)
 end
 
-map.render = {}
+function map.objects.roof.create(pid, tile, elevation_offset)
+  elevation_offset = elevation_offset or 1
+  ffi.C.ck_map_register_object_on_roof(pid, tile, elevation_offset)
+end
 
-function map.render.tile(value, tile)
+-- Render
+map.render = { floor = {}, roof = {} }
+
+-- [Render] floors
+function map.render.floor.tile(value, tile)
   local fid = (type(value) == "string") and assets.resolve(value) or value
-
   ffi.C.ck_map_add_tile_fid(fid, tile)
 end
 
-function map.render.overlay(value, tile)
+function map.render.floor.overlay(value, tile)
   local fid = (type(value) == "string") and assets.resolve(value) or value
-
   ffi.C.ck_map_add_scenery_fid(fid, tile)
 end
 
+-- [Render] roofs
+function map.render.roof.tile(value, tile)
+  local fid = (type(value) == "string") and assets.resolve(value) or value
+  ffi.C.ck_map_add_roof_tile_fid(fid, tile)
+end
+
+function map.render.roof.overlay(value, tile, offset_y)
+  local fid = (type(value) == "string") and assets.resolve(value) or value
+  offset_y = offset_y or -96
+  ffi.C.ck_map_add_roof_scenery_fid(fid, tile, offset_y)
+end
+
+-- Borders
 function map.register_borders(map_id, config)
   assert(map_id,  "map_id is required!")
   assert(config.left,  "left edge hex coordinate is required!")
@@ -61,6 +80,7 @@ function map.register_borders(map_id, config)
   ffi.C.ck_map_set_camera_borders(map_id, data)
 end
 
+-- Search
 function map.find_at_tile(tile)
   local max_count = 32
   local buffer    = ffi.new("CkObjectFFI[?]", max_count)

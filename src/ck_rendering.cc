@@ -156,7 +156,7 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
 
         visible_count++;
 
-        fallout::tileRenderRoofExternal(tile_instance.fid, screenX, screenY, rect, 0);
+        fallout::tileRenderRoofExternal(tile_instance.fid, screenX, screenY, rect);
     }
 
     return visible_count;
@@ -209,7 +209,7 @@ namespace ck::rendering {
         static auto last_log_time = std::chrono::steady_clock::now();
         auto now = std::chrono::steady_clock::now();
 
-        if (now - last_log_time >= std::chrono::seconds(2)) {
+        if (now - last_log_time >= std::chrono::seconds(10)) {
             last_log_time = now;
 
             logger.debug("Culling info [floor]: Tiles: {}/{} | Scenery: {}/{}",
@@ -225,7 +225,7 @@ namespace ck::rendering {
         static auto last_log_time = std::chrono::steady_clock::now();
         auto now = std::chrono::steady_clock::now();
 
-        if (now - last_log_time >= std::chrono::seconds(2)) {
+        if (now - last_log_time >= std::chrono::seconds(10)) {
             last_log_time = now;
 
             logger.debug("Culling info [roof]: Tiles: {}/{} | Scenery: {}/{}",

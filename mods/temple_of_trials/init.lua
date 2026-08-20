@@ -123,11 +123,11 @@ events.on('onMapEnter', function()
   map.batch.clear(outskirts.remove_blockers)
   map.batch.blockers(outskirts.create_blockers)
 
-  map.tools.render.brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
+  map.tools.render.floor.brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
     { type = "tile" })
-  map.tools.objects.brush(19472, 2, 0.3, {33555377, 33555378, 33555379})
+  map.tools.objects.floor.brush(19472, 2, 0.3, {33555377, 33555378, 33555379})
 
-  map.tools.render.mask(17516, {
+  map.tools.render.floor.mask(17516, {
     "M MMM  MM  M",
     "  MM   MMM  ",
     "   mm  mm   ",
