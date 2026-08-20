@@ -114,14 +114,18 @@ void ck_rendering_add_tile(int fid, int tile) {
 }
 
 void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
-    CkTileInstance inst;
-    inst.tile = tile;
-    inst.fid = fid;
-    inst.roof_block_id = roof_block_id;
+    CkTileInstance instance;
+    instance.tile = tile;
+    instance.fid = fid;
+    instance.roof_block_id = roof_block_id;
 
-    gRoofTiles.push_back(inst);
+    auto it = std::upper_bound(gRoofTiles.begin(), gRoofTiles.end(), instance,
+            [](const CkTileInstance& a, const CkTileInstance& b) {
+                return a.tile < b.tile;
+            });
+
+    gRoofTiles.insert(it, instance);
 }
-
 
 void ck_rendering_clear() {
     auto clear_vector = [](auto& vec) {
@@ -155,11 +159,13 @@ static void ck_rendering_update_roof_visibility() {
     int player_tile = fallout::gDude->tile;
     int active_roof_block_id = -1;
 
-    for (const auto &tile_instance : gRoofTiles) {
-        if (tile_instance.tile == player_tile) {
-            active_roof_block_id = tile_instance.roof_block_id;
-            break;
-        }
+    auto it = std::lower_bound(gRoofTiles.begin(), gRoofTiles.end(), player_tile,
+    [](const CkTileInstance& a, int tile_idx) {
+        return a.tile < tile_idx;
+    });
+
+    if (it != gRoofTiles.end() && it->tile == player_tile) {
+        active_roof_block_id = it->roof_block_id;
     }
 
     bool state_changed = false;
@@ -172,7 +178,7 @@ static void ck_rendering_update_roof_visibility() {
             if (should_hide) {
                 tile_instance.flags |= ObjectFlags::OBJECT_HIDDEN;
             } else {
-                tile_instance.flags &= ObjectFlags::OBJECT_HIDDEN;
+                tile_instance.flags &= ~ObjectFlags::OBJECT_HIDDEN;
             }
             state_changed = true;
         }
@@ -205,7 +211,7 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
     int visible_count = 0;
 
     for (const auto& tile_instance : tiles) {
-        if (tile_instance.flags & 0x01) {
+        if (tile_instance.flags & ObjectFlags::OBJECT_HIDDEN) {
             continue;
         }
 
