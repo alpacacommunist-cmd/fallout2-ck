@@ -3,13 +3,10 @@
 
 #include "ck_api.h"
 #include <vector>
-#include <string>
 
 namespace fallout {
 	struct Rect;
 }
-
-void ck_rendering_render(fallout::Rect* rect);
 
 struct CkSceneryInstance {
     int tile;
@@ -36,6 +33,11 @@ void ck_rendering_add_tile(int fid, int tile);
 
 int ck_rendering_build_tile_fid(int fid);
 int ck_rendering_build_scenery_fid(int fid);
+
+namespace ck::rendering {
+    void floor(fallout::Rect* rect);
+    void roof(fallout::Rect* rect);
+}
 
 CK_API void ck_rendering_clear();
 CK_API void ck_rendering_refresh();

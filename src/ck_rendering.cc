@@ -185,19 +185,25 @@ static int ck_rendering_scenery(fallout::Rect* rect) {
     return visible_count;
 }
 
-void ck_rendering_render(fallout::Rect* rect) {
-	int visible_tiles   = ck_rendering_tiles(rect);
-	int visible_scenery = ck_rendering_scenery(rect);
+namespace ck::rendering {
+    void floor(fallout::Rect* rect) {
+        int visible_tiles   = ck_rendering_tiles(rect);
+        int visible_scenery = ck_rendering_scenery(rect);
 
-    static auto last_log_time = std::chrono::steady_clock::now();
-    auto now = std::chrono::steady_clock::now();
+        static auto last_log_time = std::chrono::steady_clock::now();
+        auto now = std::chrono::steady_clock::now();
 
-    if (now - last_log_time >= std::chrono::seconds(2)) {
-        last_log_time = now;
+        if (now - last_log_time >= std::chrono::seconds(2)) {
+            last_log_time = now;
 
-        logger.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
-                visible_tiles, gPersistentTiles.size(),
-                visible_scenery, gPersistentScenery.size());
+            logger.debug("Culling info: Tiles: {}/{} | Scenery: {}/{}",
+                    visible_tiles, gPersistentTiles.size(),
+                    visible_scenery, gPersistentScenery.size());
+        }
+    }
+
+    void roof(fallout::Rect* rect) {
     }
 }
+
 
