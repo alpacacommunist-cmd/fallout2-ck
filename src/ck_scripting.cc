@@ -182,7 +182,8 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 
 	char* safe_text_ptr = safe_buffer.data();
 
-	if (fallout::textObjectAdd(object, safe_text_ptr, font, color, background_color, &rect) != -1) {
+	if (fallout::textObjectAdd(object, safe_text_ptr, font,
+                static_cast<fallout::Color>(color), static_cast<fallout::Color>(background_color), &rect) != -1) {
 		fallout::tileWindowRefreshRect(&rect, object->elevation);
 	}
 

@@ -143,5 +143,11 @@ events.on('onMapEnter', function()
   map.batch.roof.tiles(outskirts.church_roofs)
   map.batch.roof.tiles(outskirts.warehouse_roofs)
 
+  -- walls
+  map.objects.floor.create(50331698, 21670)
+  map.objects.floor.create(50331699, 21671)
+  map.objects.floor.create(50331700, 21672)
+  map.objects.floor.create(50331701, 21673)
+
   map.objects.floor.create(33555377, 19094)
 end)

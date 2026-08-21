@@ -20,12 +20,12 @@ namespace fallout {
     struct Rect;
 
 	extern Object* gDude;
-
     extern int gElevation;
-	extern unsigned char _colorTable[32768];
 
-	int  textObjectAdd(Object* object, char* string, int font, int color, int outlineColor, Rect* rect);
+    enum Color : unsigned char;
+
 	void tileWindowRefreshRect(Rect* rect, int elevation);
+    int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect);
 
 	void tileWindowRefresh();
 	void animationStop();

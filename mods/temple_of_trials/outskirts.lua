@@ -12,15 +12,15 @@ outskirts.mountain_tiles = {
 }
 
 outskirts.church_roofs = {
-  { fid = 0x040005E5, tile = 18284, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18484, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18485, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18486, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18684, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18685, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18686, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18885, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 18886, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 20871, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 20872, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21072, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21073, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21271, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21272, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21273, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21472, roof_block_id = 1 },
+  { fid = 0x040005E5, tile = 21473, roof_block_id = 1 }
 }
 
 outskirts.warehouse_roofs = {

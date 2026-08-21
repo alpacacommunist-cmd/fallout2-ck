@@ -216,7 +216,7 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
         }
 
         int screenX, screenY;
-        tileToScreenXY(tile_instance.tile, &screenX, &screenY);
+        fallout::tileToScreenXY(tile_instance.tile, &screenX, &screenY);
 
         if (layer == CkRenderLayer::Roof) {
             // screenY += tile_instance.offset_y;
