@@ -1,6 +1,9 @@
 local ffi = require("ffi")
 
 ffi.cdef[[
+  // fallout2-ce pseudo-types
+  typedef struct fallout_Object fallout_Object;
+
   // --- System & Bootstrap ---
   bool ck_dispatcher_load_mod(const char* mod_id);
   void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
@@ -134,6 +137,8 @@ ffi.cdef[[
   // --- Items ---
   bool ck_inventory_add(void* container_ptr, int item_pid, int count);
   int  ck_inventory_count(void* container_ptr, int item_pid);
+  int  ck_total_inventory_count(fallout_Object* object);
+  bool ck_get_inventory_item(fallout_Object* object, int index, int* out_pid, int* out_qty);
 
   // --- Rendering ---
   void ck_rendering_clear();

@@ -68,3 +68,20 @@ bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
 	return ck::inventory_add(container_ptr, item_pid, count);
 }
 
+int ck_total_inventory_count(fallout::Object *object) {
+    if (!object) return 0;
+    return object->data.inventory.length;
+}
+
+bool ck_get_inventory_item(fallout::Object *object, int index, int *out_pid, int *out_qty) {
+    if (!object) return false;
+    fallout::Inventory *inv = &(object->data.inventory);
+    if (!inv || !inv->items || index < 0 || index >= inv->length) return false;
+
+    fallout::Object *item = inv->items[index].item;
+    if (!item) return false;
+
+    *out_pid = item->pid;
+    *out_qty = inv->items[index].quantity;
+    return true;
+}

@@ -132,6 +132,9 @@ events.on('onMapEnter', function(map_id)
   alice:give_item(items.PID_KNIFE, 1)
   alice:give_item(items.PID_STIMPAK, 5)
 
+  local utils = require('ck.system.utils')
+  utils.print_table(alice:inventory_table(), log)
+
   alice:on('push', function(self)
     self:float_message('denied', 1)
     return true

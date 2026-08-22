@@ -164,4 +164,23 @@ function Object:state()
   return maps[map_id][self.mod_id][self.tag]
 end
 
+function Object:inventory_table()
+  local inventory_table = {}
+  local items_count = ffi.C.ck_total_inventory_count(self.c_ptr)
+
+  local pid_ptr = ffi.new("int[1]")
+  local qty_ptr = ffi.new("int[1]")
+
+  for index = 0, items_count - 1 do
+    if ffi.C.ck_get_inventory_item(self.c_ptr, index, pid_ptr, qty_ptr) then
+      local pid = pid_ptr[0]
+      local qty = qty_ptr[0]
+
+      inventory_table[pid] = (inventory_table[pid] or 0) + qty
+    end
+  end
+
+  return inventory_table
+end
+
 return Object
