@@ -123,8 +123,6 @@ events.on('onMapEnter', function(map_id)
   alice
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
 
-  state.track(alice, { save_interval_seconds = 5 })
-
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
   alice:give_item(items.PID_KNIFE, 1)

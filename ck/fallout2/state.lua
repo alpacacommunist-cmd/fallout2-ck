@@ -2,7 +2,8 @@
 local ffi   = require("ffi")
 local utils = require('ck.system.utils')
 
-local map = require('ck.fallout2.map')
+local map     = require('ck.fallout2.map')
+local objects = require('ck.fallout2.objects')
 
 local state = {}
 local log   = ck.log.new('state.lua')
@@ -26,23 +27,27 @@ end
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
   local current_map_id = map.get_id()
+  if current_map_id == -1 then return state.db end
 
-  if current_map_id ~= -1 then
-    state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
+  state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
+  local current_map = state.db.maps[current_map_id]
 
-    for lua_id, entry in pairs(tracked_objects) do
-      state.db.maps[current_map_id][entry.mod_id] = state.db.maps[current_map_id][entry.mod_id] or {}
-      local entry_state = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
-      -- state.db.maps[current_map_id][entry.mod_id][entry.tag] = state.db.maps[current_map_id][entry.mod_id][entry.tag] or {}
-
-      if entry.object.tile    then entry_state.tile    = entry.object:tile() end
-      if entry.object.hp      then entry_state.hp      = entry.object:hp() end
-      if entry.object.elevation then entry_state.elevation = entry.object.elevation end
-
-      entry_state.id   = entry.object:id()
-
-      state.db.maps[current_map_id][entry.mod_id][entry.tag] = entry_state
+  for _, object in pairs(objects.registry) do
+    if not object.lua_id or not object.mod_id or not object.tag then
+      goto continue
     end
+
+    current_map[object.mod_id] = current_map[object.mod_id] or {}
+    current_map[object.mod_id][object.tag] = current_map[object.mod_id][object.tag] or {}
+
+    local object_state = current_map[object.mod_id][object.tag]
+
+    if object.tile then object_state.tile = object:tile() end
+    if object.hp   then object_state.hp   = object:hp()   end
+
+    object_state.id = object:id()
+
+    ::continue::
   end
 
   return state.db
@@ -66,42 +71,6 @@ function state.receive_proto_list(data_address, size)
     table.insert(state.db.proto_list, { id = pid, tag = lua_tag })
 
     log.debug(string.format("Index: %d, PID: %d, Tag: %s", index, pid, lua_tag))
-  end
-end
-
-function state.track(object_instance, options)
-  options = options or {}
-
-  if not object_instance or not object_instance.tag then
-    log.error("Cannot track object without a valid instance or tag!")
-
-    return
-  end
-
-  local mod_id = object_instance.mod_id
-
-  if not mod_id or mod_id == "unknown" then
-    log.error(string.format("Object '%s' has an unknown mod_id, can't track!", object_instance.tag))
-    return
-  end
-
-  local lua_id = object_instance.lua_id
-
-  tracked_objects[lua_id] = {
-    mod_id = mod_id, tag = object_instance.tag, object = object_instance
-  }
-
-  log.info(string.format("Started tracking object '%s' for mod '%s'", object_instance.tag, mod_id))
-end
-
-function state.untrack(lua_id)
-  if tracked_objects[lua_id] then
-    local tag = tracked_objects[lua_id].tag
-    local mod_id = tracked_objects[lua_id].mod_id
-
-    tracked_objects[lua_id] = nil
-
-    log.info(string.format("Stopped tracking object '%s' for mod '%s' (Object Destroyed)", tostring(tag), tostring(mod_id)))
   end
 end
 

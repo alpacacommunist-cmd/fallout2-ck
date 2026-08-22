@@ -43,7 +43,6 @@ events.on('onMapEnter', function(map_id)
   ralph.stats = { max_hp = 10, hp = 1 }
 
   ralph:set_behavior(behaviors.wander, 3)
-  state.track(ralph, { save_interval_seconds = 5 })
 end)
 
 events.on('onMapEnter', function(map_id)
@@ -59,7 +58,6 @@ events.on('onMapEnter', function(map_id)
   ralph.stats = { max_hp = 10, hp = 1 }
 
   ralph:set_behavior(behaviors.wander, 3)
-  state.track(ralph, { save_interval_seconds = 5 })
 
   if (not ralph.is_dead) then
     ralph:give_item(items.PID_KNIFE, 1)
