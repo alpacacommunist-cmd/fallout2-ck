@@ -173,6 +173,13 @@ function Object:state()
   return maps[map_id][self.mod_id][self.tag]
 end
 
+function Object:state_readonly()
+  local original_state = self:state()
+  if not original_state then return nil end
+
+  return utils.make_readonly(original_state, self.tag)
+end
+
 function Object:inventory_table()
   local inventory_table = {}
   local items_count = ffi.C.ck_total_inventory_count(self.c_ptr)

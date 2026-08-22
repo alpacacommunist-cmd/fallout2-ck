@@ -40,4 +40,33 @@ function utils.deep_copy(orig)
   return copy
 end
 
+function utils.make_readonly(orig_table, log_context)
+  if type(orig_table) ~= "table" then return orig_table end
+
+  local proxy = {}
+  local mt = {
+    __index = function(_, key)
+      local value = orig_table[key]
+      if type(value) == "table" then
+        return utils.make_readonly(value, log_context)
+      end
+      return value
+    end,
+
+    __newindex = function(_, key, value)
+      local msg = string.format(
+        "[%s] ERROR: Attempt to modify ReadOnly state field '%s' = '%s'!",
+        tostring(log_context), tostring(key), tostring(value)
+      )
+
+      error(msg .. "\n" .. debug.traceback())
+    end,
+
+    __metatable = "Access Denied"
+  }
+
+  setmetatable(proxy, mt)
+  return proxy
+end
+
 return utils
