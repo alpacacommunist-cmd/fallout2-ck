@@ -148,4 +148,20 @@ function Object:has_item(item_pid)
   return self:item_count(item_pid) > 0
 end
 
+function Object:state()
+  if (not self.tag or not self.mod_id) then return nil end
+
+  local map_id = ffi.C.ck_map_get_id()
+  if map_id == -1 then return nil end
+
+  local state = require('ck.fallout2.state')
+
+  local maps = state.db.maps
+  maps[map_id] = maps[map_id] or {}
+  maps[map_id][self.mod_id] = maps[map_id][self.mod_id] or {}
+  maps[map_id][self.mod_id][self.tag] = maps[map_id][self.mod_id][self.tag] or {}
+
+  return maps[map_id][self.mod_id][self.tag]
+end
+
 return Object

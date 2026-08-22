@@ -5,7 +5,6 @@ local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogue    = require('ck.fallout2.dialogue')
 local critters    = require('ck.fallout2.objects.critters')
-local state       = require('ck.fallout2.state')
 local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.objects.critters.behaviors')
 local items       = require('ck.fallout2.objects.items')
@@ -119,6 +118,11 @@ events.on('onMapEnter', function(map_id)
   log.info("Alice hp: " .. tostring(alice:hp()))
   log.info("Alice max hp: " .. tostring(alice:max_hp()))
   log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))
+
+  if (alice:state()) then
+    local alice_state = alice:state()
+    log.info("Alice state tile: " .. tostring(alice_state.tile))
+  end
 
   alice
     :on('map_update', function(self) self:float_message('Здарова', 2) end)
