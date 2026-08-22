@@ -13,10 +13,9 @@ local Critter = {}
 setmetatable(Critter, { __index = Object })
 
 function Critter.new(lua_id, config, tag, mod_id)
-  local self = Object.new(lua_id, config, mod_id)
+  local self = Object.new(lua_id, config, mod_id, tag)
   setmetatable(self, Critter)
 
-  self.tag = tag
   self.in_combat = false
   self.active_behavior = nil
   self.is_dead = self:hp() <= 0

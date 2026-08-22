@@ -2,16 +2,11 @@
 local ffi   = require("ffi")
 local utils = require('ck.system.utils')
 
-local map     = require('ck.fallout2.map')
-local objects = require('ck.fallout2.objects')
-
 local state = {}
 local log   = ck.log.new('state.lua')
 
 local db_init_state = { player = { knowledge = {} }, global = {}, maps = {} }
 state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
-
-local tracked_objects = {}
 
 -- gets marshalld json -> lua from backend
 function state.sync_load(loaded_db)
@@ -26,11 +21,13 @@ end
 
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
-  local current_map_id = map.get_id()
+  local current_map_id = ffi.C.ck_map_get_id()
   if current_map_id == -1 then return state.db end
 
   state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
   local current_map = state.db.maps[current_map_id]
+
+  local objects = require('ck.fallout2.objects')
 
   for _, object in pairs(objects.registry) do
     if not object.lua_id or not object.mod_id or not object.tag then
@@ -46,6 +43,7 @@ function state.sync_save()
     if object.hp   then object_state.hp   = object:hp()   end
 
     object_state.id = object:id()
+    object_state.inventory = object:inventory_table()
 
     ::continue::
   end
@@ -74,24 +72,9 @@ function state.receive_proto_list(data_address, size)
   end
 end
 
-function state.clear_for_mod(mod_name)
-  for lua_id, entry in pairs(tracked_objects) do
-    if entry.mod_id == mod_name then
-      tracked_objects[lua_id] = nil
-    end
-  end
-
-  log.info("Cleared tracked objects cache for mod: " .. mod_name)
-end
-
-function state.clear_tracked_objects()
-  tracked_objects = {}
-  log.info("Tracked objects registry cleared")
-end
-
 local function get_mod_storage(section, mod_id)
   if not mod_id then return nil end
-  local map_id = map.get_id()
+  local map_id = ffi.C.ck_map_get_id()
 
   if section == "global" then
     state.db.global[mod_id] = state.db.global[mod_id] or {}

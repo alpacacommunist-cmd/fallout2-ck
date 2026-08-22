@@ -1,30 +1,41 @@
 local ffi = require("ffi")
 
 local log = ck.log.new('classes/object')
+local utils = require('ck.system.utils')
 
 local objects = require('ck.fallout2.objects')
 local items   = require('ck.fallout2.objects.items')
 local monitor = require('ck.fallout2.monitor')
+local state = require('ck.fallout2.state')
 
 local Object = {}
 Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id, config, mod_id)
+function Object.new(lua_id, config, mod_id, tag)
   local self = setmetatable({}, Object)
 
   self.lua_id      = lua_id
   self.mod_id      = mod_id
+  self.tag         = tag
+
   self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
   self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
 
   self.name        = config.name
   self.description = config.description
 
-  self.elevation = config.elevation
+  self.elevation = config.elevation -- temp
 
   self.handlers = {}
+
+  local object_state = self:state()
+  if object_state and object_state.inventory then
+    for pid, qty in pairs(object_state.inventory) do
+      self:give_item(pid, qty)
+    end
+  end
 
   objects.registry[lua_id] = self
 
@@ -154,8 +165,6 @@ function Object:state()
   local map_id = ffi.C.ck_map_get_id()
   if map_id == -1 then return nil end
 
-  local state = require('ck.fallout2.state')
-
   local maps = state.db.maps
   maps[map_id] = maps[map_id] or {}
   maps[map_id][self.mod_id] = maps[map_id][self.mod_id] or {}
@@ -181,6 +190,15 @@ function Object:inventory_table()
   end
 
   return inventory_table
+end
+
+function Object:has_inventory()
+  local current_state = self:state()
+  if not current_state then return false end
+
+  local inventory = current_state.inventory
+
+  return type(inventory) == "table" and next(inventory) ~= nil
 end
 
 return Object

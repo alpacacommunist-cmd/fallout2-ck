@@ -113,7 +113,6 @@ void ck_dispatcher_on_map_enter() {
 
 	ck::registry::clear();
 
-	ck::proxy::clear_tracked_objects();
 	ck::proxy::clear_registry();
 	ck::proxy::clear_dialogs();
 

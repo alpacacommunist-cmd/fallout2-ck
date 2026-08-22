@@ -119,21 +119,17 @@ events.on('onMapEnter', function(map_id)
   log.info("Alice max hp: " .. tostring(alice:max_hp()))
   log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))
 
-  if (alice:state()) then
-    local alice_state = alice:state()
-    log.info("Alice state tile: " .. tostring(alice_state.tile))
+  if (alice:has_inventory()) then
+    log.info("Alice inventory is managed through state")
+  else
+    log.info("Adding new items to Alice's inventory")
+
+    alice:give_item(items.PID_KNIFE, 1)
+    alice:give_item(items.PID_STIMPAK, 5)
   end
 
-  alice
-    :on('map_update', function(self) self:float_message('Здарова', 2) end)
-
+  alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
-
-  alice:give_item(items.PID_KNIFE, 1)
-  alice:give_item(items.PID_STIMPAK, 5)
-
-  local utils = require('ck.system.utils')
-  utils.print_table(alice:inventory_table(), log)
 
   alice:on('push', function(self)
     self:float_message('denied', 1)

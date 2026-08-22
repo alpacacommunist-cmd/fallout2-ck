@@ -55,12 +55,10 @@ namespace ck::proxy {
         return execute_proxy_call<bool>(detail::load_and_init_mod, mod_id);
     }
 
-	void clear_tracked_objects() {
-		execute_proxy_call<bool>(detail::clear_tracked_objects);
-	}
 	void clear_registry() {
 		execute_proxy_call<bool>(detail::clear_registry);
 	}
+
 	void clear_dialogs() {
 		execute_proxy_call<bool>(detail::clear_dialogs);
 	}

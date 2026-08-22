@@ -19,7 +19,6 @@ namespace ck::proxy::detail {
     int on_map_update         = LUA_NOREF;
     int on_proc               = LUA_NOREF;
     int on_proto_proc         = LUA_NOREF;
-    int clear_tracked_objects = LUA_NOREF;
     int clear_registry        = LUA_NOREF;
     int clear_dialogs         = LUA_NOREF;
     int get_state_data        = LUA_NOREF;
@@ -32,7 +31,7 @@ namespace ck::proxy::detail {
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 17> hooks = {{
+const std::array<LuaHookBinding, 16> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
 	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
@@ -40,7 +39,6 @@ const std::array<LuaHookBinding, 17> hooks = {{
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
 	{ "ck.system.events",      "on_proto_proc",         &ck::proxy::detail::on_proto_proc },
-	{ "ck.fallout2.state",     "clear_tracked_objects", &ck::proxy::detail::clear_tracked_objects },
 	{ "ck.fallout2.objects",   "clear_registry",        &ck::proxy::detail::clear_registry },
 	{ "ck.fallout2.dialogue",  "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
