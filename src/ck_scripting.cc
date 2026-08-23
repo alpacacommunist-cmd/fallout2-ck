@@ -89,7 +89,7 @@ void ck_scripting_set_language() {
 }
 
 void ck_scripting_on_game_start() {
-	ck_dispatcher_on_game_start();
+    ck::dispatcher::on_game_start();
 }
 
 void ck_scripting_on_engine_ready() {
@@ -102,7 +102,7 @@ void ck_scripting_on_engine_ready() {
 
 	gProtoCache.initialize("build/proto_cache.db");
 
-    ck_dispatcher_on_engine_ready();
+    ck::dispatcher::on_engine_ready();
 }
 
 void ck_scripting_on_object_destroyed(fallout::Object* object) {
@@ -120,7 +120,7 @@ void ck_scripting_on_before_game_load(const char* path) {
 }
 
 void ck_scripting_on_game_loaded() {
-	ck_dispatcher_on_game_loaded();
+    ck::dispatcher::on_game_loaded();
 
 	ck::on_map_enter();
 }

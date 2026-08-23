@@ -4,9 +4,7 @@
 
 #include "ck_api.h"
 
-extern "C" const char* ck_get_current_mod_id();
 extern "C" bool        ck_in_combat();
-void ck_dispatcher_on_map_enter();
 
 namespace ck::debug_overlay {
     bool enabled();

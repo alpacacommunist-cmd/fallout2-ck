@@ -4,6 +4,7 @@
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/ck_proto_registry.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 
 #include "map_defs.h"
 
@@ -23,7 +24,7 @@ namespace ck {
     void on_map_enter() {
         ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 
-        ck_dispatcher_on_map_enter();
+        ck::dispatcher::on_map_enter();
         ck_rendering_refresh();
 
         if (ck_in_combat()) fallout::_combat_reload_map();

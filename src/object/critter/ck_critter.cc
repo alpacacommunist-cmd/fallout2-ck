@@ -34,7 +34,9 @@ namespace fallout {
 	extern CombatState gCombatState;
 }
 
-extern "C" const char* ck_get_current_mod_id();
+namespace ck::dispatcher {
+    extern const char* current_mod_context();
+}
 
 namespace ck::critter {
     static std::unordered_set<int> g_custom_prototypes;
@@ -101,7 +103,7 @@ namespace ck::critter {
         int source_pid      = pid;
         int lua_id          = -1;
 
-		std::string mod_id  = ck_get_current_mod_id();
+		std::string_view mod_id  = ck::dispatcher::current_mod_context();
 		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
 		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
 
@@ -111,13 +113,13 @@ namespace ck::critter {
         if (state.hp > 0 || state.id == -1) { // either alive or first spawn
             if (!lua_tag.empty()) {
                 int unique_pid = ck::critter::allocate_unique_proto(pid, lua_tag, params);
-                if (unique_pid == -1) return { -1, ck_get_current_mod_id() };
+                if (unique_pid == -1) return { -1, mod_id.data() };
 
                 pid = unique_pid;
             }
 
             fallout::Object* critter = create(pid, tile, elevation);
-            if (critter == nullptr) return { -1, ck_get_current_mod_id() };
+            if (critter == nullptr) return { -1, mod_id.data() };
 
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
@@ -145,7 +147,7 @@ namespace ck::critter {
             }
         }
 
-        return { lua_id, ck_get_current_mod_id() };
+        return { lua_id, mod_id.data() };
 	}
 
 	bool kill(int lua_id) {

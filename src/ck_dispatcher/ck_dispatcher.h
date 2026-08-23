@@ -9,22 +9,23 @@ namespace fallout {
     struct Object;
 }
 
-namespace ck {
-    int current_map_id();
+namespace ck::dispatcher {
+    const char* current_mod_context();
+
+    void on_game_start();
+    void on_engine_ready();
+    void on_game_loaded();
+
+    void on_day_passed();
+    void on_time_advance(int hours, int minutes);
+    void on_skill_used(int skill, int success_count, int bonus);
+    void on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer);
+
+    void on_map_update(int ticks);
+    bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
+    bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
+    void on_map_enter();
 }
-
-void ck_dispatcher_on_game_start();
-void ck_dispatcher_on_engine_ready();
-void ck_dispatcher_on_game_loaded();
-
-void ck_dispatcher_on_day_passed();
-void ck_dispatcher_on_time_advance(int hours, int minutes);
-void ck_dispatcher_on_skill_used(int skill, int success_count, int bonus);
-void ck_dispatcher_on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer);
-
-void ck_dispatcher_on_map_update(int ticks);
-bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
-bool ck_dispatcher_on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
 
 CK_API bool ck_dispatcher_load_mod(const char* mod_id);
 CK_API const char* ck_get_current_mod_id();

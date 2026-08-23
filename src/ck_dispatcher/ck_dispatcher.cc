@@ -11,6 +11,10 @@
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
 
+namespace ck {
+    int current_map_id();
+}
+
 const char* g_current_mod_id = nullptr;
 
 // map update intervals
@@ -36,88 +40,93 @@ struct ModContextGuard {
     }
 };
 
-template<typename... Args>
-void ck_dispatcher_emit(const char* event_name, Args... args) {
-	if (!ck::proxy::is_ready() || !event_name) return;
+namespace ck::dispatcher {
+    const char* current_mod_context() {
+        return g_current_mod_id;
+    }
 
-	for (const auto& mod_id : g_active_mods) {
-		log.debug("Emit event {} for {}", event_name, mod_id);
+    template<typename... Args>
+        void emit(const char* event_name, Args... args) {
+            if (!ck::proxy::is_ready() || !event_name) return;
 
-		ModContextGuard guard(mod_id.c_str());
-		ck::proxy::emit_for_mod(mod_id.c_str(), event_name, args...);
-	}
-}
+            for (const auto& mod_id : g_active_mods) {
+                log.debug("Emit event {} for {}", event_name, mod_id);
 
-void ck_dispatcher_on_map_update(int ticks) {
-	if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
-	g_last_update_ticks = ticks;
+                ModContextGuard guard(mod_id.c_str());
+                ck::proxy::emit_for_mod(mod_id.c_str(), event_name, args...);
+            }
+        }
 
-	ck::proxy::on_map_update(ticks);
-}
+    void on_map_update(int ticks) {
+        if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
+        g_last_update_ticks = ticks;
 
-bool ck_dispatcher_on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
-	if (!object_mod_id) {
-		log.warn("ck_dispatcher_on_proc called with null object_mod_id");
-		// return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
-	}
+        ck::proxy::on_map_update(ticks);
+    }
 
-	ModContextGuard guard(object_mod_id);
-	bool result = ck::proxy::on_proc(lua_id, proc_id, fixed_param, object_mod_id);
+    bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
+        if (!object_mod_id) {
+            log.warn("ck_dispatcher_on_proc called with null object_mod_id");
+            // return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
+        }
 
-	return result;
-}
+        ModContextGuard guard(object_mod_id);
+        bool result = ck::proxy::on_proc(lua_id, proc_id, fixed_param, object_mod_id);
 
-bool ck_dispatcher_on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
-	if (!object_mod_id) {
-		log.warn("ck_dispatcher_on_proc called with null object_mod_id");
-		// return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
-	}
+        return result;
+    }
 
-	ModContextGuard guard(object_mod_id);
-	bool result = ck::proxy::on_proto_proc(pid, proc_id, fixed_param, object_mod_id);
+    bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
+        if (!object_mod_id) {
+            log.warn("ck_dispatcher_on_proc called with null object_mod_id");
+            // return ck::proxy::on_proc(lua_id, proc_id, fixed_param, "unknown");
+        }
 
-	return result;
-}
+        ModContextGuard guard(object_mod_id);
+        bool result = ck::proxy::on_proto_proc(pid, proc_id, fixed_param, object_mod_id);
 
+        return result;
+    }
 
-void ck_dispatcher_on_game_start() {
-	ck_dispatcher_emit("onGameStart");
-}
+    void on_game_start() {
+        emit("onGameStart");
+    }
 
-void ck_dispatcher_on_engine_ready() {
-	ck_dispatcher_emit("onEngineReady");
-}
+    void on_engine_ready() {
+        emit("onEngineReady");
+    }
 
-void ck_dispatcher_on_game_loaded() {
-	ck_dispatcher_emit("onGameLoaded");
-}
+    void on_game_loaded() {
+        emit("onGameLoaded");
+    }
 
-void ck_dispatcher_on_time_advance(int hours, int minutes) {
-	ck_dispatcher_emit("onTimeAdvance", hours, minutes);
-}
+    void on_time_advance(int hours, int minutes) {
+        emit("onTimeAdvance", hours, minutes);
+    }
 
-void ck_dispatcher_on_skill_used(int skill, int success_count, int bonus) {
-	ck_dispatcher_emit("skill_used", skill, success_count, bonus);
-}
+    void on_skill_used(int skill, int success_count, int bonus) {
+        emit("skill_used", skill, success_count, bonus);
+    }
 
-void ck_dispatcher_on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
-    ck_dispatcher_emit("critter_killed", victim, killer);
-}
+    void on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
+        emit("critter_killed", victim, killer);
+    }
 
-void ck_dispatcher_on_day_passed() {
-	ck_dispatcher_emit("onDayPassed");
-}
+    void on_day_passed() {
+        emit("onDayPassed");
+    }
 
-void ck_dispatcher_on_map_enter() {
-	log.debug("ck_dispatcher_on_map_enter");
+    void on_map_enter() {
+        log.debug("ck_dispatcher_on_map_enter");
 
-	ck::registry::clear();
+        ck::registry::clear();
 
-	ck::proxy::clear_registry();
-	ck::proxy::clear_dialogs();
+        ck::proxy::clear_registry();
+        ck::proxy::clear_dialogs();
 
-	g_last_update_ticks = 0;
-	ck_dispatcher_emit("onMapEnter", ck::current_map_id());
+        g_last_update_ticks = 0;
+        emit("onMapEnter", ck::current_map_id());
+    }
 }
 
 // ffi

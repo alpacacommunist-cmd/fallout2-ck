@@ -71,7 +71,7 @@ namespace ck::skills {
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus) {
 		if (obj != fallout::gDude) return;
 
-		ck_dispatcher_on_skill_used(skill, success_count, bonus);
+        ck::dispatcher::on_skill_used(skill, success_count, bonus);
 	}
 
 	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy) {

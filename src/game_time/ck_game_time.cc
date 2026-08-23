@@ -1,8 +1,9 @@
 #include "game_time/ck_game_time.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 
 namespace ck {
 	void on_day_passed() {
-		ck_dispatcher_on_day_passed();
+        ck::dispatcher::on_day_passed();
 	}
 
 	// just in case
@@ -11,7 +12,7 @@ namespace ck {
 	}
 
 	void on_time_advance(int hours, int minutes) {
-		ck_dispatcher_on_time_advance(hours, minutes);
+        ck::dispatcher::on_time_advance(hours, minutes);
 	}
 }
 

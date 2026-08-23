@@ -9,6 +9,7 @@
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/ck_proto_registry.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 
 #include <cstring>
 
@@ -62,7 +63,7 @@ namespace ck {
 	}
 
 	void on_map_update(unsigned int ticks) {
-		ck_dispatcher_on_map_update(ticks);
+        ck::dispatcher::on_map_update(ticks);
 	}
 
     bool script_proto_handle(int sid, int proc) {
@@ -74,7 +75,7 @@ namespace ck {
 		script->scriptOverrides = 0;
 
         std::string mod_id = std::string("GLOBAL");
-		bool handled_in_lua = ck_dispatcher_on_proto_proc(pid, proc, fixed_param, mod_id.c_str());
+		bool handled_in_lua = ck::dispatcher::on_proto_proc(pid, proc, fixed_param, mod_id.c_str());
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;
@@ -107,7 +108,7 @@ namespace ck {
 
 		// void* source_ptr = script->source;
 
-		bool handled_in_lua = ck_dispatcher_on_proc(lua_id, proc, fixed_param, meta->mod_id.c_str());
+		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id.data());
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;
@@ -137,7 +138,7 @@ namespace ck {
             ck::object::to_ffi(killer, killer_ptr, true);
         }
 
-        ck_dispatcher_on_critter_killed(&victim, &killer);
+        ck::dispatcher::on_critter_killed(&victim, &killer);
     }
 
 	int dialog_init_ui() {
