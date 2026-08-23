@@ -13,7 +13,7 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id, config, mod_id, tag)
+function Object.new(lua_id, tag, mod_id, config)
   local self = setmetatable({}, Object)
 
   self.lua_id      = lua_id
@@ -138,7 +138,7 @@ function Object:tile()
   return ffi.C.ck_object_get_tile(self.c_ptr)
 end
 
-function Object:name()
+function Object:get_name()
   return ffi.string(ffi.C.ck_object_get_name(self.c_ptr))
 end
 

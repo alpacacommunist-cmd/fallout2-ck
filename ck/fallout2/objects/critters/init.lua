@@ -23,7 +23,7 @@ function critters.register(tag, pid, tile, config)
   local params = ffi.new("CritterLuaProtoParams", { proto_name, proto_description })
 
   -- returns { lua_id, lua_tag }
-  local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, tag, params);
+  local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, tag, params)
 
   if critter_data.lua_id == -1 then
     log.error("Failed to register critter (FFI)!")
@@ -31,13 +31,13 @@ function critters.register(tag, pid, tile, config)
   end
 
   local lua_tag = ffi.string(critter_data.lua_tag)
-  return CritterClass.new(critter_data.lua_id, config, lua_tag, mod_id);
+  return CritterClass.new(critter_data.lua_id, lua_tag, mod_id, config)
 end
 
 function critters.create(pid, tile, config)
   -- This is used for critters without explicitly specified tag
   -- Backend automatically generates spawn_{index} tag and skips custom prototype
-  return critters.register(nil, pid, tile, config)
+  return critters.register(nil, pid, tile, {})
 end
 
 return critters

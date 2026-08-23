@@ -1,4 +1,5 @@
 #include "ck_ids.h"
+#include "ck_utils.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 
 #include "object/ck_object.h"
@@ -128,7 +129,10 @@ namespace ck::critter {
         if (state.elevation != -1) elevation = state.elevation;
 		if (state.tile != -1)      tile = state.tile;
 
-        if (state.hp > 0 || state.id == -1) { // either alive or first spawn
+        // either alive or first spawn
+        bool critter_alive = (state.hp > 0 || state.id == -1);
+
+        if (critter_alive) {
             if (prototype_required) {
                 int unique_pid = allocate_unique_proto(pid, lua_tag, params);
                 if (unique_pid == -1) return result;
@@ -147,7 +151,7 @@ namespace ck::critter {
             critter->sid = ck::ids::make_sid_created(critter, result.lua_id);
             critter->data.critter.combat.team = 0;
         } else {
-            fallout::Object* corpse;
+            fallout::Object* corpse = nullptr;
             fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
 
             while (object != nullptr) {
@@ -164,10 +168,7 @@ namespace ck::critter {
             }
         }
 
-        size_t copy_len = std::min(lua_tag.size(), sizeof(result.lua_tag) - 1);
-        std::memcpy(result.lua_tag, lua_tag.data(), copy_len);
-        result.lua_tag[copy_len] = '\0';
-
+        ck::utils::copy_to_buffer(result.lua_tag, sizeof(result.lua_tag), lua_tag);
         return result;
 	}
 
