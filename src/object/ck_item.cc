@@ -46,6 +46,11 @@ namespace ck {
 			return false;
 		}
 
+		new_item->flags |= fallout::OBJECT_CK;
+        if (ck::proto::has_pid(item_pid)) {
+            new_item->flags |= fallout::OBJECT_CK_PROTO;
+        }
+
 		fallout::_obj_disconnect(new_item, nullptr);
 
         if (fallout::critterFlagCheck(owner->pid, fallout::CritterFlags(fallout::CRITTER_NO_STEAL))) {

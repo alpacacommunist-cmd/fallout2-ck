@@ -16,8 +16,6 @@
 static const Logger logger("CK Proto Registry");
 
 namespace fallout {
-    int protoGetProto(int pid, fallout::Proto** proto);
-
     const size_t _proto_sizes[11] = {
         sizeof(ItemProto),    // 0x84
         sizeof(CritterProto), // 0x1A0
@@ -27,9 +25,18 @@ namespace fallout {
         sizeof(MiscProto),    // 0x1C
         0, 0, 0, 0, 0,
     };
+
+    int protoGetProto(int pid, fallout::Proto** proto);
+
+    struct Object;
+
+    Object* objectFindFirstAtElevation(int elevation);
+    Object* objectFindNextAtElevation();
 }
 
-extern "C" const char* ck_get_current_mod_id();
+namespace ck::dispatcher {
+    const char* current_mod_context();
+}
 
 namespace ck::proxy::detail {
     extern int receive_proto_list;
@@ -247,7 +254,7 @@ namespace ck::proto {
         proto.usable      = ffi_data.usable;
 
         proto.lua_tag     = tag;
-        proto.mod_id      = ck_get_current_mod_id();
+        proto.mod_id      = ck::dispatcher::current_mod_context();
 
         registry_protos.push_back(proto);
 
@@ -309,6 +316,13 @@ namespace ck::proto {
         return -1;
     }
 
+    bool has_pid(int pid) {
+        for (const auto& proto : registry_protos) {
+            if (proto.pid == pid) return true;
+        }
+
+        return false;
+    }
 
     const CustomProto* find_by_pid(int runtime_pid) {
         for (const auto& proto : registry_protos) {
@@ -322,7 +336,7 @@ namespace ck::proto {
     }
 }
 
-int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data) {
+int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI* ffi_data) {
     if (!lua_tag || !ffi_data) return -1;
     return ck::proto::register_prototype(source_pid, object_type, lua_tag, *ffi_data);
 }

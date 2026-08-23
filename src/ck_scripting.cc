@@ -19,6 +19,34 @@
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
 
+namespace fallout {
+    enum Color : unsigned char;
+    enum CombatState : unsigned int {
+        COMBAT_STATE_OUT_COMBAT = 0x00, COMBAT_STATE_IN_COMBAT = 0x01,
+        COMBAT_STATE_PLAYER_TURN = 0x02, COMBAT_STATE_EXIT_REQUESTED = 0x08,
+    };
+
+    extern int gElevation;
+
+	void tileWindowRefreshRect(Rect* rect, int elevation);
+    int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect);
+
+	void displayMonitorAddMessage(const char* str);
+    int soundPlayFile(const char* name);
+
+    extern CombatState gCombatState;
+}
+
+namespace ck {
+	void on_map_enter();
+
+    namespace proxy::detail {
+        extern int reload_mods;
+        extern int bootstrap;
+        extern int set_language;
+    }
+}
+
 void ck_print_monitor_message(const char* message) {
     std::string converted = utf8_to_cp1251(std::string_view(message));
     fallout::displayMonitorAddMessage(converted.c_str());
@@ -110,44 +138,47 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 	ck::registry::created::remove_by_ptr(object);
 }
 
-// loadsave.cc
-void ck_scripting_on_before_game_load(const char* path) {
-	logger.debug("ck_scripting_on_before_game_load");
+namespace ck::common {
+    unsigned int current_combat_state() { return fallout::gCombatState; }
+    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
 
-	ck::registry::clear();
+    // loadsave.cc
+    void on_before_game_save() {
+        logger.debug("on_before_game_save");
 
-	ck_state_load(path);
+        ck::registry::deleted::unhide();
+        ck::registry::modified::restore_sids();
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+    }
+
+    void on_game_save(const char* path) {
+        logger.debug("on_game_save");
+
+        ck_state_save(path);
+
+        ck::registry::deleted::hide();
+        ck::registry::modified::reapply_sids();
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+    }
+
+    void on_before_game_load(const char* path) {
+        logger.debug("ck_scripting_on_before_game_load");
+
+        ck::registry::clear();
+        ck_state_load(path);
+    }
+
+    void on_game_loaded() {
+        ck::dispatcher::on_game_loaded();
+        ck::on_map_enter();
+    }
 }
 
-void ck_scripting_on_game_loaded() {
-    ck::dispatcher::on_game_loaded();
-
-	ck::on_map_enter();
-}
-
-void ck_scripting_on_before_game_save() {
-	logger.debug("on_before_game_save");
-
-	ck::registry::deleted::unhide();
-	ck::registry::modified::restore_sids();
-    ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
-}
-
-void ck_scripting_on_game_save(const char* path) {
-    logger.debug("on_game_save");
-
-	ck_state_save(path);
-
-	ck::registry::deleted::hide();
-	ck::registry::modified::reapply_sids();
-    ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
-}
+// ffi
 
 void ck_scripting_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
-
-// ffi
 
 bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
@@ -194,3 +225,4 @@ const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
 void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
+bool ck_in_combat() { return ck::common::currently_in_combat(); }

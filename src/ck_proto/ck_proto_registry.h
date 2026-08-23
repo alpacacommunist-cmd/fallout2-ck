@@ -8,49 +8,42 @@
 
 #include "proto_types.h"
 
-namespace fallout {
-    struct Object;
-
-    Object* objectFindFirstAtElevation(int elevation);
-    Object* objectFindNextAtElevation();
-}
-
 struct CustomProtoLuaView { int pid; const char* lua_tag; };
 
+struct CustomProto {
+    int pid;
+    int source_pid;
+    int object_type;
+
+    int weight;
+    int price;
+
+    std::string name;
+    std::string description;
+
+    int inv_fid;
+    int ground_fid;
+
+    bool usable;
+
+    std::string lua_tag;
+    std::string mod_id;
+};
+
+struct CustomProtoFFI {
+    int weight;
+    int price;
+
+    int inv_fid;
+    int ground_fid;
+
+    bool usable;
+
+    const char *name;
+    const char *description;
+};
+
 namespace ck::proto {
-    struct CustomProto {
-        int pid;
-        int source_pid;
-        int object_type;
-
-        int weight;
-        int price;
-
-        std::string name;
-        std::string description;
-
-        int inv_fid;
-        int ground_fid;
-
-        bool usable;
-
-        std::string lua_tag;
-        std::string mod_id;
-    };
-
-    struct CustomProtoFFI {
-        int weight;
-        int price;
-
-        int inv_fid;
-        int ground_fid;
-
-        bool usable;
-
-        const char* name;
-        const char* description;
-    };
-
     enum class SyncMode {
         Prepare,
         Restore
@@ -68,15 +61,17 @@ namespace ck::proto {
     int  register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data);
     int  bind_prototype_script(int pid);
 
-    int  get_pid_by_tag(const std::string& lua_tag);
+    int get_pid_by_tag(const std::string& lua_tag);
     int get_pid_by_sid(int sid);
     int get_sid_by_pid(int pid);
-    const CustomProto* find_by_pid(int runtime_pid);
 
+    bool has_pid(int pid);
+
+    const CustomProto* find_by_pid(int runtime_pid);
     const std::vector<CustomProto>& get_all_protos();
 }
 
-CK_API int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const ck::proto::CustomProtoFFI* ffi_data);
+CK_API int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI* ffi_data);
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
 CK_API int ck_proto_bind(int pid);
 

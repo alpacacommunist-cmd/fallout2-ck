@@ -4,8 +4,6 @@
 
 #include "ck_api.h"
 
-extern "C" bool        ck_in_combat();
-
 namespace ck::debug_overlay {
     bool enabled();
     void toggle();

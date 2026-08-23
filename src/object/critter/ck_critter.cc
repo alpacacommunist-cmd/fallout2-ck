@@ -7,7 +7,6 @@
 #include "object/critter/ck_stats.h"
 #include "ck_messages/ck_messages.h"
 
-#include "combat_defs.h"
 #include "proto_types.h"
 #include "animation.h"
 
@@ -34,8 +33,6 @@ namespace fallout {
     Object* objectFindNextAtLocation();
 
 	int mapGetCurrentMap();
-
-	extern CombatState gCombatState;
 }
 
 namespace ck::critter {
@@ -171,10 +168,6 @@ namespace ck::critter {
 
 		return true;
 	}
-}
-
-bool ck_in_combat() {
-	return (fallout::gCombatState & fallout::COMBAT_STATE_IN_COMBAT) != 0;
 }
 
 CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
