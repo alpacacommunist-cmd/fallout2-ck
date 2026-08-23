@@ -16,8 +16,14 @@ namespace fallout {
     extern TileData* _square[ELEVATION_COUNT];
 }
 
-namespace ck::critter {
-    extern void clear_custom_prototypes();
+namespace ck {
+    namespace critter {
+        extern void clear_custom_prototypes();
+    }
+
+    namespace script {
+        extern void reset();
+    }
 }
 
 namespace ck {
@@ -33,7 +39,8 @@ namespace ck {
     void on_before_map_load() {
         log.debug("on_before_map_load");
 
-        ck::reset_dummy_script();
+        ck::critter::clear_custom_prototypes();
+        ck::script::reset();
         ck::registry::on_map_exit();
 
         fallout::mapEdgeFree();

@@ -6,31 +6,28 @@
 struct CkObjectFFI;
 
 namespace fallout {
-    struct Object;
 	struct Script;
     struct Program;
-
-	void displayMonitorAddMessage(const char* str);
 }
 
-namespace ck {
+namespace ck::script {
+	void reset();
+
+	extern int gLastDialogChoice;
+
 	typedef enum GameDialogReaction {
 		GAME_DIALOG_REACTION_GOOD = 49,
 		GAME_DIALOG_REACTION_NEUTRAL = 50,
 		GAME_DIALOG_REACTION_BAD = 51,
 	} GameDialogReaction;
 
-	extern int gLastDialogChoice;
-
-	void reset_dummy_script();
-
-	fallout::Script*  script_get_dummy(int sid);
+	fallout::Script*  get_dummy(int sid);
 	fallout::Program* program_get_dummy();
 
 	bool owns_sid(int sid);
 	void on_map_update(unsigned int ticks);
-    void handle_global_script_proc_event(int sid, int proc);
-	bool script_try_handle(int sid, int proc);
+    void handle_global_proc_event(int sid, int proc);
+	bool try_handle(int sid, int proc);
 }
 
 // ffi

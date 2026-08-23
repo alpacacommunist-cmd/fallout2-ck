@@ -16,7 +16,15 @@
 #include "ck_log.h"
 static const Logger logger("CK Script");
 
-namespace ck {
+namespace fallout {
+    struct Object;
+	struct Script;
+    struct Program;
+
+	void displayMonitorAddMessage(const char* str);
+}
+
+namespace ck::script {
 	int gLastDialogChoice = -1;
 
 	static fallout::Program gDummyProgram;
@@ -24,12 +32,12 @@ namespace ck {
 
 	static std::unordered_map<int, fallout::Script> g_lua_scripts;
 
-	void reset_dummy_script() {
+	void reset() {
 		logger.debug("RESET lua_scripts");
 		g_lua_scripts.clear();
 	}
 
-    fallout::Script* script_get_dummy(int sid) {
+    fallout::Script* get_dummy(int sid) {
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 
         auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
@@ -66,10 +74,10 @@ namespace ck {
         ck::dispatcher::on_map_update(ticks);
 	}
 
-    bool script_proto_handle(int sid, int proc) {
+    bool proto_handle(int sid, int proc) {
         int pid = ck::proto::get_pid_by_sid(sid);
 
-		fallout::Script* script = script_get_dummy(sid);
+		fallout::Script* script = get_dummy(sid);
 
 		int fixed_param = script->fixedParam;
 		script->scriptOverrides = 0;
@@ -86,10 +94,10 @@ namespace ck {
 		return false;
     }
 
-	bool script_try_handle(int sid, int proc) {
+	bool try_handle(int sid, int proc) {
 		if (!ck::ids::is_ck_sid(sid)) return false;
 
-        if (ck::ids::is_proto_sid(sid)) return script_proto_handle(sid, proc);
+        if (ck::ids::is_proto_sid(sid)) return proto_handle(sid, proc);
 
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 		const LuaMeta* meta = ck::registry::get_meta(lua_id);
@@ -101,7 +109,7 @@ namespace ck {
 			return false;
 		}
 
-		fallout::Script* script = script_get_dummy(sid);
+		fallout::Script* script = get_dummy(sid);
 
 		int fixed_param = script->fixedParam;
 		script->scriptOverrides = 0;
@@ -119,7 +127,7 @@ namespace ck {
 		return false;
 	}
 
-    void handle_global_script_proc_event(int sid, int proc) {
+    void handle_global_proc_event(int sid, int proc) {
         if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
 
         fallout::Script* script = nullptr;
@@ -167,9 +175,9 @@ namespace ck {
 } // namespace ck
 
 // ffi
-bool ck_dialog_init_ui() { return ck::dialog_init_ui() != -1; }
-void ck_dialog_set_reply(const char* text) { ck::dialog_set_reply(text); }
-void ck_dialog_add_option(const char* text, int reaction) { ck::dialog_add_option(text, reaction); }
-int ck_dialog_go() { return ck::dialog_go(); }
-void ck_dialog_exit() { ck::dialog_exit(); }
-void ck_dialog_close_ui() { ck::dialog_close_ui(); }
+bool ck_dialog_init_ui() { return ck::script::dialog_init_ui() != -1; }
+void ck_dialog_set_reply(const char* text) { ck::script::dialog_set_reply(text); }
+void ck_dialog_add_option(const char* text, int reaction) { ck::script::dialog_add_option(text, reaction); }
+int ck_dialog_go() { return ck::script::dialog_go(); }
+void ck_dialog_exit() { ck::script::dialog_exit(); }
+void ck_dialog_close_ui() { ck::script::dialog_close_ui(); }

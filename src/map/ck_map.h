@@ -30,8 +30,6 @@ namespace fallout {
 }
 
 namespace ck {
-	void reset_dummy_script();
-
 	void on_map_enter();
 	void on_before_map_enter();
 
