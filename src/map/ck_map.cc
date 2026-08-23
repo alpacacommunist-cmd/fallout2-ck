@@ -18,11 +18,11 @@ namespace fallout {
 
 namespace ck {
     namespace critter {
-        extern void clear_custom_prototypes();
+        void clear_custom_prototypes();
     }
 
     namespace script {
-        extern void reset();
+        void reset();
     }
 }
 

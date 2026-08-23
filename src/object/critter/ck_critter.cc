@@ -17,6 +17,10 @@
 #include "ck_log.h"
 static const Logger logger("CK Critter");
 
+namespace ck::dispatcher {
+    const char* current_mod_context();
+}
+
 namespace fallout {
 	void _combat_ai(Object* a1, Object* a2);
 	bool _combatai_want_to_join(Object* a1);
@@ -34,10 +38,6 @@ namespace fallout {
 	extern CombatState gCombatState;
 }
 
-namespace ck::dispatcher {
-    extern const char* current_mod_context();
-}
-
 namespace ck::critter {
     static std::unordered_set<int> g_custom_prototypes;
 
@@ -47,6 +47,7 @@ namespace ck::critter {
 
     void clear_custom_prototypes() {
         g_custom_prototypes.clear();
+        logger.debug("Cleared temporary critter prototypes");
     }
 
     int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params) {
