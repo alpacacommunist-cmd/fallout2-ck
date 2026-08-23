@@ -15,6 +15,10 @@ namespace fallout {
     extern TileData* _square[ELEVATION_COUNT];
 }
 
+namespace ck::critter {
+    extern void clear_custom_prototypes();
+}
+
 namespace ck {
     void on_map_enter() {
         ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);

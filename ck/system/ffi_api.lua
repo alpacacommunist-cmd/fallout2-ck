@@ -97,7 +97,7 @@ ffi.cdef[[
   typedef struct { int lua_id; const char* mod_id; } CritterLua;
   typedef struct { const char* name; const char* description; } CritterLuaProtoParams;
 
-  CritterLua ck_critter_register(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
+  CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);

@@ -16,7 +16,7 @@ function critters.register(tag, pid, tile, config)
   params.name        = config.name or ""
   params.description = config.description or ""
 
-  local critter_data = ffi.C.ck_critter_register(pid, tile, config.elevation, tag, params);
+  local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, tag, params);
 
   if critter_data.lua_id == -1 then
     print("Failed to register critter (FFI)!")
@@ -30,7 +30,7 @@ function critters.create(pid, tile, config)
   config = config or {}
   config.elevation = config.elevation or ffi.C.ck_current_elevation()
 
-  local critter_data = ffi.C.ck_critter_register(pid, tile, config.elevation, nil, nil)
+  local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, nil, nil)
 
   if critter_data.lua_id == -1 then
     log.error("Failed to create critter (FFI)!")
