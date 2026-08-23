@@ -1,5 +1,5 @@
 return {
-  alice_name = "Вы видите Алису",
+  alice_name = "Алиса",
   alice_description = "Вы видите странную девушку, какой-то гик. Явно знает эрланг",
 
   alice = {

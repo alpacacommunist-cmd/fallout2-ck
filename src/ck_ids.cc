@@ -119,6 +119,8 @@ int make_proto_sid(int custom_sid) {
 }
 
 int make_sid_created(fallout::Object* obj, int lua_id) {
+    if (!obj || lua_id == -1) return -1;
+
     int script_type = script_type_for_object(obj);
     int custom_sid  = make_created_sid(lua_id);
 
@@ -126,6 +128,8 @@ int make_sid_created(fallout::Object* obj, int lua_id) {
 }
 
 int make_sid_modified(fallout::Object* obj, int lua_id) {
+    if (!obj || lua_id == -1) return -1;
+
     int script_type = script_type_for_object(obj);
     int custom_sid  = make_modified_sid(lua_id);
 

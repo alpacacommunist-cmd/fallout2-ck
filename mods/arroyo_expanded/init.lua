@@ -142,8 +142,8 @@ events.on('onMapEnter', function(map_id)
     :play(16)
   :submit()
 
-  local villager1 = critters.create(16777219, 21119, { name = "Житель Арройо" })
-  local villager2 = critters.create(16777220, 21716, { name = "Охотник" })
+  local villager1 = critters.create(16777219, 21119)
+  local villager2 = critters.create(16777220, 21716)
 
   villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
     :set_behavior(behaviors.wander, 3)

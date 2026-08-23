@@ -6,8 +6,8 @@
 #include <string>
 
 struct CritterLua {
-    int         lua_id;
-    const char* mod_id;
+    int  lua_id;
+    char lua_tag[64];
 };
 
 struct CritterLuaProtoParams {
@@ -21,10 +21,9 @@ namespace fallout {
 
 namespace ck::critter {
     bool has_custom_prototype(int pid);
-    void clear_custom_prototypes();
+    void clear_spawn_queues();
     int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params);
 
-    fallout::Object* create(int pid, int tile, int elevation);
     CritterLua spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
     bool kill(int lua_id);
 }

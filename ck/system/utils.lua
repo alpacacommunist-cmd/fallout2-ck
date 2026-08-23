@@ -69,4 +69,17 @@ function utils.make_readonly(orig_table, log_context)
   return proxy
 end
 
+---checks if val is nil, empty or only consists of spaces
+---@param val any
+---@return boolean
+function utils.is_blank(val)
+  if val == nil then
+    return true
+  end
+
+  local str = tostring(val)
+
+  return str:match("^%s*$") ~= nil
+end
+
 return utils

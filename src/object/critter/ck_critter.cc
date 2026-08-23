@@ -37,14 +37,28 @@ namespace fallout {
 
 namespace ck::critter {
     static std::unordered_set<int> g_custom_prototypes;
+    static int g_next_spawn_index = 0;
+
+    static std::string generate_unique_tag() {
+        return "spawn_" + std::to_string(g_next_spawn_index++);
+    }
+
+    static void reset_spawn_counter() {
+        g_next_spawn_index = 0;
+    }
+
+    static void clear_custom_prototypes() {
+        g_custom_prototypes.clear();
+    }
+
+    void clear_spawn_queues() {
+        reset_spawn_counter();
+        clear_custom_prototypes();
+        logger.debug("Cleared map context critter queues");
+    }
 
     bool has_custom_prototype(int pid) {
         return g_custom_prototypes.count(pid) > 0;
-    }
-
-    void clear_custom_prototypes() {
-        g_custom_prototypes.clear();
-        logger.debug("Cleared temporary critter prototypes");
     }
 
     int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params) {
@@ -60,25 +74,29 @@ namespace ck::critter {
             return -1;
         }
 
-        int clean_pid = ck::ids::clean_pid(unique_pid);
-
-        int msg_name_id = clean_pid * 100;
-        int msg_desc_id = msg_name_id + 1;
-
         fallout::Proto* generic_proto = nullptr;
         if (fallout::protoGetProto(unique_pid, &generic_proto) == 0 && generic_proto) {
             fallout::CritterProto* critter_proto = reinterpret_cast<fallout::CritterProto*>(generic_proto);
+
+            int clean_pid = ck::ids::clean_pid(unique_pid);
+
+            int msg_name_id = clean_pid * 100;
+            int msg_desc_id = msg_name_id + 1;
+
             critter_proto->messageId = msg_name_id;
-        }
 
-        if (params->name) {
-            std::string_view name(params->name);
-            if (!name.empty()) ck::messages_add_string("pro_crit.msg", msg_name_id, params->name);
-        }
+            if (params->name) {
+                std::string_view name(params->name);
+                if (!name.empty()) ck::messages_add_string("pro_crit.msg", msg_name_id, params->name);
+            }
 
-        if (params->description) {
-            std::string_view description(params->description);
-            if (!description.empty()) ck::messages_add_string("pro_crit.msg", msg_desc_id, params->description);
+            if (params->description) {
+                std::string_view description(params->description);
+                if (!description.empty()) ck::messages_add_string("pro_crit.msg", msg_desc_id, params->description);
+            }
+        } else {
+            logger.error("Failed to get generic proto for allocated PID: {}", unique_pid);
+            return -1;
         }
 
         logger.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
@@ -86,7 +104,7 @@ namespace ck::critter {
         return unique_pid;
     }
 
-	fallout::Object* create(int pid, int tile, int elevation) {
+	static fallout::Object* create(int pid, int tile, int elevation) {
 		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
 
 		if (critter != nullptr) {
@@ -99,34 +117,35 @@ namespace ck::critter {
 	CritterLua spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
 		int map_id          = fallout::mapGetCurrentMap();
         int source_pid      = pid;
-        int lua_id          = -1;
+        bool prototype_required = (tag != nullptr && tag[0] != '\0');
 
-		std::string_view mod_id  = ck::dispatcher::current_mod_context();
-		std::string lua_tag = (tag != nullptr ? std::string(tag) : std::string());
+        std::string lua_tag          = prototype_required ? std::string(tag) : generate_unique_tag();
+		std::string_view mod_id      = ck::dispatcher::current_mod_context();
 		ck::proxy::ObjectState state = ck::proxy::get_object_state(map_id, lua_tag);
+
+        CritterLua result{ -1, "" };
 
         if (state.elevation != -1) elevation = state.elevation;
 		if (state.tile != -1)      tile = state.tile;
 
         if (state.hp > 0 || state.id == -1) { // either alive or first spawn
-            if (!lua_tag.empty()) {
-                int unique_pid = ck::critter::allocate_unique_proto(pid, lua_tag, params);
-                if (unique_pid == -1) return { -1, mod_id.data() };
+            if (prototype_required) {
+                int unique_pid = allocate_unique_proto(pid, lua_tag, params);
+                if (unique_pid == -1) return result;
 
                 pid = unique_pid;
             }
 
             fallout::Object* critter = create(pid, tile, elevation);
-            if (critter == nullptr) return { -1, mod_id.data() };
+            if (critter == nullptr) return result;
 
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
-            lua_id = ck::registry::created::add(critter, meta);
+            result.lua_id = ck::registry::created::add(critter, meta);
 
-            critter->sid = ck::ids::make_sid_created(critter, lua_id);
+            critter->sid = ck::ids::make_sid_created(critter, result.lua_id);
             critter->data.critter.combat.team = 0;
-
         } else {
             fallout::Object* corpse;
             fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
@@ -141,11 +160,15 @@ namespace ck::critter {
             }
 
             if (corpse != nullptr) {
-                lua_id = ck::registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
+                result.lua_id = ck::registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
             }
         }
 
-        return { lua_id, mod_id.data() };
+        size_t copy_len = std::min(lua_tag.size(), sizeof(result.lua_tag) - 1);
+        std::memcpy(result.lua_tag, lua_tag.data(), copy_len);
+        result.lua_tag[copy_len] = '\0';
+
+        return result;
 	}
 
 	bool kill(int lua_id) {

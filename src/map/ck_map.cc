@@ -17,7 +17,7 @@ namespace fallout {
 }
 
 namespace ck {
-    namespace critter { void clear_custom_prototypes(); }
+    namespace critter { void clear_spawn_queues(); }
     namespace script { void reset(); }
     namespace common { bool currently_in_combat(); }
 }
@@ -29,14 +29,13 @@ namespace ck {
         ck::dispatcher::on_map_enter();
         ck_rendering_refresh();
 
-
         if (ck::common::currently_in_combat()) fallout::_combat_reload_map();
     }
 
     void on_before_map_load() {
         log.debug("on_before_map_load");
 
-        ck::critter::clear_custom_prototypes();
+        ck::critter::clear_spawn_queues();
         ck::script::reset();
         ck::registry::on_map_exit();
 
