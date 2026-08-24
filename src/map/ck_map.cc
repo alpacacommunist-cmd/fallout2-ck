@@ -40,6 +40,9 @@ namespace ck {
         // Clears LUA registries
         proxy::execute_proxy_call<bool>(proxy::detail::clear_registries);
 
+        // Restore proto items PID (stored in `id`)
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+
         // Dispatch event
         ck::dispatcher::on_map_enter();
 
@@ -53,13 +56,12 @@ namespace ck {
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
 
         // Resets lua registries, updates state
         if (!fallout::_isLoadingGame()) {
             proxy::execute_proxy_call<bool>(proxy::detail::map_context_change);
         }
-
         // Resets critter spawn counter, custom critter prototypes queue
         ck::critter::clear_spawn_queues();
         // Resets custom object scripts

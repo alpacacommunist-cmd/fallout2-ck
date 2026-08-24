@@ -1,5 +1,6 @@
-#include "ck_proto_registry.h"
 #include "ck_ids.h"
+#include "ck_utils.h"
+#include "ck_proto_registry.h"
 #include "ck_messages/ck_messages.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 
@@ -50,6 +51,7 @@ namespace ck::proto {
 
     namespace {
         int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+        int g_next_proto_pid = ck::ids::CK_PID_START;
 
         std::vector<CustomProto> registry_protos; // attribute patches
         std::vector<CustomProtoNode> g_custom_protos; // in-mem protos
@@ -151,70 +153,91 @@ namespace ck::proto {
     }
 
     void memory_clear() {
+        g_next_proto_pid = ck::ids::CK_PID_START;
+        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+
         g_custom_protos.clear();
+        g_proto_sid_to_pid.clear();
+
+        logger.debug("Custom prototypes raw memory cleared");
     }
 
     void registry_clear() {
+        memory_clear();
         registry_protos.clear();
-        g_proto_sid_to_pid.clear();
-        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+
+        logger.info("Custom prototypes registry and memory totally reset");
+    }
+
+    bool build_custom_prototype(CustomProto& proto, int assigned_pid) {
+        fallout::Proto* src_proto = nullptr;
+        if (fallout::protoGetProto(proto.source_pid, &src_proto) != 0 || src_proto == nullptr) {
+            logger.error("Failed to get source prototype for PID: {}", proto.source_pid);
+            return false;
+        }
+
+        size_t proto_size = fallout::_proto_sizes[ck::ids::object_types::ITEM];
+        void* allocated_mem = std::malloc(proto_size);
+        if (!allocated_mem) {
+            logger.error("Out of memory when allocating custom prototype!");
+            return false;
+        }
+
+        std::memcpy(allocated_mem, src_proto, proto_size);
+        fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
+
+        custom_proto->pid = assigned_pid;
+        custom_proto->messageId = assigned_pid * 100;
+
+        fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(custom_proto);
+        item_proto->cost   = proto.price;
+        item_proto->weight = proto.weight;
+
+        if (proto.usable) {
+            item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
+        }
+
+        UniqueProtoPtr custom_proto_ptr(custom_proto);
+        g_custom_protos.push_back({ assigned_pid, std::move(custom_proto_ptr) });
+
+        proto.pid = assigned_pid;
+
+        int msg_name_id = assigned_pid * 100;
+        int msg_desc_id = (assigned_pid * 100) + 1;
+
+        if (!utils::is_blank(proto.name)) {
+            ck::messages_add_string("pro_item.msg", msg_name_id, proto.name.c_str());
+        }
+
+        if (!utils::is_blank(proto.description)) {
+            ck::messages_add_string("pro_item.msg", msg_desc_id, proto.description.c_str());
+        }
+
+        if (ck::ids::is_ck_frm(proto.inv_fid)) {
+            item_proto->inventoryFid = proto.inv_fid;
+        }
+
+        if (ck::ids::is_ck_frm(proto.ground_fid)) {
+            item_proto->fid = proto.ground_fid;
+        }
+
+        return true;
     }
 
     void rebuild_custom_prototypes() {
         memory_clear();
-        int current_pid = ck::ids::CK_PID_START;
+
+        g_next_proto_pid = ck::ids::CK_PID_START;
 
         for (auto& proto : registry_protos) {
-            if (current_pid >= ck::ids::CK_PID_LIMIT) break;
+            if (g_next_proto_pid >= ck::ids::CK_PID_LIMIT) break;
 
-            fallout::Proto* src_proto = nullptr;
-            if (fallout::protoGetProto(proto.source_pid, &src_proto) != 0 || src_proto == nullptr) {
-                continue;
+            if (build_custom_prototype(proto, g_next_proto_pid)) {
+                g_next_proto_pid++;
             }
-
-            size_t proto_size = fallout::_proto_sizes[ck::ids::object_types::ITEM];
-            void* allocated_mem = std::malloc(proto_size);
-
-            std::memcpy(allocated_mem, src_proto, proto_size);
-            fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
-
-            custom_proto->pid = current_pid;
-            custom_proto->messageId = current_pid * 100;
-
-            fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(custom_proto);
-            item_proto->cost   = proto.price;
-            item_proto->weight = proto.weight;
-
-            if (proto.usable) {
-                item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
-            }
-
-            UniqueProtoPtr custom_proto_ptr(custom_proto);
-            g_custom_protos.push_back({ current_pid, std::move(custom_proto_ptr) });
-
-            proto.pid = current_pid;
-
-            int msg_name_id = current_pid * 100;
-            int msg_desc_id = (current_pid * 100) + 1;
-
-            if (!proto.name.empty()) {
-                ck::messages_add_string("pro_item.msg", msg_name_id, proto.name.c_str());
-            }
-
-            if (!proto.description.empty()) {
-                ck::messages_add_string("pro_item.msg", msg_desc_id, proto.description.c_str());
-            }
-
-            if (ck::ids::is_ck_frm(proto.inv_fid)) {
-                item_proto->inventoryFid = proto.inv_fid;
-            }
-
-            if (ck::ids::is_ck_frm(proto.ground_fid)) {
-                item_proto->fid = proto.ground_fid;
-            }
-
-            current_pid++;
         }
+
+        logger.info("Successfully rebuilt {} custom item prototypes", g_custom_protos.size());
     }
 
     int get_custom_proto(int pid, fallout::Proto** protoPtr) {
@@ -232,9 +255,12 @@ namespace ck::proto {
         std::string tag(lua_tag);
 
         for (auto& proto : registry_protos) {
-            if (proto.lua_tag == tag) {
-                return proto.pid;
-            }
+            if (proto.lua_tag == tag) return proto.pid;
+        }
+
+        if (g_next_proto_pid >= ck::ids::CK_PID_LIMIT) {
+            logger.error("Cannot register prototype '{}': Custom item PIDs limit reached!", tag);
+            return -1;
         }
 
         CustomProto proto;
@@ -254,16 +280,19 @@ namespace ck::proto {
         proto.usable      = ffi_data.usable;
 
         proto.lua_tag     = tag;
-        proto.mod_id      = ck::dispatcher::current_mod_context();
+        proto.mod_id      = std::string(ck::dispatcher::current_mod_context());
 
         registry_protos.push_back(proto);
 
-        rebuild_custom_prototypes();
+        if (build_custom_prototype(registry_protos.back(), g_next_proto_pid)) {
+            int allocated_pid = g_next_proto_pid;
+            g_next_proto_pid++;
 
-        for (const auto& p : registry_protos) {
-            if (p.lua_tag == tag) return p.pid;
+            logger.info("Successfully registered custom prototype '{}' with PID: {}", tag, allocated_pid);
+            return allocated_pid;
         }
 
+        registry_protos.pop_back();
         return -1;
     }
 
