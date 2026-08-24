@@ -80,10 +80,10 @@ ffi.cdef[[
   int  ck_anim_play(void* ptr, int anim_id);
   int  ck_anim_clear(void* ptr);
   int  ck_anim_end();
-  bool ck_critter_is_busy(void* ptr);
+  bool ck_critter_is_busy(fallout_Object* critter);
 
   // --- Critter Stats & Base ---
-  int  ck_critter_get_gender(void* ptr);
+  int  ck_critter_get_gender(fallout_Object* critter);
   int  ck_critter_get_base_stat(void* ptr, int stat_id);
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   int  ck_critter_get_bonus_stat(void* ptr, int stat);
@@ -101,7 +101,7 @@ ffi.cdef[[
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
-  bool ck_critter_process_turn(void* ptr, int lua_id);
+  bool ck_critter_process_turn(fallout_Object* critter, int lua_id);
 
   // --- Critter HP ---
   int  ck_critter_get_hp(void* ptr);

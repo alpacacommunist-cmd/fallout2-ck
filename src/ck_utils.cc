@@ -4,7 +4,17 @@
 #include <cstring>
 #include <cctype>
 
+#include "ck_log.h"
+static const Logger logger("CK Utils");
+
 namespace ck::utils {
+    void fatal_nullptr_crash(const char* function_name) {
+        logger.error("FATAL ERROR: nullptr passed to API function: '{}'", function_name);
+        logger.error("The modding environment state is corrupted. Crashing now.");
+
+        std::abort();
+    }
+
     void copy_to_buffer(char* dest, size_t max_size, std::string_view source) {
         if (max_size == 0 || dest == nullptr) return;
 

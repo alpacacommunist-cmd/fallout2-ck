@@ -67,16 +67,16 @@ namespace ck::critter {
     }
 
 
-    int allocate_unique_proto(int base_pid, const std::string& lua_tag, const CritterLuaProtoParams* params) {
+    int allocate_unique_proto(int base_pid, const CritterLuaProtoParams* params) {
         int unique_pid = 0;
 
         if (fallout::proto_new(&unique_pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
-            logger.error("Couldn't allocate new prototype for '{}'", lua_tag);
+            logger.error("Couldn't allocate new prototype for '{}'", base_pid);
             return -1;
         }
 
         if (fallout::proto_copy_proto(base_pid, unique_pid) != 0) {
-            logger.error("Couldn't copy prototype data for '{}'", lua_tag);
+            logger.error("Couldn't copy prototype data for '{}'", base_pid);
             return -1;
         }
 
@@ -103,8 +103,9 @@ namespace ck::critter {
             return -1;
         }
 
-        logger.info("Created unique prototype for '{}' PID: {}", lua_tag, unique_pid);
+        logger.info("Created unique prototype for '{}' PID: {}", base_pid, unique_pid);
         g_custom_prototypes.insert(unique_pid);
+
         return unique_pid;
     }
 
@@ -138,7 +139,7 @@ namespace ck::critter {
 
         if (critter_alive) {
             if (prototype_required) {
-                int unique_pid = allocate_unique_proto(pid, lua_tag, params);
+                int unique_pid = allocate_unique_proto(pid, params);
                 if (unique_pid == -1) return result;
 
                 pid = unique_pid;
@@ -227,21 +228,21 @@ int ck_anim_end() {
 	return fallout::reg_anim_end();
 }
 
-bool ck_critter_is_busy(void* ptr) {
-	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
+bool ck_critter_is_busy(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
 
-	return fallout::animationIsBusy(obj) == -1;
+	return fallout::animationIsBusy(critter) == -1;
 }
 
-int ck_critter_get_gender(void* ptr) {
-	if (!ptr) return false; auto* obj = static_cast<fallout::Object*>(ptr);
+int ck_critter_get_gender(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
 
-    fallout::Gender gender = static_cast<fallout::Gender>(fallout::critterGetStat(obj, fallout::STAT_GENDER));
+    fallout::Gender gender = static_cast<fallout::Gender>(fallout::critterGetStat(critter, fallout::STAT_GENDER));
 	return static_cast<int>(gender);
 }
 
-bool ck_critter_process_turn(void* ptr, int lua_id) {
-	if (!ptr) return false; auto* critter = static_cast<fallout::Object*>(ptr);
+bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
+    CK_ENSURE_VALID_OBJECT(critter);
 
 	if (critter->data.critter.combat.ap <= 0) {
 		logger.info("combat_turn_run for {}", lua_id);
@@ -263,3 +264,6 @@ bool ck_critter_kill(int lua_id) {
 	return ck::critter::kill(lua_id);
 }
 
+int ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params) {
+    return ck::critter::allocate_unique_proto(base_pid, params);
+}

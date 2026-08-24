@@ -145,6 +145,9 @@ events.on('onMapEnter', function(map_id)
   local villager1 = critters.create(16777219, 21119)
   local villager2 = critters.create(16777220, 21716)
 
+  log.info("villager1 gender: " .. villager1:gender())
+  log.info("villager2 gender: " .. villager2:gender())
+
   villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
     :set_behavior(behaviors.wander, 3)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
