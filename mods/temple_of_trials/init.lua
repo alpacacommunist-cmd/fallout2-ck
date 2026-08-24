@@ -91,12 +91,12 @@ events.on('map_enter', function(map_id)
   -- local found_objects = map.find_at_tile(21101)
   -- local klint = map.find_at_tile(21101):find_by_pid(16777219)
 
-  local found_objects = map.find_by_pid(16777219)
-  local klint_obj = found_objects[1]
-  log.warn(klint_obj.pid)
-  log.warn(klint_obj:is_critter())
-  log.warn("lua id: " .. tostring(klint_obj.lua_id))
-
+  -- local found_objects = map.find_by_pid(16777219)
+  -- local klint_obj = found_objects[1]
+  -- log.warn(klint_obj.pid)
+  -- log.warn(klint_obj:is_critter())
+  -- log.warn("lua id: " .. tostring(klint_obj.lua_id))
+  --
   -- local klint = klint_obj:bind()
   --
   -- klint:on('talk', function(self)
