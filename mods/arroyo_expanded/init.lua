@@ -97,7 +97,7 @@ events.on('critter_killed', function(victim, killer)
   victim:give_item(golden_tail.pid, 1)
 end)
 
-events.on('onMapEnter', function(map_id)
+events.on('map_enter', function(map_id)
   -- player.add_experience(155000)
   monitor.print("Map id: " .. tostring(map_id))
   monitor.print("Entered map!")

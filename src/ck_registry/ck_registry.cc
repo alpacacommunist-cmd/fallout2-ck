@@ -60,8 +60,6 @@ namespace ck::registry {
 	void on_map_exit() {
 		deleted::unhide();
 		modified::restore_sids();
-
-		clear();
 	}
 
 	void clear() {

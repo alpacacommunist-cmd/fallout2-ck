@@ -14,7 +14,7 @@ local events = {
     'onDayPassed', 'onHourPassed', 'onTimeAdvance',
     'onBeforeGameLoad', 'onGameLoaded',
     'onDialogStart', 'skill_used', 'critter_killed',
-    'onMapEnter', 'onMapUpdate'
+    'map_enter', 'map_update'
   },
 
   listeners = {},
@@ -84,7 +84,7 @@ function events.on_map_update(ticks)
     end
   end
 
-  events.emit('onMapUpdate', ticks)
+  events.emit('map_update', ticks)
 end
 
 function events.on_proc(lua_id, proc_id, fixed_param)
@@ -99,6 +99,22 @@ function events.on_proto_proc(pid, proc_id, fixed_param)
 
   if not proto then return false end
   return proto:_handle_proc(proc_id, fixed_param)
+end
+
+function events.clear_registries()
+  -- Clears map context registries
+  -- Clears registered dialogs
+  local dialogue = require('ck.fallout2.dialogue')
+  dialogue.clear_dialogs()
+
+  -- Clears objects registry
+  objects.clear_registry()
+end
+
+function events.map_context_change()
+  -- Updates inventory/hp/tile etc
+  state.sync_save()
+  events.clear_registries()
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua

@@ -23,7 +23,7 @@ local objects = {
   }
 }
 
-local log   = ck.log.new('objects/init.lua')
+local log = ck.log.new('objects/init.lua')
 
 function objects.clear_for_mod(mod_name)
   for lua_id, object_instance in pairs(objects.registry) do

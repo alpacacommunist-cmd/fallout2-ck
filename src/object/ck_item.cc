@@ -1,3 +1,5 @@
+#include "ck_utils.h"
+
 #include "object/ck_item.h"
 #include "ck_proto/ck_proto_registry.h"
 
@@ -74,12 +76,12 @@ bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
 }
 
 int ck_total_inventory_count(fallout::Object *object) {
-    if (!object) return 0;
+    CK_ENSURE_VALID_OBJECT(object);
     return object->data.inventory.length;
 }
 
 bool ck_get_inventory_item(fallout::Object *object, int index, int *out_pid, int *out_qty) {
-    if (!object) return false;
+    CK_ENSURE_VALID_OBJECT(object);
     fallout::Inventory *inv = &(object->data.inventory);
     if (!inv || !inv->items || index < 0 || index >= inv->length) return false;
 

@@ -125,8 +125,8 @@ namespace ck::critter {
 
         bool prototype_required = !utils::is_blank(tag) && has_proto_params(params);
 
-        std::string lua_tag      = prototype_required ? std::string(tag) : generate_unique_tag();
-		std::string_view mod_id  = dispatcher::current_mod_context();
+        std::string lua_tag = prototype_required ? std::string(tag) : generate_unique_tag();
+		std::string mod_id  = dispatcher::current_mod_context();
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
 
         CritterLua result{ -1, "" };

@@ -19,8 +19,8 @@ namespace ck::proxy::detail {
     int on_map_update         = LUA_NOREF;
     int on_proc               = LUA_NOREF;
     int on_proto_proc         = LUA_NOREF;
-    int clear_registry        = LUA_NOREF;
-    int clear_dialogs         = LUA_NOREF;
+    int map_context_change    = LUA_NOREF;
+    int clear_registries      = LUA_NOREF;
     int get_state_data        = LUA_NOREF;
     int get_proto_list        = LUA_NOREF;
     int receive_proto_list    = LUA_NOREF;
@@ -39,8 +39,8 @@ const std::array<LuaHookBinding, 16> hooks = {{
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
 	{ "ck.system.events",      "on_proto_proc",         &ck::proxy::detail::on_proto_proc },
-	{ "ck.fallout2.objects",   "clear_registry",        &ck::proxy::detail::clear_registry },
-	{ "ck.fallout2.dialogue",  "clear_dialogs",         &ck::proxy::detail::clear_dialogs },
+	{ "ck.system.events",      "map_context_change",    &ck::proxy::detail::map_context_change },
+	{ "ck.system.events",      "clear_registries",      &ck::proxy::detail::clear_registries },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
 	{ "ck.fallout2.state",     "get_proto_list",        &ck::proxy::detail::get_proto_list },
 	{ "ck.fallout2.state",     "receive_proto_list",    &ck::proxy::detail::receive_proto_list },

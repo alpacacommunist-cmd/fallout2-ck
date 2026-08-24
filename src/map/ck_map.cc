@@ -5,6 +5,7 @@
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+#include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "map_defs.h"
 
@@ -14,31 +15,59 @@ static const Logger log("CK Map");
 namespace fallout {
     struct TileData { int field_0[SQUARE_GRID_SIZE]; };
     extern TileData* _square[ELEVATION_COUNT];
+
+    bool _isLoadingGame();
 }
 
 namespace ck {
     namespace critter { void clear_spawn_queues(); }
     namespace script { void reset(); }
     namespace common { bool currently_in_combat(); }
+
+    namespace proxy {
+        namespace detail {
+            extern int map_context_change;
+            extern int clear_registries;
+        }
+    }
 }
 
 namespace ck {
     void on_map_enter() {
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        // Clears [created], [modified], [deleted] registry object pointers
+        ck::registry::clear();
 
+        // Clears LUA registries
+        proxy::execute_proxy_call<bool>(proxy::detail::clear_registries);
+
+        // Dispatch event
         ck::dispatcher::on_map_enter();
-        ck_rendering_refresh();
 
+        ck_rendering_refresh();
         if (ck::common::currently_in_combat()) fallout::_combat_reload_map();
     }
 
     void on_before_map_load() {
+        // Clears map context queues
         log.debug("on_before_map_load");
 
+        // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
+        // so that map save file holds relevant data
+        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+
+        // Resets lua registries, updates state
+        if (!fallout::_isLoadingGame()) {
+            proxy::execute_proxy_call<bool>(proxy::detail::map_context_change);
+        }
+
+        // Resets critter spawn counter, custom critter prototypes queue
         ck::critter::clear_spawn_queues();
+        // Resets custom object scripts
         ck::script::reset();
+        // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers
         ck::registry::on_map_exit();
 
+        // Resets rendering
         fallout::mapEdgeFree();
         ck_rendering_clear();
 

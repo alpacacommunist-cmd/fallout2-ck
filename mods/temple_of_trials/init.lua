@@ -32,7 +32,7 @@ events.on('onGameLoaded', function()
   -- player.set_base_stat('endurance', 7)
 end)
 
-events.on('onMapEnter', function(map_id)
+events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
   local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
@@ -45,7 +45,7 @@ events.on('onMapEnter', function(map_id)
   ralph:set_behavior(behaviors.wander, 3)
 end)
 
-events.on('onMapEnter', function(map_id)
+events.on('map_enter', function(map_id)
   if map_id ~= 72 then return end
 
   -- local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, {
@@ -69,8 +69,8 @@ events.on('onMapEnter', function(map_id)
   end
 end)
 
-events.on('onMapEnter', function()
-  if map.get_id() ~= 126 then return end
+events.on('map_enter', function(map_id)
+  if map_id ~= 126 then return end
 
   -- local db = require('ck.fallout2.db')
   --
@@ -97,15 +97,15 @@ events.on('onMapEnter', function()
   log.warn(klint_obj:is_critter())
   log.warn("lua id: " .. tostring(klint_obj.lua_id))
 
-  local klint = klint_obj:bind()
-
-  klint:on('talk', function(self)
-    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
-  end)
-  klint:on('push', function(self)
-    self:float_message('denied', 1)
-    return true
-  end)
+  -- local klint = klint_obj:bind()
+  --
+  -- klint:on('talk', function(self)
+  --   self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
+  -- end)
+  -- klint:on('push', function(self)
+  --   self:float_message('denied', 1)
+  --   return true
+  -- end)
 
   -- local orig_klint_sid = klint:restore()
   -- log.warn(orig_klint_sid)

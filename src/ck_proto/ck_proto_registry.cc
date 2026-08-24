@@ -90,13 +90,13 @@ namespace ck::proto {
     }
 
     void sync_custom_items_on_map(SyncMode mode) {
-        if (mode == SyncMode::Prepare) {
+        if (mode == SyncMode::Prepare) { // (on game save)
             std::vector<CustomProtoLuaView> state_vector;
             for (auto& custom_proto : registry_protos)
                 state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
 
             proxy::execute_proxy_call<bool>(proxy::detail::receive_proto_list, state_vector.data(), (int)state_vector.size());
-        } else {
+        } else { // SyncMode::Restore (on game load)
             std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
 
             for (const auto& proto_state : state_protos) {

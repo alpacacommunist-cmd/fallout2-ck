@@ -27,8 +27,7 @@ namespace ck::proxy {
 	bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
     bool load_mod(const char* mod_id);
 
-	void clear_registry();
-	void clear_dialogs();
+	void map_context_change();
 }
 
 #endif

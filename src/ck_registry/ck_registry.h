@@ -16,8 +16,8 @@ namespace fallout {
 }
 
 struct LuaMeta {
-    std::string_view mod_id;
-    std::string_view tag;
+    std::string mod_id;
+    std::string tag;
 
     int         source_pid = -1;
     int         source_sid = -1;

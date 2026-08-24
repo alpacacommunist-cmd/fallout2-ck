@@ -118,14 +118,9 @@ namespace ck::dispatcher {
 
     void on_map_enter() {
         log.debug("ck_dispatcher_on_map_enter");
-
-        ck::registry::clear();
-
-        ck::proxy::clear_registry();
-        ck::proxy::clear_dialogs();
-
         g_last_update_ticks = 0;
-        emit("onMapEnter", ck::current_map_id());
+
+        emit("map_enter", ck::current_map_id());
     }
 }
 

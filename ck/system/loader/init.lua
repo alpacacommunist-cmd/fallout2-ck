@@ -7,7 +7,6 @@ local events    = require('ck.system.events')
 local rendering = require('ck.fallout2.rendering')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
-local state     = require('ck.fallout2.state')
 local objects   = require('ck.fallout2.objects')
 
 local log = ck.log.new('CK Loader')
@@ -86,13 +85,12 @@ function loader.reload_mods()
     local target_prefix = "mods." .. mod_id
     log.info("Reloading: " .. mod_id)
 
-    events.clear_for_mod(mod_id)
-    objects.clear_for_mod(mod_id)
-    state.clear_for_mod(mod_id)
-
     ffi.C.ck_registry_destroy_objects_for_mod(mod_id)
     ffi.C.ck_config_clear_mod_patches(mod_id)
     ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
+
+    events.clear_for_mod(mod_id)
+    objects.clear_for_mod(mod_id)
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then
@@ -104,7 +102,7 @@ function loader.reload_mods()
     local success = ffi.C.ck_dispatcher_load_mod(mod_id)
 
     if success then
-      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onMapEnter")
+      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")
       ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
     end
   end

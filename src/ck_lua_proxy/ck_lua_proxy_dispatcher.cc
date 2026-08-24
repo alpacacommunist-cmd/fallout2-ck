@@ -12,9 +12,6 @@ namespace ck::proxy::detail {
     extern int on_map_update;
     extern int on_proc;
     extern int on_proto_proc;
-    extern int clear_tracked_objects;
-    extern int clear_registry;
-    extern int clear_dialogs;
     extern int load_and_init_mod;
 }
 
@@ -54,12 +51,4 @@ namespace ck::proxy {
     bool load_mod(const char* mod_id) {
         return execute_proxy_call<bool>(detail::load_and_init_mod, mod_id);
     }
-
-	void clear_registry() {
-		execute_proxy_call<bool>(detail::clear_registry);
-	}
-
-	void clear_dialogs() {
-		execute_proxy_call<bool>(detail::clear_dialogs);
-	}
 }

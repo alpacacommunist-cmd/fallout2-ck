@@ -33,9 +33,7 @@ entrance_id = locations.expand(0, {
 log.info("new_arroyo_map: " .. tostring(new_map_id))
 
 --
--- events.on('onMapEnter', function()
---   local map_id = map.get_id()
---
+-- events.on('map_enter', function(map_id)
 --   if map_id ~= test_caves_id then return end
 --
 --   if map.get_var(0) == 0 then
@@ -47,14 +45,12 @@ log.info("new_arroyo_map: " .. tostring(new_map_id))
 --   end
 -- end)
 
-events.on('onMapEnter', function()
-  local map_id = map.get_id()
-
+events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
-  map.exit_grid.spawn_in_line(22748, 25156, {
-    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
-}, 2)
+--   map.exit_grid.spawn_in_line(22748, 25156, {
+--     map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
+-- }, 2)
 end)
 
 events.on('onDayPassed', function()

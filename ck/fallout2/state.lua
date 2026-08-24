@@ -28,7 +28,6 @@ function state.sync_save()
   local current_map = state.db.maps[current_map_id]
 
   local objects = require('ck.fallout2.objects')
-
   for _, object in pairs(objects.registry) do
     if not object.lua_id or not object.mod_id or not object.tag then
       goto continue
@@ -48,6 +47,7 @@ function state.sync_save()
     ::continue::
   end
 
+  utils.print_table(state.db, log)
   return state.db
 end
 
@@ -55,6 +55,7 @@ function state.get_proto_list()
   return state.db.proto_list
 end
 
+-- Backend calls this to push registered prototypes
 function state.receive_proto_list(data_address, size)
   local protos = ffi.cast("CustomProtoLuaView*", data_address)
 
