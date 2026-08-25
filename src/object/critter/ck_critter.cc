@@ -181,12 +181,16 @@ namespace ck::critter {
 		const CkCreatedObject* registry_object = ck::registry::created::get(lua_id);
 		if (!registry_object || !registry_object->ptr) return false;
 
-        // let fallout2-ce handle corpse
+        // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
-        // store pid for proto messages
-        registry_object->ptr->data.critter.radiation = registry_object->ptr->pid;
-        // reset pid for savegames
-		registry_object->ptr->pid = registry_object->meta.source_pid;
+
+        if (has_custom_prototype(registry_object->ptr->pid)) {
+            logger.debug("Killed critter {} identified as custom prototype", registry_object->ptr->pid);
+            // store pid for proto messages
+            registry_object->ptr->data.critter.radiation = registry_object->ptr->pid;
+            // reset pid for savegames
+            registry_object->ptr->pid = registry_object->meta.source_pid;
+        }
 
         // std::string mod_id = std::move(registry_object->meta.mod_id), lua_tag = std::move(registry_object->meta.tag);
         // int source_pid     = registry_object->meta.source_pid;

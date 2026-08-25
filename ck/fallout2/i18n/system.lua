@@ -14,7 +14,7 @@ system.translations = {
   },
   ru = {
     you_see     = "Вы видите: %s.",
-    you_see_dead = "Вы видите остатки: %s.",
+    you_see_dead = "Вы видите останки: %s.",
 
     he_looks_dead  = "Он выглядит: Мертв",
     she_looks_dead = "Она выглядит: Мертва",
