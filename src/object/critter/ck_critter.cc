@@ -22,7 +22,10 @@ namespace ck::dispatcher {
 }
 
 namespace fallout {
+    enum Hand : int { HAND_LEFT, HAND_RIGHT, HAND_COUNT };
+
 	void _combat_ai(Object* a1, Object* a2);
+    Object* _ai_search_inven_weap(Object* critter, bool checkRequiredActionPoints, Object* defender);
 	bool _combatai_want_to_join(Object* a1);
     void _combat_turn_run();
     int combat_ai_packet_num_by_name(const char* name);
@@ -35,6 +38,8 @@ namespace fallout {
     Object* objectFindNextAtLocation();
 
 	int mapGetCurrentMap();
+    int inventoryEquip(Object* critter, Object* item, Hand hand);
+    WeaponAnimation weaponGetAnimationCode(Object* weapon);
 }
 
 namespace ck::critter {
@@ -220,6 +225,16 @@ CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, c
 
 int ck_anim_begin(void* ptr, int request_options) {
 	return fallout::reg_anim_begin(static_cast<fallout::AnimationRequestOptions>(request_options));
+}
+
+int ck_anim_take_out_weapon(fallout::Object* critter, int delay) {
+    CK_ENSURE_VALID_OBJECT(critter);
+
+    fallout::Object* weapon = fallout::_ai_search_inven_weap(critter, false, fallout::gDude);
+    if (!weapon) return -1;
+
+    fallout::WeaponAnimation weapon_anim_code = fallout::weaponGetAnimationCode(weapon);
+    return animationRegisterTakeOutWeapon(critter, weapon_anim_code, delay);
 }
 
 int ck_anim_move_to(void* ptr, int tile, int elevation) {

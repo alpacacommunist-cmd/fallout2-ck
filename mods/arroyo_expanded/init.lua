@@ -106,7 +106,8 @@ events.on('map_enter', function(map_id)
 
   knowledge.grant(KN_SCORPION_HARVEST)
 
-  local alice = critters.register("alice_arroyo", 16777218, 19908, {
+  -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
+  local alice = critters.register("alice_arroyo", 16777255, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
     skills = { small_guns = 200 },
     name        = i18n.t('arroyo_expanded', 'alice_name'),
@@ -130,6 +131,10 @@ events.on('map_enter', function(map_id)
     alice:give_item(items.PID_KNIFE, 1)
     alice:give_item(items.PID_STIMPAK, 5)
   end
+  alice:give_item(10, 1)
+  alice:give_item(34, 10)
+
+  alice:take_out_weapon()
 
   alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)

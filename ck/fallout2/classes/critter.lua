@@ -123,6 +123,12 @@ function Critter:clear_animations()
   return self
 end
 
+function Critter:take_out_weapon()
+  ffi.C.ck_anim_begin(self.c_ptr, 0)
+  ffi.C.ck_anim_take_out_weapon(self.c_ptr, 0)
+  ffi.C.ck_anim_end()
+end
+
 function Critter:animate()
   local builder = {}
   local queue = self._action_queue
