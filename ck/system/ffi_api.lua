@@ -88,7 +88,7 @@ ffi.cdef[[
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
 
   typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
-  typedef struct { const char* name; const char* description; } CritterLuaProtoParams;
+  typedef struct { const char* name; const char* description; const char* ai_packet; } CritterLuaProtoParams;
 
   CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 

@@ -19,8 +19,9 @@ function critters.register(tag, pid, tile, config)
   -- params (custom proto_name/description etc)
   local proto_name = not utils.is_blank(config.name) and config.name or nil
   local proto_description = not utils.is_blank(config.description) and config.description or nil
+  local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
 
-  local params = ffi.new("CritterLuaProtoParams", { proto_name, proto_description })
+  local params = ffi.new("CritterLuaProtoParams", { proto_name, proto_description, ai_packet })
 
   -- returns { lua_id, lua_tag }
   local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, tag, params)

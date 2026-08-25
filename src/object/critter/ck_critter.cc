@@ -25,6 +25,7 @@ namespace fallout {
 	void _combat_ai(Object* a1, Object* a2);
 	bool _combatai_want_to_join(Object* a1);
     void _combat_turn_run();
+    int combat_ai_packet_num_by_name(const char* name);
 
     int protoGetProto(int pid, fallout::Proto** proto);
 	int proto_new(int* pid, fallout::ObjectType type);
@@ -96,6 +97,17 @@ namespace ck::critter {
 
             if (!utils::is_blank(params->description)) {
                 ck::messages_add_string("pro_crit.msg", msg_desc_id, params->description);
+            }
+
+            if (params && !ck::utils::is_blank(params->ai_packet)) {
+                int ai_id = fallout::combat_ai_packet_num_by_name(params->ai_packet);
+
+                if (ai_id != -1) {
+                    critter_proto->aiPacket = ai_id;
+                    logger.debug("Assigned AI packet '{}' (ID: {}) to unique proto", params->ai_packet, ai_id);
+                } else {
+                    logger.warn("AI packet '{}' not found in game data! Using base proto AI.", params->ai_packet);
+                }
             }
         } else {
             logger.error("Failed to get generic proto for allocated PID: {}", unique_pid);

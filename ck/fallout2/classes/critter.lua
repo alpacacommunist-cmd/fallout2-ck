@@ -23,7 +23,7 @@ function Critter.new(lua_id, tag, mod_id, config)
   self.is_dead = self:hp() <= 0
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
 
-  log.info("critter " .. self.tag .. " has custom protoype " .. tostring(self.has_custom_prototype))
+  log.info("critter " .. self.tag .. " has custom protoype: " .. tostring(self.has_custom_prototype))
 
   if (self.is_dead) then
     log.debug(string.format("critter %s is dead!", self.tag))

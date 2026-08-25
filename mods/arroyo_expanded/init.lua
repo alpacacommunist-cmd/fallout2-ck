@@ -110,7 +110,8 @@ events.on('map_enter', function(map_id)
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
     skills = { small_guns = 200 },
     name        = i18n.t('arroyo_expanded', 'alice_name'),
-    description = i18n.t('arroyo_expanded', 'alice_description')
+    description = i18n.t('arroyo_expanded', 'alice_description'),
+    ai_packet = 'Merc Captain'
   })
 
   alice.stats = { max_hp = 355, hp = 255 }

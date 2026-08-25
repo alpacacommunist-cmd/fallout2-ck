@@ -13,6 +13,7 @@ struct CritterLua {
 struct CritterLuaProtoParams {
     const char* name;
     const char* description;
+    const char* ai_packet;
 };
 
 namespace fallout {
