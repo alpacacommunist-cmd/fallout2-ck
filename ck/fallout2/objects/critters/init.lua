@@ -9,6 +9,9 @@ local utils        = require('ck.system.utils')
 
 local critters = {}
 
+--- args tracer
+local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
+
 function critters.register(tag, pid, tile, config)
   config = config or {}
   config.elevation = config.elevation or ffi.C.ck_current_elevation()
@@ -24,7 +27,7 @@ function critters.register(tag, pid, tile, config)
   local params = ffi.new("CritterLuaProtoParams", { proto_name, proto_description, ai_packet })
 
   -- returns { lua_id, lua_tag }
-  local critter_data = ffi.C.ck_critter_spawn(pid, tile, config.elevation, tag, params)
+  local critter_data = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
 
   if critter_data.lua_id == -1 then
     log.error("Failed to register critter (FFI)!")

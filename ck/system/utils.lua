@@ -1,4 +1,5 @@
 local utils = {}
+local log   = ck.log.new('system/utils.lua')
 
 function utils.print_table(t, log, indent)
   indent = indent or 0
@@ -80,6 +81,35 @@ function utils.is_blank(val)
   local str = tostring(val)
 
   return str:match("^%s*$") ~= nil
+end
+
+local function format_val(v)
+  if v == nil then return "nil" end
+  if type(v) == "string" then return string.format("'%s'", v) end
+  if type(v) == "table" then return "{...}" end
+  if type(v) == "cdata" then return tostring(v) end
+  return tostring(v)
+end
+
+---Logs context and args
+---@param prefix string function_name
+function utils.dump_args(prefix, ...)
+  local n = select("#", ...)
+  local args = {...}
+  local formatted = {}
+
+  for i = 1, n do
+    table.insert(formatted, string.format("arg[%d]: %s", i, format_val(args[i])))
+  end
+
+  log.debug(string.format("[%s] Called with -> %s", prefix, table.concat(formatted, ", ")))
+end
+
+function utils.trace(name, func)
+  return function(...)
+    utils.dump_args(name, ...)
+    return func(...)
+  end
 end
 
 return utils

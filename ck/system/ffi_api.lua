@@ -272,4 +272,14 @@ ffi.cdef[[
   void ck_knowledge_push_cache(const CkKnowledgeFFI* data);
 ]]
 
+ffi.metatype("CritterLuaProtoParams", {
+  __tostring = function(p)
+    local name = p.name ~= nil and string.format("'%s'", ffi.string(p.name)) or "NULL"
+    local desc = p.description ~= nil and string.format("'%s'", ffi.string(p.description)) or "NULL"
+    local ai   = p.ai_packet ~= nil and string.format("'%s'", ffi.string(p.ai_packet)) or "NULL"
+
+    return string.format("CritterLuaProtoParams{ name: %s, description: %s, ai_packet: %s }", name, desc, ai)
+  end
+})
+
 return ffi
