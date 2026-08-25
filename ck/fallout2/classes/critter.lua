@@ -1,11 +1,13 @@
-local ffi = require("ffi")
+local ffi   = require("ffi")
+local utils = require('ck.system.utils')
 
-local log = ck.log.new('classes/critter.lua')
+local log   = ck.log.new('classes/critter.lua')
 
 local dialogue  = require('ck.fallout2.dialogue')
 local monitor   = require('ck.fallout2.monitor')
 local behaviors = require('ck.fallout2.objects.critters.behaviors')
 local stats     = require('ck.fallout2.objects.critters.stats')
+local skills    = require('ck.fallout2.objects.critters.skills')
 
 local Object = require("ck.fallout2.classes.object")
 
@@ -21,7 +23,7 @@ function Critter.new(lua_id, tag, mod_id, config)
   self.is_dead = self:hp() <= 0
 
   if (self.is_dead) then
-    log.debug(string.format("critter %s is dead!", self.name))
+    log.debug(string.format("critter %s is dead!", self.tag))
   end
 
   if (not self.is_dead) then
@@ -38,15 +40,24 @@ function Critter.new(lua_id, tag, mod_id, config)
 
       return base + bonus
     end)
+    -- skills
+    self._skills_proxy = skills.create_proxy(function(skill_id)
+      return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
+    end)
 
-    if config and config.stats then self.stats = config.stats end
+    if config and config.stats  then self.stats = config.stats end
+    if config and config.skills then self.skills = config.skills end
   end
 
   return self
 end
 
+--
+-- refactoring candidate
+--
 function Critter:__index(key)
-  if key == "stats" and not self.is_dead then return self._stats_proxy end
+  if key == "stats"  and not self.is_dead then return self._stats_proxy end
+  if key == "skills" and not self.is_dead then return self._skills_proxy end
 
   local val = rawget(Critter, key)
   if val ~= nil then return val end
@@ -54,11 +65,20 @@ function Critter:__index(key)
   return Object[key]
 end
 
+--
+-- refactoring candidate
+--
 function Critter:__newindex(key, value)
   if key == "stats" and not self.is_dead then
     self._stats_pending = value
 
     stats.assign(self.c_ptr, value)
+  elseif key == "skills" and not self.is_dead then
+    self._skills_pending = value
+
+    for skill_id, skill_value in pairs(value) do
+      ffi.C.ck_critter_set_skill(self.c_ptr, skills.MAP[skill_id], skill_value)
+    end
   else
     rawset(self, key, value)
   end

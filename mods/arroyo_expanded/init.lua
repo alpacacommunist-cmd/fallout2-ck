@@ -108,6 +108,7 @@ events.on('map_enter', function(map_id)
 
   local alice = critters.register("alice_arroyo", 16777218, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
+    skills = { small_guns = 200 },
     name        = i18n.t('arroyo_expanded', 'alice_name'),
     description = i18n.t('arroyo_expanded', 'alice_description')
   })
@@ -118,6 +119,7 @@ events.on('map_enter', function(map_id)
   log.info("Alice hp: " .. tostring(alice:hp()))
   log.info("Alice max hp: " .. tostring(alice:max_hp()))
   log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))
+  log.info("Alice small_weapons: " .. tostring(alice.skills.small_guns))
 
   if (alice:has_inventory()) then
     log.info("Alice inventory is managed through state")

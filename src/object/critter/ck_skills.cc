@@ -120,11 +120,11 @@ int player_skill(int skill) { return ck::player_skill(skill); }
 int player_add_skill(int skill, int value) { return ck::player_add_skill(skill, value); }
 int player_set_skill(int skill, int value) { return ck::player_set_skill(skill, value); }
 
-int critter_get_skill(fallout::Object* critter, int skill) {
+int ck_critter_get_skill(fallout::Object* critter, int skill) {
     return ck::critter_get_skill(critter, skill);
 }
 
-int critter_set_skill(fallout::Object* critter, int skill, int value) {
+int ck_critter_set_skill(fallout::Object* critter, int skill, int value) {
     return ck::critter_set_skill(critter, skill, value);
 }
 
