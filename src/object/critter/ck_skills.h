@@ -41,4 +41,7 @@ CK_API void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int val
 CK_API int player_skill(int skill);
 CK_API int player_add_skill(int skill, int value);
 CK_API int player_set_skill(int skill, int value);
+CK_API int critter_get_skill(fallout::Object* critter, int skill);
+CK_API int critter_set_skill(fallout::Object* critter, int skill, int value);
+
 #endif

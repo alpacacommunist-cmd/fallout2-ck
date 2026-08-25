@@ -52,8 +52,12 @@ namespace ck {
 		return critter_set_skill(critter, static_cast<fallout::Skill>(skill), new_base);
 	}
 
+    int critter_get_skill(fallout::Object* critter, int skill) {
+		return fallout::skillGetValue(critter, static_cast<fallout::Skill>(skill));
+    }
+
 	int player_skill(int skill) {
-		return fallout::skillGetValue(fallout::gDude, static_cast<fallout::Skill>(skill));
+		return critter_get_skill(fallout::gDude, skill);
 	}
 
 	int player_set_skill(int skill, int value) {
@@ -115,4 +119,12 @@ void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value)) {
 int player_skill(int skill) { return ck::player_skill(skill); }
 int player_add_skill(int skill, int value) { return ck::player_add_skill(skill, value); }
 int player_set_skill(int skill, int value) { return ck::player_set_skill(skill, value); }
+
+int critter_get_skill(fallout::Object* critter, int skill) {
+    return ck::critter_get_skill(critter, skill);
+}
+
+int critter_set_skill(fallout::Object* critter, int skill, int value) {
+    return ck::critter_set_skill(critter, skill, value);
+}
 
