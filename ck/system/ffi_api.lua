@@ -8,8 +8,9 @@ ffi.cdef[[
   bool ck_dispatcher_load_mod(const char* mod_id);
   void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
-  void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
+
   void ck_registry_clear();
+  void ck_registry_clear_for_mod(const char* target_mod_id);
 
   void ck_config_clear_mod_patches(const char* mod_id);
 

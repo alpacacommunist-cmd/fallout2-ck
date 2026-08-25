@@ -77,3 +77,7 @@ namespace ck::registry {
 void ck_registry_clear() {
     ck::registry::clear();
 }
+
+void ck_registry_clear_for_mod(const char* target_mod_id) {
+    ck::registry::clear_resources_for_mod(target_mod_id);
+}

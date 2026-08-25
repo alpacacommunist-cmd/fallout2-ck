@@ -63,10 +63,6 @@ void ck_reload_mods() {
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
 }
 
-void ck_registry_destroy_objects_for_mod(const char* target_mod_id) {
-	ck::registry::clear_resources_for_mod(target_mod_id);
-}
-
 // Init
 
 static bool is_test_mode = false;

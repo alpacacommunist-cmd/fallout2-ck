@@ -90,6 +90,8 @@ namespace ck::registry {
 }
 
 CK_API void ck_registry_clear();
+CK_API void ck_registry_clear_for_mod(const char* target_mod_id);
+
 CK_API int  ck_registry_modify_object(void* ptr);
 CK_API int  ck_registry_restore_modified_object(void* ptr);
 
