@@ -83,17 +83,9 @@ ffi.cdef[[
   int  ck_anim_end();
   bool ck_critter_is_busy(fallout_Object* critter);
 
-  // --- Critter Stats & Base ---
+  // --- Critter ---
   int  ck_critter_get_gender(fallout_Object* critter);
-  int  ck_critter_get_base_stat(void* ptr, int stat_id);
-  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
-  int  ck_critter_get_bonus_stat(void* ptr, int stat);
-  bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
-  int  player_stat(int stat);
-  int  player_pc_stat(int stat);
-  int  player_set_base_stat(int stat, int value);
-  int  player_set_bonus_stat(int stat, int value);
-  int  player_give_experience(int xp);
+  bool ck_critter_has_custom_prototype(fallout_Object* critter);
 
   typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
   typedef struct { const char* name; const char* description; } CritterLuaProtoParams;
@@ -119,9 +111,20 @@ ffi.cdef[[
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
-  // --- Stats metadata ---
+  // --- Stats ---
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
   void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
+
+  int  ck_critter_get_base_stat(void* ptr, int stat_id);
+  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
+  int  ck_critter_get_bonus_stat(void* ptr, int stat);
+  bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+
+  int  player_stat(int stat);
+  int  player_pc_stat(int stat);
+  int  player_set_base_stat(int stat, int value);
+  int  player_set_bonus_stat(int stat, int value);
+  int  player_give_experience(int xp);
 
   // --- Skills  ---
   void ck_get_skills_metadata(void (*callback)(const char* name, int value));

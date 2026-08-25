@@ -66,7 +66,6 @@ namespace ck::critter {
         return g_custom_prototypes.count(pid) > 0;
     }
 
-
     int allocate_unique_proto(int base_pid, const CritterLuaProtoParams* params) {
         int unique_pid = 0;
 
@@ -270,4 +269,10 @@ bool ck_critter_kill(int lua_id) {
 
 int ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params) {
     return ck::critter::allocate_unique_proto(base_pid, params);
+}
+
+bool ck_critter_has_custom_prototype(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+
+    return ck::critter::has_custom_prototype(critter->pid);
 }

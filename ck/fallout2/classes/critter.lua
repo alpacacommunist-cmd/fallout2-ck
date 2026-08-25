@@ -21,6 +21,9 @@ function Critter.new(lua_id, tag, mod_id, config)
   self.in_combat = false
   self.active_behavior = nil
   self.is_dead = self:hp() <= 0
+  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
+
+  log.info("critter " .. self.tag .. " has custom protoype " .. tostring(self.has_custom_prototype))
 
   if (self.is_dead) then
     log.debug(string.format("critter %s is dead!", self.tag))
@@ -33,20 +36,22 @@ function Critter.new(lua_id, tag, mod_id, config)
     self._next_behavior_tick = 0
     self._behavior_interval  = 20
 
-    -- stats
-    self._stats_proxy = stats.create_proxy(function(stat_id)
-      local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-      local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+    if (self.has_custom_prototype) then
+      -- stats
+      self._stats_proxy = stats.create_proxy(function(stat_id)
+        local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+        local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
 
-      return base + bonus
-    end)
-    -- skills
-    self._skills_proxy = skills.create_proxy(function(skill_id)
-      return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
-    end)
+        return base + bonus
+      end)
+      -- skills
+      self._skills_proxy = skills.create_proxy(function(skill_id)
+        return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
+      end)
 
-    if config and config.stats  then self.stats = config.stats end
-    if config and config.skills then self.skills = config.skills end
+      if config and config.stats  then self.stats = config.stats end
+      if config and config.skills then self.skills = config.skills end
+    end
   end
 
   return self
