@@ -20,21 +20,18 @@ local stats = {
 function stats.create_proxy(read_stat_fn, write_stat_fn)
   local proxy = {}
 
-  if read_stat_fn then
-    -- local str = critter.stats.strength
-    setmetatable(proxy, {
-      __index = function(_, key)
-        local c_stat = STATS_MAP[key]
-        if    c_stat then return read_stat_fn(c_stat) end
+  local mt = {}
 
-        return nil
-      end
-    })
+  if read_stat_fn then
+    mt.__index = function(_, key)
+      local c_stat = STATS_MAP[key]
+      if c_stat then return read_stat_fn(c_stat) end
+      return nil
+    end
   end
 
   if write_stat_fn then
-    -- critter.stats.strength = 10
-    __newindex = function(_, key, value)
+    mt.__newindex = function(_, key, value)
       local c_stat = STATS_MAP[key]
       if c_stat then
         if type(value) ~= "number" then
@@ -46,6 +43,8 @@ function stats.create_proxy(read_stat_fn, write_stat_fn)
       end
     end
   end
+
+  setmetatable(proxy, mt)
 
   return proxy
 end

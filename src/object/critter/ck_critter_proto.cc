@@ -115,3 +115,14 @@ fallout::CritterProto* ck_critter_get_proto_by_pid(int pid) {
     return ck::critter::proto::get_proto_by_pid(pid);
 }
 
+int ck_critter_proto_get_base_stat(fallout::CritterProto* proto, int stat_id) {
+    if (proto) return proto->data.baseStats[stat_id];
+    return -1;
+}
+
+void ck_critter_proto_set_base_stat(fallout::CritterProto* proto, int stat_id, int value) {
+    if (proto) {
+        proto->data.baseStats[stat_id] = value;
+        logger.debug("Proto PID {} stat {} changed to {}", proto->pid, stat_id, value);
+    }
+}

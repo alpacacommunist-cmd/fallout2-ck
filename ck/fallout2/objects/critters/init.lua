@@ -1,13 +1,50 @@
 local ffi = require("ffi")
 
 local log = ck.log.new('objects/critters.lua')
+local utils = require('ck.system.utils')
 
 local CritterClass = require('ck.fallout2.classes.critter')
 local map          = require('ck.fallout2.map')
 local state        = require('ck.fallout2.state')
-local utils        = require('ck.system.utils')
+local stats        = require('ck.fallout2.objects.critters.stats')
 
 local critters = {}
+
+local ProtoClass = {}
+ProtoClass.__index = ProtoClass
+
+function ProtoClass.new(pid, name, description, ai_packet)
+  local self = setmetatable({}, ProtoClass)
+  self.pid   = pid
+  self.name  = name
+  self.description = description
+  self.ai_packet = ai_packet
+
+  self.c_ptr = ffi.C.ck_critter_get_proto_by_pid(self.pid)
+
+  self.stats = stats.create_proxy(
+    function(stat_id)        return ffi.C.ck_critter_proto_get_base_stat(self.c_ptr, stat_id) end,
+    function(stat_id, value) ffi.C.ck_critter_proto_set_base_stat(self.c_ptr, stat_id, value) end
+  )
+
+  return self
+end
+
+function critters.allocate_prototype(pid, config)
+  local proto_name = not utils.is_blank(config.name) and config.name or nil
+  local proto_description = not utils.is_blank(config.description) and config.description or nil
+  local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
+
+  local proto_params = ffi.new("CritterLuaProtoParams", {
+    name = proto_name,
+    description = proto_description,
+    ai_packet = ai_packet,
+  })
+
+  local allocated_pid = ffi.C.ck_critter_allocate_prototype(pid, proto_params)
+
+  return ProtoClass.new(allocated_pid, proto_name, proto_description, ai_packet)
+end
 
 --- args tracer
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)

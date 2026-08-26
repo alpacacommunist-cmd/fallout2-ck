@@ -86,10 +86,6 @@ ffi.cdef[[
   bool ck_critter_is_busy(fallout_Object* critter);
 
   // --- Critter ---
-  int  ck_critter_get_gender(fallout_Object* critter);
-  bool ck_critter_has_custom_prototype(fallout_Object* critter);
-  void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
-
   typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
   typedef struct {
     const char* name;
@@ -98,7 +94,16 @@ ffi.cdef[[
     int team;
   } CritterLuaProtoParams;
 
+  int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
+  bool ck_critter_has_custom_prototype(fallout_Object* critter);
+  fallout_CritterProto* ck_critter_get_proto_by_pid(int pid);
+  int  ck_critter_proto_get_base_stat(fallout_CritterProto* proto, int stat_id);
+  void ck_critter_proto_set_base_stat(fallout_CritterProto* proto, int stat_id, int value);
+
   CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
+  int ck_critter_get_gender(fallout_Object* critter);
+
+  void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);

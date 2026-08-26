@@ -167,6 +167,13 @@ events.on('map_enter', function(map_id)
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.lua_id, alice_dialogue)
 
+  female_trapper_prototype = critters.allocate_prototype(16777351,
+    { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
+  )
+  log.info(female_trapper_prototype.stats.strength)
+  female_trapper_prototype.stats.strength = 10
+  log.info(female_trapper_prototype.stats.strength)
+
   alice:on('dialogue_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
 
