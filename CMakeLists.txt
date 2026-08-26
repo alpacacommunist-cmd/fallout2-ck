@@ -70,6 +70,7 @@ add_library(fallout2-ck STATIC
     src/script/ck_script.cc
     src/object/ck_object.cc
     src/object/critter/ck_critter.cc
+    src/object/critter/ck_critter_proto.cc
     src/object/critter/ck_stats.cc
     src/object/critter/ck_skills.cc
     src/object/critter/ck_perks.cc
