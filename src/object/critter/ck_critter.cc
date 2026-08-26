@@ -44,18 +44,24 @@ namespace fallout {
 
 namespace ck::critter {
     static std::unordered_set<int> g_custom_prototypes;
-    static int g_next_spawn_index = 0;
+    static std::unordered_map<std::string, int> g_mod_spawn_counters;
 
-    static std::string generate_unique_tag() {
-        return "spawn_" + std::to_string(g_next_spawn_index++);
+    static std::string generate_unique_tag(const std::string& mod_id) {
+        int& index = g_mod_spawn_counters[mod_id];
+        return "spawn_" + mod_id + "_" + std::to_string(index++);
     }
 
     static bool has_proto_params(const CritterLuaProtoParams* params) {
         return !(utils::is_blank(params->name) && utils::is_blank(params->description));
     }
 
-    static void reset_spawn_counter() {
-        g_next_spawn_index = 0;
+    static void reset_spawn_counters() {
+        g_mod_spawn_counters.clear();
+    }
+
+    void reset_spawn_counter_for_mod(const std::string& mod_id) {
+        g_mod_spawn_counters.erase(mod_id);
+        logger.debug("Reset spawn counter for mod: {}", mod_id);
     }
 
     static void clear_custom_prototypes() {
@@ -63,7 +69,7 @@ namespace ck::critter {
     }
 
     void clear_spawn_queues() {
-        reset_spawn_counter();
+        reset_spawn_counters();
         clear_custom_prototypes();
         logger.debug("Cleared map context critter queues");
     }
@@ -148,10 +154,10 @@ namespace ck::critter {
         if (prototype_required) {
             // Lua tag is passed explicitly
             lua_tag = std::string(tag);
-            g_next_spawn_index++;
+            g_mod_spawn_counters[mod_id]++;
         } else {
             // Autogenerate tag
-            lua_tag = generate_unique_tag();
+            lua_tag = generate_unique_tag(mod_id);
         }
         utils::copy_to_buffer(result.lua_tag, sizeof(result.lua_tag), lua_tag);
 
@@ -318,4 +324,8 @@ bool ck_critter_has_custom_prototype(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
 
     return ck::critter::has_custom_prototype(critter->pid);
+}
+
+void ck_critter_reset_spawn_counters_for_mod(const char* mod_id) {
+    ck::critter::reset_spawn_counter_for_mod(std::string(mod_id));
 }

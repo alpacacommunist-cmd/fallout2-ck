@@ -42,5 +42,6 @@ CK_API bool ck_critter_process_turn(fallout::Object* critter, int lua_id);
 CK_API bool ck_critter_kill(int lua_id);
 CK_API int ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
 CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
+CK_API void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
 #endif

@@ -87,6 +87,7 @@ ffi.cdef[[
   // --- Critter ---
   int  ck_critter_get_gender(fallout_Object* critter);
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
+  void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
   typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
   typedef struct { const char* name; const char* description; const char* ai_packet; } CritterLuaProtoParams;

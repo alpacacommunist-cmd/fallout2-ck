@@ -85,6 +85,7 @@ function loader.reload_mods()
     local target_prefix = "mods." .. mod_id
     log.info("Reloading: " .. mod_id)
 
+    ffi.C.ck_critter_reset_spawn_counters_for_mod(mod_id)
     ffi.C.ck_registry_clear_for_mod(mod_id)
     ffi.C.ck_config_clear_mod_patches(mod_id)
     ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
