@@ -54,7 +54,9 @@ events.on('map_enter', function(map_id)
     description = 'Ralph the Wanderer',
     elevation = 1
   })
-
+  --
+  local villager1 = critters.create(16777219, 25900)
+  --
   ralph.stats = { max_hp = 10, hp = 1 }
 
   ralph:set_behavior(behaviors.wander, 3)

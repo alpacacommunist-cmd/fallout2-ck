@@ -136,17 +136,27 @@ namespace ck::critter {
 	}
 
 	CritterLua spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
-		int map_id          = fallout::mapGetCurrentMap();
-        int source_pid      = pid;
-
-        bool prototype_required = !utils::is_blank(tag) && has_proto_params(params);
-
-        std::string lua_tag = prototype_required ? std::string(tag) : generate_unique_tag();
-		std::string mod_id  = dispatcher::current_mod_context();
-		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
-
         CritterLua result{ -1, "" };
 
+		int map_id         = fallout::mapGetCurrentMap();
+		std::string mod_id = dispatcher::current_mod_context();
+
+        int source_pid = pid;
+        bool prototype_required = !utils::is_blank(tag) && has_proto_params(params);
+
+        std::string lua_tag;
+        if (prototype_required) {
+            // Lua tag is passed explicitly
+            lua_tag = std::string(tag);
+            g_next_spawn_index++;
+        } else {
+            // Autogenerate tag
+            lua_tag = generate_unique_tag();
+        }
+        utils::copy_to_buffer(result.lua_tag, sizeof(result.lua_tag), lua_tag);
+
+        // Check if state json exists for given tag
+		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
         if (state.elevation != -1) elevation = state.elevation;
 		if (state.tile != -1)      tile = state.tile;
 
@@ -172,6 +182,11 @@ namespace ck::critter {
             critter->sid = ck::ids::make_sid_created(critter, result.lua_id);
             critter->data.critter.combat.team = 0;
         } else {
+            // Has no custom proto attributes, body is handled by fallout2-ce
+            if (!prototype_required) {
+                result.lua_id = -2; return result;
+            }
+
             fallout::Object* corpse = nullptr;
             fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
 
@@ -184,12 +199,13 @@ namespace ck::critter {
                 object = fallout::objectFindNextAtLocation();
             }
 
+            // Mod specifies custom name/description (for look_at/examine). Assign custom SID to a corpse
+            // to let lua handle procs
             if (corpse != nullptr) {
                 result.lua_id = registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
             }
         }
 
-        utils::copy_to_buffer(result.lua_tag, sizeof(result.lua_tag), lua_tag);
         return result;
 	}
 

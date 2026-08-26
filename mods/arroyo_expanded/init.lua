@@ -35,7 +35,7 @@ events.on('onEngineReady', function()
 
   golden_tail:bind()
     :on('use', function()
-      log.info(string.format("hello world [from golden scorpion tail PID: %s]", golden_tail.pid))
+      log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
     end)
     :on('look_at', function()
       sfx.play("geiger")
@@ -65,9 +65,9 @@ end)
 events.on('skill_used', function(skill, success_count, skill_bonus)
   local skill_name = skills.ID_MAP[skill] or "unknown_skill"
 
-  log.info('skill: ' .. skill_name .. ' (ID: ' .. tostring(skill) .. ')')
-  log.info('success: ' .. tostring(success_count))
-  log.info('bonus: ' .. tostring(skill_bonus))
+  log.info('skill: %s (ID: %d)', skill_name, skill)
+  log.info('success: %d', success_count)
+  log.info('bonus: %d', skill_bonus)
 end)
 
 local KN_SCORPION_HARVEST = knowledge.register({
@@ -117,11 +117,11 @@ events.on('map_enter', function(map_id)
 
   alice.stats = { max_hp = 355, hp = 255 }
 
-  log.info("Alice endurance: " .. tostring(alice.stats.endurance))
-  log.info("Alice hp: " .. tostring(alice:hp()))
-  log.info("Alice max hp: " .. tostring(alice:max_hp()))
-  log.info("Alice crit_chance: " .. tostring(alice.stats.critical_chance))
-  log.info("Alice small_weapons: " .. tostring(alice.skills.small_guns))
+  log.info("Alice endurance: %d", alice.stats.endurance)
+  log.info("Alice hp: %d", alice:hp())
+  log.info("Alice max hp: %d", alice:max_hp())
+  log.info("Alice crit_chance: %d", alice.stats.critical_chance)
+  log.info("Alice small_weapons: %d", alice.skills.small_guns)
 
   if (alice:has_inventory()) then
     log.info("Alice inventory is managed through state")
@@ -130,9 +130,10 @@ events.on('map_enter', function(map_id)
 
     alice:give_item(items.PID_KNIFE, 1)
     alice:give_item(items.PID_STIMPAK, 5)
+
+    alice:give_item(10, 1)
+    alice:give_item(34, 10)
   end
-  alice:give_item(10, 1)
-  alice:give_item(34, 10)
 
   alice:take_out_weapon()
 
@@ -153,8 +154,8 @@ events.on('map_enter', function(map_id)
   local villager1 = critters.create(16777219, 21119)
   local villager2 = critters.create(16777220, 21716)
 
-  log.info("villager1 gender: " .. villager1:gender())
-  log.info("villager2 gender: " .. villager2:gender())
+  log.info("villager1 gender: %d", villager1:gender())
+  log.info("villager2 gender: %d", villager2:gender())
 
   villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
     :set_behavior(behaviors.wander, 3)

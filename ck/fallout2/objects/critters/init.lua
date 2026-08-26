@@ -28,13 +28,18 @@ function critters.register(tag, pid, tile, config)
 
   -- returns { lua_id, lua_tag }
   local critter_data = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
+  local lua_tag = ffi.string(critter_data.lua_tag)
 
   if critter_data.lua_id == -1 then
-    log.error("Failed to register critter (FFI)!")
+    log.warn("Failed to register critter (FFI) (tag: %s)", lua_tag)
     return nil
   end
 
-  local lua_tag = ffi.string(critter_data.lua_tag)
+  if critter_data.lua_id == -2 then
+    log.debug("Critter %s is dead and has default prototype name/description", lua_tag)
+    return nil
+  end
+
   return CritterClass.new(critter_data.lua_id, lua_tag, mod_id, config)
 end
 
