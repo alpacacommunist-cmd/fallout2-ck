@@ -90,7 +90,12 @@ ffi.cdef[[
   void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
   typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
-  typedef struct { const char* name; const char* description; const char* ai_packet; } CritterLuaProtoParams;
+  typedef struct {
+    const char* name;
+    const char* description;
+    const char* ai_packet;
+    int team;
+  } CritterLuaProtoParams;
 
   CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
 
@@ -279,7 +284,7 @@ ffi.metatype("CritterLuaProtoParams", {
     local desc = p.description ~= nil and string.format("'%s'", ffi.string(p.description)) or "NULL"
     local ai   = p.ai_packet ~= nil and string.format("'%s'", ffi.string(p.ai_packet)) or "NULL"
 
-    return string.format("CritterLuaProtoParams{ name: %s, description: %s, ai_packet: %s }", name, desc, ai)
+    return string.format("CritterLuaProtoParams{ name: %s, description: %s, ai_packet: %s, team: %d }", name, desc, ai, p.team)
   end
 })
 

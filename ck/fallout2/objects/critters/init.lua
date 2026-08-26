@@ -23,8 +23,14 @@ function critters.register(tag, pid, tile, config)
   local proto_name = not utils.is_blank(config.name) and config.name or nil
   local proto_description = not utils.is_blank(config.description) and config.description or nil
   local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
+  local team_id = config.team or -1
 
-  local params = ffi.new("CritterLuaProtoParams", { proto_name, proto_description, ai_packet })
+  local params = ffi.new("CritterLuaProtoParams", {
+    name = proto_name,
+    description = proto_description,
+    ai_packet = ai_packet,
+    team = team_id
+  })
 
   -- returns { lua_id, lua_tag }
   local critter_data = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
@@ -46,7 +52,7 @@ end
 function critters.create(pid, tile, config)
   -- This is used for critters without explicitly specified tag
   -- Backend automatically generates spawn_{index} tag and skips custom prototype
-  return critters.register(nil, pid, tile, {})
+  return critters.register(nil, pid, tile, config)
 end
 
 return critters

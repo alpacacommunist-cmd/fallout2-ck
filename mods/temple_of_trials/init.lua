@@ -48,14 +48,14 @@ end)
 events.on('map_enter', function(map_id)
   if map_id ~= 72 then return end
 
-  -- local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, {
-  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 18536, {
+  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, { -- elevation 0 test
+  -- local ralph = critters.register("ralph_the_second_arroyo", 16777217, 18536, { -- elevation 1 test
     name        = 'Ralph The Second',
     description = 'Ralph the Wanderer',
-    elevation = 1
+    elevation = 0
   })
   --
-  local villager1 = critters.create(16777219, 25900)
+  local villager1 = critters.create(16777219, 25900, { team = 0 })
   --
   ralph.stats = { max_hp = 10, hp = 1 }
 

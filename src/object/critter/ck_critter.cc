@@ -186,7 +186,11 @@ namespace ck::critter {
             result.lua_id = registry::created::add(critter, meta);
 
             critter->sid = ck::ids::make_sid_created(critter, result.lua_id);
-            critter->data.critter.combat.team = 0;
+
+            if (params->team != -1) {
+                critter->data.critter.combat.team = params->team;
+                logger.debug("Assigned team ID: {} to critter {}", params->team, lua_tag);
+            }
         } else {
             // Has no custom proto attributes, body is handled by fallout2-ce
             if (!prototype_required) {
