@@ -7,7 +7,7 @@
 #include "obj_types.h"
 #include "proto_types.h"
 
-#include <unordered_set>
+#include <unordered_map>
 
 #include "ck_log.h"
 static const Logger logger("CK Critter Proto");
@@ -23,7 +23,7 @@ namespace fallout {
 }
 
 namespace ck::critter::proto {
-    static std::unordered_set<int> g_custom_prototypes;
+    static std::unordered_map<int, fallout::CritterProto*> g_custom_prototypes;
 
     void clear_custom_prototypes() {
         g_custom_prototypes.clear();
@@ -33,24 +33,33 @@ namespace ck::critter::proto {
         return g_custom_prototypes.count(pid) > 0;
     }
 
-    int allocate(int base_pid, const CritterLuaProtoParams* params) {
-        int unique_pid = 0;
+    fallout::CritterProto* get_proto_by_pid(int pid) {
+        auto it = g_custom_prototypes.find(pid);
+        if (it != g_custom_prototypes.end()) return it->second;
 
-        if (fallout::proto_new(&unique_pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
+        return nullptr;
+    }
+
+    int allocate(int base_pid, const CritterLuaProtoParams* params) {
+        int pid = 0;
+
+        if (fallout::proto_new(&pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
             logger.error("Couldn't allocate new prototype for '{}'", base_pid);
             return -1;
         }
 
-        if (fallout::proto_copy_proto(base_pid, unique_pid) != 0) {
+        if (fallout::proto_copy_proto(base_pid, pid) != 0) {
             logger.error("Couldn't copy prototype data for '{}'", base_pid);
             return -1;
         }
 
-        fallout::Proto* generic_proto = nullptr;
-        if (fallout::protoGetProto(unique_pid, &generic_proto) == 0 && generic_proto) {
-            fallout::CritterProto* critter_proto = reinterpret_cast<fallout::CritterProto*>(generic_proto);
+        fallout::Proto* generic_proto        = nullptr;
+        fallout::CritterProto* critter_proto = nullptr;
 
-            int clean_pid = ck::ids::clean_pid(unique_pid);
+        if (fallout::protoGetProto(pid, &generic_proto) == 0 && generic_proto) {
+            critter_proto = reinterpret_cast<fallout::CritterProto*>(generic_proto);
+
+            int clean_pid = ck::ids::clean_pid(pid);
 
             int msg_name_id = clean_pid * 100;
             int msg_desc_id = msg_name_id + 1;
@@ -76,14 +85,14 @@ namespace ck::critter::proto {
                 }
             }
         } else {
-            logger.error("Failed to get generic proto for allocated PID: {}", unique_pid);
+            logger.error("Failed to get generic proto for allocated PID: {}", pid);
             return -1;
         }
 
-        logger.info("Created unique prototype for '{}' PID: {}", base_pid, unique_pid);
-        g_custom_prototypes.insert(unique_pid);
+        logger.info("Created unique prototype for '{}' PID: {}", base_pid, pid);
+        g_custom_prototypes[pid] = critter_proto;
 
-        return unique_pid;
+        return pid;
     }
 
     int get_gender(fallout::Object* critter) {
@@ -100,5 +109,9 @@ bool ck_critter_has_custom_prototype(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
 
     return ck::critter::proto::has_custom_prototype(critter->pid);
+}
+
+fallout::CritterProto* ck_critter_get_proto_by_pid(int pid) {
+    return ck::critter::proto::get_proto_by_pid(pid);
 }
 

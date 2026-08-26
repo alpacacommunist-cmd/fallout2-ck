@@ -13,6 +13,7 @@ struct CritterLuaProtoParams {
 
 namespace fallout {
     struct Object;
+    struct CritterProto;
 }
 
 namespace ck::critter::proto {
@@ -25,5 +26,6 @@ namespace ck::critter::proto {
 
 CK_API int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
 CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
+CK_API fallout::CritterProto* ck_critter_get_proto_by_pid(int pid);
 
 #endif

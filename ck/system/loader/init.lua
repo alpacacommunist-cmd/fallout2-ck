@@ -77,13 +77,11 @@ function loader.load_and_init_mod(mod_id)
 end
 
 function loader.reload_mods()
-  log.info("Reloading mods...")
-
   rendering.clear()
 
   for _, mod_id in ipairs(reloadable_mods) do
     local target_prefix = "mods." .. mod_id
-    log.info("Reloading: " .. mod_id)
+    log.info("Clearing out resources for: %s", mod_id)
 
     ffi.C.ck_critter_reset_spawn_counters_for_mod(mod_id)
     ffi.C.ck_registry_clear_for_mod(mod_id)

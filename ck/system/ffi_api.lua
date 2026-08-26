@@ -3,6 +3,7 @@ local ffi = require("ffi")
 ffi.cdef[[
   // fallout2-ce pseudo-types
   typedef struct fallout_Object fallout_Object;
+  typedef struct fallout_CritterProto fallout_CritterProto;
 
   // --- System & Bootstrap ---
   bool ck_dispatcher_load_mod(const char* mod_id);

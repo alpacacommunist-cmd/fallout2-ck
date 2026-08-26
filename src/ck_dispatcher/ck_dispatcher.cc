@@ -127,7 +127,7 @@ namespace ck::dispatcher {
 // ffi
 
 bool ck_dispatcher_load_mod(const char* mod_id) {
-	log.info("reloading mod_id: {}", mod_id);
+	log.info("Loading mod: {}", mod_id);
 	if (!ck::proxy::is_ready() || !mod_id) return false;
 
 	std::string target_mod(mod_id);

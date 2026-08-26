@@ -17,16 +17,35 @@ local stats = {
   PC_MAP = PC_STATS_MAP
 }
 
-function stats.create_proxy(read_stat_fn)
+function stats.create_proxy(read_stat_fn, write_stat_fn)
   local proxy = {}
-  setmetatable(proxy, {
-    __index = function(_, key)
-      local c_stat = STATS_MAP[key]
-      if    c_stat then return read_stat_fn(c_stat) end
 
-      return nil
+  if read_stat_fn then
+    -- local str = critter.stats.strength
+    setmetatable(proxy, {
+      __index = function(_, key)
+        local c_stat = STATS_MAP[key]
+        if    c_stat then return read_stat_fn(c_stat) end
+
+        return nil
+      end
+    })
+  end
+
+  if write_stat_fn then
+    -- critter.stats.strength = 10
+    __newindex = function(_, key, value)
+      local c_stat = STATS_MAP[key]
+      if c_stat then
+        if type(value) ~= "number" then
+          error(string.format("Stat '%s' must be a number, got %s", key, type(value)))
+        end
+        write_stat_fn(c_stat, value)
+      else
+        error(string.format("Unknown stat name: '%s'", tostring(key)))
+      end
     end
-  })
+  end
 
   return proxy
 end
