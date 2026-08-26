@@ -18,15 +18,17 @@ function Critter.new(lua_id, tag, mod_id, config)
   local self = Object.new(lua_id, tag, mod_id, config)
   setmetatable(self, Critter)
 
-  self.in_combat = false
+  self.in_combat       = false
   self.active_behavior = nil
-  self.is_dead = self:hp() <= 0
+  self.is_dead         = self:hp() <= 0
+  self.pid             = ffi.C.ck_object_get_pid(self.c_ptr)
+
+  log.info("critter %s pid: %d", self.tag, self.pid)
+
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
 
-  log.info("critter " .. self.tag .. " has custom protoype: " .. tostring(self.has_custom_prototype))
-
   if (self.is_dead) then
-    log.debug(string.format("critter %s is dead!", self.tag))
+    log.debug("critter %s is dead!", self.tag)
   end
 
   if (not self.is_dead) then

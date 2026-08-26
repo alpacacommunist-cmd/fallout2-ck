@@ -1,3 +1,4 @@
+#include "ck_utils.h"
 #include "object/ck_object.h"
 #include "object/ck_item.h"
 #include "ck_registry/ck_registry.h"
@@ -153,6 +154,11 @@ void* ck_object_get_ptr(int lua_id) {
 int ck_object_get_id(void* ptr) {
 	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
 	return object->id;
+}
+
+int ck_object_get_pid(fallout::Object* object) {
+    CK_ENSURE_VALID_OBJECT(object);
+    return object->pid;
 }
 
 int ck_object_get_tile(void* ptr) {
