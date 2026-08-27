@@ -21,7 +21,7 @@ local function wait_and_run(seconds, callback)
 end
 
 -- runs every 2 seconds though
-events.on('onMapUpdate', function()
+events.on('map_update', function()
   if _timer.active and os.clock() >= _timer.target_time then
     _timer.active = false
 
@@ -32,7 +32,7 @@ events.on('onMapUpdate', function()
   end
 end)
 
-events.on('onMapEnter', function()
+events.on('map_enter', function(map_id)
   local current_suite = ffi.string(ffi.C.ck_testing_get_current_suite())
 
   log.info("Entering map under test suite: " .. current_suite)
@@ -41,15 +41,18 @@ events.on('onMapEnter', function()
     monitor.print("Running BASE integration test...")
 
     local found = map.find_by_pid(16777219)
-    assert_ok(#found > 0, "Klint NPC not found on the map!")
+    assert_ok(#found > 0, "Klint critter not found on the map!")
 
     local klint_raw = found[1]
-    assert_ok(klint_raw:is_critter() == true, "Klint OOP object thinks it's not a critter!")
+    assert_ok(klint_raw:is_critter() == true, "Klint's object thinks it's not a critter!")
 
     local klint = klint_raw:bind()
-    assert_ok(klint ~= nil, "Failed to bind Klint to Lua OOP class!")
+    assert_ok(klint ~= nil, "Failed to bind Klint to Lua object class!")
 
-    klint:float_message("Hello from automated test!", 1)
+    -- klint:float_message('[Automated tests] klint id: ' .. tostring(klint:id()), 1)
+    klint:on('talk', function(self)
+      self:float_message('[Automated tests] klint id: ' .. tostring(self:id()), 1)
+    end)
 
     log.info("TEST 'base' passed!")
 

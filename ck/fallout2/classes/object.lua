@@ -26,7 +26,7 @@ function Object.new(lua_id, tag, mod_id, config)
   self.name        = config.name
   self.description = config.description
 
-  self.elevation = config.elevation -- temp
+  self.elevation = config.elevation
 
   self.handlers = {}
 
