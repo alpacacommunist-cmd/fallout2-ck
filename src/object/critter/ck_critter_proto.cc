@@ -8,6 +8,7 @@
 #include "proto_types.h"
 
 #include <unordered_map>
+#include <vector>
 
 #include "ck_log.h"
 static const Logger logger("CK Critter Proto");
@@ -22,11 +23,30 @@ namespace fallout {
     int critterGetStat(Object* critter, Stat stat);
 }
 
+namespace ck {
+    namespace dispatcher {
+        const char* current_mod_context();
+    }
+}
+
 namespace ck::critter::proto {
     static std::unordered_map<int, fallout::CritterProto*> g_custom_prototypes;
+    static std::unordered_map<std::string, std::vector<int>> g_mod_allocated_pids;
 
-    void clear_custom_prototypes() {
+    void clear_prototypes() {
         g_custom_prototypes.clear();
+    }
+
+    void clear_prototypes_for_mod(const std::string& mod_id) {
+        auto it = g_mod_allocated_pids.find(mod_id);
+        if (it != g_mod_allocated_pids.end()) {
+            for (int pid : it->second) {
+                g_custom_prototypes.erase(pid);
+            }
+
+            g_mod_allocated_pids.erase(it);
+            logger.debug("Cleared prototypes tracker for mod: {}", mod_id);
+        }
     }
 
     bool has_custom_prototype(int pid) {
@@ -91,6 +111,9 @@ namespace ck::critter::proto {
 
         logger.info("Created unique prototype for '{}' PID: {}", base_pid, pid);
         g_custom_prototypes[pid] = critter_proto;
+
+        std::string mod_id = dispatcher::current_mod_context();
+        g_mod_allocated_pids[mod_id].push_back(pid);
 
         return pid;
     }

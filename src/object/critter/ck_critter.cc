@@ -58,13 +58,17 @@ namespace ck::critter {
     }
 
     void reset_spawn_counter_for_mod(const std::string& mod_id) {
+        // clears spawn counters (e.g. spawn_mod_id_0, spawn_mod_id_1..)
         g_mod_spawn_counters.erase(mod_id);
+        // clears mod-registered critter prototypes
+        ck::critter::proto::clear_prototypes_for_mod(mod_id);
+
         logger.debug("Reset spawn counter for mod: {}", mod_id);
     }
 
     void clear_spawn_queues() {
         ck::critter::reset_spawn_counters();
-        ck::critter::proto::clear_custom_prototypes();
+        ck::critter::proto::clear_prototypes();
 
         logger.debug("Cleared map context critter queues");
     }
