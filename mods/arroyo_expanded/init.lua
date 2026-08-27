@@ -172,7 +172,12 @@ events.on('map_enter', function(map_id)
   )
   log.info(female_trapper_prototype.stats.strength)
   female_trapper_prototype.stats.strength = 10
+  female_trapper_prototype.skills.unarmed = 100
   log.info(female_trapper_prototype.stats.strength)
+  log.info(female_trapper_prototype.skills.unarmed)
+  local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { team = 0 })
+  log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
+  log.info("trapper1 str: %d", trapper1.stats.strength)
 
   alice:on('dialogue_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))

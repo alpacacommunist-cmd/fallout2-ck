@@ -97,11 +97,13 @@ ffi.cdef[[
   int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
   fallout_CritterProto* ck_critter_get_proto_by_pid(int pid);
+
   int  ck_critter_proto_get_base_stat(fallout_CritterProto* proto, int stat_id);
   void ck_critter_proto_set_base_stat(fallout_CritterProto* proto, int stat_id, int value);
+  int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
+  void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
 
   CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
-  int ck_critter_get_gender(fallout_Object* critter);
 
   void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
@@ -133,6 +135,7 @@ ffi.cdef[[
   bool ck_critter_set_base_stat(void* ptr, int stat, int value);
   int  ck_critter_get_bonus_stat(void* ptr, int stat);
   bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+  int  ck_critter_get_gender(fallout_Object* critter);
 
   int  player_stat(int stat);
   int  player_pc_stat(int stat);

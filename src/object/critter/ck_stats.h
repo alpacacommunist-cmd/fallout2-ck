@@ -44,6 +44,9 @@ CK_API int ck_critter_get_base_stat(void* ptr, int stat_id);
 CK_API bool ck_critter_set_base_stat(void* ptr, int stat, int value);
 CK_API int ck_critter_get_bonus_stat(void* ptr, int stat);
 CK_API bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+
+CK_API int ck_critter_get_gender(fallout::Object* critter);
+
 CK_API int player_stat(int stat);
 CK_API int player_pc_stat(int stat);
 CK_API int player_set_base_stat(int stat, int value);

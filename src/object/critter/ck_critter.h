@@ -29,7 +29,6 @@ CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
 CK_API int ck_anim_play(void* ptr, int anim_id);
 CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
-CK_API int ck_critter_get_gender(fallout::Object* critter);
 CK_API bool ck_critter_is_busy(fallout::Object* critter);
 CK_API bool ck_critter_process_turn(fallout::Object* critter, int lua_id);
 CK_API bool ck_critter_kill(int lua_id);

@@ -15,16 +15,34 @@ callback:free()
 
 local skills = { MAP = SKILLS_MAP, ID_MAP = SKILLS_ID_MAP }
 
-function skills.create_proxy(read_skill_fn)
+function skills.create_proxy(read_skill_fn, write_skill_fn)
   local proxy = {}
-  setmetatable(proxy, {
-    __index = function(_, key)
-      local c_skill = SKILLS_MAP[key]
-      if    c_skill then return read_skill_fn(c_skill) end
 
+  local mt = {}
+
+  if read_skill_fn then
+    mt.__index = function(_, key)
+      local c_skill = SKILLS_MAP[key]
+      if c_skill then return read_skill_fn(c_skill) end
       return nil
     end
-  })
+  end
+
+  if write_skill_fn then
+    mt.__newindex = function(_, key, value)
+      local c_skill = SKILLS_MAP[key]
+      if c_skill then
+        if type(value) ~= "number" then
+          error(string.format("Skill '%s' must be a number, got %s", key, type(value)))
+        end
+        write_skill_fn(c_skill, value)
+      else
+        error(string.format("Unknown skill name: '%s'", tostring(key)))
+      end
+    end
+  end
+
+  setmetatable(proxy, mt)
 
   return proxy
 end

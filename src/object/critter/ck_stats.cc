@@ -1,7 +1,13 @@
+#include "ck_utils.h"
 #include "object/critter/ck_stats.h"
 
 #include "ck_log.h"
 static const Logger log("CK Stats");
+
+namespace fallout {
+    // proto_types.h
+    enum Gender : int { GENDER_MALE, GENDER_FEMALE, GENDER_COUNT };
+}
 
 static const char* g_pc_stat_names[] = {
     "unspent_skills", "level", "experience", "reputation", "karma"
@@ -90,6 +96,13 @@ bool ck_critter_set_bonus_stat(void* ptr, int stat, int value) {
     return with_critter(ptr, false, [=](auto* c) { return ck::critter_set_bonus_stat(c, stat, value) == 0; });
 }
 
+int ck_critter_get_gender(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+
+    fallout::Gender gender = static_cast<fallout::Gender>(fallout::critterGetStat(critter, fallout::STAT_GENDER));
+    return static_cast<int>(gender);
+}
+
 int player_stat(int stat)    { return ck::critter_base_stat(fallout::gDude, stat); }
 int player_pc_stat(int stat) { return ck::critter_pc_stat(stat); }
 int player_set_base_stat(int stat, int value) { return ck_critter_set_base_stat(fallout::gDude, stat, value); }
@@ -111,3 +124,4 @@ int ck_critter_set_current_hp(void* ptr, int target_hp) {
 int ck_critter_set_full_hp(void* ptr) {
     return with_critter(ptr, -1, [](auto* c) { return ck::critter_set_full_hp(c); });
 }
+

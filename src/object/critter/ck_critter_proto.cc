@@ -94,11 +94,6 @@ namespace ck::critter::proto {
 
         return pid;
     }
-
-    int get_gender(fallout::Object* critter) {
-        fallout::Gender gender = static_cast<fallout::Gender>(fallout::critterGetStat(critter, fallout::STAT_GENDER));
-        return static_cast<int>(gender);
-    }
 }
 
 int ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params) {
@@ -120,9 +115,21 @@ int ck_critter_proto_get_base_stat(fallout::CritterProto* proto, int stat_id) {
     return -1;
 }
 
+int ck_critter_proto_get_skill(fallout::CritterProto* proto, int skill_id) {
+    if (proto) return proto->data.skills[skill_id];
+    return -1;
+}
+
 void ck_critter_proto_set_base_stat(fallout::CritterProto* proto, int stat_id, int value) {
     if (proto) {
         proto->data.baseStats[stat_id] = value;
         logger.debug("Proto PID {} stat {} changed to {}", proto->pid, stat_id, value);
+    }
+}
+
+void ck_critter_proto_set_skill(fallout::CritterProto* proto, int skill_id, int value) {
+    if (proto) {
+        proto->data.skills[skill_id] = value;
+        logger.debug("Proto PID {} skill {} changed to {}", proto->pid, skill_id, value);
     }
 }

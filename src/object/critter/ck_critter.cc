@@ -228,12 +228,6 @@ bool ck_critter_is_busy(fallout::Object* critter) {
 	return fallout::animationIsBusy(critter) == -1;
 }
 
-int ck_critter_get_gender(fallout::Object* critter) {
-    CK_ENSURE_VALID_OBJECT(critter);
-
-    return ck::critter::proto::get_gender(critter);
-}
-
 bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
     CK_ENSURE_VALID_OBJECT(critter);
 

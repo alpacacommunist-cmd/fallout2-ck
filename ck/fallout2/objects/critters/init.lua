@@ -5,8 +5,8 @@ local utils = require('ck.system.utils')
 
 local CritterClass = require('ck.fallout2.classes.critter')
 local map          = require('ck.fallout2.map')
-local state        = require('ck.fallout2.state')
 local stats        = require('ck.fallout2.objects.critters.stats')
+local skills       = require('ck.fallout2.objects.critters.skills')
 
 local critters = {}
 
@@ -25,6 +25,11 @@ function ProtoClass.new(pid, name, description, ai_packet)
   self.stats = stats.create_proxy(
     function(stat_id)        return ffi.C.ck_critter_proto_get_base_stat(self.c_ptr, stat_id) end,
     function(stat_id, value) ffi.C.ck_critter_proto_set_base_stat(self.c_ptr, stat_id, value) end
+  )
+
+  self.skills = skills.create_proxy(
+    function(skill_id)        return ffi.C.ck_critter_proto_get_skill(self.c_ptr, skill_id) end,
+    function(skill_id, value) ffi.C.ck_critter_proto_set_skill(self.c_ptr, skill_id, value) end
   )
 
   return self
