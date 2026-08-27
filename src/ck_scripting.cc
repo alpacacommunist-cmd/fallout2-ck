@@ -126,8 +126,8 @@ void ck_scripting_on_game_start() {
 }
 
 void ck_scripting_on_engine_ready() {
-	ck_scripting_set_language();
     logger.debug("ck_scripting_on_engine_ready");
+	ck_scripting_set_language();
 
     if (is_test_mode) {
 		fallout::settings.ui.skip_opening_movies = 1;

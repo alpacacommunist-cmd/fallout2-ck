@@ -49,7 +49,9 @@ events.on('map_enter', function(map_id)
     local klint = klint_raw:bind()
     assert_ok(klint ~= nil, "Failed to bind Klint to Lua object class!")
 
-    -- klint:float_message('[Automated tests] klint id: ' .. tostring(klint:id()), 1)
+    local text_visible = klint:float_message('[Automated tests] klint id: ' .. tostring(klint:id()), 1)
+    assert_ok(text_visible == true, "float_message returns false")
+
     klint:on('talk', function(self)
       self:float_message('[Automated tests] klint id: ' .. tostring(self:id()), 1)
     end)

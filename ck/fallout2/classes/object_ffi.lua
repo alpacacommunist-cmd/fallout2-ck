@@ -24,7 +24,7 @@ object_ffi = {}
 
 object_ffi.collection = {
   __index = {
-    find_by_pid = function(results, target_pid)
+    first_by_pid = function(results, target_pid)
       for _, obj in ipairs(results) do
         if obj.pid == target_pid then return obj end
       end

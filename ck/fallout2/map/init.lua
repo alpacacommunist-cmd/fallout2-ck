@@ -1,8 +1,7 @@
 -- ck/fallout2/map/init.lua
 local ffi        = require("ffi")
-local objects    = require('ck.fallout2.objects')
-local object_ffi = require('ck.fallout2.classes.object_ffi')
 local assets     = require('ck.fallout2.assets')
+local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local map  = {
   geometry  = require('ck.fallout2.map.geometry'),
@@ -83,40 +82,48 @@ function map.register_borders(map_id, config)
 end
 
 -- Search
-function map.find_at_tile(tile)
-  local max_count = 32
-  local buffer    = ffi.new("CkObjectFFI[?]", max_count)
+function map.find_at_tile(tile, max_count)
+  local objects = require('ck.fallout2.objects')
+
+  max_count = max_count or 32
+  local buffer = ffi.new("CkObjectFFI[?]", max_count)
 
   local count = ffi.C.ck_object_find_at_tile(tile, buffer, max_count)
+  local results = {}
 
-  local result = {}
   for index = 0, count - 1 do
-    local copy = ffi.new("CkObjectFFI", buffer[index])
+    local object = buffer[index]
 
-    table.insert(result, copy)
+    if object.lua_id ~= -1 and objects.registry[object.lua_id] then
+      table.insert(results, objects.registry[object.lua_id])
+    else
+      table.insert(results, object)
+    end
   end
 
-  return setmetatable(result, ffi_object.collection)
+  return setmetatable(results, object_ffi.collection)
 end
 
 function map.find_by_pid(pid, max_count)
-  max_count    = max_count or 32
+  local objects = require('ck.fallout2.objects')
+
+  max_count = max_count or 32
   local buffer = ffi.new("CkObjectFFI[?]", max_count)
 
   local count = ffi.C.ck_object_find_by_pid(pid, buffer, max_count)
   local results = {}
 
-  for i = 0, count - 1 do
-    local item = buffer[i]
+  for index = 0, count - 1 do
+    local object = buffer[index]
 
-    if item.lua_id ~= -1 and objects.registry[item.lua_id] then
-      table.insert(results, objects.registry[item.lua_id])
+    if object.lua_id ~= -1 and objects.registry[object.lua_id] then
+      table.insert(results, objects.registry[object.lua_id])
     else
-      table.insert(results, item)
+      table.insert(results, object)
     end
   end
 
-  return results
+  return setmetatable(results, object_ffi.collection)
 end
 
 function map.elevation()

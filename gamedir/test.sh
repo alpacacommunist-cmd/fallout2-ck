@@ -72,7 +72,7 @@ echo "🎯 Executing automated test suite..."
 ./fallout2-ce --dev-load-game=$SLOT_INDEX --test "$TEST_NAME"
 GAME_EXIT_CODE=$?
 
-echo "🧹 Cleaning up test environment and restoring your workspace..."
+echo "🧹 Cleaning up test environment and restoring workspace..."
 
 rm -f "mods.lua"
 rm -rf "../mods"
