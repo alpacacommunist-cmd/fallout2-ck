@@ -96,6 +96,8 @@ function Object:_handle_proc(proc_id, fixed_param)
     return false
 
   elseif event_name == "destroy" then
+    if (ffi.C.ck_mods_reload_in_progress()) then return false end
+
     log.info('Object destroyed: ' .. tostring(self.lua_id))
 
     if self:type() == 'critter' then

@@ -53,6 +53,12 @@ void ck_print_monitor_message(const char* message) {
 }
 
 // ck scripting reload mods
+static bool g_reloading_mods = false;
+
+bool ck_reloading_mods() {
+    return g_reloading_mods;
+}
+
 void ck_reload_mods() {
     if (ck_in_combat()) {
         fallout::displayMonitorAddMessage("Disabled in combat");
@@ -60,7 +66,10 @@ void ck_reload_mods() {
     }
 
 	logger.info("ck_reload_mods");
+
+    g_reloading_mods = true;
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
+    g_reloading_mods = false;
 }
 
 // Init
@@ -212,9 +221,11 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 	if (fallout::textObjectAdd(object, safe_text_ptr, font,
                 static_cast<fallout::Color>(color), static_cast<fallout::Color>(background_color), &rect) != -1) {
 		fallout::tileWindowRefreshRect(&rect, object->elevation);
+
+        return true;
 	}
 
-    return true;
+    return false;
 }
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
@@ -222,3 +233,4 @@ void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::s
 void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
 bool ck_in_combat() { return ck::common::currently_in_combat(); }
+bool ck_mods_reload_in_progress() { return ck_reloading_mods(); }
