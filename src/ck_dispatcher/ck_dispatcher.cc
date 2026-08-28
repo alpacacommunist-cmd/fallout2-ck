@@ -1,7 +1,6 @@
 #include "ck_dispatcher.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
-#include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
 
 #include <algorithm>

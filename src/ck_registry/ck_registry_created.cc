@@ -4,11 +4,11 @@
 static const Logger log("CK Registry [Created]");
 
 namespace ck::registry::created {
-    int add(fallout::Object* obj, const LuaMeta& meta) {
+    int add(fallout::Object* obj, LuaMeta meta) {
         if (!obj) return -1;
         int lua_id = next_lua_id();
 
-        g_created_objects[lua_id] = CkCreatedObject{ obj, lua_id, meta };
+        g_created_objects[lua_id] = CkCreatedObject{ obj, lua_id, std::move(meta) };
         g_ptr_to_lua_id[obj] = lua_id;
         return lua_id;
     }

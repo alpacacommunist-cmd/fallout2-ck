@@ -48,7 +48,7 @@ outskirts.mountain_scenery = {
 
   -- right cliff
   { fid = 0x020002BE, tile = 14458 },
-  { fid = 0x020002C2, tile = 14853 }
+  { fid = 0x020002C2, tile = 14853 },
 }
 
 outskirts.remove_blockers = {18308, 18509, 18108, 18709, 22322, 22522, 22723, 22923, 22924, 23124}

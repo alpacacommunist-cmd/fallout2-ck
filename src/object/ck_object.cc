@@ -16,6 +16,11 @@ namespace ck::critter::proto {
     extern bool has_custom_prototype(int pid);
 }
 
+namespace ck::common {
+    const char* system_mod_id();
+    const char* current_mod_id();
+}
+
 namespace ck::object {
 	void to_ffi(CkObjectFFI& destination, fallout::Object* source, bool is_global) {
 		if (!source) return;
@@ -32,9 +37,7 @@ namespace ck::object {
 		destination.name      = fallout::objectGetName(source);
 		destination.lua_id    = ck::registry::find_by_ptr(source);
 
-        if (!is_global) {
-            destination.mod_id = ck_get_current_mod_id();
-        }
+        destination.mod_id = is_global ? common::system_mod_id() : common::current_mod_id();
 	}
 
 	void remove_at(int tile) {

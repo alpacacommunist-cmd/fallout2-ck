@@ -6,8 +6,6 @@
 #include <string>
 #include "ck_api.h"
 
-extern "C" const char* ck_get_current_mod_id();
-
 namespace fallout {
     struct Object;
     struct Rect;
@@ -61,7 +59,7 @@ namespace ck::registry {
 	void on_map_exit();
 
     namespace created {
-        int  add(fallout::Object* obj, const LuaMeta& meta = {});
+        int  add(fallout::Object* obj, LuaMeta meta = {});
         int  remove_by_ptr(fallout::Object* ptr);
 		void clear_for_mod(std::string_view mod_id);
 
@@ -78,7 +76,7 @@ namespace ck::registry {
     }
 
 	namespace modified {
-		int  add(fallout::Object* obj, const LuaMeta& meta = {});
+		int  add(fallout::Object* obj, LuaMeta meta = {});
 		int  restore(fallout::Object* object);
 		void clear_for_mod(std::string_view mod_id);
 

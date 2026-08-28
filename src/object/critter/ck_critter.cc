@@ -125,9 +125,9 @@ namespace ck::critter {
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
-            result.lua_id = registry::created::add(critter, meta);
+            result.lua_id = registry::created::add(critter, std::move(meta));
 
-            critter->sid = ck::ids::make_sid_created(critter, result.lua_id);
+            critter->sid = ids::make_sid_created(critter, result.lua_id);
 
             if (params->team != -1) {
                 critter->data.critter.combat.team = params->team;

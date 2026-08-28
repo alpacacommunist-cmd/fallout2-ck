@@ -14,6 +14,9 @@ namespace ck::common {
     unsigned int current_combat_state();
     bool currently_in_combat();
 
+    const char* system_mod_id();
+    const char* current_mod_id();
+
     void on_before_game_save();
     void on_game_save(const char* path);
     void on_before_game_load(const char* path);
@@ -49,5 +52,6 @@ CK_API void ck_sound_play_sfx(const char* name);
 CK_API bool ck_object_float_msg(void* ptr, const char* text, int msg_type = 1);
 CK_API bool ck_in_combat();
 CK_API bool ck_mods_reload_in_progress();
+CK_API const char* ck_mods_system_id();
 
 #endif // CK_SCRIPTING_H

@@ -5,12 +5,13 @@
 #include "ck_log.h"
 static const Logger log("CK Registry [Modified]");
 
-namespace {
-    const std::string SYSTEM_MOD_ID = "__ck_system__";
+namespace ck::common {
+    const char* system_mod_id();
+    const char* current_mod_id();
 }
 
 namespace ck::registry::modified {
-    int add(fallout::Object* obj, const LuaMeta& meta) {
+    int add(fallout::Object* obj, LuaMeta meta) {
         if (obj == nullptr) return -1;
 
         // return id if already exists
@@ -24,23 +25,24 @@ namespace ck::registry::modified {
         int lua_id = next_lua_id();
 
 		// fill meta
-        LuaMeta final_meta = meta;
-        final_meta.source_sid = obj->sid;
-        final_meta.source_pid = obj->pid;
-        if (final_meta.mod_id.empty()) {
-            const char* current_mod_id = ck_get_current_mod_id();
-            final_meta.mod_id = current_mod_id != nullptr ? current_mod_id : SYSTEM_MOD_ID;
+        meta.source_sid = obj->sid;
+        meta.source_pid = obj->pid;
+        if (meta.mod_id.empty()) {
+            const char* current_mod_id = ck::common::current_mod_id();
+            std::string mod_id = current_mod_id != nullptr ? current_mod_id : ck::common::system_mod_id();
+
+            meta.mod_id = mod_id;
         }
 
         // write to registry
-        g_modified_objects[lua_id] = CkModifiedObject{ obj, lua_id, final_meta };
+        g_modified_objects[lua_id] = CkModifiedObject{ obj, lua_id, std::move(meta) };
         g_ptr_to_lua_id[obj] = lua_id;
 
 		// assign sid
         obj->sid = ck::ids::make_sid_modified(obj, lua_id);
 
         log.debug("Registered modified object. LuaID: {}, Vanilla SID: {}, New Packed SID: {}",
-                  lua_id, final_meta.source_sid, obj->sid);
+                  lua_id, meta.source_sid, obj->sid);
 
         return lua_id;
     }

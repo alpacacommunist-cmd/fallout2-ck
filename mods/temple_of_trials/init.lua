@@ -93,21 +93,21 @@ events.on('map_enter', function(map_id)
   -- local found_objects = map.find_at_tile(21101)
   -- local found_objects = map.find_by_pid(16777219)
   -- local klint_obj = found_objects[1]
-  -- local klint_obj = map.find_at_tile(21101):first_by_pid(16777219)
-  --
-  -- log.warn(klint_obj.pid)
-  -- log.warn(klint_obj:is_critter())
-  -- log.warn("lua id: " .. tostring(klint_obj.lua_id))
-  --
-  -- local klint = klint_obj:bind()
+  local klint_obj = map.find_at_tile(21101):first_by_pid(16777219)
 
-  -- klint:on('talk', function(self)
-  --   self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
-  -- end)
-  -- klint:on('push', function(self)
-  --   self:float_message('denied', 1)
-  --   return true
-  -- end)
+  log.warn(klint_obj.pid)
+  log.warn(klint_obj:is_critter())
+  log.warn("lua id: " .. tostring(klint_obj.lua_id))
+
+  local klint = klint_obj:bind()
+
+  klint:on('talk', function(self)
+    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
+  end)
+  klint:on('push', function(self)
+    self:float_message('denied', 1)
+    return true
+  end)
 
   -- local orig_klint_sid = klint:restore()
   -- log.warn(orig_klint_sid)

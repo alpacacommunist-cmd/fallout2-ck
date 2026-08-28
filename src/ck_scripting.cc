@@ -52,9 +52,8 @@ void ck_print_monitor_message(const char* message) {
     fallout::displayMonitorAddMessage(converted.c_str());
 }
 
-// ck scripting reload mods
-static bool g_reloading_mods = false;
 
+static bool g_reloading_mods = false;
 bool ck_reloading_mods() {
     return g_reloading_mods;
 }
@@ -144,6 +143,15 @@ void ck_scripting_on_object_destroyed(fallout::Object* object) {
 }
 
 namespace ck::common {
+    static const char* SYSTEM_MOD_ID = "__ck_system__";
+    const char* system_mod_id() {
+        return SYSTEM_MOD_ID;
+    }
+
+    const char* current_mod_id() {
+        return ck::dispatcher::current_mod_context();
+    }
+
     unsigned int current_combat_state() { return fallout::gCombatState; }
     bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
 
@@ -234,3 +242,4 @@ void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
 bool ck_in_combat() { return ck::common::currently_in_combat(); }
 bool ck_mods_reload_in_progress() { return ck_reloading_mods(); }
+const char* ck_mods_system_id() { return ck::common::system_mod_id(); }
