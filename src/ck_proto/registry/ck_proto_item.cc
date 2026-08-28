@@ -1,7 +1,6 @@
 #include "ck_utils.h"
 #include "ck_ids.h"
 #include "ck_proto_registry.h"
-#include "ck_proto_item.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 #include "ck_messages/ck_messages.h"
 
@@ -38,11 +37,18 @@ namespace ck::proto::item {
         std::unordered_map<std::string, std::vector<int>> g_mod_allocated_item_pids;
     } 
 
-    const ItemProto* find_by_pid(int runtime_pid) {
+    const ItemProto* find_by_pid(int pid) {
         for (const auto& proto : registry_item_protos) {
-            if (proto.pid == runtime_pid) return &proto;
+            if (proto.pid == pid) return &proto;
         }
         return nullptr;
+    }
+
+    int find_pid_by_tag(const std::string& lua_tag) {
+        for (const auto& proto : registry_item_protos) {
+            if (proto.lua_tag == lua_tag) return proto.pid;
+        }
+        return -1;
     }
 
     static int store_prototype_patch(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {

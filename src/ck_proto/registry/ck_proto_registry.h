@@ -36,8 +36,6 @@ struct ItemProto {
 
 // passed FROM lua
 struct ItemProtoFFI {
-    int object_type;
-
     int weight;
     int price;
 
@@ -51,7 +49,7 @@ struct ItemProtoFFI {
 };
 
 // passed TO lua
-struct CustomProtoLuaView { int pid; const char* lua_tag; };
+struct ItemProtoLuaView { int pid; const char* lua_tag; };
 
 namespace fallout {
     int protoGetProto(int pid, fallout::Proto** proto);
@@ -69,9 +67,13 @@ namespace ck::proto {
     };
 
     namespace item {
+        const ItemProto* find_by_pid(int pid);
+        int find_pid_by_tag(const std::string& lua_tag);
+
+        int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
+
         void clear();
         void clear_for_mod(const std::string& mod_id);
-        int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
     }
 
     bool is_supported_proto_type(int type);
@@ -86,8 +88,6 @@ namespace ck::proto {
 
     void counters_reset();
     void registry_clear();
-    void rebuild_custom_prototypes();
-    int  get_custom_proto(int pid, fallout::Proto** protoPtr);
 
     int  bind_prototype_script(int pid);
 
@@ -100,5 +100,6 @@ namespace ck::proto {
 
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
 CK_API int ck_proto_bind(int pid);
+CK_API int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data);
 
 #endif

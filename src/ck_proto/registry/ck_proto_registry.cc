@@ -1,6 +1,5 @@
 #include "ck_ids.h"
 #include "ck_proto_registry.h"
-#include "ck_proto_item.h"
 
 #include <unordered_map>
 #include <cstring>
@@ -78,67 +77,6 @@ namespace ck::proto {
         logger.info("registry cleared");
     }
 
-    int get_custom_proto(int pid, fallout::Proto** protoPtr) {
-        for (const auto& node : g_custom_protos) {
-            if (node.pid == pid) {
-                *protoPtr = node.memory.get();
-                return 0;
-            }
-        }
-
-        return -1;
-    }
-
-    int register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data) {
-        std::string tag(lua_tag);
-
-        if (!is_supported_proto_type(object_type)) {
-            logger.error("Cannot register prototype '{}': Unsupported or invalid object type {}!", tag, object_type);
-            return -1;
-        }
-
-        for (auto& proto : registry_protos) {
-            if (proto.lua_tag == tag) return proto.pid;
-        }
-
-        if (g_next_proto_pid >= ck::ids::CK_PID_LIMIT) {
-            logger.error("Cannot register prototype '{}': Custom item PIDs limit reached!", tag);
-            return -1;
-        }
-
-        CustomProto proto;
-        proto.pid         = 0;
-        proto.source_pid  = source_pid;
-        proto.object_type = object_type;
-
-        proto.weight      = ffi_data.weight;
-        proto.price       = ffi_data.price;
-
-        proto.name        = std::string(ffi_data.name);
-        proto.description = std::string(ffi_data.description);
-
-        proto.inv_fid     = ffi_data.inv_fid;
-        proto.ground_fid  = ffi_data.ground_fid;
-
-        proto.usable      = ffi_data.usable;
-
-        proto.lua_tag     = tag;
-        proto.mod_id      = std::string(ck::dispatcher::current_mod_context());
-
-        registry_protos.push_back(proto);
-
-        if (build_custom_prototype(registry_protos.back(), g_next_proto_pid)) {
-            int allocated_pid = g_next_proto_pid;
-            g_next_proto_pid++;
-
-            logger.info("Successfully registered prototype (type {}) '{}' with PID: {}", object_type, tag, allocated_pid);
-            return allocated_pid;
-        }
-
-        registry_protos.pop_back();
-        return -1;
-    }
-
     int bind_prototype_script(int pid) {
         for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
             if (registered_pid == pid) return sid;
@@ -155,7 +93,7 @@ namespace ck::proto {
         g_proto_sid_to_pid[assigned_sid] = pid;
 
         fallout::Proto* generic_proto = nullptr;
-        if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
+        if (fallout::protoGetProto(pid, &generic_proto) == 0 && generic_proto) {
             fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
             item_proto->sid = proto_sid;
         }
@@ -164,10 +102,10 @@ namespace ck::proto {
         return proto_sid;
     }
 
-    int get_pid_by_tag(const std::string& lua_tag) {
-        for (const auto& proto : registry_protos) {
-            if (proto.lua_tag == lua_tag) return proto.pid;
-        }
+    int find_pid_by_tag(const std::string& lua_tag) {
+        int pid = ck::proto::item::find_pid_by_tag(lua_tag);
+        if (pid != -1) return pid;
+
         return -1;
     }
 
@@ -189,21 +127,10 @@ namespace ck::proto {
     }
 
     bool has_pid(int pid) {
-        for (const auto& proto : registry_protos) {
-            if (proto.pid == pid) return true;
-        }
+        if (ck::proto::item::find_by_pid(pid)) return true;
 
         return false;
     }
-
-    const std::vector<CustomProto>& get_all_protos() {
-        return registry_protos;
-    }
-}
-
-int ck_proto_register(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI* ffi_data) {
-    if (!lua_tag || !ffi_data) return -1;
-    return ck::proto::register_prototype(source_pid, object_type, lua_tag, *ffi_data);
 }
 
 int ck_proto_get_pid_by_tag(const char* lua_tag) {

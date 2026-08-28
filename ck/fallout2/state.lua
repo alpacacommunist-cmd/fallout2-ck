@@ -57,7 +57,7 @@ end
 
 -- Backend calls this to push registered prototypes
 function state.receive_proto_list(data_address, size)
-  local protos = ffi.cast("CustomProtoLuaView*", data_address)
+  local protos = ffi.cast("ItemProtoLuaView*", data_address)
 
   state.db.proto_list = {}
 
