@@ -22,6 +22,7 @@ namespace ck::proxy::detail {
 namespace ck::proto::item {
     static int fallout_object_type = static_cast<int>(ids::ObjectType::ITEM);
 
+
     namespace {
         // item's mod-defined custom pid is temporarily stored in object's `id`
         // field and is recovered back to pid on game load
@@ -36,6 +37,17 @@ namespace ck::proto::item {
         // mod -> pid
         std::unordered_map<std::string, std::vector<int>> g_mod_allocated_item_pids;
     } 
+
+    int get_proto(int pid, fallout::Proto** protoPtr) {
+        for (const auto& node : g_item_protos) {
+            if (node.pid == pid) {
+                *protoPtr = node.memory.get();
+                return 0;
+            }
+        }
+
+        return -1;
+    }
 
     const ItemProto* find_by_pid(int pid) {
         for (const auto& proto : registry_item_protos) {
@@ -126,7 +138,7 @@ namespace ck::proto::item {
 
     void sync_custom_items_on_map(SyncMode mode) {
         if (mode == SyncMode::Prepare) { // (on game save)
-            std::vector<CustomProtoLuaView> state_vector;
+            std::vector<ItemProtoLuaView> state_vector;
             for (auto& custom_proto : registry_item_protos)
                 state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
 
@@ -201,6 +213,8 @@ namespace ck::proto::item {
 
         auto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
 
+        item_proto->pid = pid;
+
         item_proto->cost   = ffi_data.price;
         item_proto->weight = ffi_data.weight;
 
@@ -226,7 +240,8 @@ namespace ck::proto::item {
             ck::messages_add_string("pro_item.msg", msg_name_id + 1, ffi_data.description);
         }
 
-        return -1;
+        g_item_protos.push_back({ pid, UniqueProtoPtr(generic_proto) });
+        return pid;
     }
 
     void clear() {

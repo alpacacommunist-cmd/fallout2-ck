@@ -8,7 +8,7 @@
 #include "script/ck_script.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
-#include "ck_proto/ck_proto_registry.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
 #include <cstring>

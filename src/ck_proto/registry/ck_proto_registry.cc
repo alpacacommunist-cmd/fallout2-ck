@@ -77,6 +77,21 @@ namespace ck::proto {
         logger.info("registry cleared");
     }
 
+    int get_custom_proto(int pid, fallout::Proto** protoPtr) {
+        if (protoPtr == nullptr) return -1;
+
+        if (ck::proto::item::get_proto(pid, protoPtr) == 0) {
+            return 0;
+        }
+
+        // if (ck::proto::critter::get_critter_proto(pid, protoPtr) == 0) {
+        //     return 0;
+        // }
+
+        *protoPtr = nullptr;
+        return -1;
+    }
+
     int bind_prototype_script(int pid) {
         for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
             if (registered_pid == pid) return sid;
@@ -93,7 +108,7 @@ namespace ck::proto {
         g_proto_sid_to_pid[assigned_sid] = pid;
 
         fallout::Proto* generic_proto = nullptr;
-        if (fallout::protoGetProto(pid, &generic_proto) == 0 && generic_proto) {
+        if (ck::proto::get_custom_proto(pid, &generic_proto) == 0 && generic_proto) {
             fallout::ItemProto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
             item_proto->sid = proto_sid;
         }
@@ -102,7 +117,7 @@ namespace ck::proto {
         return proto_sid;
     }
 
-    int find_pid_by_tag(const std::string& lua_tag) {
+    int get_pid_by_tag(const std::string& lua_tag) {
         int pid = ck::proto::item::find_pid_by_tag(lua_tag);
         if (pid != -1) return pid;
 

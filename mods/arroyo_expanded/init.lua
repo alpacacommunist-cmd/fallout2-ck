@@ -35,15 +35,16 @@ events.on('onEngineReady', function()
     -- usable = true
   })
 
+  print("PID: " .. tostring(golden_tail.pid))
+
   golden_tail:bind()
     :on('use', function()
       log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
     end)
     :on('look_at', function()
       sfx.play("geiger")
+      return true
     end)
-
-  print("PID: " .. tostring(golden_tail.pid))
 end)
 
 events.on('onGameLoaded', function()

@@ -1,7 +1,7 @@
 #include "ck_utils.h"
 
 #include "object/ck_item.h"
-#include "ck_proto/ck_proto_registry.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 
 #include "item.h"
 #include "object.h"

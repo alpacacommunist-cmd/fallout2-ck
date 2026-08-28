@@ -27,7 +27,7 @@ proto.types = {
 proto.registry = {}
 
 function proto.register_item_prototype(source_pid, lua_tag, config)
-  local ffi_data = ffi.new("CustomProtoFFI")
+  local ffi_data = ffi.new("ItemProtoFFI")
 
   ffi_data.price  = config.price  or 0
   ffi_data.weight = config.weight or 0
@@ -40,7 +40,7 @@ function proto.register_item_prototype(source_pid, lua_tag, config)
 
   ffi_data.usable = config.usable or false
 
-  local pid = ffi.C.ck_item_proto_register(source_pid, object_type, lua_tag, ffi_data)
+  local pid = ffi.C.ck_item_proto_register(source_pid, lua_tag, ffi_data)
   if pid == -1 then
     error("Failed to declare custom prototype: " .. tostring(lua_tag))
   end
@@ -81,7 +81,7 @@ function proto.register_prototype(source_pid, lua_tag, config)
   end
 
   if object_type == proto.types.item then
-    proto.register_item_prototype(source_pid, lua_tag, config)
+    return proto.register_item_prototype(source_pid, lua_tag, config)
   end
 end
 

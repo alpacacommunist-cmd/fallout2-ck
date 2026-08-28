@@ -1,5 +1,5 @@
-#ifndef CK_PROTO_REGISTRY_ref_H
-#define CK_PROTO_REGISTRY_ref_H
+#ifndef CK_PROTO_REGISTRY_H
+#define CK_PROTO_REGISTRY_H
 
 #include "ck_api.h"
 
@@ -10,8 +10,6 @@
 
 struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
 using  UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;
-
-// allocated internally
 struct ProtoNode { int pid; UniqueProtoPtr memory; };
 
 // stored internally
@@ -67,10 +65,14 @@ namespace ck::proto {
     };
 
     namespace item {
+        int get_proto(int pid, fallout::Proto** protoPtr);
+
         const ItemProto* find_by_pid(int pid);
         int find_pid_by_tag(const std::string& lua_tag);
 
         int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
+
+        void sync_custom_items_on_map(SyncMode mode);
 
         void clear();
         void clear_for_mod(const std::string& mod_id);

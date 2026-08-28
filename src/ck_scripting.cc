@@ -5,7 +5,7 @@
 
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/cache/ck_proto_cache.h"
-#include "ck_proto/ck_proto_registry.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
@@ -163,7 +163,7 @@ namespace ck::common {
 
         ck::registry::deleted::unhide();
         ck::registry::modified::restore_sids();
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
     }
 
     void on_game_save(const char* path) {
@@ -173,7 +173,7 @@ namespace ck::common {
 
         ck::registry::deleted::hide();
         ck::registry::modified::reapply_sids();
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
     }
 
     void on_before_game_load(const char* path) {

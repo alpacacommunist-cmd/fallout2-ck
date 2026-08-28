@@ -1,5 +1,5 @@
 extern "C" {
-    int ck_proto_register(...);
+    int ck_item_proto_register(...);
     int ck_assets_register_path(...);
     bool ck_proto_get_by_pid(...);
 	int ck_inventory_count(...);
@@ -11,7 +11,7 @@ extern "C" {
 }
 
 static void* const volatile ck_ffi_exports[] = {
-    (void*)&ck_proto_register,
+    (void*)&ck_item_proto_register,
     (void*)&ck_assets_register_path,
     (void*)&ck_proto_get_by_pid,
     (void*)&ck_inventory_count,

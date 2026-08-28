@@ -3,7 +3,7 @@
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
-#include "ck_proto/ck_proto_registry.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
@@ -41,7 +41,7 @@ namespace ck {
         proxy::execute_proxy_call<bool>(proxy::detail::clear_registries);
 
         // Restore proto items PID (stored in `id`)
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 
         // Dispatch event
         ck::dispatcher::on_map_enter();
@@ -56,7 +56,7 @@ namespace ck {
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data
-        ck::proto::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
 
         // Resets lua registries, updates state
         if (!fallout::_isLoadingGame()) {
