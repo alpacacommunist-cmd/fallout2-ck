@@ -54,7 +54,7 @@ add_library(fallout2-ck STATIC
     src/ck_proto/cache/ck_proto_ffi.cc
 
     src/ck_proto/registry/ck_proto_registry.cc
-    src/ck_proto/registry/ck_proto_item.cc
+    src/ck_proto/registry/ck_item_proto.cc
 
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc

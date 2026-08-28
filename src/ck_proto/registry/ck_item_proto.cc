@@ -15,25 +15,17 @@ namespace fallout {
     Object* objectFindNextAtElevation();
 }
 
-namespace ck::proxy::detail {
-    extern int receive_proto_list;
-}
-
 namespace ck::proto::item {
     static int fallout_object_type = static_cast<int>(ids::ObjectType::ITEM);
-
 
     namespace {
         // item's mod-defined custom pid is temporarily stored in object's `id`
         // field and is recovered back to pid on game load
         std::unordered_map<int, int> id_translation_table;
-
         // memory
         std::vector<ProtoNode> g_item_protos;
-
         // attributes
         std::vector<ItemProto> registry_item_protos;
-
         // mod -> pid
         std::unordered_map<std::string, std::vector<int>> g_mod_allocated_item_pids;
     } 
@@ -56,7 +48,7 @@ namespace ck::proto::item {
         return nullptr;
     }
 
-    int find_pid_by_tag(const std::string& lua_tag) {
+    int get_pid_by_tag(const std::string& lua_tag) {
         for (const auto& proto : registry_item_protos) {
             if (proto.lua_tag == lua_tag) return proto.pid;
         }
@@ -135,14 +127,13 @@ namespace ck::proto::item {
         object->id = 0;
     }
 
-
     void sync_custom_items_on_map(SyncMode mode) {
         if (mode == SyncMode::Prepare) { // (on game save)
-            std::vector<ItemProtoLuaView> state_vector;
-            for (auto& custom_proto : registry_item_protos)
-                state_vector.push_back({custom_proto.pid, custom_proto.lua_tag.c_str()});
+            std::vector<ck::proxy::ItemProtoLuaView> state_vector;
+            for (auto& item_proto : registry_item_protos)
+                state_vector.push_back({item_proto.pid, item_proto.lua_tag.c_str()});
 
-            proxy::execute_proxy_call<bool>(proxy::detail::receive_proto_list, state_vector.data(), (int)state_vector.size());
+            proxy::receive_proto_list(state_vector.data(), static_cast<int>(state_vector.size()));
         } else { // SyncMode::Restore (on game load)
             std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
 

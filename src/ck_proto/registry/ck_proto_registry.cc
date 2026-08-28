@@ -118,7 +118,7 @@ namespace ck::proto {
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
-        int pid = ck::proto::item::find_pid_by_tag(lua_tag);
+        int pid = ck::proto::item::get_pid_by_tag(lua_tag);
         if (pid != -1) return pid;
 
         return -1;

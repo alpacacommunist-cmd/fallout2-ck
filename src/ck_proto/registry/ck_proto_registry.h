@@ -8,6 +8,11 @@
 
 #include "proto_types.h"
 
+namespace ck::common {
+    const char* system_mod_id();
+    const char* current_mod_id();
+}
+
 struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
 using  UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;
 struct ProtoNode { int pid; UniqueProtoPtr memory; };
@@ -46,16 +51,8 @@ struct ItemProtoFFI {
     const char *description;
 };
 
-// passed TO lua
-struct ItemProtoLuaView { int pid; const char* lua_tag; };
-
 namespace fallout {
     int protoGetProto(int pid, fallout::Proto** proto);
-}
-
-namespace ck::common {
-    const char* system_mod_id();
-    const char* current_mod_id();
 }
 
 namespace ck::proto {
@@ -68,7 +65,7 @@ namespace ck::proto {
         int get_proto(int pid, fallout::Proto** protoPtr);
 
         const ItemProto* find_by_pid(int pid);
-        int find_pid_by_tag(const std::string& lua_tag);
+        int get_pid_by_tag(const std::string& lua_tag);
 
         int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
 

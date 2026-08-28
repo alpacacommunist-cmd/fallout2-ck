@@ -120,6 +120,10 @@ namespace ck::proxy {
 		return execute_proxy_call_state(detail::get_state_data, g_current_mod_id, map_id, lua_tag);
 	}
 
+    bool receive_proto_list(const ItemProtoLuaView* data, int size) {
+        return execute_proxy_call<bool>(detail::receive_proto_list, data, size);
+    }
+
 	bool sync_state_load(const picojson::value& state_data) {
 		LuaStackGuard guard;
 
