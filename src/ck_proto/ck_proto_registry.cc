@@ -60,6 +60,12 @@ namespace ck::proto {
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
     }
 
+    static bool is_supported_proto_type(int type) {
+        auto object_type = static_cast<ck::ids::ObjectType>(type);
+
+        return object_type == ck::ids::ObjectType::ITEM || object_type == ck::ids::ObjectType::CRITTER;
+    }
+
     static void prepare_object_for_save(fallout::Object* object) {
         const CustomProto* proto = find_by_pid(object->pid);
         if (proto) {
@@ -176,7 +182,7 @@ namespace ck::proto {
             return false;
         }
 
-        size_t proto_size = fallout::_proto_sizes[ck::ids::object_types::ITEM];
+        size_t proto_size = fallout::_proto_sizes[proto.object_type];
         void* allocated_mem = std::malloc(proto_size);
         if (!allocated_mem) {
             logger.error("Out of memory when allocating custom prototype!");
@@ -254,6 +260,11 @@ namespace ck::proto {
     int register_prototype(int source_pid, int object_type, const char* lua_tag, const CustomProtoFFI& ffi_data) {
         std::string tag(lua_tag);
 
+        if (!is_supported_proto_type(object_type)) {
+            logger.error("Cannot register prototype '{}': Unsupported or invalid object type {}!", tag, object_type);
+            return -1;
+        }
+
         for (auto& proto : registry_protos) {
             if (proto.lua_tag == tag) return proto.pid;
         }
@@ -288,7 +299,7 @@ namespace ck::proto {
             int allocated_pid = g_next_proto_pid;
             g_next_proto_pid++;
 
-            logger.info("Successfully registered custom prototype '{}' with PID: {}", tag, allocated_pid);
+            logger.info("Successfully registered prototype (type {}) '{}' with PID: {}", object_type, tag, allocated_pid);
             return allocated_pid;
         }
 

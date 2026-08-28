@@ -63,7 +63,7 @@ namespace ck::critter::proto {
     int allocate(int base_pid, const CritterLuaProtoParams* params) {
         int pid = 0;
 
-        if (fallout::proto_new(&pid, static_cast<fallout::ObjectType>(ck::ids::object_types::CRITTER)) != 0) {
+        if (fallout::proto_new(&pid, static_cast<fallout::ObjectType>(ck::ids::ObjectType::CRITTER)) != 0) {
             logger.error("Couldn't allocate new prototype for '{}'", base_pid);
             return -1;
         }

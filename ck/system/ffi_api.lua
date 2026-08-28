@@ -261,6 +261,8 @@ ffi.cdef[[
   // --- Custom Proto ---
 
   typedef struct {
+    int object_type;
+
     int weight; int price;
 
     int inv_fid;

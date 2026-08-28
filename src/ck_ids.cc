@@ -17,12 +17,12 @@ namespace fallout {
 
 namespace ck::ids {
 
-static_assert(ck::ids::object_types::ITEM    == fallout::OBJ_TYPE_ITEM,    "ITEM mismatch!");
-static_assert(ck::ids::object_types::CRITTER == fallout::OBJ_TYPE_CRITTER, "CRITTER mismatch!");
-static_assert(ck::ids::object_types::SCENERY == fallout::OBJ_TYPE_SCENERY, "SCENERY mismatch!");
-static_assert(ck::ids::object_types::WALL    == fallout::OBJ_TYPE_WALL,    "WALL mismatch!");
-static_assert(ck::ids::object_types::TILE    == fallout::OBJ_TYPE_TILE,    "TILE mismatch!");
-static_assert(ck::ids::object_types::MISC    == fallout::OBJ_TYPE_MISC,    "MISC mismatch!");
+static_assert(static_cast<int>(ObjectType::ITEM)    == fallout::OBJ_TYPE_ITEM,    "ITEM mismatch!");
+static_assert(static_cast<int>(ObjectType::CRITTER) == fallout::OBJ_TYPE_CRITTER, "CRITTER mismatch!");
+static_assert(static_cast<int>(ObjectType::SCENERY) == fallout::OBJ_TYPE_SCENERY, "SCENERY mismatch!");
+static_assert(static_cast<int>(ObjectType::WALL)    == fallout::OBJ_TYPE_WALL,    "WALL mismatch!");
+static_assert(static_cast<int>(ObjectType::TILE)    == fallout::OBJ_TYPE_TILE,    "TILE mismatch!");
+static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,    "MISC mismatch!");
 
 int script_type_for_object(fallout::Object* object) {
     if (!object) return fallout::SCRIPT_TYPE_SYSTEM;

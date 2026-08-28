@@ -20,14 +20,20 @@ proto.PROC_NAMES = {
 }
 
 proto.types = {
-  ITEM = 0,
-  CRITTER = 1,
+  item = 0,
+  critter = 1,
 }
 
 proto.registry = {}
 
 function proto.register_prototype(source_pid, lua_tag, config)
   local ffi_data = ffi.new("CustomProtoFFI")
+
+  local object_type = config.object_type or -1
+
+  if object_type == -1 then
+    logger.error("Unsupported object type: %d", config.object_type)
+  end
 
   ffi_data.price  = config.price  or 0
   ffi_data.weight = config.weight or 0
@@ -40,7 +46,7 @@ function proto.register_prototype(source_pid, lua_tag, config)
 
   ffi_data.usable = config.usable or false
 
-  local pid = ffi.C.ck_proto_register(source_pid, proto.types.ITEM, lua_tag, ffi_data)
+  local pid = ffi.C.ck_proto_register(source_pid, object_type, lua_tag, ffi_data)
   if pid == -1 then
     error("Failed to declare custom prototype: " .. tostring(lua_tag))
   end

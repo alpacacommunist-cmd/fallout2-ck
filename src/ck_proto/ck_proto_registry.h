@@ -8,8 +8,10 @@
 
 #include "proto_types.h"
 
+// passed TO lua
 struct CustomProtoLuaView { int pid; const char* lua_tag; };
 
+// attribute patches
 struct CustomProto {
     int pid;
     int source_pid;
@@ -30,7 +32,10 @@ struct CustomProto {
     std::string mod_id;
 };
 
+// passed FROM lua
 struct CustomProtoFFI {
+    int object_type;
+
     int weight;
     int price;
 

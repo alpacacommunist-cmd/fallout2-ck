@@ -21,15 +21,14 @@ constexpr int CK_SID_LIMIT         = 16000;
 constexpr int CK_PID_START  = 10000;
 constexpr int CK_PID_LIMIT  = 15000;
 
-
-namespace object_types {
-	constexpr int ITEM       = 0;
-    constexpr int CRITTER    = 1;
-    constexpr int SCENERY    = 2;
-    constexpr int WALL       = 3;
-    constexpr int TILE       = 4;
-    constexpr int MISC       = 5;
-}
+enum class ObjectType : int {
+    ITEM    = 0,
+    CRITTER = 1,
+    SCENERY = 2,
+    WALL    = 3,
+    TILE    = 4,
+    MISC    = 5
+};
 
 constexpr int CK_FRM_BASE              = 2000;
 constexpr int CK_FRM_LIMIT             = 4095; // 0xFFF

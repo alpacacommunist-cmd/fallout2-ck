@@ -22,6 +22,8 @@ events.on('onEngineReady', function()
   ground_fid = assets.resolve("arroyo_expanded:skilldex/scorpg_ground.frm", 0)
 
   golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
+    object_type = proto.types.item,
+
     name        = "Золотой хвост скорпиона",
     description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
     price  = 600,
