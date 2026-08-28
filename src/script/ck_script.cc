@@ -24,6 +24,11 @@ namespace fallout {
 	void displayMonitorAddMessage(const char* str);
 }
 
+namespace ck::common {
+    const char* system_mod_id();
+    const char* current_mod_id();
+}
+
 namespace ck::script {
 	int gLastDialogChoice = -1;
 
@@ -82,7 +87,7 @@ namespace ck::script {
 		int fixed_param = script->fixedParam;
 		script->scriptOverrides = 0;
 
-        std::string mod_id = std::string("GLOBAL");
+        std::string mod_id = ck::common::system_mod_id();
 		bool handled_in_lua = ck::dispatcher::on_proto_proc(pid, proc, fixed_param, mod_id.c_str());
 
 		if (handled_in_lua) {

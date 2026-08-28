@@ -4,7 +4,7 @@
 #include "ck_encoding.h"
 
 #include "ck_registry/ck_registry.h"
-#include "ck_proto/ck_proto_cache.h"
+#include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_proto/ck_proto_registry.h"
 
 #include "ck_state/ck_state.h"
@@ -132,7 +132,9 @@ void ck_scripting_on_engine_ready() {
 		fallout::settings.ui.skip_opening_movies = 1;
 	}
 
-	gProtoCache.initialize("build/proto_cache.db");
+    if (!is_test_mode) {
+        gProtoCache.initialize("build/proto_cache.db");
+    }
 
     ck::dispatcher::on_engine_ready();
 }

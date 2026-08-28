@@ -50,8 +50,9 @@ add_library(fallout2-ck STATIC
 
     src/vendor/sqlite3/sqlite3.c
 
-    src/ck_proto/ck_proto_cache.cc
-    src/ck_proto/ck_proto_ffi.cc
+    src/ck_proto/cache/ck_proto_cache.cc
+    src/ck_proto/cache/ck_proto_ffi.cc
+
     src/ck_proto/ck_proto_registry.cc
 
     src/ck_assets/ck_frm.cc
