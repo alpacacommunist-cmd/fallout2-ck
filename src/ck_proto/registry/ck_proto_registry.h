@@ -63,6 +63,7 @@ namespace ck::proto {
 
     namespace item {
         int get_proto(int pid, fallout::Proto** protoPtr);
+        bool has_pid(int pid);
 
         const ItemProto* find_by_pid(int pid);
         int get_pid_by_tag(const std::string& lua_tag);

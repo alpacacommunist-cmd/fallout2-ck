@@ -41,6 +41,11 @@ namespace ck::proto::item {
         return -1;
     }
 
+    bool has_pid(int pid) {
+        fallout::Proto* proto;
+        return get_proto(pid, &proto) == 0;
+    }
+
     const ItemProto* find_by_pid(int pid) {
         for (const auto& proto : registry_item_protos) {
             if (proto.pid == pid) return &proto;
@@ -254,7 +259,7 @@ namespace ck::proto::item {
                 fallout::Proto* proto = nullptr;
                 fallout::protoGetProto(pid, &proto);
                 if (proto) {
-                    ck::proto::unlink_sid(proto->sid); // Убираем из общего реестра скриптов
+                    ck::proto::unlink_sid(proto->sid);
                 }
 
                 std::erase_if(g_item_protos, [pid](const ProtoNode& node) { return node.pid == pid; });

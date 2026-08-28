@@ -25,6 +25,16 @@ namespace ck::proto {
         int g_next_proto_pid = ck::ids::CK_PID_START;
 
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
+
+        bool pid_occupied(int pid) {
+            // cache locality?
+            if (ck::proto::item::has_pid(pid)) return true;
+            return false;
+        }
+
+        bool sid_occupied(int sid) {
+            return g_proto_sid_to_pid.count(sid) > 0;
+        }
     }
 
     bool is_supported_proto_type(int type) {
@@ -33,8 +43,23 @@ namespace ck::proto {
         return object_type == ck::ids::ObjectType::ITEM || object_type == ck::ids::ObjectType::CRITTER;
     }
 
-    int next_proto_pid() { return g_next_proto_pid++; }
-    int next_proto_sid() { return g_next_proto_sid++; }
+    int next_proto_pid() {
+        for (int pid = ck::ids::CK_PID_START; pid < ck::ids::CK_PID_LIMIT; ++pid) {
+            if (!pid_occupied(pid)) return pid;
+        }
+
+        logger.error("CRITICAL: Out of custom PIDs! All slots are occupied.");
+        return -1;
+    }
+
+    int next_proto_sid() {
+        for (int sid = ck::ids::CK_PROTO_SID_START; sid < ck::ids::CK_PROTO_SID_LIMIT; ++sid) {
+            if (!sid_occupied(sid)) return sid;
+        }
+
+        logger.error("CRITICAL: Out of custom SIDs! All slots are occupied.");
+        return -1;
+    }
 
     void link_sid_to_pid(int sid, int pid) { g_proto_sid_to_pid[sid] = pid; }
     void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
