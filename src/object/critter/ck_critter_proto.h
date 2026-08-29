@@ -20,6 +20,7 @@ namespace fallout {
 namespace ck::critter::proto {
     void clear_prototypes();
     void clear_prototypes_for_mod(const std::string& mod_id);
+    int proto_sid_of(int pid);
     bool has_custom_prototype(int pid);
 
     int allocate(int base_pid, const CritterLuaProtoParams* params);

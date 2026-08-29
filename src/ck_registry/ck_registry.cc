@@ -60,6 +60,9 @@ namespace ck::registry {
 	void on_map_exit() {
 		deleted::unhide();
 		modified::restore_sids();
+
+        // Clears [created], [modified], [deleted] registry object pointers
+        ck::registry::clear();
 	}
 
 	void clear() {

@@ -15,36 +15,33 @@ local proto       = require("ck.fallout2.proto")
 local assets      = require("ck.fallout2.assets")
 local sfx         = require('ck.fallout2.sound_sfx')
 
-local golden_tail
-events.on('onEngineReady', function()
-  local PID_RADSCORPION_TAIL = 92
-  inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
-  ground_fid = assets.resolve("arroyo_expanded:skilldex/scorpg_ground.frm", 0)
+local PID_RADSCORPION_TAIL = 92
+local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
+local ground_fid = assets.resolve("arroyo_expanded:skilldex/scorpg_ground.frm", 0)
 
-  golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
-    object_type = proto.types.item,
+local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
+  object_type = proto.types.item,
 
-    name        = "Золотой хвост скорпиона",
-    description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
-    price  = 600,
-    weight = 3,
+  name        = "Золотой хвост скорпиона",
+  description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
+  price  = 600,
+  weight = 3,
 
-    inv_fid    = inv_fid,
-    ground_fid = ground_fid,
+  inv_fid    = inv_fid,
+  ground_fid = ground_fid,
 
-    -- usable = true
-  })
+  -- usable = true
+})
 
-  print("PID: " .. tostring(golden_tail.pid))
+print("PID: " .. tostring(golden_tail.pid))
 
-  golden_tail:bind()
-    :on('use', function()
-      log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
-    end)
-    :on('look_at', function()
-      sfx.play("geiger")
-      return true
-    end)
+golden_tail:bind()
+:on('use', function()
+  log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
+end)
+:on('look_at', function()
+  sfx.play("geiger")
+  return true
 end)
 
 events.on('onGameLoaded', function()
@@ -164,6 +161,9 @@ events.on('map_enter', function(map_id)
     :set_behavior(behaviors.wander, 3)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
+
+  radscorpion1 = critters.create(16777221, 27916, { team = 2 })
+  radscorpion2 = critters.create(16777221, 28513, { team = 2 })
 
   villager1:set_hp(1)
 

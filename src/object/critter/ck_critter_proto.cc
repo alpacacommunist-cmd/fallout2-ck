@@ -53,6 +53,18 @@ namespace ck::critter::proto {
         return g_custom_prototypes.count(pid) > 0;
     }
 
+    int proto_sid_of(int pid) {
+        fallout::Proto* generic_proto = nullptr;
+
+        if (fallout::protoGetProto(pid, &generic_proto) == 0 && generic_proto) {
+            if (ck::ids::clean_sid(generic_proto->critter.sid) != -1) {
+                return generic_proto->critter.sid;
+            }
+        }
+
+        return -1;
+    }
+
     fallout::CritterProto* get_proto_by_pid(int pid) {
         auto it = g_custom_prototypes.find(pid);
         if (it != g_custom_prototypes.end()) return it->second;

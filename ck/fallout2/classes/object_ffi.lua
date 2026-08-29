@@ -64,16 +64,18 @@ end
 
 function object_ffi:bind()
   if self.lua_id ~= -1 then return objects.registry[self.lua_id] end
-
-  self.lua_id  = ffi.C.ck_registry_modify_object(self.c_ptr)
   local object = objects.registry[self.lua_id]
 
   if not object then
+    self.lua_id = ffi.C.ck_registry_modify_object(self.c_ptr)
+
     if self:is_critter() then
-      local name = self:get_name()
-      object = Critter.new(self.lua_id, name, self.mod_id, { name = name })
+      local name   = self:get_name()
+      local mod_id = self:get_mod_id()
+
+      object = Critter.new(self.lua_id, nil, mod_id, { modified = true })
     else
-      object = Object.new(self.lua_id, nil, self.mod_id, {})
+      object = Object.new(self.lua_id, nil, mod_id, { modified = true })
     end
   end
 

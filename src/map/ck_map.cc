@@ -34,9 +34,6 @@ namespace ck {
 
 namespace ck {
     void on_map_enter() {
-        // Clears [created], [modified], [deleted] registry object pointers
-        ck::registry::clear();
-
         // Clears LUA registries
         proxy::execute_proxy_call<bool>(proxy::detail::clear_registries);
 

@@ -29,7 +29,7 @@ function state.sync_save()
 
   local objects = require('ck.fallout2.objects')
   for _, object in pairs(objects.registry) do
-    if not object.lua_id or not object.mod_id or not object.tag then
+    if not object.lua_id or not object.mod_id or not object.tag or object.modified then
       goto continue
     end
 

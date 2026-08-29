@@ -20,6 +20,8 @@ function Object.new(lua_id, tag, mod_id, config)
   self.mod_id      = mod_id
   self.tag         = tag
 
+  self.modified    = config.modified or false
+
   self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
   self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
 
@@ -115,7 +117,7 @@ function Object:_handle_proc(proc_id, fixed_param)
       --   objects.registry[corpse_lua_id] = self
       -- end
 
-      return false
+      return true
     end
 
     return false

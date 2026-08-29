@@ -127,8 +127,15 @@ namespace ck::critter {
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
             result.lua_id = registry::created::add(critter, std::move(meta));
 
-            critter->sid = ids::make_sid_created(critter, result.lua_id);
+            int proto_sid = ck::critter::proto::proto_sid_of(pid);
+            if (proto_sid != -1) {
+                logger.debug("PID {} uses native engine script slot {}", critter->pid, proto_sid);
+            } else {
+                critter->sid = ids::make_sid_created(critter, result.lua_id);
+                logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
+            }
 
+            critter->sid = ids::make_sid_created(critter, result.lua_id);
             if (params->team != -1) {
                 critter->data.critter.combat.team = params->team;
                 logger.debug("Assigned team ID: {} to critter {}", params->team, lua_tag);
@@ -164,6 +171,8 @@ namespace ck::critter {
 	bool kill(int lua_id) {
 		const CkCreatedObject* registry_object = ck::registry::created::get(lua_id);
 		if (!registry_object || !registry_object->ptr) return false;
+
+        logger.info("critter killed! {}", lua_id);
 
         // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
