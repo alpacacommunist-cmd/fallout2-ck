@@ -17,8 +17,8 @@ static const Logger logger("CK Locations");
 namespace ck {
 	static int g_current_loading_map_id = -1;
 
-	// static std::unordered_map<int, int> g_map_id_to_original;
-	// static std::unordered_map<int, int> g_map_id_redirects;           // orig_ID -> ck_ID
+	static std::unordered_map<int, int> g_map_id_to_original;
+	static std::unordered_map<int, int> g_map_id_redirects;           // orig_ID -> ck_ID
     static std::unordered_map<std::string, std::string> gMapPaths; // lowercase_name -> full path
     static std::unordered_map<std::string, int> gRuntimeMaps;      // lowercase_name -> ck_id_ID
 

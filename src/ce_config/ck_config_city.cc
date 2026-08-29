@@ -9,61 +9,92 @@
 #include "ck_log.h"
 static const Logger log("CK City");
 
+namespace fallout {
+    // bool configSetString(Config*, const char*, const char*, const char*);
+
+    bool wmParseMapsConfig(Config* cfg, int start_map_idx);
+    bool wmParseAreasConfig(Config* cfg, int start_area_idx);
+    int wmMaxMapIndex();
+    int wmMaxAreaIndex();
+}
+
 namespace ck::config_city {
     static std::unordered_set<std::string> g_registered_area_names;
+    static bool g_area_names_cached = false;
+
+    static void cache_original_area_names() {
+        if (g_area_names_cached) return;
+
+        fallout::Config cfg;
+        if (fallout::configInit(&cfg)) {
+            if (fallout::configRead(&cfg, "data\\city.txt", true)) {
+                int idx = 0;
+                char section[64];
+                while (true) {
+                    snprintf(section, sizeof(section), "Area %02d", idx);
+                    char* area_name = nullptr;
+                    if (!fallout::configGetString(&cfg, section, "area_name", &area_name)) break;
+                    if (area_name) {
+                        std::string area_lower(area_name);
+                        std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
+                        g_registered_area_names.insert(area_lower);
+                    }
+                    idx++;
+                }
+            }
+            fallout::configFree(&cfg);
+        }
+        g_area_names_cached = true;
+    }
 
     std::string format_section(int area_id) {
         return std::format("Area {:02d}", area_id);
     }
 
     int next_index() {
-        fallout::Config cfg;
+        cache_original_area_names();
+        int base_count = fallout::wmMaxAreaIndex() + 1; 
 
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!fallout::configRead(&cfg, "data\\city.txt", true)) return 0;
+        // 2. Считаем, сколько кастомных секций Area мы уже успели набить в g_config_patches
+        std::string city_txt_path = normalize_config_path("data\\city.txt");
+        int custom_count = 0;
 
-        g_registered_area_names.clear();
-
-        int idx = 0;
-        char section[64];
-
-        while (true) {
-            snprintf(section, sizeof(section), "Area %02d", idx);
-            char* area_name = nullptr;
-
-            if (!fallout::configGetString(&cfg, section, "area_name", &area_name)) break;
-            if (area_name) {
-                std::string area_lower(area_name);
-                std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
-                g_registered_area_names.insert(area_lower);
+        for (const auto& [mod_id, file_maps] : g_config_patches) {
+            auto file_it = file_maps.find(city_txt_path);
+            if (file_it != file_maps.end()) {
+                // file_it->second — это map<section, keys>
+                // Количество секций в этой мапе — это и есть количество добавленных городов!
+                custom_count += file_it->second.size();
             }
-
-            idx++;
         }
 
-        fallout::configFree(&cfg);
-
-        return idx;
+        // Твой следующий свободный индекс — это сумма оригинальных + кастомных!
+        return base_count + custom_count;
     }
 
     int next_entrance_index(const char* section_name) {
-        fallout::Config cfg;
-
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!configRead(&cfg, "data\\city.txt", true)) return 0;
-
+        std::string city_txt_path = normalize_config_path("data\\city.txt");
+        std::string sec_str(section_name);
         int ent_idx = 0;
-        char key[64];
 
-        while (true) {
-            snprintf(key, sizeof(key), "entrance_%d", ent_idx);
-            char* dummy_str = nullptr;
-
-            if (!fallout::configGetString(&cfg, section_name, key, &dummy_str)) break;
-            ent_idx++;
+        // Ищем в нашей мапе, добавлял ли кто-то уже энтрансы в эту секцию
+        for (const auto& [mod_id, file_maps] : g_config_patches) {
+            auto file_it = file_maps.find(city_txt_path);
+            if (file_it != file_maps.end()) {
+                auto sec_it = file_it->second.find(sec_str);
+                if (sec_it != file_it->second.end()) {
+                    // Мы нашли секцию! Теперь считаем ключи, которые начинаются на "entrance_"
+                    for (const auto& [key, value] : sec_it->second) {
+                        if (key.rfind("entrance_", 0) == 0) { // Проверка, что ключ стартует с "entrance_"
+                            ent_idx++;
+                        }
+                    }
+                }
+            }
         }
 
-        fallout::configFree(&cfg);
+        // Если ключей не было, вернет 0 (подставится entrance_0). 
+        // Если один уже был зарегистрирован — вернет 1 (подставится entrance_1).
         return ent_idx;
     }
 

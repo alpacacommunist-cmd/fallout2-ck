@@ -8,43 +8,72 @@
 #include "ck_log.h"
 static const Logger log("CK Maps Config");
 
+namespace fallout {
+    // bool configSetString(Config*, const char*, const char*, const char*);
+
+    bool wmParseMapsConfig(Config* cfg, int start_map_idx);
+    bool wmParseAreasConfig(Config* cfg, int start_area_idx);
+    int wmMaxMapIndex();
+    int wmMaxAreaIndex();
+}
+
 namespace ck::config_maps {
     static std::unordered_set<std::string> g_registered_lookup_names;
+    static bool g_map_names_cached = false;
+
+    void cache_original_map_names() {
+        if (g_map_names_cached) return;
+
+        fallout::Config cfg;
+        if (fallout::configInit(&cfg)) {
+            if (fallout::configRead(&cfg, "data\\maps.txt", true)) {
+                int idx = 0;
+                char section[64];
+                while (true) {
+                    snprintf(section, sizeof(section), "Map %03d", idx);
+                    char* lookup_name = nullptr;
+
+                    // Ищем по ключу lookup_name
+                    if (!fallout::configGetString(&cfg, section, "lookup_name", &lookup_name)) break;
+                    if (lookup_name) {
+                        std::string map_lower(lookup_name);
+                        std::transform(map_lower.begin(), map_lower.end(), map_lower.begin(), ::tolower);
+                        g_registered_lookup_names.insert(map_lower);
+                    }
+                    idx++;
+                }
+            }
+            fallout::configFree(&cfg);
+        }
+        g_map_names_cached = true;
+    }
 
     std::string format_section(int map_id) {
         return std::format("Map {:03d}", map_id);
     }
 
     int next_index() {
-        fallout::Config cfg;
+        cache_original_map_names();
+        // 1. База — это сколько карт загрузил оригинальный движок из maps.txt
+        int base_count = fallout::wmMaxMapIndex() + 1; 
 
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!fallout::configRead(&cfg, "data\\maps.txt", true)) return 0;
+        // 2. Считаем, сколько секций Map мы уже успели набить в g_config_patches
+        std::string maps_txt_path = normalize_config_path("data\\maps.txt");
+        int custom_count = 0;
 
-        g_registered_lookup_names.clear();
-
-        int idx = 0;
-        char section[64];
-
-        while (true) {
-            snprintf(section, sizeof(section), "Map %03d", idx);
-            char* lookup_name = nullptr;
-
-            if (!fallout::configGetString(&cfg, section, "lookup_name", &lookup_name)) break;
-
-            if (lookup_name) {
-                std::string name_lower(lookup_name);
-                std::transform(name_lower.begin(), name_lower.end(), name_lower.begin(), ::tolower);
-                g_registered_lookup_names.insert(name_lower);
+        for (const auto& [mod_id, file_maps] : g_config_patches) {
+            auto file_it = file_maps.find(maps_txt_path);
+            if (file_it != file_maps.end()) {
+                // file_it->second — это map<section, keys>
+                custom_count += file_it->second.size();
             }
-
-            idx++;
         }
 
-        fallout::configFree(&cfg);
-
-        return idx;
+        // Твой следующий свободный индекс карт
+        return base_count + custom_count;
     }
+
+
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
 				const std::string& name, const std::string& music, const std::string& sfx) {

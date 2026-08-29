@@ -6,6 +6,7 @@
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_proto/registry/ck_proto_registry.h"
+#include "ce_config/ck_config_patch.h"
 
 #include "ck_state/ck_state.h"
 #include "ck_dispatcher/ck_dispatcher.h"
@@ -96,10 +97,6 @@ void ck_scripting_init(int argc, char** argv) {
     if (is_test_mode) {
         logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
     }
-
-    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
-    ck::proxy::cache_functions();
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
 }
 
 void ck_on_scripts_reset() {
@@ -124,9 +121,21 @@ void ck_scripting_on_game_start() {
     ck::dispatcher::on_game_start();
 }
 
+namespace fallout {
+    // bool configSetString(Config*, const char*, const char*, const char*);
+
+    int wmMaxMapIndex();
+    int wmMaxAreaIndex();
+}
+
+
 void ck_scripting_on_engine_ready() {
     logger.debug("ck_scripting_on_engine_ready");
 	ck_scripting_set_language();
+
+    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
+    ck::proxy::cache_functions();
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
 
     if (is_test_mode) {
 		fallout::settings.ui.skip_opening_movies = 1;
@@ -135,6 +144,10 @@ void ck_scripting_on_engine_ready() {
     if (!is_test_mode) {
         gProtoCache.initialize("build/proto_cache.db");
     }
+
+    ck::apply_custom_worldmap_data();
+    logger.error("map idx: {}", fallout::wmMaxMapIndex());
+    logger.error("area idx: {}", fallout::wmMaxAreaIndex());
 
     ck::dispatcher::on_engine_ready();
 }

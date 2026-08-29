@@ -18,6 +18,7 @@ namespace ck {
 
     extern ConfigPatchMap g_config_patches;
 
+    bool apply_custom_worldmap_data();
 	std::string normalize_config_path(std::string_view path);
 
 	int config_find_next_free_index(std::string_view file_path, std::string_view section, std::string_view prefix);
