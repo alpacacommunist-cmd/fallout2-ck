@@ -164,7 +164,6 @@ namespace ck::common {
     void on_before_game_save() {
         logger.debug("on_before_game_save");
 
-        ck::registry::created::remove_scripts();
         ck::registry::deleted::unhide();
         ck::registry::modified::restore_sids();
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
@@ -175,7 +174,6 @@ namespace ck::common {
 
         ck_state_save(path);
 
-        ck::registry::created::restore_scripts();
         ck::registry::deleted::hide();
         ck::registry::modified::reapply_sids();
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);

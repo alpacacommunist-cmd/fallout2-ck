@@ -132,15 +132,11 @@ namespace ck::critter {
                 fallout::Script* script = nullptr;
 
                 if (fallout::scriptGetScript(critter->sid, &script) != -1) {
+                    script->flags |= SCRIPT_FLAG_NO_SAVE;
+
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_TIMED);
-
-                    if (ck::common::currently_in_combat()) {
-                        logger.info("COMBAT");
-                    } else {
-                        logger.info("NOT COMBAT");
-                    }
                 }
             } else {
                 critter->sid = ids::make_sid_created(critter, result.lua_id);

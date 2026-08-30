@@ -60,10 +60,6 @@ namespace ck::registry {
 
     namespace created {
         int  add(fallout::Object* obj, LuaMeta meta = {});
-
-        void remove_scripts();
-        void restore_scripts();
-
         int  remove_by_ptr(fallout::Object* ptr);
 		void clear_for_mod(std::string_view mod_id);
 
