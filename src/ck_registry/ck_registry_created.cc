@@ -1,7 +1,13 @@
 #include "ck_registry/ck_registry.h"
+#include "obj_types.h"
 
 #include "ck_log.h"
 static const Logger log("CK Registry [Created]");
+
+namespace fallout {
+    int scriptRemove(int index);
+    int scriptAdd(int* sidPtr, int scriptType);
+}
 
 namespace ck::registry::created {
     int add(fallout::Object* obj, LuaMeta meta) {
@@ -11,6 +17,17 @@ namespace ck::registry::created {
         g_created_objects[lua_id] = CkCreatedObject{ obj, lua_id, std::move(meta) };
         g_ptr_to_lua_id[obj] = lua_id;
         return lua_id;
+    }
+
+    void remove_scripts() {
+        // logger.info("script remove {}", ck::ids::clean_sid(critter->sid));
+        // fallout::scriptRemove(critter->sid);
+        // critter->sid = -1;
+        //
+        // fallout::scriptAdd(&(critter->sid), fallout::SCRIPT_TYPE_CRITTER);
+    }
+
+    void restore_scripts() {
     }
 
 	void clear_for_mod(std::string_view mod_id) {

@@ -14,6 +14,7 @@ local knowledge   = require('ck.fallout2.knowledge')
 local proto       = require("ck.fallout2.proto")
 local assets      = require("ck.fallout2.assets")
 local sfx         = require('ck.fallout2.sound_sfx')
+local objects     = require('ck.fallout2.objects')
 
 local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
@@ -93,7 +94,12 @@ events.on('critter_killed', function(victim, killer)
 
   log.info("mod_id: " .. victim:get_mod_id())
 
-  victim:give_item(golden_tail.pid, 1)
+  victim:give_item(golden_tail.pid, 1, true)
+
+  if (victim.lua_id and objects.registry[victim.lua_id]) then
+    local victim_object = objects.registry[victim.lua_id]
+    victim_object:_handle_proc(18)
+  end
 end)
 
 events.on('map_enter', function(map_id)
@@ -123,20 +129,20 @@ events.on('map_enter', function(map_id)
   log.info("Alice crit_chance: %d", alice.stats.critical_chance)
   log.info("Alice small_weapons: %d", alice.skills.small_guns)
 
-  -- if (alice:has_inventory()) then
-  --   log.info("Alice inventory is managed through state")
-  -- else
-  --   log.info("Adding new items to Alice's inventory")
-  --
-  --   alice:give_item(items.PID_KNIFE, 1)
-  --   alice:give_item(items.PID_STIMPAK, 5)
-  --
-  --   alice:give_item(10, 1)
-  --   alice:give_item(34, 10)
-  -- end
-  -- --
-  -- alice:take_out_weapon()
-  --
+  if (alice:has_inventory()) then
+    log.info("Alice inventory is managed through state")
+  else
+    log.info("Adding new items to Alice's inventory")
+
+    alice:give_item(items.PID_KNIFE, 1)
+    alice:give_item(items.PID_STIMPAK, 5)
+
+    alice:give_item(10, 1)
+    alice:give_item(34, 10)
+  end
+
+  alice:take_out_weapon()
+
   alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
@@ -149,6 +155,7 @@ events.on('map_enter', function(map_id)
     :walk_to(20913)
     :walk_to(21116)
     :play(16)
+    -- :play(38)
   :submit()
 
   local villager1 = critters.create(16777219, 21119, { team = 0 })
@@ -162,10 +169,10 @@ events.on('map_enter', function(map_id)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
 
-  -- radscorpion1 = critters.create(16777221, 27916, { team = 1 })
-  -- radscorpion2 = critters.create(16777221, 28513, { team = 1 })
+  radscorpion1 = critters.create(16777221, 27916, { team = 2 })
+  radscorpion2 = critters.create(16777221, 28513, { team = 2 })
 
-  -- villager1:set_hp(1)
+  villager1:set_hp(1)
   --
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.lua_id, alice_dialogue)

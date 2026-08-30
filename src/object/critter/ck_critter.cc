@@ -16,12 +16,9 @@
 static const Logger logger("CK Critter");
 
 namespace ck {
-    namespace dispatcher {
-        const char* current_mod_context();
-    }
-
     namespace common {
         bool currently_in_combat();
+        const char* current_mod_id();
     }
 
     // ck_stats.cc
@@ -29,10 +26,7 @@ namespace ck {
 }
 
 namespace fallout {
-    // enum Hand : int { HAND_LEFT, HAND_RIGHT, HAND_COUNT };
-
     extern Object* gDude;
-    int scriptAdd(int* sidPtr, int scriptType);
 
 	void _combat_ai(Object* a1, Object* a2);
     Object* _ai_search_inven_weap(Object* critter, bool checkRequiredActionPoints, Object* defender);
@@ -43,7 +37,6 @@ namespace fallout {
     Object* objectFindNextAtLocation();
 
 	int mapGetCurrentMap();
-    int inventoryEquip(Object* critter, Object* item, Hand hand);
     WeaponAnimation weaponGetAnimationCode(Object* weapon);
 }
 
@@ -93,7 +86,7 @@ namespace ck::critter {
         CritterLua result{ -1, "" };
 
 		int map_id         = fallout::mapGetCurrentMap();
-		std::string mod_id = dispatcher::current_mod_context();
+		std::string mod_id = common::current_mod_id();
 
         int source_pid = pid;
         bool prototype_required = !utils::is_blank(tag) && has_proto_params(params);
@@ -133,37 +126,19 @@ namespace ck::critter {
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
             result.lua_id = registry::created::add(critter, std::move(meta));
 
-            // int proto_sid = ck::ids::clean_sid(ck::critter::proto::proto_sid_of(pid));
             if (critter->scriptIndex != -1) {
                 logger.debug("PID {} uses native engine script slot {}", critter->pid, critter->scriptIndex);
 
-                // logger.info("script remove {}", ck::ids::clean_sid(critter->sid));
-                // fallout::scriptRemove(critter->sid);
-                // critter->sid = -1;
-                //
-                // fallout::scriptAdd(&(critter->sid), fallout::SCRIPT_TYPE_CRITTER);
                 fallout::Script* script = nullptr;
 
                 if (fallout::scriptGetScript(critter->sid, &script) != -1) {
-                    // script->index   = critter->scriptIndex;
-                    script->ownerId = critter->id;
-                    script->owner   = critter;
-
-                    logger.info("Using script index: {}", critter->scriptIndex);
-                    logger.info("Unpacked sid: {}", ck::ids::clean_sid(critter->sid));
-                    logger.info("script owner id: {}", script->ownerId);
-
-                    // script->flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
-                    logger.info("script flags: {}", script->flags);
-                    fallout::_scr_find_str_run_info(critter->scriptIndex, &(script->field_50), critter->sid);
+                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
+                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
+                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_TIMED);
 
                     if (ck::common::currently_in_combat()) {
-                        fallout::_scripts_clear_combat_requests(script);
-                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_COMBAT);
                         logger.info("COMBAT");
                     } else {
-                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
-                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
                         logger.info("NOT COMBAT");
                     }
                 }
@@ -243,11 +218,11 @@ int ck_anim_begin(void* ptr, int request_options) {
 int ck_anim_take_out_weapon(fallout::Object* critter, int delay) {
     CK_ENSURE_VALID_OBJECT(critter);
 
-    fallout::Object* weapon = fallout::_ai_search_inven_weap(critter, false, fallout::gDude);
+    fallout::Object* weapon = fallout::_ai_search_inven_weap(critter, false, nullptr);
     if (!weapon) return -1;
 
     fallout::WeaponAnimation weapon_anim_code = fallout::weaponGetAnimationCode(weapon);
-    return animationRegisterTakeOutWeapon(critter, weapon_anim_code, delay);
+    return fallout::inventoryEquipFunc(critter, weapon, fallout::Hand::HAND_RIGHT, false);
 }
 
 int ck_anim_move_to(void* ptr, int tile, int elevation) {
