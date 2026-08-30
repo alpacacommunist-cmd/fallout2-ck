@@ -27,7 +27,7 @@ namespace ck {
 		}
 	}
 
-	bool inventory_add(void* container_ptr, int item_pid, int count) {
+	bool inventory_add(void* container_ptr, int item_pid, int count, bool persistent) {
 		if (!container_ptr || count < 1) return false;
 		auto* owner = static_cast<fallout::Object*>(container_ptr);
 
@@ -53,6 +53,13 @@ namespace ck {
             new_item->flags |= fallout::OBJECT_CK_PROTO;
         }
 
+        if (!persistent) {
+            logger.debug("Creating temporary item: {}", new_item->pid);
+            new_item->flags |= fallout::OBJECT_NO_SAVE;
+        } else {
+            logger.debug("Creating persistent item: {}", new_item->pid);
+        }
+
 		fallout::_obj_disconnect(new_item, nullptr);
 
         if (fallout::critterFlagCheck(owner->pid, fallout::CritterFlags(fallout::CRITTER_NO_STEAL))) {
@@ -71,8 +78,8 @@ int ck_inventory_count(void* container_ptr, int item_pid) {
 	return fallout::objectGetCarriedQuantityByPid(owner, item_pid);
 }
 
-bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
-	return ck::inventory_add(container_ptr, item_pid, count);
+bool ck_inventory_add(void* container_ptr, int item_pid, int count, bool persistent) {
+	return ck::inventory_add(container_ptr, item_pid, count, persistent);
 }
 
 int ck_total_inventory_count(fallout::Object *object) {

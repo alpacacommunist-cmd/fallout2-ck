@@ -160,7 +160,7 @@ ffi.cdef[[
   int player_perk_add_rank(int perk_id);
 
   // --- Items ---
-  bool ck_inventory_add(void* container_ptr, int item_pid, int count);
+  bool ck_inventory_add(void* container_ptr, int item_pid, int count, bool persistent);
   int  ck_inventory_count(void* container_ptr, int item_pid);
   int  ck_total_inventory_count(fallout_Object* object);
   bool ck_get_inventory_item(fallout_Object* object, int index, int* out_pid, int* out_qty);

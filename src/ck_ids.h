@@ -34,6 +34,7 @@ constexpr int CK_FRM_BASE              = 2000;
 constexpr int CK_FRM_LIMIT             = 4095; // 0xFFF
 constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
 
+int script_type_for_object(fallout::Object* object);
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
 int  make_ck_fid(int custom_frm_id, int art_type = CK_ASSET_TRANSPORT_TYPE);
@@ -41,7 +42,7 @@ int  make_ck_fid(int custom_frm_id, int art_type = CK_ASSET_TRANSPORT_TYPE);
 bool is_ck_pid(int pid);
 
 bool is_ck_sid(int sid);
-bool is_proto_sid(int sid);
+bool is_ck_proto_sid(int sid);
 bool is_created_sid(int sid);
 bool is_modified_sid(int sid);
 int  lua_id_from_sid(int sid);

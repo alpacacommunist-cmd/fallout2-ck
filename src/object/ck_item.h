@@ -26,10 +26,10 @@ namespace fallout {
 
 namespace ck {
 	void clear_inventory(fallout::Object* object);
-	bool inventory_add(void* container_ptr, int item_pid, int count);
+	bool inventory_add(void* container_ptr, int item_pid, int count, bool persistent = false);
 }
 
-CK_API bool ck_inventory_add(void* container_ptr, int item_pid, int count);
+CK_API bool ck_inventory_add(void* container_ptr, int item_pid, int count, bool persistent = false);
 CK_API int  ck_inventory_count(void* container_ptr, int item_pid);
 CK_API int  ck_total_inventory_count(fallout::Object *object);
 CK_API bool ck_get_inventory_item(fallout::Object *object, int index, int *out_pid, int *out_qty);

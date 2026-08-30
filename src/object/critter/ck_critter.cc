@@ -8,6 +8,7 @@
 #include "object/critter/ck_critter_proto.h"
 
 #include "animation.h"
+#include "scripts.h"
 
 #include <cstring>
 
@@ -19,14 +20,19 @@ namespace ck {
         const char* current_mod_context();
     }
 
+    namespace common {
+        bool currently_in_combat();
+    }
+
     // ck_stats.cc
 	int critter_adjust_hp(fallout::Object* critter, int target_hp);
 }
 
 namespace fallout {
-    enum Hand : int { HAND_LEFT, HAND_RIGHT, HAND_COUNT };
+    // enum Hand : int { HAND_LEFT, HAND_RIGHT, HAND_COUNT };
 
     extern Object* gDude;
+    int scriptAdd(int* sidPtr, int scriptType);
 
 	void _combat_ai(Object* a1, Object* a2);
     Object* _ai_search_inven_weap(Object* critter, bool checkRequiredActionPoints, Object* defender);
@@ -127,15 +133,45 @@ namespace ck::critter {
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
             result.lua_id = registry::created::add(critter, std::move(meta));
 
-            int proto_sid = ck::critter::proto::proto_sid_of(pid);
-            if (proto_sid != -1) {
-                logger.debug("PID {} uses native engine script slot {}", critter->pid, proto_sid);
+            // int proto_sid = ck::ids::clean_sid(ck::critter::proto::proto_sid_of(pid));
+            if (critter->scriptIndex != -1) {
+                logger.debug("PID {} uses native engine script slot {}", critter->pid, critter->scriptIndex);
+
+                // logger.info("script remove {}", ck::ids::clean_sid(critter->sid));
+                // fallout::scriptRemove(critter->sid);
+                // critter->sid = -1;
+                //
+                // fallout::scriptAdd(&(critter->sid), fallout::SCRIPT_TYPE_CRITTER);
+                fallout::Script* script = nullptr;
+
+                if (fallout::scriptGetScript(critter->sid, &script) != -1) {
+                    // script->index   = critter->scriptIndex;
+                    script->ownerId = critter->id;
+                    script->owner   = critter;
+
+                    logger.info("Using script index: {}", critter->scriptIndex);
+                    logger.info("Unpacked sid: {}", ck::ids::clean_sid(critter->sid));
+                    logger.info("script owner id: {}", script->ownerId);
+
+                    // script->flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
+                    logger.info("script flags: {}", script->flags);
+                    fallout::_scr_find_str_run_info(critter->scriptIndex, &(script->field_50), critter->sid);
+
+                    if (ck::common::currently_in_combat()) {
+                        fallout::_scripts_clear_combat_requests(script);
+                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_COMBAT);
+                        logger.info("COMBAT");
+                    } else {
+                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
+                        fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
+                        logger.info("NOT COMBAT");
+                    }
+                }
             } else {
                 critter->sid = ids::make_sid_created(critter, result.lua_id);
                 logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
             }
 
-            critter->sid = ids::make_sid_created(critter, result.lua_id);
             if (params->team != -1) {
                 critter->data.critter.combat.team = params->team;
                 logger.debug("Assigned team ID: {} to critter {}", params->team, lua_tag);

@@ -150,9 +150,11 @@ function Object:type()
   return objects.TYPES[ffi.C.ck_object_get_type(self.c_ptr)]
 end
 
-function Object:give_item(item_pid, count)
-  count = count or 1
-  return items.add(self.c_ptr, item_pid, count)
+function Object:give_item(item_pid, count, persistent)
+  count      = count or 1
+  persistent = persistent or false
+
+  return items.add(self.c_ptr, item_pid, count, persistent)
 end
 
 function Object:item_count(item_pid)

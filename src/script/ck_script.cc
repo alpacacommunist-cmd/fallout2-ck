@@ -95,19 +95,20 @@ namespace ck::script {
 			return true;
 		}
 
-		logger.warn("unhandled proc: {} for sid: {}", proc, sid);
+		logger.warn("[proto] unhandled proc: {} for sid: {}", proc, sid);
 		return false;
     }
 
 	bool try_handle(int sid, int proc) {
 		if (!ck::ids::is_ck_sid(sid)) return false;
 
-        if (ck::ids::is_proto_sid(sid)) return proto_handle(sid, proc);
+        if (ck::ids::is_ck_proto_sid(sid)) return proto_handle(sid, proc);
 
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 		const LuaMeta* meta = ck::registry::get_meta(lua_id);
 
 		if (meta == nullptr) return false; // game loading
+        // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
 
 		if (meta->mod_id.empty()) {
 			logger.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
@@ -140,11 +141,9 @@ namespace ck::script {
 
         fallout::Object* victim_ptr = script->owner;
         if (victim_ptr == nullptr || fallout::objectTypeFromPid(victim_ptr->pid) != fallout::OBJ_TYPE_CRITTER) return;
-
         fallout::Object* killer_ptr = script->source;
 
         CkObjectFFI victim{}, killer{};
-
         ck::object::to_ffi(victim, victim_ptr, true);
 
         if (killer_ptr) {
@@ -152,6 +151,8 @@ namespace ck::script {
         }
 
         ck::dispatcher::on_critter_killed(&victim, &killer);
+
+        try_handle(sid, proc);
     }
 
 	int dialog_init_ui() {

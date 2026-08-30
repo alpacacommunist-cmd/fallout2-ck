@@ -3,8 +3,11 @@ local ffi = require("ffi")
 
 local items = {}
 
-items.add   = ffi.C.ck_inventory_add
 items.count = ffi.C.ck_inventory_count
+
+function items.add(ptr, pid, count, persistent)
+  ffi.C.ck_inventory_add(ptr, pid, count, persistent)
+end
 
 items.PID_LEATHER_ARMOR = 1
 items.PID_METAL_ARMOR   = 2

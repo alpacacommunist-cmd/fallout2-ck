@@ -41,7 +41,6 @@ golden_tail:bind()
 end)
 :on('look_at', function()
   sfx.play("geiger")
-  return true
 end)
 
 events.on('onGameLoaded', function()
@@ -112,9 +111,10 @@ events.on('map_enter', function(map_id)
     skills = { small_guns = 200 },
     name        = i18n.t('arroyo_expanded', 'alice_name'),
     description = i18n.t('arroyo_expanded', 'alice_description'),
-    ai_packet = 'Merc Captain'
+    ai_packet = 'Merc Captain',
+    team = 0
   })
-
+  --
   alice.stats = { max_hp = 355, hp = 255 }
 
   log.info("Alice endurance: %d", alice.stats.endurance)
@@ -123,20 +123,20 @@ events.on('map_enter', function(map_id)
   log.info("Alice crit_chance: %d", alice.stats.critical_chance)
   log.info("Alice small_weapons: %d", alice.skills.small_guns)
 
-  if (alice:has_inventory()) then
-    log.info("Alice inventory is managed through state")
-  else
-    log.info("Adding new items to Alice's inventory")
-
-    alice:give_item(items.PID_KNIFE, 1)
-    alice:give_item(items.PID_STIMPAK, 5)
-
-    alice:give_item(10, 1)
-    alice:give_item(34, 10)
-  end
-
-  alice:take_out_weapon()
-
+  -- if (alice:has_inventory()) then
+  --   log.info("Alice inventory is managed through state")
+  -- else
+  --   log.info("Adding new items to Alice's inventory")
+  --
+  --   alice:give_item(items.PID_KNIFE, 1)
+  --   alice:give_item(items.PID_STIMPAK, 5)
+  --
+  --   alice:give_item(10, 1)
+  --   alice:give_item(34, 10)
+  -- end
+  -- --
+  -- alice:take_out_weapon()
+  --
   alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
@@ -151,8 +151,8 @@ events.on('map_enter', function(map_id)
     :play(16)
   :submit()
 
-  local villager1 = critters.create(16777219, 21119)
-  local villager2 = critters.create(16777220, 21716)
+  local villager1 = critters.create(16777219, 21119, { team = 0 })
+  local villager2 = critters.create(16777220, 21716, { team = 0 })
 
   log.info("villager1 gender: %d", villager1:gender())
   log.info("villager2 gender: %d", villager2:gender())
@@ -162,23 +162,23 @@ events.on('map_enter', function(map_id)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
 
-  radscorpion1 = critters.create(16777221, 27916, { team = 2 })
-  radscorpion2 = critters.create(16777221, 28513, { team = 2 })
+  -- radscorpion1 = critters.create(16777221, 27916, { team = 1 })
+  -- radscorpion2 = critters.create(16777221, 28513, { team = 1 })
 
-  villager1:set_hp(1)
-
+  -- villager1:set_hp(1)
+  --
   local alice_dialogue = require('.dialogs').alice_nodes
   dialogue.register(alice.lua_id, alice_dialogue)
 
-  female_trapper_prototype = critters.allocate_prototype(16777351,
-    { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
-  )
-  female_trapper_prototype
-    :set_stats({ strength = 10, agility = 9, luck = 8})
-    :set_skills({ unarmed = 100, small_guns = 85 })
+  -- female_trapper_prototype = critters.allocate_prototype(16777351,
+  --   { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
+  -- )
+  -- female_trapper_prototype
+  --   :set_stats({ strength = 10, agility = 9, luck = 8})
+  --   :set_skills({ unarmed = 100, small_guns = 85 })
 
-  local trapper1 = critters.create(female_trapper_prototype.pid, 20909)
-  log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
+  -- local trapper1 = critters.create(female_trapper_prototype.pid, 20909)
+  -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialogue_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
