@@ -21,10 +21,10 @@ ffi.cdef[[
   // --- Encoding ---
   size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size); size_t strlen(const char* s);
 
-  void ck_scripting_load_game_slot(int slot);
+  void ck_load_game_slot(int slot);
 
   // --- Misc ---
-  void ck_scripting_monitor_print_message(const char* message);
+  void ck_monitor_print_message(const char* message);
   void ck_sound_play_sfx(const char* name);
 
   // --- Tests ---

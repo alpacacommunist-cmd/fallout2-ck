@@ -16,38 +16,39 @@ namespace ck::common {
 
     const char* system_mod_id();
     const char* current_mod_id();
+    bool reloading_mods();
 
-    void on_before_game_save();
-    void on_game_save(const char* path);
-    void on_before_game_load(const char* path);
-    void on_game_loaded();
+    void clear_lua_registries();
 }
 
-bool ck_reloading_mods();
 void ck_reload_mods();
-void ck_scripting_init(int argc, char** argv);
-void ck_scripting_exit();
+void ck_set_language();
+void ck_print_monitor_message(const char* message);
 
-void ck_scripting_on_object_destroyed(fallout::Object* object);
+namespace ck::events {
+    void init(int argc, char** argv);
 
-void ck_scripting_on_game_start();
-void ck_scripting_on_engine_ready();
-void ck_scripting_on_before_game_load(const char* path);
-void ck_scripting_on_game_loaded();
-void ck_on_scripts_reset();
-// state
-void ck_scripting_on_before_game_save();
-void ck_scripting_on_game_save(const char* path);
+    void game_start();
+    void engine_ready();
+    void scripts_reset();
 
-unsigned int ck_current_combat_state();
+    void before_game_save();
+    void game_saved(const char* path);
 
-CK_API void ck_registry_destroy_objects_for_mod(const char* target_mod_id);
-CK_API void ck_scripting_load_game_slot(int slot);
+    void before_game_load(const char* path);
+    void game_loaded();
+
+    void object_destroyed(fallout::Object* object);
+    void ck_scripting_exit();
+}
+
+
+CK_API void ck_load_game_slot(int slot);
 
 CK_API const char* ck_testing_get_current_suite();
 CK_API void        ck_testing_set_current_suite(const char* name);
 
-CK_API void ck_scripting_monitor_print_message(const char* message);
+CK_API void ck_monitor_print_message(const char* message);
 CK_API void ck_sound_play_sfx(const char* name);
 CK_API bool ck_object_float_msg(void* ptr, const char* text, int msg_type = 1);
 CK_API bool ck_in_combat();

@@ -22,12 +22,14 @@ namespace fallout {
 namespace ck {
     namespace critter { void clear_spawn_queues(); }
     namespace script { void reset(); }
-    namespace common { bool currently_in_combat(); }
+    namespace common {
+        bool currently_in_combat();
+        void clear_lua_registries();
+    }
 
     namespace proxy {
         namespace detail {
             extern int map_context_change;
-            extern int clear_registries;
         }
     }
 }
@@ -35,7 +37,7 @@ namespace ck {
 namespace ck {
     void on_map_enter() {
         // Clears LUA registries
-        proxy::execute_proxy_call<bool>(proxy::detail::clear_registries);
+        ck::common::clear_lua_registries();
 
         // Restore proto items PID (stored in `id`)
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);

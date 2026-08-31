@@ -19,6 +19,11 @@
 #include "ck_log.h"
 static const Logger logger("CK Scripting");
 
+static const char* SYSTEM_MOD_ID = "__ck_system__";
+static bool g_reloading_mods = false;
+static bool is_test_mode = false;
+static std::string g_test_suite_name = std::string();
+
 namespace fallout {
     enum Color : unsigned char;
     enum CombatState : unsigned int {
@@ -48,15 +53,25 @@ namespace ck {
     }
 }
 
-void ck_print_monitor_message(const char* message) {
-    std::string converted = utf8_to_cp1251(std::string_view(message));
-    fallout::displayMonitorAddMessage(converted.c_str());
-}
+namespace ck::common {
+    const char* system_mod_id() {
+        return SYSTEM_MOD_ID;
+    }
 
+    const char* current_mod_id() {
+        return ck::dispatcher::current_mod_context();
+    }
 
-static bool g_reloading_mods = false;
-bool ck_reloading_mods() {
-    return g_reloading_mods;
+    bool reloading_mods() {
+        return g_reloading_mods;
+    }
+
+    unsigned int current_combat_state() { return fallout::gCombatState; }
+    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
+
+    void clear_lua_registries() {
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
+    }
 }
 
 void ck_reload_mods() {
@@ -72,100 +87,74 @@ void ck_reload_mods() {
     g_reloading_mods = false;
 }
 
-// Init
-
-static bool is_test_mode = false;
-static std::string g_test_suite_name = std::string();
-
-static int    g_game_argc = 0;
-static char** g_game_argv = nullptr;
-void ck_scripting_init(int argc, char** argv) {
-    logger.info("Initializing LuaJIT backend...");
-
-    g_game_argc = argc; g_game_argv = argv;
-
-    for (int index = 1; index < g_game_argc; index++) {
-        std::string arg = g_game_argv[index];
-        if (arg == "--test" || arg == "--integration-tests") {
-            is_test_mode = true;
-
-            if (index + 1 < g_game_argc) g_test_suite_name = g_game_argv[index + 1];
-            break;
-        }
-    }
-
-    if (is_test_mode) {
-        logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
-    }
-
-    ck::proxy::init_lua_state("../?.lua;../?/init.lua");
-    ck::proxy::cache_functions();
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
-}
-
-void ck_on_scripts_reset() {
-	logger.info("ck_on_scripts_reset");
-
-    ck::registry::clear();
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
-}
-
-// Exit
-void ck_scripting_exit() {
-    ck::proxy::shutdown();
-
-    logger.info("ck_scripting_exit");
-    logger.info("Shutting down LuaJIT backend...");
-}
-
-void ck_scripting_set_language() {
+void ck_set_language() {
     logger.info("System language: {}", fallout::settings.system.language);
     ck::i18n::load_language(fallout::settings.system.language);
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
 }
 
-void ck_scripting_on_game_start() {
-    ck::dispatcher::on_game_start();
+void ck_print_monitor_message(const char* message) {
+    std::string converted = utf8_to_cp1251(std::string_view(message));
+    fallout::displayMonitorAddMessage(converted.c_str());
 }
 
-void ck_scripting_on_engine_ready() {
-    logger.debug("ck_scripting_on_engine_ready");
-	ck_scripting_set_language();
+namespace ck::events {
+    // Init
+    static int    g_game_argc = 0;
+    static char** g_game_argv = nullptr;
+    void init(int argc, char** argv) {
+        logger.info("Initializing LuaJIT backend...");
 
-    if (is_test_mode) {
-		fallout::settings.ui.skip_opening_movies = 1;
-	}
+        g_game_argc = argc; g_game_argv = argv;
 
-    if (!is_test_mode) {
-        gProtoCache.initialize("build/proto_cache.db");
+        for (int index = 1; index < g_game_argc; index++) {
+            std::string arg = g_game_argv[index];
+            if (arg == "--test" || arg == "--integration-tests") {
+                is_test_mode = true;
+
+                if (index + 1 < g_game_argc) g_test_suite_name = g_game_argv[index + 1];
+                break;
+            }
+        }
+
+        if (is_test_mode) {
+            logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
+        }
+
+        ck::proxy::init_lua_state("../?.lua;../?/init.lua");
+        ck::proxy::cache_functions();
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
     }
 
-    ck::dispatcher::on_engine_ready();
-}
-
-void ck_scripting_on_object_destroyed(fallout::Object* object) {
-    logger.debug("object_destroyed");
-	ck::registry::created::remove_by_ptr(object);
-}
-
-namespace fallout {
-    int scriptRemove(int index);
-}
-namespace ck::common {
-    static const char* SYSTEM_MOD_ID = "__ck_system__";
-    const char* system_mod_id() {
-        return SYSTEM_MOD_ID;
+    void game_start() {
+        ck::dispatcher::on_game_start();
     }
 
-    const char* current_mod_id() {
-        return ck::dispatcher::current_mod_context();
+    void engine_ready() {
+        logger.debug("ck_scripting_on_engine_ready");
+        ck_set_language();
+
+        if (is_test_mode) {
+            fallout::settings.ui.skip_opening_movies = 1;
+        }
+
+        if (!is_test_mode) {
+            gProtoCache.initialize("build/proto_cache.db");
+        }
+
+        ck::dispatcher::on_engine_ready();
     }
 
-    unsigned int current_combat_state() { return fallout::gCombatState; }
-    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
+    // Scripts reset, e.g exit to splash screen
+    void scripts_reset() {
+        logger.info("ck_on_scripts_reset");
+
+        ck::registry::clear();
+        ck::common::clear_lua_registries();
+    }
 
     // loadsave.cc
-    void on_before_game_save() {
+    void before_game_save() {
         logger.debug("on_before_game_save");
 
         ck::registry::deleted::unhide();
@@ -173,7 +162,7 @@ namespace ck::common {
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
     }
 
-    void on_game_save(const char* path) {
+    void game_saved(const char* path) {
         logger.debug("on_game_save");
 
         ck_state_save(path);
@@ -183,22 +172,37 @@ namespace ck::common {
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
     }
 
-    void on_before_game_load(const char* path) {
+    void before_game_load(const char* path) {
         logger.debug("ck_scripting_on_before_game_load");
 
         ck::registry::clear();
         ck_state_load(path);
     }
 
-    void on_game_loaded() {
+    void game_loaded() {
         ck::dispatcher::on_game_loaded();
         ck::on_map_enter();
+    }
+
+    // Separate hook for destroying objects to help clearing out ptrs
+    // in time
+    void object_destroyed(fallout::Object* object) {
+        logger.debug("object_destroyed");
+        ck::registry::created::remove_by_ptr(object);
+    }
+
+    // Exit
+    void ck_scripting_exit() {
+        ck::proxy::shutdown();
+
+        logger.info("ck_scripting_exit");
+        logger.info("Shutting down LuaJIT backend...");
     }
 }
 
 // ffi
 
-void ck_scripting_load_game_slot(int slot) {
+void ck_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
 
@@ -247,8 +251,8 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
-void ck_scripting_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
+void ck_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
 bool ck_in_combat() { return ck::common::currently_in_combat(); }
-bool ck_mods_reload_in_progress() { return ck_reloading_mods(); }
+bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }
