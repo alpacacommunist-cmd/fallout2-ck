@@ -12,7 +12,10 @@ namespace ck::proxy::detail {
     extern int on_map_update;
     extern int on_proc;
     extern int on_proto_proc;
+
     extern int load_and_init_mod;
+
+    extern int critter_killed;
 }
 
 namespace ck::proxy {
@@ -50,5 +53,9 @@ namespace ck::proxy {
 
     bool load_mod(const char* mod_id) {
         return execute_proxy_call<bool>(detail::load_and_init_mod, mod_id);
+    }
+
+    bool critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
+        return execute_proxy_call<bool>(detail::critter_killed, victim, killer);
     }
 }

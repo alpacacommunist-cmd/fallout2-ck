@@ -108,7 +108,7 @@ namespace ck::dispatcher {
     }
 
     void on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
-        emit("critter_killed", victim, killer);
+        ck::proxy::critter_killed(victim, killer);
     }
 
     void on_day_passed() {

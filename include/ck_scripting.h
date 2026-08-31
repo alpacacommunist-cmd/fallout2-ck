@@ -42,7 +42,6 @@ namespace ck::events {
     void exit();
 }
 
-
 CK_API void ck_load_game_slot(int slot);
 
 CK_API const char* ck_testing_get_current_suite();
