@@ -120,7 +120,7 @@ namespace ck::script {
 
 		// void* source_ptr = script->source;
 
-		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id.data());
+		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id.c_str());
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;
@@ -149,6 +149,15 @@ namespace ck::script {
         if (!victim_ptr || !killer_ptr) return;
 
         ck::dispatcher::on_critter_killed(&victim, &killer);
+
+        // object was spawned by lua mod but has no lua script
+        if (victim.lua_id != -1 && !ck::ids::is_ck_sid(victim_ptr->sid)) {
+            const LuaMeta* meta = ck::registry::get_meta(victim.lua_id);
+
+            // dispatch proc manually
+            logger.debug("Dispatching proc {} to lua_id {} manually (no lua script found)", proc, victim.lua_id);
+            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id.data());
+        }
     }
 
 	int dialog_init_ui() {

@@ -95,11 +95,6 @@ events.on('critter_killed', function(victim, killer)
   log.info("mod_id: " .. victim:get_mod_id())
 
   victim:give_item(golden_tail.pid, 1, true)
-
-  if (victim.lua_id and objects.registry[victim.lua_id]) then
-    local victim_object = objects.registry[victim.lua_id]
-    victim_object:_handle_proc(18)
-  end
 end)
 
 events.on('map_enter', function(map_id)
