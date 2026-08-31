@@ -44,6 +44,7 @@ namespace ck {
         extern int reload_mods;
         extern int bootstrap;
         extern int set_language;
+        extern int clear_registries;
     }
 }
 
@@ -104,6 +105,9 @@ void ck_scripting_init(int argc, char** argv) {
 
 void ck_on_scripts_reset() {
 	logger.info("ck_on_scripts_reset");
+
+    ck::registry::clear();
+    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
 }
 
 // Exit
