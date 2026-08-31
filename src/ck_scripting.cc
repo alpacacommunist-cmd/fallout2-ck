@@ -192,7 +192,7 @@ namespace ck::events {
     }
 
     // Exit
-    void ck_scripting_exit() {
+    void exit() {
         ck::proxy::shutdown();
 
         logger.info("ck_scripting_exit");

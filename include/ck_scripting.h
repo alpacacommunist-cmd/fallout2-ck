@@ -39,7 +39,7 @@ namespace ck::events {
     void game_loaded();
 
     void object_destroyed(fallout::Object* object);
-    void ck_scripting_exit();
+    void exit();
 }
 
 
