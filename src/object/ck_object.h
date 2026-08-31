@@ -42,7 +42,7 @@ struct CkObjectFFI {
 };
 
 namespace ck::object {
-	void to_ffi(CkObjectFFI& destination, fallout::Object* source, bool is_global = false);
+	void to_ffi(CkObjectFFI& destination, fallout::Object* source);
 	void remove_at(int tile);
 	int find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
 	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count);

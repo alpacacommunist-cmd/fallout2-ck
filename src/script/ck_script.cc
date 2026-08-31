@@ -11,8 +11,6 @@
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
-#include <cstring>
-
 #include "ck_log.h"
 static const Logger logger("CK Script");
 
@@ -140,19 +138,17 @@ namespace ck::script {
         if (fallout::scriptGetScript(sid, &script) == -1 || script == nullptr) return;
 
         fallout::Object* victim_ptr = script->owner;
-        if (victim_ptr == nullptr || fallout::objectTypeFromPid(victim_ptr->pid) != fallout::OBJ_TYPE_CRITTER) return;
         fallout::Object* killer_ptr = script->source;
 
-        CkObjectFFI victim{}, killer{};
-        ck::object::to_ffi(victim, victim_ptr, true);
+        if (victim_ptr == nullptr || fallout::objectTypeFromPid(victim_ptr->pid) != fallout::OBJ_TYPE_CRITTER) return;
 
-        if (killer_ptr) {
-            ck::object::to_ffi(killer, killer_ptr, true);
-        }
+        CkObjectFFI victim{}, killer{};
+        if (victim_ptr) ck::object::to_ffi(victim, victim_ptr);
+        if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
+
+        if (!victim_ptr || !killer_ptr) return;
 
         ck::dispatcher::on_critter_killed(&victim, &killer);
-
-        try_handle(sid, proc);
     }
 
 	int dialog_init_ui() {

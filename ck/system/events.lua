@@ -68,6 +68,15 @@ function events.emit_for_mod(mod_id, event_name, ...)
   end
 end
 
+-- global game events
+-- e.g critter_killed, object_destroyed etc
+function events.critter_killed(mod_id, event_name, victim, killer)
+  victim = object_ffi.from_ptr(victim)
+  killer = object_ffi.from_ptr(killer)
+
+  events.emit_for_mod(mod_id, 'critter_killed', victim, killer)
+end
+
 function events.clear_for_mod(mod_id)
   events.listeners[mod_id] = nil
   log.info("Cleared listeners for mod: " .. mod_id)

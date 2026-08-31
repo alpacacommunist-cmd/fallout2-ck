@@ -22,7 +22,7 @@ namespace ck::common {
 }
 
 namespace ck::object {
-	void to_ffi(CkObjectFFI& destination, fallout::Object* source, bool is_global) {
+	void to_ffi(CkObjectFFI& destination, fallout::Object* source) {
 		if (!source) return;
 
 		destination.c_ptr     = static_cast<void*>(source);
@@ -36,8 +36,16 @@ namespace ck::object {
 
 		destination.name      = fallout::objectGetName(source);
 		destination.lua_id    = ck::registry::find_by_ptr(source);
+        destination.mod_id    = ck::common::system_mod_id();
 
-        destination.mod_id = is_global ? common::system_mod_id() : common::current_mod_id();
+        const char* current_mod_id = ck::common::current_mod_id();
+        if (current_mod_id != nullptr) destination.mod_id = current_mod_id;
+
+        if (destination.lua_id != -1) {
+            const LuaMeta* object_meta = registry::get_meta(destination.lua_id);
+
+            if (object_meta) destination.mod_id = object_meta->mod_id.c_str();
+        }
 	}
 
 	void remove_at(int tile) {
