@@ -160,6 +160,31 @@ namespace ck::script {
         }
     }
 
+    void kick_off_map_updates_for_sid(int sid) {
+        if (sid == -1) return;
+
+        fallout::scriptExecProc(sid, fallout::SCRIPT_PROC_START);
+        fallout::scriptExecProc(sid, fallout::SCRIPT_PROC_MAP_ENTER);
+    }
+
+    void disable_map_updates_for_sid(int sid) {
+        fallout::Script* script = get_dummy(sid);
+
+        if (script != nullptr) {
+            script->procs[fallout::SCRIPT_PROC_TIMED]   = fallout::SCRIPT_PROC_NO_PROC;
+            script->procs[fallout::SCRIPT_PROC_CRITTER] = fallout::SCRIPT_PROC_NO_PROC;
+        }
+    }
+
+    void enable_map_updates_for_sid(int sid) {
+        fallout::Script* script = get_dummy(sid);
+
+        if (script != nullptr) {
+            script->procs[fallout::SCRIPT_PROC_TIMED]   = -1;
+            script->procs[fallout::SCRIPT_PROC_CRITTER] = -1;
+        }
+    }
+
 	int dialog_init_ui() {
 		return fallout::_gdialogInitFromScript(-1, fallout::HeadFidget(0));
 	}
