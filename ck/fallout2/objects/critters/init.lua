@@ -77,13 +77,13 @@ end
 
 --- args tracer
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
-
 function critters.register(tag, pid, tile, config)
-  config = config or {}
-  config.elevation = config.elevation or ffi.C.ck_current_elevation()
-
-  -- mod id
-  -- local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local spawn_params = ffi.new("CritterLuaSpawnParams", {
+    tag = tag or nil,
+    elevation = config.elevation or ffi.C.ck_current_elevation(),
+    script_index = config.script_index or -1,
+    team = config.team or -1
+  })
 
   -- params (custom proto_name/description etc)
   local proto_name = not utils.is_blank(config.name) and config.name or nil
@@ -98,7 +98,7 @@ function critters.register(tag, pid, tile, config)
     team = team_id
   })
 
-  local lua_id  = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
+  local lua_id  = ck_critter_spawn_traced(pid, tile, spawn_params, params)
 
   if lua_id == -1 then
     log.warn("Failed to register critter (FFI) (tag: %s)", lua_tag)
@@ -110,7 +110,7 @@ function critters.register(tag, pid, tile, config)
     return nil
   end
 
-  return CritterClass.new(lua_id) --, lua_tag, mod_id, config)
+  return CritterClass.new(lua_id, config)
 end
 
 function critters.create(pid, tile, config)

@@ -14,8 +14,8 @@ local Object = require("ck.fallout2.classes.object")
 local Critter = {}
 setmetatable(Critter, { __index = Object })
 
-function Critter.new(lua_id) --, tag, mod_id, config)
-  local self = Object.new(lua_id)--, tag, mod_id, config)
+function Critter.new(lua_id, config)
+  local self = Object.new(lua_id)--, config)
   setmetatable(self, Critter)
 
   self.in_combat       = false
@@ -50,8 +50,8 @@ function Critter.new(lua_id) --, tag, mod_id, config)
         return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
       end)
 
-      -- if config and config.stats  then self.stats = config.stats end
-      -- if config and config.skills then self.skills = config.skills end
+      if config and config.stats  then self.stats = config.stats end
+      if config and config.skills then self.skills = config.skills end
     end
   end
 

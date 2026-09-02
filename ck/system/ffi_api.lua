@@ -90,13 +90,21 @@ ffi.cdef[[
   bool ck_critter_is_busy(fallout_Object* critter);
 
   // --- Critter ---
-  typedef struct { int lua_id; char lua_tag[64]; } CritterLua;
+  typedef struct {
+    const char* tag;
+    int elevation;
+    int script_index;
+    int team;
+  } CritterLuaSpawnParams;
+
   typedef struct {
     const char* name;
     const char* description;
     const char* ai_packet;
     int team;
   } CritterLuaProtoParams;
+
+  int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
 
   int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
@@ -107,7 +115,6 @@ ffi.cdef[[
   int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
   void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
 
-  int ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
   void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
   // --- Critter Events
@@ -300,6 +307,16 @@ ffi.metatype("CritterLuaProtoParams", {
     local ai   = p.ai_packet ~= nil and string.format("'%s'", ffi.string(p.ai_packet)) or "NULL"
 
     return string.format("CritterLuaProtoParams{ name: %s, description: %s, ai_packet: %s, team: %d }", name, desc, ai, p.team)
+  end
+})
+
+ffi.metatype("CritterLuaSpawnParams", {
+  __tostring = function(p)
+    local tag = p.tag ~= nil and string.format("'%s'", ffi.string(p.tag)) or "NULL"
+
+    return string.format("CritterLuaSpawnParams{ tag: %s, elevation: %s, script_index: %s, team: %d }",
+      tag, p.elevation, p.script_index, p.team
+    )
   end
 })
 
