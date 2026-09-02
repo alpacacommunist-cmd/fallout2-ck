@@ -5,24 +5,27 @@
 #include "ck_api.h"
 #include "ck_critter_proto.h"
 
-struct CritterLua {
-    int  lua_id;
-    char lua_tag[64];
-};
-
 namespace fallout {
     struct Object;
 }
+
+// passed from lua
+struct CritterLuaSpawnParams {
+    const char* tag;
+    int elevation;
+    int script_index;
+    int team;
+};
 
 namespace ck::critter {
     bool has_custom_prototype(int pid);
     void clear_spawn_queues();
 
-    CritterLua spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
+	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
     bool kill(int lua_id);
 }
 
-CK_API CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
+CK_API int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_take_out_weapon(fallout::Object* critter, int delay);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);

@@ -41,6 +41,9 @@ namespace fallout {
 
 	int mapGetCurrentMap();
     WeaponAnimation weaponGetAnimationCode(Object* weapon);
+
+
+    int scriptAdd(int* sidPtr, int scriptType);
 }
 
 namespace ck::critter {
@@ -78,36 +81,55 @@ namespace ck::critter {
 	static fallout::Object* create(int pid, int tile, int elevation) {
 		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
 
-		if (critter != nullptr) {
-			return critter;
-		}
-
+		if (critter != nullptr) return critter;
 		return nullptr;
 	}
 
-	CritterLua spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
-        CritterLua result{ -1, "" };
+    static void assign_script(fallout::Object* critter, int script_index, int lua_id) {
+        // Script index explicitly passed from LUA
+        if (script_index != -1) {
+            // fallout::scriptAdd(&critter->sid, ck::ids::script_type_for_object(critter));
+            ck::script::assign_script_index_to_object(script_index, critter);
+            ck::script::enable_map_updates_for_object(critter);
+            ck::script::kick_off_map_updates_for_sid(critter->sid);
+        }
+
+        // Critter has PROTOTYPE script
+        if (critter->scriptIndex != -1) {
+            ck::script::set_no_save(critter->sid);
+            ck::script::kick_off_map_updates_for_sid(critter->sid);
+
+            logger.debug("PID {} uses native fallout2-ce script slot {}", critter->pid, critter->scriptIndex);
+            return;
+        }
+
+        // Otherwise assign LUA script
+        critter->sid = ids::make_sid_created(critter, lua_id);
+        logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
+    }
+
+	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params) {
+        int lua_id = -1;
 
 		int map_id         = fallout::mapGetCurrentMap();
 		std::string mod_id = common::current_mod_id();
 
         int source_pid = pid;
-        bool prototype_required = !utils::is_blank(tag) && has_proto_params(params);
+        bool prototype_required = !utils::is_blank(spawn_params->tag) && has_proto_params(params);
 
         std::string lua_tag;
         if (prototype_required) {
             // Lua tag is passed explicitly
-            lua_tag = std::string(tag);
+            lua_tag = std::string(spawn_params->tag);
             g_mod_spawn_counters[mod_id]++;
         } else {
             // Autogenerate tag
             lua_tag = generate_unique_tag(mod_id);
         }
-        utils::copy_to_buffer(result.lua_tag, sizeof(result.lua_tag), lua_tag);
 
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
-        if (state.elevation != -1) elevation = state.elevation;
+        if (state.elevation != -1) spawn_params->elevation = state.elevation;
 		if (state.tile != -1)      tile = state.tile;
 
         // either alive or first spawn
@@ -116,43 +138,31 @@ namespace ck::critter {
         if (critter_alive) {
             if (prototype_required) {
                 int unique_pid = ck::critter::proto::allocate(pid, params);
-                if (unique_pid == -1) return result;
+                if (unique_pid == -1) return lua_id;
 
                 pid = unique_pid;
             }
 
-            fallout::Object* critter = create(pid, tile, elevation);
-            if (critter == nullptr) return result;
+            fallout::Object* critter = create(pid, tile, spawn_params->elevation);
+            if (critter == nullptr) return lua_id;
 
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
             LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
-            result.lua_id = registry::created::add(critter, std::move(meta));
+            lua_id = registry::created::add(critter, std::move(meta));
 
-            if (critter->scriptIndex != -1) {
-                ck::script::assign_no_save_to_sid(critter->sid);
-                logger.debug("PID {} uses native engine script slot {}", critter->pid, critter->scriptIndex);
-            } else {
-                critter->sid = ids::make_sid_created(critter, result.lua_id);
-                logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
+            ck::critter::assign_script(critter, spawn_params->script_index, lua_id);
 
-                ck::script::enable_map_updates_for_sid(critter->sid);
+            if (spawn_params->team != -1) {
+                critter->data.critter.combat.team = spawn_params->team;
+                logger.debug("Assigned team ID: {} to critter {}", spawn_params->team, lua_tag);
             }
-
-            if (params->team != -1) {
-                critter->data.critter.combat.team = params->team;
-                logger.debug("Assigned team ID: {} to critter {}", params->team, lua_tag);
-            }
-
-            script::kick_off_map_updates_for_sid(critter->sid);
         } else { // critter is dead
             // Has no custom proto attributes, body is handled by fallout2-ce
-            if (!prototype_required) {
-                result.lua_id = -2; return result;
-            }
+            if (!prototype_required) return -2;
 
             fallout::Object* corpse = nullptr;
-            fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
+            fallout::Object* object = fallout::objectFindFirstAtLocation(spawn_params->elevation, tile);
 
             while (object != nullptr) {
                 if (object->id == state.id) {
@@ -166,11 +176,11 @@ namespace ck::critter {
             // Mod specifies custom name/description (for look_at/examine). Assign custom SID to a corpse
             // to let lua handle procs
             if (corpse != nullptr) {
-                result.lua_id = registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
+                lua_id = registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
             }
         }
 
-        return result;
+        return lua_id;
 	}
 
 	bool kill(int lua_id) {
@@ -201,8 +211,8 @@ namespace ck::critter {
 	}
 }
 
-CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params) {
-	return ck::critter::spawn(pid, tile, elevation, tag, params);
+int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params) {
+	return ck::critter::spawn(pid, tile, spawn_params, params);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

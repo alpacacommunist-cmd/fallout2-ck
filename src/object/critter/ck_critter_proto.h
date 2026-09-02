@@ -5,6 +5,7 @@
 #include "ck_api.h"
 #include <string>
 
+// passed from lua
 struct CritterLuaProtoParams {
     const char* name;
     const char* description;
