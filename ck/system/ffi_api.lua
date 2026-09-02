@@ -74,6 +74,7 @@ ffi.cdef[[
   } CkObjectFFI;
 
   int ck_registry_modify_object(void* ptr);
+  bool ck_object_is_modified(int lua_id);
   int ck_registry_restore_modified_object(void* ptr);
 
   int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
@@ -106,8 +107,7 @@ ffi.cdef[[
   int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
   void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
 
-  CritterLua ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
-
+  int ck_critter_spawn(int pid, int tile, int elevation, const char* tag, const CritterLuaProtoParams* params);
   void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
 
   // --- Critter Events
@@ -129,6 +129,9 @@ ffi.cdef[[
   char* ck_object_get_name(void* ptr);
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
+
+  const char* ck_object_get_mod_id(fallout_Object* object);
+  const char* ck_object_get_lua_tag(fallout_Object* object);
 
   // --- Stats ---
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));

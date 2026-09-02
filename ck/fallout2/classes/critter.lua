@@ -14,16 +14,15 @@ local Object = require("ck.fallout2.classes.object")
 local Critter = {}
 setmetatable(Critter, { __index = Object })
 
-function Critter.new(lua_id, tag, mod_id, config)
-  local self = Object.new(lua_id, tag, mod_id, config)
+function Critter.new(lua_id) --, tag, mod_id, config)
+  local self = Object.new(lua_id)--, tag, mod_id, config)
   setmetatable(self, Critter)
 
   self.in_combat       = false
   self.active_behavior = nil
   self.is_dead         = self:hp() <= 0
-  self.pid             = ffi.C.ck_object_get_pid(self.c_ptr)
 
-  log.info("critter %s pid: %d", self.tag, self.pid)
+  log.debug("critter %s pid: %d", self.tag, self.pid)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
 
@@ -51,8 +50,8 @@ function Critter.new(lua_id, tag, mod_id, config)
         return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
       end)
 
-      if config and config.stats  then self.stats = config.stats end
-      if config and config.skills then self.skills = config.skills end
+      -- if config and config.stats  then self.stats = config.stats end
+      -- if config and config.skills then self.skills = config.skills end
     end
   end
 

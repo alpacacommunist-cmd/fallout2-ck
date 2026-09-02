@@ -83,7 +83,7 @@ function critters.register(tag, pid, tile, config)
   config.elevation = config.elevation or ffi.C.ck_current_elevation()
 
   -- mod id
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  -- local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
 
   -- params (custom proto_name/description etc)
   local proto_name = not utils.is_blank(config.name) and config.name or nil
@@ -98,21 +98,19 @@ function critters.register(tag, pid, tile, config)
     team = team_id
   })
 
-  -- returns { lua_id, lua_tag }
-  local critter_data = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
-  local lua_tag = ffi.string(critter_data.lua_tag)
+  local lua_id  = ck_critter_spawn_traced(pid, tile, config.elevation, tag, params)
 
-  if critter_data.lua_id == -1 then
+  if lua_id == -1 then
     log.warn("Failed to register critter (FFI) (tag: %s)", lua_tag)
     return nil
   end
 
-  if critter_data.lua_id == -2 then
+  if lua_id == -2 then
     log.debug("Critter %s is dead and has default prototype name/description", lua_tag)
     return nil
   end
 
-  return CritterClass.new(critter_data.lua_id, lua_tag, mod_id, config)
+  return CritterClass.new(lua_id) --, lua_tag, mod_id, config)
 end
 
 function critters.create(pid, tile, config)

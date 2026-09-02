@@ -13,18 +13,21 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id, tag, mod_id, config)
+function Object.new(lua_id)-- tag, mod_id, config)
   local self = setmetatable({}, Object)
 
   self.lua_id      = lua_id
 
   self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
   self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
+  self.pid         = ffi.C.ck_object_get_pid(self.c_ptr)
 
-  self.mod_id      = mod_id
-  self.tag         = tag
+  self.mod_id      = ffi.string(ffi.C.ck_object_get_mod_id(self.c_ptr))
+  self.tag         = ffi.string(ffi.C.ck_object_get_lua_tag(self.c_ptr)) or nil
 
-  self.modified    = config.modified or false
+  self.modified    = ffi.C.ck_object_is_modified(self.lua_id)
+
+  log.debug("object is modified: %s, mod_id: %s, tag: %s", self.modified, self.mod_id, self.tag)
 
   self.has_lua_script = ffi.C.ck_is_sid_ck_custom(self.lua_id)
   if self.has_lua_script then
@@ -33,10 +36,10 @@ function Object.new(lua_id, tag, mod_id, config)
     log.debug("object lua_id: %d has base sid: %d", self.lua_id, self.sid)
   end
 
-  self.name        = config.name
-  self.description = config.description
-
-  self.elevation = config.elevation
+  -- self.name        = config.name
+  -- self.description = config.description
+  --
+  -- self.elevation = config.elevation
 
   self.handlers = {}
 
