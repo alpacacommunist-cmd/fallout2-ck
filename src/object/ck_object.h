@@ -63,10 +63,10 @@ void ck_object_create_blocker_at(int tile);
 CK_API void ck_object_remove_at(int tile);
 
 CK_API void* ck_object_get_ptr(int lua_id);
-CK_API int   ck_object_get_id(void* ptr);
+CK_API int   ck_object_get_id(fallout::Object* object);
 CK_API int   ck_object_get_pid(fallout::Object* object);
-CK_API int   ck_object_get_tile(void* ptr);
-CK_API int   ck_object_get_sid(void* ptr);
+CK_API int   ck_object_get_tile(fallout::Object* object);
+CK_API int   ck_object_get_sid(fallout::Object* object);
 CK_API char* ck_object_get_name(void* ptr);
 CK_API int ck_object_get_type(void* ptr);
 

@@ -124,8 +124,8 @@ ffi.cdef[[
   void* ck_object_get_ptr(int lua_id);
   int ck_object_get_id(void* c_ptr);
   int ck_object_get_pid(fallout_Object* object);
-  int ck_object_get_tile(void* c_ptr);
-  int ck_object_get_sid(void* c_ptr);
+  int ck_object_get_tile(fallout_Object* object);
+  int ck_object_get_sid(fallout_Object* object);
   char* ck_object_get_name(void* ptr);
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);

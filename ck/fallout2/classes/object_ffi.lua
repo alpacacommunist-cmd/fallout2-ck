@@ -72,9 +72,9 @@ function object_ffi:bind()
       local name   = self:get_name()
       local mod_id = self:get_mod_id()
 
-      object = Critter.new(self.lua_id, nil, mod_id, { modified = true })
+      object = Critter.new(self.lua_id)--, nil, mod_id, { modified = true })
     else
-      object = Object.new(self.lua_id, nil, mod_id, { modified = true })
+      object = Object.new(self.lua_id)--, nil, mod_id, { modified = true })
     end
   end
 
