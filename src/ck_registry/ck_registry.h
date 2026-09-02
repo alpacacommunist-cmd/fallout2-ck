@@ -91,6 +91,10 @@ CK_API void ck_registry_clear();
 CK_API void ck_registry_clear_for_mod(const char* target_mod_id);
 
 CK_API int  ck_registry_modify_object(void* ptr);
+CK_API bool ck_object_is_modified(int lua_id);
 CK_API int  ck_registry_restore_modified_object(void* ptr);
+
+CK_API const char* ck_object_get_mod_id(fallout::Object* object);
+CK_API const char* ck_object_get_lua_tag(fallout::Object* object);
 
 #endif

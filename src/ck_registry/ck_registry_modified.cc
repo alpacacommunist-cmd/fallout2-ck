@@ -123,10 +123,7 @@ namespace ck::registry::modified {
 
     const CkModifiedObject* get(int lua_id) {
         auto it = g_modified_objects.find(lua_id);
-        if (it != g_modified_objects.end()) {
-            return &it->second;
-        }
-        return nullptr;
+        return (it != g_modified_objects.end()) ? &it->second : nullptr;
     }
 }
 
@@ -136,8 +133,13 @@ int ck_registry_modify_object(void* ptr) {
 	return ck::registry::modified::add(object);
 }
 
+bool ck_object_is_modified(int lua_id) {
+    return ck::registry::modified::get(lua_id) != nullptr;
+}
+
 int ck_registry_restore_modified_object(void* ptr) {
 	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
 
 	return ck::registry::modified::restore(object);
 }
+

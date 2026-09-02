@@ -10,6 +10,7 @@ namespace ck::registry {
 	std::unordered_map<int, CkModifiedObject> g_modified_objects;
     std::vector<CkDeletedObject>              g_deleted_objects;
 
+    // Holds both CREATED and MODIFIED ptrs
     std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
 	static int g_next_id = 1;
@@ -24,6 +25,8 @@ namespace ck::registry {
 	}
 
 	const LuaMeta* get_meta(int lua_id) {
+        if (lua_id == -1) return nullptr;
+
 		auto created_it = g_created_objects.find(lua_id);
 		if (created_it != g_created_objects.end()) {
 			return &created_it->second.meta;
@@ -84,3 +87,19 @@ void ck_registry_clear() {
 void ck_registry_clear_for_mod(const char* target_mod_id) {
     ck::registry::clear_resources_for_mod(target_mod_id);
 }
+
+const char* ck_object_get_mod_id(fallout::Object* object) {
+    if (object == nullptr) return nullptr;
+
+	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
+    return (meta != nullptr) ? meta->mod_id.data() : nullptr;
+}
+
+// MODIFIED critters don't have a tag. Only CREATED
+const char* ck_object_get_lua_tag(fallout::Object* object) {
+    if (object == nullptr) return nullptr;
+
+	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
+    return (meta != nullptr) ? meta->tag.data() : nullptr;
+}
+
