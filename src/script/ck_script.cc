@@ -168,7 +168,8 @@ namespace ck::script {
     }
 
     void disable_map_updates_for_sid(int sid) {
-        fallout::Script* script = get_dummy(sid);
+        fallout::Script* script;
+        fallout::scriptGetScript(sid, &script);
 
         if (script != nullptr) {
             script->procs[fallout::SCRIPT_PROC_TIMED]   = fallout::SCRIPT_PROC_NO_PROC;
@@ -177,7 +178,8 @@ namespace ck::script {
     }
 
     void enable_map_updates_for_sid(int sid) {
-        fallout::Script* script = get_dummy(sid);
+        fallout::Script* script;
+        fallout::scriptGetScript(sid, &script);
 
         if (script != nullptr) {
             script->procs[fallout::SCRIPT_PROC_TIMED]   = -1;

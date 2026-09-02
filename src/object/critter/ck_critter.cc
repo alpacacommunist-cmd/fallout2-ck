@@ -137,6 +137,7 @@ namespace ck::critter {
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
                     fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_TIMED);
+                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_CRITTER);
                 }
             } else {
                 critter->sid = ids::make_sid_created(critter, result.lua_id);
