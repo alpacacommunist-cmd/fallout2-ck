@@ -18,6 +18,8 @@ ffi.cdef[[
 
   const char* ck_get_current_mod_id();
 
+  bool ck_is_sid_ck_custom(int sid);
+
   // --- Encoding ---
   size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size); size_t strlen(const char* s);
 

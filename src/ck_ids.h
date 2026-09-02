@@ -61,5 +61,6 @@ int make_sid_modified(fallout::Object* obj, int lua_id);
 
 CK_API int ck_ids_make_ck_fid(int custom_frm_id, int art_type = ck::ids::CK_ASSET_TRANSPORT_TYPE);
 CK_API int ck_ids_art_id_from_fid(int fid);
+CK_API bool ck_is_sid_ck_custom(int sid);
 
 #endif

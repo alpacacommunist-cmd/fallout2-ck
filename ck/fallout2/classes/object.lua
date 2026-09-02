@@ -17,13 +17,21 @@ function Object.new(lua_id, tag, mod_id, config)
   local self = setmetatable({}, Object)
 
   self.lua_id      = lua_id
+
+  self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
+  self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
+
   self.mod_id      = mod_id
   self.tag         = tag
 
   self.modified    = config.modified or false
 
-  self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
-  self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
+  self.has_lua_script = ffi.C.ck_is_sid_ck_custom(self.lua_id)
+  if self.has_lua_script then
+    log.debug("object lua_id: %d has custom lua sid: %d", self.lua_id, self.sid)
+  else
+    log.debug("object lua_id: %d has base sid: %d", self.lua_id, self.sid)
+  end
 
   self.name        = config.name
   self.description = config.description
