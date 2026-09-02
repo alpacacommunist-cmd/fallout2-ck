@@ -14,6 +14,7 @@ local utils     = require('ck.system.utils')
 --
 
 map.register_borders(126, {left = 95, right = 113, top = 82, bottom = 110})
+map.register_borders(72, {left = 85, right = 101, top = 112, bottom = 120})
 
 events.on('onModReload', function()
   map.rendering_refresh()
@@ -42,7 +43,7 @@ events.on('map_enter', function(map_id)
 
   ralph.stats = { max_hp = 10, hp = 1 }
 
-  ralph:set_behavior(behaviors.wander, 3)
+  -- ralph:set_behavior(behaviors.wander, 3)
 end)
 
 events.on('map_enter', function(map_id)
@@ -59,7 +60,7 @@ events.on('map_enter', function(map_id)
   --
   ralph.stats = { max_hp = 10, hp = 1 }
 
-  ralph:set_behavior(behaviors.wander, 3)
+  -- ralph:set_behavior(behaviors.wander, 3)
 
   if (not ralph.is_dead) then
     ralph:give_item(items.PID_KNIFE, 1)

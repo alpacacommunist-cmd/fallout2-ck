@@ -53,7 +53,7 @@ namespace ck::script {
             script.localVarsOffset = -1;
             script.actionBeingUsed = -1;
 
-			script.index = 0;
+			script.index = -1;
 			script.flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
 
             for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
@@ -160,6 +160,15 @@ namespace ck::script {
         }
     }
 
+    void assign_no_save_to_sid(int sid) {
+        fallout::Script* script;
+        fallout::scriptGetScript(sid, &script);
+
+        if (script != nullptr) {
+            script->flags |= SCRIPT_FLAG_NO_SAVE;
+        }
+    }
+
     void kick_off_map_updates_for_sid(int sid) {
         if (sid == -1) return;
 
@@ -182,8 +191,8 @@ namespace ck::script {
         fallout::scriptGetScript(sid, &script);
 
         if (script != nullptr) {
-            script->procs[fallout::SCRIPT_PROC_TIMED]   = -1;
-            script->procs[fallout::SCRIPT_PROC_CRITTER] = -1;
+            script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
+            script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
         }
     }
 

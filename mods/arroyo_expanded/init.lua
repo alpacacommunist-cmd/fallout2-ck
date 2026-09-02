@@ -138,8 +138,8 @@ events.on('map_enter', function(map_id)
 
   alice:take_out_weapon()
 
-  alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
-  alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
+  -- alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
+  -- alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
   alice:on('push', function(self)
     self:float_message('denied', 1)
@@ -160,9 +160,9 @@ events.on('map_enter', function(map_id)
   log.info("villager2 gender: %d", villager2:gender())
 
   villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
-    :set_behavior(behaviors.wander, 3)
+    -- :set_behavior(behaviors.wander, 3)
   villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
-    :set_behavior(behaviors.wander, 12)
+    -- :set_behavior(behaviors.wander, 12)
 
   radscorpion1 = critters.create(16777221, 27916, { team = 2 })
   radscorpion2 = critters.create(16777221, 28513, { team = 2 })

@@ -6,9 +6,9 @@
 #include "ck_registry/ck_registry.h"
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_critter_proto.h"
+#include "script/ck_script.h"
 
 #include "animation.h"
-#include "scripts.h"
 
 #include <cstring>
 
@@ -27,6 +27,9 @@ namespace ck {
 
 namespace fallout {
     extern Object* gDude;
+
+    enum Hand : int { HAND_LEFT, HAND_RIGHT, HAND_COUNT, };
+    int inventoryEquipFunc(Object* critter, Object* item, Hand hand, bool animate);
 
 	void _combat_ai(Object* a1, Object* a2);
     Object* _ai_search_inven_weap(Object* critter, bool checkRequiredActionPoints, Object* defender);
@@ -127,28 +130,22 @@ namespace ck::critter {
             result.lua_id = registry::created::add(critter, std::move(meta));
 
             if (critter->scriptIndex != -1) {
+                ck::script::assign_no_save_to_sid(critter->sid);
                 logger.debug("PID {} uses native engine script slot {}", critter->pid, critter->scriptIndex);
-
-                fallout::Script* script = nullptr;
-
-                if (fallout::scriptGetScript(critter->sid, &script) != -1) {
-                    script->flags |= SCRIPT_FLAG_NO_SAVE;
-
-                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_START);
-                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_MAP_ENTER);
-                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_TIMED);
-                    fallout::scriptExecProc(critter->sid, fallout::SCRIPT_PROC_CRITTER);
-                }
             } else {
                 critter->sid = ids::make_sid_created(critter, result.lua_id);
                 logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
+
+                ck::script::enable_map_updates_for_sid(critter->sid);
             }
 
             if (params->team != -1) {
                 critter->data.critter.combat.team = params->team;
                 logger.debug("Assigned team ID: {} to critter {}", params->team, lua_tag);
             }
-        } else {
+
+            script::kick_off_map_updates_for_sid(critter->sid);
+        } else { // critter is dead
             // Has no custom proto attributes, body is handled by fallout2-ce
             if (!prototype_required) {
                 result.lua_id = -2; return result;
