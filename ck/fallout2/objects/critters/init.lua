@@ -114,9 +114,13 @@ function critters.register(tag, pid, tile, config)
 end
 
 function critters.create(pid, tile, config)
+  local spawn_params = {}
+  spawn_params.elevation    = config.elevation or 0
+  spawn_params.script_index = config.script_index or -1
+  spawn_params.team         = config.team or -1
   -- This is used for critters without explicitly specified tag
   -- Backend automatically generates spawn_{index} tag and skips custom prototype
-  return critters.register(nil, pid, tile, config)
+  return critters.register(nil, pid, tile, spawn_params)
 end
 
 return critters

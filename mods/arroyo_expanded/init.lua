@@ -153,8 +153,8 @@ events.on('map_enter', function(map_id)
     -- :play(38)
   :submit()
 
-  local villager1 = critters.create(16777219, 21119, { team = 0 })
-  local villager2 = critters.create(16777220, 21716, { team = 0 })
+  local villager1 = critters.create(16777219, 21119, { team = 0, script_index = 8 })
+  local villager2 = critters.create(16777220, 21716, { team = 0, script_index = 8 })
 
   log.info("villager1 gender: %d", villager1:gender())
   log.info("villager2 gender: %d", villager2:gender())
