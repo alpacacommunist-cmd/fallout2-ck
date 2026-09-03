@@ -53,8 +53,8 @@ namespace ck::script {
             script.localVarsOffset = -1;
             script.actionBeingUsed = -1;
 
-			script.index = -1;
-			script.flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
+            script.index = -1;
+            script.flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
 
             for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
         }
@@ -160,13 +160,11 @@ namespace ck::script {
         }
     }
 
-    void assign_no_save_to_sid(int sid) {
+    void set_no_save(int sid) {
         fallout::Script* script;
         fallout::scriptGetScript(sid, &script);
 
-        if (script != nullptr) {
-            script->flags |= SCRIPT_FLAG_NO_SAVE;
-        }
+        if (script != nullptr) script->flags |= SCRIPT_FLAG_NO_SAVE;
     }
 
     void kick_off_map_updates_for_sid(int sid) {
@@ -176,23 +174,44 @@ namespace ck::script {
         fallout::scriptExecProc(sid, fallout::SCRIPT_PROC_MAP_ENTER);
     }
 
-    void disable_map_updates_for_sid(int sid) {
+    void disable_map_updates_for_object(fallout::Object* object) {
         fallout::Script* script;
-        fallout::scriptGetScript(sid, &script);
+        fallout::scriptGetScript(object->sid, &script);
 
         if (script != nullptr) {
             script->procs[fallout::SCRIPT_PROC_TIMED]   = fallout::SCRIPT_PROC_NO_PROC;
             script->procs[fallout::SCRIPT_PROC_CRITTER] = fallout::SCRIPT_PROC_NO_PROC;
+            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = fallout::SCRIPT_PROC_NO_PROC;
         }
     }
 
-    void enable_map_updates_for_sid(int sid) {
+    void assign_script_index_to_object(int script_index, fallout::Object* object) {
+        if (object->sid != -1) fallout::scriptRemove(object->sid);
+
+        fallout::scriptAdd(&object->sid, ck::ids::script_type_for_object(object));
+
         fallout::Script* script;
-        fallout::scriptGetScript(sid, &script);
+        fallout::scriptGetScript(object->sid, &script);
 
         if (script != nullptr) {
+            object->scriptIndex = script_index;
+            script->ownerId = object->id;
+            script->owner   = object;
+
+            script->index = script_index;
+            script->flags |= SCRIPT_FLAG_NO_SAVE;
+        }
+    }
+
+    void enable_map_updates_for_object(fallout::Object* object) {
+        fallout::Script* script;
+        fallout::scriptGetScript(object->sid, &script);
+        if (script != nullptr) {
+            logger.debug("enabling map_update for SID: {}", script->sid);
+
             script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
             script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
+            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = 1;
         }
     }
 
