@@ -16,11 +16,13 @@ Object.PROC_NAMES = objects.PROC_NAMES
 function Object.new(lua_id)-- tag, mod_id, config)
   local self = setmetatable({}, Object)
 
-  self.lua_id      = lua_id
+  self.lua_id = lua_id
 
-  self.c_ptr       = ffi.C.ck_object_get_ptr(self.lua_id)
-  self.sid         = ffi.C.ck_object_get_sid(self.c_ptr)
-  self.pid         = ffi.C.ck_object_get_pid(self.c_ptr)
+  self.c_ptr = ffi.C.ck_object_get_ptr(self.lua_id)
+  self.fallout_Object = ffi.cast("struct fallout_Object*", self.c_ptr)
+
+  self.sid         = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
+  self.pid         = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
 
   self.mod_id      = ffi.string(ffi.C.ck_object_get_mod_id(self.c_ptr))
   self.tag         = ffi.string(ffi.C.ck_object_get_lua_tag(self.c_ptr))
@@ -38,7 +40,7 @@ function Object.new(lua_id)-- tag, mod_id, config)
   -- self.name        = config.name
   -- self.description = config.description
   --
-  -- self.elevation = config.elevation
+  self.elevation = self.fallout_Object.elevation
 
   self.handlers = {}
 
@@ -145,11 +147,11 @@ function Object:float_message(text, type)
 end
 
 function Object:id()
-  return ffi.C.ck_object_get_id(self.c_ptr)
+  return self.fallout_Object.id --ffi.C.ck_object_get_id(self.c_ptr)
 end
 
 function Object:tile()
-  return ffi.C.ck_object_get_tile(self.c_ptr)
+  return self.fallout_Object.tile --ffi.C.ck_object_get_tile(self.c_ptr)
 end
 
 function Object:get_name()
