@@ -26,6 +26,8 @@ add_library(fallout2-ck STATIC
     src/geometry/landscape.cc
 
     src/ck_ffi_manifest.cc
+    src/ck_ffi_validator.cc
+
     src/ck_log.cc
     src/ck_utils.cc
     src/ck_ids.cc
