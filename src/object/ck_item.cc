@@ -48,11 +48,6 @@ namespace ck {
 			return false;
 		}
 
-		new_item->flags |= fallout::OBJECT_CK;
-        if (ck::proto::has_pid(item_pid)) {
-            new_item->flags |= fallout::OBJECT_CK_PROTO;
-        }
-
         if (!persistent) {
             logger.debug("Creating temporary item: {}", new_item->pid);
             new_item->flags |= fallout::OBJECT_NO_SAVE;

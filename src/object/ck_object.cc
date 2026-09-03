@@ -108,11 +108,8 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
 
 	fallout::Object* object = nullptr;
 	if (fallout::objectCreateWithPid(&object, pid) == 0) {
-		object->flags |= fallout::OBJECT_NO_SAVE;
-		object->flags |= fallout::OBJECT_CK;
 
         if (ck::object::type(pid) == 1 && ck::critter::proto::has_custom_prototype(pid) > 0) {
-            object->flags |= fallout::OBJECT_CK_PROTO;
             log.debug("Object created with custom prototype flag. PID: {}", pid);
         }
 	}
