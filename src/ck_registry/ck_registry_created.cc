@@ -73,3 +73,10 @@ namespace ck::registry::created {
         return (it == g_created_objects.end()) ? nullptr : it->second.ptr;
     }
 }
+
+// FFI
+
+bool ck_registry_object_is_created(int lua_id) {
+    return ck::registry::created::get(lua_id) != nullptr;
+}
+

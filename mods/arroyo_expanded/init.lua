@@ -156,14 +156,15 @@ events.on('map_enter', function(map_id)
 
   local villager1 = critters.create(16777219, 21119, { team = 0, script_index = 8 })
   local villager2 = critters.create(16777220, 21716, { team = 0, script_index = 8 })
+  local villager3 = critters.create(16777220, 21716, { team = 0 })
 
   log.info("villager1 gender: %d", villager1:gender())
   log.info("villager2 gender: %d", villager2:gender())
 
   -- villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
     -- :set_behavior(behaviors.wander, 3)
-  -- villager2:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
-    -- :set_behavior(behaviors.wander, 12)
+  villager3:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
+    :set_behavior(behaviors.wander, 12)
 
   radscorpion1 = critters.create(16777221, 27916, { team = 2 })
   radscorpion2 = critters.create(16777221, 28513, { team = 2 })

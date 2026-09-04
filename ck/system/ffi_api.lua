@@ -90,7 +90,8 @@ ffi.cdef[[
 
   // modified
   int ck_registry_modify_object(void* ptr);
-  bool ck_object_is_modified(int lua_id);
+  bool ck_registry_object_is_modified(int lua_id);
+  bool ck_registry_object_is_created(int lua_id);
   int ck_registry_restore_modified_object(void* ptr);
 
   // created
@@ -156,8 +157,8 @@ ffi.cdef[[
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
-  const char* ck_object_get_mod_id(fallout_Object* object);
-  const char* ck_object_get_lua_tag(fallout_Object* object);
+  const char* ck_registry_object_get_mod_id(fallout_Object* object);
+  const char* ck_registry_object_get_lua_tag(fallout_Object* object);
 
   // --- Stats ---
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));

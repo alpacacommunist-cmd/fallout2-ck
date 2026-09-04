@@ -98,7 +98,7 @@ void ck_registry_clear_for_mod(const char* target_mod_id) {
     ck::registry::clear_resources_for_mod(target_mod_id);
 }
 
-const char* ck_object_get_mod_id(fallout::Object* object) {
+const char* ck_registry_object_get_mod_id(fallout::Object* object) {
     if (object == nullptr) return nullptr;
 
 	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
@@ -106,7 +106,7 @@ const char* ck_object_get_mod_id(fallout::Object* object) {
 }
 
 // MODIFIED critters don't have a tag. Only CREATED
-const char* ck_object_get_lua_tag(fallout::Object* object) {
+const char* ck_registry_object_get_lua_tag(fallout::Object* object) {
     if (object == nullptr) return nullptr;
 
 	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));

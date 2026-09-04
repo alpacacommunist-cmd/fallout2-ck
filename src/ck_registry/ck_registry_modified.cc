@@ -133,7 +133,7 @@ int ck_registry_modify_object(void* ptr) {
 	return ck::registry::modified::add(object);
 }
 
-bool ck_object_is_modified(int lua_id) {
+bool ck_registry_object_is_modified(int lua_id) {
     return ck::registry::modified::get(lua_id) != nullptr;
 }
 
