@@ -64,6 +64,9 @@ ffi.cdef[[
   bool ck_proto_get_by_name(const char* name, int type, CkProtoInfoFFI* out_info);
   int ck_proto_get_by_type(int type, CkProtoInfoFFI* out_array, int max_count);
 
+  // --- Script ---
+  void ck_script_disable_map_updates_for_object(fallout_Object* object);
+
   // --- State ---
   bool ck_state_load(const char* path);
   void ck_state_save(const char* path);

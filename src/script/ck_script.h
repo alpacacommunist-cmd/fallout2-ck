@@ -46,6 +46,6 @@ CK_API void ck_dialog_add_option(const char* text, int reaction);
 CK_API int  ck_dialog_go();
 CK_API void ck_dialog_exit();
 CK_API void ck_dialog_close_ui();
-
+CK_API void ck_script_disable_map_updates_for_object(fallout::Object* object);
 
 #endif // CK_DIALOG_H

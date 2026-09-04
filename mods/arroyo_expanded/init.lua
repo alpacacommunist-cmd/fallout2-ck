@@ -162,7 +162,7 @@ events.on('map_enter', function(map_id)
   log.info("villager2 gender: %d", villager2:gender())
 
   -- villager1:on('talk', function(self) self:float_message('Че хочешь?', 1) end)
-    -- :set_behavior(behaviors.wander, 3)
+  villager1:set_behavior(behaviors.wander, 3)
   villager3:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
 

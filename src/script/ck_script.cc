@@ -1,3 +1,4 @@
+#include "ck_utils.h"
 #include "ck_ids.h"
 #include "ck_encoding.h"
 
@@ -183,6 +184,8 @@ namespace ck::script {
             script->procs[fallout::SCRIPT_PROC_CRITTER] = fallout::SCRIPT_PROC_NO_PROC;
             script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = fallout::SCRIPT_PROC_NO_PROC;
         }
+
+        logger.debug("Disabled PROC_CRITTER, PROC_MAP_UPDATE, PROC_TIMED for pid: {}", object->pid);
     }
 
     void enable_map_updates_for_object(fallout::Object* object) {
@@ -253,3 +256,8 @@ void ck_dialog_add_option(const char* text, int reaction) { ck::script::dialog_a
 int ck_dialog_go() { return ck::script::dialog_go(); }
 void ck_dialog_exit() { ck::script::dialog_exit(); }
 void ck_dialog_close_ui() { ck::script::dialog_close_ui(); }
+
+void ck_script_disable_map_updates_for_object(fallout::Object* object) {
+    CK_ENSURE_VALID_OBJECT(object);
+    ck::script::disable_map_updates_for_object(object);
+}
