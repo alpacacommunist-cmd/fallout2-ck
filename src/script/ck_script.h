@@ -25,11 +25,12 @@ namespace ck::script {
 	fallout::Script*  get_dummy(int sid);
 	fallout::Program* program_get_dummy();
 
-    void assign_script_index_to_object(int script_index, fallout::Object* object);
     void set_no_save(int sid);
     void kick_off_map_updates_for_sid(int sid);
     void disable_map_updates_for_object(fallout::Object* object);
     void enable_map_updates_for_object(fallout::Object* object);
+    void assign_script_index_to_object(int script_index, fallout::Object* object);
+    void remove_object_script(fallout::Object* object);
 
 	bool owns_sid(int sid);
 	void on_map_update(unsigned int ticks);

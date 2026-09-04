@@ -62,6 +62,13 @@ namespace ck::critter {
         g_mod_spawn_counters.clear();
     }
 
+	static fallout::Object* create(int pid, int tile, int elevation) {
+		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
+
+		if (critter != nullptr) return critter;
+		return nullptr;
+	}
+
     void reset_spawn_counter_for_mod(const std::string& mod_id) {
         // clears spawn counters (e.g. spawn_mod_id_0, spawn_mod_id_1..)
         g_mod_spawn_counters.erase(mod_id);
@@ -78,14 +85,7 @@ namespace ck::critter {
         logger.debug("Cleared map context critter queues");
     }
 
-	static fallout::Object* create(int pid, int tile, int elevation) {
-		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
-
-		if (critter != nullptr) return critter;
-		return nullptr;
-	}
-
-    static void assign_script(fallout::Object* critter, int script_index, int lua_id) {
+    void assign_script(fallout::Object* critter, int script_index, int lua_id) {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
             ck::script::assign_script_index_to_object(script_index, critter);

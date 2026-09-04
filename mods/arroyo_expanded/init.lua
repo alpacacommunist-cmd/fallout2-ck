@@ -113,8 +113,10 @@ events.on('map_enter', function(map_id)
     name        = i18n.t('arroyo_expanded', 'alice_name'),
     description = i18n.t('arroyo_expanded', 'alice_description'),
     ai_packet = 'Merc Captain',
+    script_index = 8,
     team = 0
   })
+  alice:bind()
   --
   alice.stats = { max_hp = 355, hp = 255 }
 

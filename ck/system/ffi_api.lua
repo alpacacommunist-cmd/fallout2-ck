@@ -88,9 +88,13 @@ ffi.cdef[[
       const char* mod_id;
   } CkObjectFFI;
 
+  // modified
   int ck_registry_modify_object(void* ptr);
   bool ck_object_is_modified(int lua_id);
   int ck_registry_restore_modified_object(void* ptr);
+
+  // created
+  bool ck_registry_bind_to_object(int lua_id);
 
   int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
   int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);

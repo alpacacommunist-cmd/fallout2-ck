@@ -56,6 +56,16 @@ function Object.new(lua_id)-- tag, mod_id, config)
   return self
 end
 
+function Object:bind()
+  if self.has_lua_script then return true end
+  if self.modified then
+    logger.error("Can't bind to modified object")
+    return false
+  end
+
+  ffi.C.ck_registry_bind_to_object(self.lua_id)
+end
+
 function Object:on(event_name, callback)
   self.handlers[event_name] = callback
 

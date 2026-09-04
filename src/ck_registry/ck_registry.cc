@@ -5,6 +5,16 @@
 #include "ck_log.h"
 static const Logger log("CK Registry");
 
+namespace ck {
+    namespace critter {
+        void assign_script(fallout::Object* critter, int script_index, int lua_id);
+    }
+
+    namespace script {
+        void remove_object_script(fallout::Object* object);
+    }
+}
+
 namespace ck::registry {
     std::unordered_map<int, CkCreatedObject>  g_created_objects;
 	std::unordered_map<int, CkModifiedObject> g_modified_objects;
@@ -101,5 +111,21 @@ const char* ck_object_get_lua_tag(fallout::Object* object) {
 
 	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
     return (meta != nullptr) ? meta->tag.data() : nullptr;
+}
+
+// Bind lua script to [CREATED] object
+bool ck_registry_bind_to_object(int lua_id) {
+    fallout::Object* object = ck::registry::created::get_object(lua_id);
+    if (object == nullptr) return false;
+
+    fallout::ObjectType type = fallout::objectTypeFromPid(object->pid);
+    ck::script::remove_object_script(object);
+
+    if (type == fallout::OBJ_TYPE_CRITTER) {
+        ck::critter::assign_script(object, -1, lua_id);
+    } else if (type == fallout::OBJ_TYPE_SCENERY) {
+    }
+
+    return true;
 }
 

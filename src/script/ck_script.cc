@@ -185,6 +185,18 @@ namespace ck::script {
         }
     }
 
+    void enable_map_updates_for_object(fallout::Object* object) {
+        fallout::Script* script;
+        fallout::scriptGetScript(object->sid, &script);
+        if (script != nullptr) {
+            logger.debug("enabling map_update for SID: {}", script->sid);
+
+            script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
+            script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
+            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = 1;
+        }
+    }
+
     void assign_script_index_to_object(int script_index, fallout::Object* object) {
         if (object->sid != -1) fallout::scriptRemove(object->sid);
 
@@ -203,16 +215,10 @@ namespace ck::script {
         }
     }
 
-    void enable_map_updates_for_object(fallout::Object* object) {
-        fallout::Script* script;
-        fallout::scriptGetScript(object->sid, &script);
-        if (script != nullptr) {
-            logger.debug("enabling map_update for SID: {}", script->sid);
-
-            script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
-            script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
-            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = 1;
-        }
+    // Removes both current script and scriptIndex
+    void remove_object_script(fallout::Object* object) {
+        if (object->sid != -1) fallout::scriptRemove(object->sid);
+        object->scriptIndex = -1;
     }
 
 	int dialog_init_ui() {
