@@ -13,6 +13,7 @@
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
+#include "ce_config/ck_config_maps.h"
 #include "ce_config/ck_config_city.h"
 
 #include "settings.h"
@@ -123,8 +124,10 @@ namespace ck::events {
             logger.info("LAUNCHING IN INTEGRATION TEST MODE: {}", g_test_suite_name);
         }
 
-        // Parse city.txt to get total areas count and cache area names for validations
+        // Parse maps.txt, city.txt to get total count and cache names for validations
+        ck::config_maps::preprocess_maps();
         ck::config_city::preprocess_areas();
+        logger.info("Maps count in maps.txt: {}", ck::config_maps::next_index());
         logger.info("Areas count in city.txt: {}", ck::config_city::next_index());
 
         ck::proxy::init_lua_state("../?.lua;../?/init.lua");

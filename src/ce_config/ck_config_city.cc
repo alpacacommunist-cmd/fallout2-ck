@@ -23,7 +23,6 @@ namespace ck::config_city {
 
     // Reads city.txt (before fallout2-ce does), stores count in `current_areas_num`
     // and `area_name` in `g_registered_area_names`
-    // Works only for original city.txt
     bool preprocess_areas() {
         if (current_areas_num > 0) return false;
 

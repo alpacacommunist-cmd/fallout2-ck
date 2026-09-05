@@ -7,7 +7,7 @@ local game_time = require('ck.fallout2.game_time')
 local locations = require('ck.fallout2.locations')
 local map       = require('ck.fallout2.map')
 
-new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
+local new_location_id  = locations.register({ name = "Test Caves", world_x = 220, world_y = 140, size = "small" })
 local test_caves_id = locations.register_map({
     map_file = 'tstcv',
     name     = "Secret Caves",

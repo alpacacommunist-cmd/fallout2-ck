@@ -6,7 +6,8 @@
 namespace ck::config_maps {
     std::string format_section(int map_id);
 
-    int get_next_index();
+    int next_index();
+    bool preprocess_maps();
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
 			const std::string& name, const std::string& music, const std::string& sfx);

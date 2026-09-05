@@ -10,18 +10,23 @@ static const Logger log("CK Maps Config");
 
 namespace ck::config_maps {
     static std::unordered_set<std::string> g_registered_lookup_names;
+    static int current_maps_count = 0;
 
     std::string format_section(int map_id) {
         return std::format("Map {:03d}", map_id);
     }
 
     int next_index() {
+        return current_maps_count;
+    }
+
+    // Reads maps.txt (before fallout2-ce does), stores count in `current_maps_num`
+    // and `lookup_name` in `g_registered_lookup_names`
+    bool preprocess_maps() {
         fallout::Config cfg;
 
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!fallout::configRead(&cfg, "data\\maps.txt", true)) return 0;
-
-        g_registered_lookup_names.clear();
+        if (!fallout::configInit(&cfg)) return false;
+        if (!fallout::configRead(&cfg, "data\\maps.txt", true)) return false;
 
         int idx = 0;
         char section[64];
@@ -39,11 +44,12 @@ namespace ck::config_maps {
             }
 
             idx++;
+            current_maps_count++;
         }
 
         fallout::configFree(&cfg);
 
-        return idx;
+        return true;
     }
 
 	int register_map(const std::string& mod_id, const std::string& map_file_name,
@@ -76,7 +82,7 @@ namespace ck::config_maps {
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "ambient_sfx", sfx);
         ck::config_patch_add(mod_id, maps_txt_path, map_section, "saved",       "Yes");
 
+        current_maps_count++;
         return map_index;
     }
-
 }
