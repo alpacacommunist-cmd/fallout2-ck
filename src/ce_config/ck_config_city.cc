@@ -11,18 +11,26 @@ static const Logger log("CK City");
 
 namespace ck::config_city {
     static std::unordered_set<std::string> g_registered_area_names;
+    static int current_areas_num = 0;
 
     std::string format_section(int area_id) {
         return std::format("Area {:02d}", area_id);
     }
 
     int next_index() {
+        return current_areas_num;
+    }
+
+    // Reads city.txt (before fallout2-ce does), stores count in `current_areas_num`
+    // and `area_name` in `g_registered_area_names`
+    // Works only for original city.txt
+    bool preprocess_areas() {
+        if (current_areas_num > 0) return false;
+
         fallout::Config cfg;
 
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!fallout::configRead(&cfg, "data\\city.txt", true)) return 0;
-
-        g_registered_area_names.clear();
+        if (!fallout::configInit(&cfg)) return false;
+        if (!fallout::configRead(&cfg, "data\\city.txt", true)) return false;
 
         int idx = 0;
         char section[64];
@@ -39,11 +47,12 @@ namespace ck::config_city {
             }
 
             idx++;
+            current_areas_num++;
         }
 
         fallout::configFree(&cfg);
 
-        return idx;
+        return true;
     }
 
     int next_entrance_index(const char* section_name) {
@@ -113,6 +122,7 @@ namespace ck::config_city {
         ck::config_patch_add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
         ck::config_patch_add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
 
+        current_areas_num++;
         return area_index;
     }
 }

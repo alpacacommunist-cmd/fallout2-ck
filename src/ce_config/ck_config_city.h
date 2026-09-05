@@ -6,8 +6,8 @@
 namespace ck::config_city {
     std::string format_section(int area_id);
 
-	int get_next_index();
-    int count_original_entrances(int area_id);
+    int next_index();
+    bool preprocess_areas();
 
     int expand_location(const std::string& mod_id, int area_id,
                         const std::string& map_lookup_name, int x, int y);

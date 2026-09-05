@@ -48,9 +48,9 @@ log.info("new_arroyo_map: " .. tostring(new_map_id))
 events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
---   map.exit_grid.spawn_in_line(22748, 25156, {
---     map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
--- }, 2)
+  map.exit_grid.spawn_in_line(22748, 25156, {
+    map = new_map_id, tile = 21068, elevation = 0, rotation = 1, style = 0
+}, 2)
 end)
 
 events.on('onDayPassed', function()
