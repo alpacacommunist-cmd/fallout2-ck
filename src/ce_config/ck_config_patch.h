@@ -20,8 +20,7 @@ namespace ck {
 
 	std::string normalize_config_path(std::string_view path);
 
-	int config_find_next_free_index(std::string_view file_path, std::string_view section, std::string_view prefix);
-
+    bool apply_worldmap_patches();
     void config_patch_add(std::string_view mod_id, std::string_view file_path, std::string_view section,
 			std::string_view key, std::string_view value);
 	void config_patch_apply(fallout::Config* config, const char* file_path);

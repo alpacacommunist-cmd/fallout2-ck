@@ -3,8 +3,18 @@
 #include <algorithm>
 #include <charconv>
 
+#include "config.h"
+
 #include "ck_log.h"
 static const Logger log("CK Config Patch");
+
+namespace fallout {
+    bool configSetString(Config*, const char*, const char*, const char*);
+    bool wmParseMapsConfig(Config* cfg, int start_map_idx);
+    bool wmParseAreasConfig(Config* cfg, int start_area_idx);
+    int wmMaxMapIndex();
+    int wmMaxAreaIndex();
+}
 
 namespace {
     inline std::string_view trim_string(std::string_view s) {
@@ -32,10 +42,6 @@ namespace {
     }
 }
 
-namespace fallout {
-    bool configSetString(Config*, const char*, const char*, const char*);
-}
-
 namespace ck {
 	// : [mod_id][file][section][key] = value
 	ConfigPatchMap g_config_patches;
@@ -59,7 +65,63 @@ namespace ck {
         std::string path_norm = normalize_config_path(file_path);
 
         g_config_patches[std::string(mod_id)][path_norm][std::string(section)][std::string(key)] = std::string(value);
-        log.info("Registered patch for mod '{}': [{}] {} = {}", mod_id, section, key, value);
+    }
+
+    bool apply_worldmap_patches() {
+        std::string maps_txt_path = normalize_config_path("data\\maps.txt");
+        std::string city_txt_path = normalize_config_path("data\\city.txt");
+
+        // Maps
+        fallout::Config maps_cfg;
+        if (!fallout::configInit(&maps_cfg)) return false;
+
+        int maps_applied = 0;
+        for (const auto& [mod_id, file_maps] : g_config_patches) {
+            auto file_it = file_maps.find(maps_txt_path);
+            if (file_it != file_maps.end()) {
+                for (const auto& [section, keys] : file_it->second) {
+                    for (const auto& [key, value] : keys) {
+                        fallout::configSetString(&maps_cfg, section.c_str(), key.c_str(), value.c_str());
+                        log.info("section: {}, key: {}, value: {}", section, key, value);
+                        maps_applied++;
+                    }
+                }
+            }
+        }
+
+        if (maps_applied > 0) {
+            log.info("Compiling {} map patches into worldmap. Max index before: {}", maps_applied, fallout::wmMaxMapIndex());
+            fallout::wmParseMapsConfig(&maps_cfg, fallout::wmMaxMapIndex() + 1);
+        }
+
+        fallout::configFree(&maps_cfg);
+
+        // Cities
+        fallout::Config city_cfg;
+        if (!fallout::configInit(&city_cfg)) return false;
+
+        int city_applied = 0;
+        for (const auto& [mod_id, file_maps] : g_config_patches) {
+            auto file_it = file_maps.find(city_txt_path);
+            if (file_it != file_maps.end()) {
+                for (const auto& [section, keys] : file_it->second) {
+                    for (const auto& [key, value] : keys) {
+                        fallout::configSetString(&city_cfg, section.c_str(), key.c_str(), value.c_str());
+                        log.info("section: {}, key: {}, value: {}", section, key, value);
+                        city_applied++;
+                    }
+                }
+            }
+        }
+
+        if (city_applied > 0) {
+            log.info("Compiling {} area patches into worldmap. Max index before: {}", city_applied, fallout::wmMaxAreaIndex());
+            fallout::wmParseAreasConfig(&city_cfg, fallout::wmMaxAreaIndex() + 1);
+        }
+
+        fallout::configFree(&city_cfg);
+
+        return true;
     }
 
 	void config_patch_apply(fallout::Config* config, const char* file_path) {

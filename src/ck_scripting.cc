@@ -46,7 +46,10 @@ namespace fallout {
 }
 
 namespace ck {
+    // map/ck_map.cc
 	void on_map_enter();
+    // ce_config/ck_config_patch.cc
+    bool apply_worldmap_patches();
 
     namespace proxy::detail {
         extern int reload_mods;
@@ -150,6 +153,8 @@ namespace ck::events {
         if (!is_test_mode) {
             gProtoCache.initialize("build/proto_cache.db");
         }
+
+        ck::apply_worldmap_patches();
 
         ck::dispatcher::on_engine_ready();
     }
