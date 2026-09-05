@@ -1,5 +1,5 @@
 # fallout2-ck/CMakeLists.txt
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.17)
 project(fallout2-ck C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -11,6 +11,7 @@ set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
 set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")
 set(LUAJIT_LIB "${LUAJIT_SRC_DIR}/src/libluajit.a")
 
+# Luajit
 ExternalProject_Add(luajit_project
     SOURCE_DIR "${LUAJIT_SRC_DIR}"
     CONFIGURE_COMMAND ""
@@ -18,6 +19,16 @@ ExternalProject_Add(luajit_project
     INSTALL_COMMAND ""
     BUILD_BYPRODUCTS "${LUAJIT_LIB}"
 )
+
+# Sqlite
+add_library(sqlite3_vendor STATIC src/vendor/sqlite3/sqlite3.c)
+target_include_directories(sqlite3_vendor PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(sqlite3_vendor PRIVATE "-w")
+elseif(MSVC)
+    target_compile_options(sqlite3_vendor PRIVATE "/W0")
+endif()
 
 add_subdirectory(fallout2-ce)
 
@@ -49,8 +60,6 @@ add_library(fallout2-ck STATIC
     src/ck_registry/ck_registry_created.cc
     src/ck_registry/ck_registry_deleted.cc
     src/ck_registry/ck_registry_modified.cc
-
-    src/vendor/sqlite3/sqlite3.c
 
     src/ck_proto/cache/ck_proto_cache.cc
     src/ck_proto/cache/ck_proto_ffi.cc
@@ -86,9 +95,9 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_object_format.cc
 )
 
+target_precompile_headers(fallout2-ck PRIVATE <vector> <string> "include/ck_log.h" "include/ck_utils.h")
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
-
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/"
@@ -107,6 +116,7 @@ elseif(MSVC)
 endif()
 
 target_link_libraries(fallout2-ck PUBLIC 
+    sqlite3_vendor
     ${LUAJIT_LIB}
     pthread
     dl
