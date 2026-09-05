@@ -59,14 +59,6 @@ namespace ck {
 		return result;
 	}
 
-	void config_patch_add(std::string_view mod_id, std::string_view file_path,
-				std::string_view section, std::string_view key, std::string_view value) {
-
-        std::string path_norm = normalize_config_path(file_path);
-
-        g_config_patches[std::string(mod_id)][path_norm][std::string(section)][std::string(key)] = std::string(value);
-    }
-
     bool apply_worldmap_patches() {
         std::string maps_txt_path = normalize_config_path("data\\maps.txt");
         std::string city_txt_path = normalize_config_path("data\\city.txt");
@@ -124,10 +116,20 @@ namespace ck {
         return true;
     }
 
+	void config_patch_add(std::string_view mod_id, std::string_view file_path,
+				std::string_view section, std::string_view key, std::string_view value) {
+
+        std::string path_norm = normalize_config_path(file_path);
+
+        g_config_patches[std::string(mod_id)][path_norm][std::string(section)][std::string(key)] = std::string(value);
+    }
+
 	void config_patch_apply(fallout::Config* config, const char* file_path) {
 		if (config == nullptr || file_path == nullptr) return;
 
 		std::string path_norm = normalize_config_path(file_path);
+        if (path_norm == "maps.txt" || path_norm == "city.txt") return;
+
 		int applied = 0;
 
 		for (const auto& [mod_id, file_maps] : g_config_patches) {
