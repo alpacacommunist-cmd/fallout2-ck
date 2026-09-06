@@ -37,6 +37,6 @@ CK_API bool ck_critter_is_busy(fallout::Object* critter);
 CK_API bool ck_critter_process_turn(fallout::Object* critter, int lua_id);
 CK_API bool ck_critter_bind(int lua_id);
 CK_API bool ck_critter_kill(int lua_id);
-CK_API void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
+CK_API void ck_critter_reset_prototypes_for_mod(const char* mod_id);
 
 #endif

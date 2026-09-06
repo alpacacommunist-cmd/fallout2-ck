@@ -58,17 +58,16 @@ namespace ck::critter {
 		return nullptr;
 	}
 
-    void reset_spawn_counter_for_mod(const std::string& mod_id) {
-        // clears mod-registered critter prototypes
+    void reset_prototypes_for_mod(const std::string& mod_id) {
         ck::critter::proto::clear_prototypes_for_mod(mod_id);
 
-        logger.debug("Reset spawn counter for mod: {}", mod_id);
+        logger.debug("Reset prototypes for mod: {}", mod_id);
     }
 
-    void clear_spawn_queues() {
+    void reset_prototypes() {
         ck::critter::proto::clear_prototypes();
 
-        logger.debug("Cleared map context critter queues");
+        logger.debug("Cleared map context critter prototypes");
     }
 
     void assign_script(fallout::Object* critter, int script_index, int lua_id) {
@@ -258,6 +257,6 @@ bool ck_critter_kill(int lua_id) {
 	return ck::critter::kill(lua_id);
 }
 
-void ck_critter_reset_spawn_counters_for_mod(const char* mod_id) {
-    ck::critter::reset_spawn_counter_for_mod(std::string(mod_id));
+void ck_critter_reset_prototypes_for_mod(const char* mod_id) {
+    ck::critter::reset_prototypes_for_mod(std::string(mod_id));
 }

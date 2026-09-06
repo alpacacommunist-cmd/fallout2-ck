@@ -82,10 +82,10 @@ function loader.reload_mods()
     local target_prefix = "mods." .. mod_id
     log.info("Clearing out resources for: %s", mod_id)
 
-    -- TODO: rename
-    ffi.C.ck_critter_reset_spawn_counters_for_mod(mod_id)
+    ffi.C.ck_critter_reset_prototypes_for_mod(mod_id)
     ffi.C.ck_registry_clear_for_mod(mod_id)
-    ffi.C.ck_config_clear_mod_patches(mod_id)
+    -- TODO: remove from reload sequence
+    -- ffi.C.ck_config_clear_mod_patches(mod_id)
     ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
 
     events.clear_for_mod(mod_id)

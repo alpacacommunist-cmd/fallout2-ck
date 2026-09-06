@@ -24,8 +24,8 @@ namespace fallout {
 }
 
 namespace ck {
-    namespace dispatcher {
-        const char* current_mod_context();
+    namespace common {
+        const char* current_mod_id();
     }
 }
 
@@ -124,7 +124,7 @@ namespace ck::critter::proto {
         logger.info("Created unique prototype for '{}' PID: {}", base_pid, pid);
         g_custom_prototypes[pid] = critter_proto;
 
-        std::string mod_id = dispatcher::current_mod_context();
+        std::string mod_id = common::current_mod_id();
         g_mod_allocated_pids[mod_id].push_back(pid);
 
         return pid;

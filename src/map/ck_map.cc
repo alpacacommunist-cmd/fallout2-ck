@@ -20,7 +20,7 @@ namespace fallout {
 }
 
 namespace ck {
-    namespace critter { void clear_spawn_queues(); }
+    namespace critter { void reset_prototypes(); }
     namespace script { void reset(); }
     namespace common {
         bool currently_in_combat();
@@ -61,8 +61,8 @@ namespace ck {
         if (!fallout::_isLoadingGame()) {
             proxy::execute_proxy_call<bool>(proxy::detail::map_context_change);
         }
-        // Resets critter spawn counter, custom critter prototypes queue
-        ck::critter::clear_spawn_queues();
+        // Resets custom critter prototypes queue
+        ck::critter::reset_prototypes();
         // Resets custom object scripts
         ck::script::reset();
         // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers

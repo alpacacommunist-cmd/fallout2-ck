@@ -138,7 +138,7 @@ ffi.cdef[[
   int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
   void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
 
-  void ck_critter_reset_spawn_counters_for_mod(const char* mod_id);
+  void ck_critter_reset_prototypes_for_mod(const char* mod_id);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
