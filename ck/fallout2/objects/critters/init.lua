@@ -28,7 +28,7 @@ function critters.reset_spawn_counters()
 end
 
 function critters.reset_spawn_counters_for_mod(mod_id)
-  logger.debug("spawn counters reset for %s", mod_id)
+  log.debug("spawn counters reset for %s", mod_id)
 
   local mod_counters = critters.spawn_counters[mod_id]
   if mod_counters then critters.spawn_counters[mod_id] = 0 end

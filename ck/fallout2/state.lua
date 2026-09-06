@@ -47,6 +47,23 @@ function state.sync_save()
     ::continue::
   end
 
+  -- Garbage Collection ✨
+  local critters = require('ck.fallout2.objects.critters')
+  for mod_id, saved_tags in pairs(current_map) do
+    local active_spawns = critters.spawns[mod_id]
+
+    for tag, _ in pairs(saved_tags) do
+      if not active_spawns or not active_spawns[tag] then
+        saved_tags[tag] = nil
+      end
+    end
+
+    -- clears map table if it's empty
+    if next(saved_tags) == nil then
+      current_map[mod_id] = nil
+    end
+  end
+
   utils.print_table(state.db, log)
   return state.db
 end
