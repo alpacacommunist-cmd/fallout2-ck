@@ -86,7 +86,7 @@ void ck_reload_mods() {
         return;
     }
 
-	logger.info("ck_reload_mods");
+	logger.fixed_header("Reloading mods");
 
     g_reloading_mods = true;
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);

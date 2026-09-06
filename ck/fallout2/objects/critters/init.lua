@@ -22,7 +22,7 @@ critters.spawn_counters = {}
 critters.spawns = {}
 
 function critters.reset_spawn_counters()
-  logger.debug("spawn counters reset")
+  log.debug("spawn counters reset")
   critters.spawn_counters = {}
   critters.spawns = {}
 end

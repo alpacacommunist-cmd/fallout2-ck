@@ -44,4 +44,16 @@ public:
     void raw(std::format_string<Args...> fmt_str, Args&&... args) const {
         do_log_formatted("RAW", "", fmt_str.get(), std::make_format_args(args...));
     }
+
+    template <typename... Args>
+    void fixed_header(std::format_string<Args...> fmt_str, Args&&... args) const {
+        std::string message = std::vformat(fmt_str.get(), std::make_format_args(args...));
+
+        constexpr int total_width = 40;
+
+        std::string border = std::format("{:=>{}}", "", total_width);
+        std::string centered = std::format("{:^{}}", message, total_width);
+
+        raw("{}\n{}\n{}", border, centered, border);
+    }
 };

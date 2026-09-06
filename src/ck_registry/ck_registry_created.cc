@@ -4,6 +4,10 @@
 #include "ck_log.h"
 static const Logger log("CK Registry [Created]");
 
+namespace fallout {
+    int scriptRemove(int index);
+}
+
 namespace ck::registry::created {
     int add(fallout::Object* obj, LuaMeta meta) {
         if (!obj) return -1;
@@ -23,10 +27,13 @@ namespace ck::registry::created {
             }
         }
 
-        for (fallout::Object* obj : to_destroy) {
-            fallout::reg_anim_clear(obj);
-            fallout::objectDestroy(obj, nullptr);
+        for (fallout::Object* object : to_destroy) {
+            // clear animations queue
+            fallout::reg_anim_clear(object);
+            // remove script if object uses existing game script slot
+            if (object->scriptIndex != -1) fallout::scriptRemove(object->sid);
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
+            fallout::objectDestroy(object, nullptr);
         }
 
         std::erase_if(g_created_objects, [mod_id](const auto& item) {
