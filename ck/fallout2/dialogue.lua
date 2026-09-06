@@ -32,9 +32,10 @@ end
 
 local log = ck.log.new('CK Dialogue')
 
-function dialogue.register(npc_id, fn_or_nodes)
-  dialogue.registry[npc_id] = fn_or_nodes
-  log.info("Registered dialogue for npc: " .. tostring(npc_id))
+-- TODO: add mod_id
+function dialogue.register(lua_id, fn_or_nodes)
+  dialogue.registry[lua_id] = fn_or_nodes
+  log.info("Registered dialogue for npc: " .. tostring(lua_id))
 end
 
 function dialogue.clear_dialogs()

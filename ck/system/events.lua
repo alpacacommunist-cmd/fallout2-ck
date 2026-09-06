@@ -122,10 +122,13 @@ end
 
 function events.clear_registries()
   -- Clears map context registries
-  -- Clears registered dialogs
   local dialogue = require('ck.fallout2.dialogue')
-  dialogue.clear_dialogs()
+  local critters = require('ck.fallout2.objects.critters')
 
+  -- Clears registered dialogs
+  dialogue.clear_dialogs()
+  -- Clears registered critter spawns
+  critters.reset_spawn_counters()
   -- Clears objects registry
   objects.clear_registry()
 end

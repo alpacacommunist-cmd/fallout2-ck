@@ -50,7 +50,7 @@ namespace ck {
 
         if (!persistent) {
             logger.debug("Creating temporary item: {}", new_item->pid);
-            new_item->flags |= fallout::OBJECT_NO_SAVE;
+            new_item->flags |= fallout::ObjectFlags::OBJECT_NO_SAVE;
         } else {
             logger.debug("Creating persistent item: {}", new_item->pid);
         }
