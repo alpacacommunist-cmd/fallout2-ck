@@ -47,19 +47,8 @@ namespace fallout {
 }
 
 namespace ck::critter {
-    static std::unordered_map<std::string, int> g_mod_spawn_counters;
-
-    static std::string generate_unique_tag(const std::string& mod_id) {
-        int& index = g_mod_spawn_counters[mod_id];
-        return "spawn_" + mod_id + "_" + std::to_string(index++);
-    }
-
     static bool has_proto_params(const CritterLuaProtoParams* params) {
         return !(utils::is_blank(params->name) && utils::is_blank(params->description));
-    }
-
-    static void reset_spawn_counters() {
-        g_mod_spawn_counters.clear();
     }
 
 	static fallout::Object* create(int pid, int tile, int elevation) {
@@ -70,8 +59,6 @@ namespace ck::critter {
 	}
 
     void reset_spawn_counter_for_mod(const std::string& mod_id) {
-        // clears spawn counters (e.g. spawn_mod_id_0, spawn_mod_id_1..)
-        g_mod_spawn_counters.erase(mod_id);
         // clears mod-registered critter prototypes
         ck::critter::proto::clear_prototypes_for_mod(mod_id);
 
@@ -79,7 +66,6 @@ namespace ck::critter {
     }
 
     void clear_spawn_queues() {
-        ck::critter::reset_spawn_counters();
         ck::critter::proto::clear_prototypes();
 
         logger.debug("Cleared map context critter queues");
@@ -118,15 +104,7 @@ namespace ck::critter {
         int source_pid = pid;
         bool prototype_required = !utils::is_blank(spawn_params->tag) && has_proto_params(params);
 
-        std::string lua_tag;
-        if (prototype_required) {
-            // Lua tag is passed explicitly
-            lua_tag = std::string(spawn_params->tag);
-            g_mod_spawn_counters[mod_id]++;
-        } else {
-            // Autogenerate tag
-            lua_tag = generate_unique_tag(mod_id);
-        }
+        std::string lua_tag = spawn_params->tag;
 
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
