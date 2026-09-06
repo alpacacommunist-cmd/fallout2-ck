@@ -4,7 +4,7 @@ local log = ck.log.new('objects/critters.lua')
 local utils = require('ck.system.utils')
 
 local CritterClass = require('ck.fallout2.classes.critter')
-local ProtoClass   = require('ck.fallout2.classes.critter_proto')
+local CritterProto = require('ck.fallout2.classes.critter_proto')
 local map          = require('ck.fallout2.map')
 local stats        = require('ck.fallout2.objects.critters.stats')
 local skills       = require('ck.fallout2.objects.critters.skills')
@@ -24,7 +24,7 @@ function critters.allocate_prototype(pid, config)
 
   local allocated_pid = ffi.C.ck_critter_allocate_prototype(pid, proto_params)
 
-  return ProtoClass.new(allocated_pid, proto_name, proto_description, ai_packet)
+  return CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
 end
 
 --- args tracer

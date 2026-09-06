@@ -1,8 +1,8 @@
-local ProtoClass = {}
-ProtoClass.__index = ProtoClass
+local CritterProto = {}
+CritterProto.__index = CritterProto
 
-function ProtoClass.new(pid, name, description, ai_packet)
-  local self = setmetatable({}, ProtoClass)
+function CritterProto.new(pid, name, description, ai_packet)
+  local self = setmetatable({}, CritterProto)
   self.pid   = pid
   self.name  = name
   self.description = description
@@ -23,7 +23,7 @@ function ProtoClass.new(pid, name, description, ai_packet)
   return self
 end
 
-function ProtoClass:set_stats(stats_table)
+function CritterProto:set_stats(stats_table)
   if type(stats_table) ~= "table" then
     error("set_stats expects table, got: " .. type(stats_table))
   end
@@ -35,7 +35,7 @@ function ProtoClass:set_stats(stats_table)
   return self
 end
 
-function ProtoClass:set_skills(skills_table)
+function CritterProto:set_skills(skills_table)
   if type(skills_table) ~= "table" then
     error("set_skills expects table, got: " .. type(skills_table))
   end
@@ -47,5 +47,5 @@ function ProtoClass:set_skills(skills_table)
   return self
 end
 
-return ProtoClass
+return CritterProto
 
