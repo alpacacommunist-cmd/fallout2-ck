@@ -13,7 +13,8 @@ local ANSI = {
   MAGENTA = "\27[35m",
   CYAN   = "\27[36m",
   WHITE  = "\27[37m",
-  GRAY   = "\27[90m"
+  GRAY   = "\27[90m",
+  BRIGHT_GREEN = "\27[92m"
 }
 
 log_module.Style = {

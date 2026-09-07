@@ -50,7 +50,7 @@ function state.sync_save()
   -- Garbage Collection ✨
   local critters = require('ck.fallout2.objects.critters')
   for mod_id, saved_tags in pairs(current_map) do
-    local active_spawns = critters.spawns[mod_id]
+    local active_spawns = critters.spawn_tags[mod_id]
 
     for tag, _ in pairs(saved_tags) do
       if not active_spawns or not active_spawns[tag] then

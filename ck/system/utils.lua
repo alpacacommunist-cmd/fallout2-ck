@@ -102,7 +102,7 @@ function utils.dump_args(prefix, ...)
     table.insert(formatted, string.format("arg[%d]: %s", i, format_val(args[i])))
   end
 
-  log.debug(string.format("[%s] Called with -> %s", prefix, table.concat(formatted, ", ")))
+  log.header(ck.log.Style.Modern, string.format("[%s] Called with -> %s", prefix, table.concat(formatted, ", ")))
 end
 
 function utils.trace(name, func)
