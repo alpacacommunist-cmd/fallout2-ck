@@ -2,13 +2,19 @@
 #include <string_view>
 #include <format>
 
+enum class LogStyle {
+    Minimal,   // ─── [Prefix] ─── TEXT ───────────────────
+    Cyberpunk, // ▒▒▒ [Prefix] ▒▒▒ TEXT ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+    Modern     // ❯❯❯ [Prefix] ❯ TEXT
+};
+
 class Logger {
 private:
     std::string m_prefix;
 
     void do_log_formatted(std::string_view level, std::string_view color,
                           std::string_view fmt, std::format_args args) const;
-
+    void print_header_log(LogStyle style, std::string_view title) const;
 public:
     void print_log(std::string_view tag, std::string_view tag_color, std::string_view message) const;
     void print_error_log(std::string_view message) const;
@@ -18,6 +24,18 @@ public:
     explicit Logger(std::string_view prefix) : m_prefix(prefix) {}
 
     inline static bool debug_enabled = true;
+
+    template <typename... Args>
+    void header(LogStyle style, std::format_string<Args...> fmt_str, Args&&... args) const {
+        std::string title = std::vformat(fmt_str.get(), std::make_format_args(args...));
+        print_header_log(style, title);
+    }
+
+    // default
+    template <typename... Args>
+    void header(std::format_string<Args...> fmt_str, Args&&... args) const {
+        header(LogStyle::Modern, fmt_str, std::forward<Args>(args)...);
+    }
 
     template <typename... Args>
     void info(std::format_string<Args...> fmt_str, Args&&... args) const {
@@ -43,25 +61,5 @@ public:
     template <typename... Args>
     void raw(std::format_string<Args...> fmt_str, Args&&... args) const {
         do_log_formatted("RAW", "", fmt_str.get(), std::make_format_args(args...));
-    }
-
-    template <typename... Args>
-    void header(std::format_string<Args...> fmt_str, Args&&... args) const {
-        std::string message = std::vformat(fmt_str.get(), std::make_format_args(args...));
-        std::string border = std::format("{:=>{}}", "", message.length());
-
-        raw("{}\n{}\n{}", border, message, border);
-    }
-
-    template <typename... Args>
-    void fixed_header(std::format_string<Args...> fmt_str, Args&&... args) const {
-        std::string message = std::vformat(fmt_str.get(), std::make_format_args(args...));
-
-        constexpr int total_width = 40;
-
-        std::string border = std::format("{:=>{}}", "", total_width);
-        std::string centered = std::format("{:^{}}", message, total_width);
-
-        raw("{}\n{}\n{}", border, centered, border);
     }
 };
