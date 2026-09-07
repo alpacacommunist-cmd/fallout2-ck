@@ -79,6 +79,7 @@ function loader.reload_mods()
   rendering.clear()
 
   for _, mod_id in ipairs(reloadable_mods) do
+    log.fixed_header("Reloading mod: %s", mod_id)
     local target_prefix = "mods." .. mod_id
     log.info("Clearing out resources for: %s", mod_id)
 

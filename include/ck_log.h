@@ -46,6 +46,14 @@ public:
     }
 
     template <typename... Args>
+    void header(std::format_string<Args...> fmt_str, Args&&... args) const {
+        std::string message = std::vformat(fmt_str.get(), std::make_format_args(args...));
+        std::string border = std::format("{:=>{}}", "", message.length());
+
+        raw("{}\n{}\n{}", border, message, border);
+    }
+
+    template <typename... Args>
     void fixed_header(std::format_string<Args...> fmt_str, Args&&... args) const {
         std::string message = std::vformat(fmt_str.get(), std::make_format_args(args...));
 
