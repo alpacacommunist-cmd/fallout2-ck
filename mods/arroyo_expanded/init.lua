@@ -106,7 +106,7 @@ events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
   local test_timer = game_time.register_timer(
-    "test_timer", game_time.timer_types.one_time, game_time.in_ticks.seconds(5),
+    "test_timer", game_time.timer_types.periodic, game_time.in_ticks.seconds(5),
     function()
       monitor.print("__callback map_id: " .. tostring(map_id))
     end

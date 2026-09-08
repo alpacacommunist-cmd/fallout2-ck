@@ -51,7 +51,7 @@ end
 -- Timer types
 game_time.timer_types = {
   ["one_time"] = "one_time",
-  ["repeat"]   = "repeat"
+  ["periodic"] = "periodic"
 }
 
 -- Timers registry
@@ -150,7 +150,7 @@ game_time.check_timers = function(ticks)
         -- exec callback
         exec_timer_callback(timer.mod_id, timer.callback)
 
-        -- repeat/one_time logic
+        -- periodic/one_time logic
         if timer.type == "one_time" then
           -- remove timer from db, registry
           mod_timers[tag] = nil
@@ -159,7 +159,7 @@ game_time.check_timers = function(ticks)
           if state.db.timers and state.db.timers[mod_id] then
             state.db.timers[mod_id][tag] = nil
           end
-        elseif timer.type == "repeat" then
+        elseif timer.type == "periodic" then
           timer.created_at = game_time.get_time()
         end
       end
