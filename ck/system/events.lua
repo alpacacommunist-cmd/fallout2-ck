@@ -94,8 +94,8 @@ end
 
 function events.on_map_update(ticks)
   -- update timers (timed events)
-  local game_time = require('ck.fallout2.game_time')
-  game_time.check_timers(ticks)
+  local timers = require('ck.fallout2.timers')
+  timers.check_timers(ticks)
 
   -- handle map_update for lua objects
   for _, object in pairs(objects.registry) do

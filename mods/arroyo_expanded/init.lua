@@ -15,7 +15,7 @@ local proto       = require("ck.fallout2.proto")
 local assets      = require("ck.fallout2.assets")
 local sfx         = require('ck.fallout2.sound_sfx')
 local objects     = require('ck.fallout2.objects')
-local game_time   = require('ck.fallout2.game_time')
+local timers      = require('ck.fallout2.timers')
 
 local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
@@ -105,8 +105,8 @@ events.on('map_enter', function(map_id)
 
   if map_id ~= 4 then return end
 
-  local test_timer = game_time.register_timer(
-    "test_timer", game_time.timer_types.periodic, game_time.in_ticks.seconds(5),
+  local test_timer = timers.register_timer(
+    "test_timer", timers.timer_types.periodic, 50,
     function()
       monitor.print("__callback map_id: " .. tostring(map_id))
     end
