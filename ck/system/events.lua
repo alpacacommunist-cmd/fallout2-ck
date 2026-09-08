@@ -93,6 +93,11 @@ function events.clear_for_mod(mod_id)
 end
 
 function events.on_map_update(ticks)
+  -- update timers (timed events)
+  local game_time = require('ck.fallout2.game_time')
+  game_time.check_timers(ticks)
+
+  -- handle map_update for lua objects
   for _, object in pairs(objects.registry) do
     if object._handle_map_update then
       local success, err = pcall(object._handle_map_update, object, ticks)

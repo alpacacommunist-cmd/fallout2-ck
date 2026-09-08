@@ -18,9 +18,11 @@ state.db = { player = db_init_state.player, global = db_init_state.global, maps 
 function state.sync_load(loaded_db)
   state.db = loaded_db
 
-  state.db.player = state.db.player or db_init_state.player
   state.db.global = state.db.global or db_init_state.global
+  state.db.player = state.db.player or db_init_state.player
   state.db.maps   = state.db.maps or db_init_state.maps
+  state.db.proto_list = state.db.proto_list or db_init_state.proto_list
+  state.db.timers = state.db.timers or db_init_state.timers
 
   -- utils.print_table(state.db.proto_list, log)
 end

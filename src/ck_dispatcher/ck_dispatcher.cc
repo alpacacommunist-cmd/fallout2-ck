@@ -153,6 +153,11 @@ const char* ck_get_current_mod_id() {
 }
 
 bool ck_set_current_mod_context(const char* mod_id) {
+    if (mod_id == nullptr) {
+        ck_set_mod_context(nullptr);
+        return true;
+    }
+
     for (const auto& mod : g_active_mods) {
         if (mod == mod_id) {
             ck_set_mod_context(mod_id);

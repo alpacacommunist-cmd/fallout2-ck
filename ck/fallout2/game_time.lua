@@ -2,6 +2,7 @@
 local ffi = require("ffi")
 
 local utils = require('ck.system.utils')
+local log   = ck.log.new('game_time.lua')
 
 local game_time = {}
 
@@ -17,6 +18,10 @@ function game_time.get_date()
     year  = game_time.get_year(),
     hour  = game_time.get_hour()
   }
+end
+
+function game_time.get_time()
+  return ffi.C.ck_game_time_get_time()
 end
 
 -- time to ticks helper
@@ -40,7 +45,7 @@ game_time.in_ticks = {
 }
 
 game_time.from_now = function(ticks)
-  return ffi.C.ck_game_time_get_time() + ticks
+  return game_time.get_time() + ticks
 end
 
 -- Timer types
@@ -53,6 +58,7 @@ game_time.timer_types = {
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
 game_time.timers = {}
 
+-- mod_id + "_timer_" + count
 game_time.generate_timer_id = function(mod_id)
   local count = 0
   if game_time.timers[mod_id] then
@@ -63,48 +69,106 @@ game_time.generate_timer_id = function(mod_id)
 end
 
 local function exec_timer_callback(mod_id, callback)
-  local previous_mod_context = ffi.C.ck_get_current_mod_id()
+  local raw_context = ffi.C.ck_get_current_mod_id()
+
+  local previous_mod_context = nil
+  if raw_context ~= nil then
+    previous_mod_context = ffi.string(raw_context)
+  end
+
+  local function error_handler(err)
+    local traceback = debug.traceback(err, 2)
+    logger.error("Timer failed in mod [%s]!\nError: %s", mod_id, traceback)
+    return err
+  end
 
   ffi.C.ck_set_current_mod_context(mod_id)
-  callback()
-  ffi.C.ck_set_current_mod_context(previous_mod_context)
+  local success, result = xpcall(callback, error_handler)
+
+  -- restore context
+  if previous_mod_context == nil then
+    ffi.C.ck_set_current_mod_context(nil)
+  else
+    ffi.C.ck_set_current_mod_context(previous_mod_context)
+  end
+
+  return success
 end
 
 game_time.register_timer = function(tag, timer_type, ticks, callback, params)
-  local mod_id = ffi.C.ck_get_current_mod_id()
-  local current_time = ffi.C.ck_game_time_get_time()
+  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local current_time = game_time.get_time()
 
-  ticks = ticks or current_time
-  timer_type = game_time.timer_types[type] or game_time.timer_types.one_time
+  ticks = ticks or 0
+  exec_time = current_time + ticks
+
+  timer_type = game_time.timer_types[timer_type] or game_time.timer_types.one_time
 
   if not tag or utils.is_blank(tag) then
     tag = game_time.generate_timer_id(mod_id)
   end
 
+  log.error("timer_type: %s, ticks: %d, current_time: %d, mod_id: %s", timer_type, ticks, current_time, mod_id)
+
   -- check existing timer in registry
   if game_time.timers[mod_id] and game_time.timers[mod_id][tag] then
     local timer = game_time.timers[mod_id][tag]
   else
-    if type == "one_time" and current_time > ticks then
-      -- exec callback
+    if timer_type == "one_time" and exec_time <= ticks then
+      exec_timer_callback(mod_id, callback)
     else
-      -- new timer, write to registry
-      -- and save to state
+      -- new timer, write to registry, save to state db
       local state = require('ck.fallout2.state')
 
       game_time.timers[mod_id] = game_time.timers[mod_id] or {}
-      state.db.timers[mod_id] = state.db.timers[mod_id] or {}
+      state.db.timers[mod_id]  = state.db.timers[mod_id] or {}
 
-      local timer = { tag = tag, type = type, ticks = ticks, callback = callback, params = params }
+      local timer = {
+        tag = tag,
+        type = timer_type,
+        created_at = current_time,
+        ticks = ticks,
+        callback = callback,
+        mod_id = mod_id,
+        params = params
+      }
 
       game_time.timers[mod_id][tag] = timer
-      state.db.timers[mod_id][tag] = { created_at = current_time }
+      state.db.timers[mod_id][tag]  = { created_at = current_time }
+    end
+  end
+end
+
+game_time.check_timers = function(ticks)
+  for mod_id, mod_timers in pairs(game_time.timers) do
+    utils.print_table(game_time.timers, log)
+    for tag, timer in pairs(mod_timers) do
+
+      -- check trigger time
+      if ticks >= (timer.created_at + timer.ticks) then
+
+        -- exec callback
+        exec_timer_callback(timer.mod_id, timer.callback)
+
+        -- repeat/one_time logic
+        if timer.type == "one_time" then
+          -- remove timer from db, registry
+          mod_timers[tag] = nil
+
+          local state = require('ck.fallout2.state')
+          if state.db.timers and state.db.timers[mod_id] then
+            state.db.timers[mod_id][tag] = nil
+          end
+        elseif timer.type == "repeat" then
+          timer.created_at = game_time.get_time()
+        end
+      end
     end
   end
 end
 
 function game_time.get_total_days()
-  return math.floor(ffi.C.ck_game_time_get_time() / (10 * 60 * 60 * 24))
+  return math.floor(game_time.get_time() / (10 * 60 * 60 * 24))
 end
 
 function game_time.get_time_of_day()

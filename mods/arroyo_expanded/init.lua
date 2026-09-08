@@ -105,14 +105,14 @@ events.on('map_enter', function(map_id)
 
   if map_id ~= 4 then return end
 
-  knowledge.grant(KN_SCORPION_HARVEST)
-
   local test_timer = game_time.register_timer(
-    "test_timer", game_time.timer_types.one_time, game_time.from_now(game_time.in_ticks.minutes(1)),
+    "test_timer", game_time.timer_types.one_time, game_time.in_ticks.seconds(5),
     function()
-      monitor.print(map_id)
+      monitor.print("__callback map_id: " .. tostring(map_id))
     end
   )
+
+  knowledge.grant(KN_SCORPION_HARVEST)
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", 16777255, 19908, {
