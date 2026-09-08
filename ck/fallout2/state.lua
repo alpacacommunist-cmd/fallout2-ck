@@ -5,7 +5,13 @@ local utils = require('ck.system.utils')
 local state = {}
 local log   = ck.log.new('state.lua')
 
-local db_init_state = { player = { knowledge = {} }, global = {}, maps = {} }
+local db_init_state = {
+  global = {},
+  player = { knowledge = {} },
+  maps = {},
+  proto_list = {},
+  timers = {}
+}
 state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
 
 -- gets marshalld json -> lua from backend

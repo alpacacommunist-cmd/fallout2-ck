@@ -1,6 +1,8 @@
 -- ck/fallout2/game_time.lua
 local ffi = require("ffi")
 
+local utils = require('ck.system.utils')
+
 local game_time = {}
 
 game_time.get_year  = ffi.C.ck_game_time_get_year
@@ -17,6 +19,7 @@ function game_time.get_date()
   }
 end
 
+-- time to ticks helper
 -- 10 ticks per second
 game_time.in_ticks = {
   days = function(number_of_days)
@@ -36,8 +39,60 @@ game_time.in_ticks = {
   end
 }
 
+-- Timer types
+game_time.timer_types = {
+  ["one_time"] = "one_time",
+  ["repeat"]   = "repeat"
+}
+
+-- Timers registry
+-- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
+game_time.timers = {}
+
+game_time.generate_timer_id = function(mod_id)
+  local count = 0
+  if game_time.timers[mod_id] then
+    for _ in pairs(game_time.timers[mod_id]) do count = count + 1 end
+  end
+
+  return mod_id .. "_timer_" .. count
+end
+
+game_time.register_timer = function(tag, timer_type, ticks, callback, params)
+  local mod_id = ffi.C.ck_get_current_mod_id()
+  local current_time = ffi.C.ck_game_time_get_time()
+
+  ticks = ticks or current_time
+  timer_type = game_time.timer_types[type] or game_time.timer_types.one_time
+
+  if not tag or utils.is_blank(tag) then
+    tag = game_time.generate_timer_id(mod_id)
+  end
+
+  -- check existing timer in registry
+  if game_time.timers[mod_id] and game_time.timers[mod_id][tag] then
+    local timer = game_time.timers[mod_id][tag]
+  else
+    if type == "one_time" and current_time > ticks then
+      -- exec callback
+    else
+      -- new timer, write to registry
+      -- and save to state
+      local state = require('ck.fallout2.state')
+
+      game_time.timers[mod_id] = game_time.timers[mod_id] or {}
+      state.db.timers[mod_id] = state.db.timers[mod_id] or {}
+
+      local timer = { tag = tag, type = type, ticks = ticks, callback = callback, params = params }
+
+      game_time.timers[mod_id][tag] = timer
+      state.db.timers[mod_id][tag] = { created_at = current_time }
+    end
+  end
+end
+
 function game_time.get_total_days()
-  return math.floor(ffi.C.ck_game_get_time() / (10 * 60 * 60 * 24))
+  return math.floor(ffi.C.ck_game_time_get_time() / (10 * 60 * 60 * 24))
 end
 
 function game_time.get_time_of_day()
