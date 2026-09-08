@@ -220,11 +220,11 @@ ffi.cdef[[
   void ck_dialog_close_ui();
 
   // --- Game-time ---
-  int ck_game_get_year();
-  int ck_game_get_day();
-  int ck_game_get_month();
-  int ck_game_get_hour();
-  int ck_game_get_time();
+  int ck_game_time_get_year();
+  int ck_game_time_get_day();
+  int ck_game_time_get_month();
+  int ck_game_time_get_hour();
+  int ck_game_time_get_time();
 
   // --- Locations ---
 

@@ -1,23 +1,12 @@
 -- ck/fallout2/game_time.lua
 local ffi = require("ffi")
 
-ck.game_time = {}
-
-ck.game_time.get_year  = ffi.C.ck_game_get_year
-ck.game_time.get_day   = ffi.C.ck_game_get_day
-ck.game_time.get_month = ffi.C.ck_game_get_month
-ck.game_time.get_hour  = ffi.C.ck_game_get_hour
-
---
---  FFI END
---
-
 local game_time = {}
 
-game_time.get_year  = ck.game_time.get_year
-game_time.get_day   = ck.game_time.get_day
-game_time.get_month = ck.game_time.get_month
-game_time.get_hour  = ck.game_time.get_hour
+game_time.get_year  = ffi.C.ck_game_time_get_year
+game_time.get_day   = ffi.C.ck_game_time_get_day
+game_time.get_month = ffi.C.ck_game_time_get_month
+game_time.get_hour  = ffi.C.ck_game_time_get_hour
 
 function game_time.get_date()
   return {
@@ -27,6 +16,25 @@ function game_time.get_date()
     hour  = game_time.get_hour()
   }
 end
+
+-- 10 ticks per second
+game_time.in_ticks = {
+  days = function(number_of_days)
+    return number_of_days * (60 * 60 * 24) * 10
+  end,
+
+  hours = function(number_of_hours)
+    return number_of_hours * (60 * 60) * 10
+  end,
+
+  minutes = function(number_of_minutes)
+    return number_of_days * 60 * 10
+  end,
+
+  seconds = function(number_of_seconds)
+    return number_of_seconds * 10
+  end
+}
 
 function game_time.get_total_days()
   return math.floor(ffi.C.ck_game_get_time() / (10 * 60 * 60 * 24))

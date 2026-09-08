@@ -17,10 +17,10 @@ namespace ck {
 }
 
 // ffi
-CK_API int ck_game_get_year();
-CK_API int ck_game_get_day();
-CK_API int ck_game_get_month();
-CK_API int ck_game_get_hour();
-CK_API int ck_game_get_time();
+CK_API int ck_game_time_get_year();
+CK_API int ck_game_time_get_day();
+CK_API int ck_game_time_get_month();
+CK_API int ck_game_time_get_hour();
+CK_API int ck_game_time_get_time();
 
 #endif
