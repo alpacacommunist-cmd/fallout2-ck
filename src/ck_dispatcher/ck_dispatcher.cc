@@ -152,6 +152,17 @@ const char* ck_get_current_mod_id() {
     return g_current_mod_id;
 }
 
+bool ck_set_current_mod_context(const char* mod_id) {
+    for (const auto& mod : g_active_mods) {
+        if (mod == mod_id) {
+            ck_set_mod_context(mod_id);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 

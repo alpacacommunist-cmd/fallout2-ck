@@ -107,6 +107,13 @@ events.on('map_enter', function(map_id)
 
   knowledge.grant(KN_SCORPION_HARVEST)
 
+  local test_timer = game_time.register_timer(
+    "test_timer", game_time.timer_types.one_time, game_time.from_now(game_time.in_ticks.minutes(1)),
+    function()
+      monitor.print(map_id)
+    end
+  )
+
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", 16777255, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },

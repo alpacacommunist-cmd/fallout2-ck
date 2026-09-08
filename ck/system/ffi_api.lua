@@ -32,6 +32,7 @@ ffi.cdef[[
   void ck_config_clear_mod_patches(const char* mod_id);
 
   const char* ck_get_current_mod_id();
+  bool ck_set_current_mod_context(const char* mod_id);
 
   bool ck_is_sid_ck_custom(int sid);
 

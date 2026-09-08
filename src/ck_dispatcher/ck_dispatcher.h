@@ -29,6 +29,7 @@ namespace ck::dispatcher {
 
 CK_API bool ck_dispatcher_load_mod(const char* mod_id);
 CK_API const char* ck_get_current_mod_id();
+CK_API bool ck_set_current_mod_context(const char* mod_id);
 CK_API void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
 #endif

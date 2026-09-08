@@ -39,6 +39,10 @@ game_time.in_ticks = {
   end
 }
 
+game_time.from_now = function(ticks)
+  return ffi.C.ck_game_time_get_time() + ticks
+end
+
 -- Timer types
 game_time.timer_types = {
   ["one_time"] = "one_time",
@@ -56,6 +60,14 @@ game_time.generate_timer_id = function(mod_id)
   end
 
   return mod_id .. "_timer_" .. count
+end
+
+local function exec_timer_callback(mod_id, callback)
+  local previous_mod_context = ffi.C.ck_get_current_mod_id()
+
+  ffi.C.ck_set_current_mod_context(mod_id)
+  callback()
+  ffi.C.ck_set_current_mod_context(previous_mod_context)
 end
 
 game_time.register_timer = function(tag, timer_type, ticks, callback, params)
