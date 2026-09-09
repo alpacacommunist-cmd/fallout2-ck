@@ -35,27 +35,42 @@ function state.sync_save()
   state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
   local current_map = state.db.maps[current_map_id]
 
-  -- timers
-  local timers = require('ck.fallout2.timers')
-  for mod_id, mod_timers in pairs(timers.registry) do
-    current_map[mod_id] = current_map[mod_id] or {}
-    current_map[mod_id].timers = {}
+  -- check active mods
+  local bootstrap = require('ck.system.bootstrap')
+  for _, mod_id in ipairs(bootstrap.active_mods) do
+    local mod_map_db = current_map[mod_id]
+
+    -- prepare tables
+    mod_map_db.timers  = mod_map_db.timers or {}
+    mod_map_db.objects = mod_map_db.objects or {}
+
+    -- timers
+    -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
+    local timers = require('ck.fallout2.timers')
+    local mod_tiles = timers.registry[mod_id] or {}
 
     for tag, timer in pairs(mod_timers) do
+      mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
     end
+
+    -- objects
+    -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
+    local objects = require('ck.fallout2.objects')
+    local mod_objects = objects.registry[mod_id]
   end
 
   -- objects
-  local objects = require('ck.fallout2.objects')
   for _, object in pairs(objects.registry) do
     if not object.lua_id or not object.mod_id or not object.tag or object.modified then
       goto continue
     end
 
-    current_map[object.mod_id] = current_map[object.mod_id] or {}
-    current_map[object.mod_id][object.tag] = current_map[object.mod_id][object.tag] or {}
+    current_map[object.mod_id] = current_map[object.mod_id] or { objects = {} }
 
-    local object_state = current_map[object.mod_id][object.tag]
+    local objects_db = current_map[object.mod_id]
+    objects_db[object.tag] = objects_db[object.tag] or {}
+
+    local object_state = objects_db[object.tag]
 
     if object.tile then object_state.tile = object:tile() end
     if object.hp   then object_state.hp   = object:hp()   end
@@ -68,9 +83,13 @@ function state.sync_save()
 
   -- Garbage Collection ✨
   local critters = require('ck.fallout2.objects.critters')
-  for mod_id, saved_tags in pairs(current_map) do
+  for mod_id, mod_map_db in pairs(current_map) do
+    --timers
+
+    -- critter spawns
     local active_spawns = critters.spawn_tags[mod_id]
 
+    local saved_tags = mod_map_db["objects"]
     for tag, _ in pairs(saved_tags) do
       if not active_spawns or not active_spawns[tag] then
         saved_tags[tag] = nil
@@ -79,7 +98,7 @@ function state.sync_save()
 
     -- clears map table if it's empty
     if next(saved_tags) == nil then
-      current_map[mod_id] = nil
+      current_map[mod_id]["objects"] = nil
     end
   end
 

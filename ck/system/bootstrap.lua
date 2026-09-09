@@ -30,6 +30,7 @@ function bootstrap.bootstrap()
     end
   end
 
+  bootstrap.active_mods = active_mods
   log.info("Bootstrap complete! All mods loaded safely.")
 end
 
