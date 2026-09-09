@@ -30,6 +30,7 @@ end
 local function exec_timer_callback(mod_id, callback)
   local raw_context = ffi.C.ck_get_current_mod_id()
 
+  -- previous context (could be nullptr)
   local previous_mod_context = nil
   if raw_context ~= nil then
     previous_mod_context = ffi.string(raw_context)
@@ -44,22 +45,19 @@ local function exec_timer_callback(mod_id, callback)
   ffi.C.ck_set_current_mod_context(mod_id)
   local success, result = xpcall(callback, error_handler)
 
-  -- restore context
-  if previous_mod_context == nil then
-    ffi.C.ck_set_current_mod_context(nil)
-  else
-    ffi.C.ck_set_current_mod_context(previous_mod_context)
-  end
+  -- restore context (could be nullptr)
+  ffi.C.ck_set_current_mod_context(previous_mod_context)
 
   return success
 end
 
+-- Map context timers, on map exit timers.registry is cleared
 timers.register_timer = function(tag, timer_type, ticks, callback, params)
   local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
   local current_time = game_time.get_time()
 
   ticks = ticks or 0
-  exec_time = current_time + ticks
+  local exec_time = current_time + ticks
 
   timer_type = timers.timer_types[timer_type] or timers.timer_types.one_time
 
@@ -67,35 +65,44 @@ timers.register_timer = function(tag, timer_type, ticks, callback, params)
     tag = timers.generate_timer_id(mod_id)
   end
 
-  log.error("timer_type: %s, ticks: %d, current_time: %d, mod_id: %s", timer_type, ticks, current_time, mod_id)
+  log.debug("timer_type: %s, ticks: %d, current_time: %d, mod_id: %s", timer_type, ticks, current_time, mod_id)
+
+  local timer = {
+    tag = tag,
+    timer_type = timer_type,
+    created_at = current_time,
+    ticks = ticks,
+    callback = callback,
+    mod_id = mod_id,
+    params = params
+  }
 
   -- check existing timer in registry
   if timers.registry[mod_id] and timers.registry[mod_id][tag] then
-    local timer = timers.registry[mod_id][tag]
-  else
-    if timer_type == "one_time" and exec_time <= ticks then
-      exec_timer_callback(mod_id, callback)
-    else
-      -- new timer, write to registry, save to state db
-      local state = require('ck.fallout2.state')
-
-      timers.registry[mod_id] = timers.registry[mod_id] or {}
-      state.db.timers[mod_id] = state.db.timers[mod_id] or {}
-
-      local timer = {
-        tag = tag,
-        timer_type = timer_type,
-        created_at = current_time,
-        ticks = ticks,
-        callback = callback,
-        mod_id = mod_id,
-        params = params
-      }
-
-      timers.registry[mod_id][tag] = timer
-      state.db.timers[mod_id][tag] = { created_at = current_time }
-    end
+    timers.registry[mod_id][tag] = timer
+    return
   end
+
+  -- if one_time and exec now - exec and return
+  if timer_type == "one_time" and ticks == 0 then
+    return exec_timer_callback(mod_id, callback)
+  end
+
+  local state = require('ck.fallout2.state')
+
+  -- prepare tables
+  timers.registry[mod_id] = timers.registry[mod_id] or {}
+  state.db.timers[mod_id] = state.db.timers[mod_id] or {}
+
+  -- check if state has timer's last exec/creation time
+  -- needed for savegame/loadgame
+  -- If timer isn't in registry yet this should mean game just loaded
+  -- In this case apply `created_at` (exec/creation time) from db
+  if state.db.timers[mod_id][tag] and not timers.registry[mod_id][tag] then
+    timer.created_at = state.db.timers[mod_id][tag].created_at
+  end
+
+  timers.registry[mod_id][tag] = timer
 end
 
 timers.check_timers = function(ticks)

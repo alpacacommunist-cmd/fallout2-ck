@@ -35,6 +35,17 @@ function state.sync_save()
   state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
   local current_map = state.db.maps[current_map_id]
 
+  -- timers
+  local timers = require('ck.fallout2.timers')
+  for mod_id, mod_timers in pairs(timers.registry) do
+    current_map[mod_id] = current_map[mod_id] or {}
+    current_map[mod_id].timers = {}
+
+    for tag, timer in pairs(mod_timers) do
+    end
+  end
+
+  -- objects
   local objects = require('ck.fallout2.objects')
   for _, object in pairs(objects.registry) do
     if not object.lua_id or not object.mod_id or not object.tag or object.modified then
