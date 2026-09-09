@@ -27,19 +27,14 @@ end
 
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
-  local current_map_id = ffi.C.ck_map_get_id()
-  if current_map_id == -1 then return state.db end
+  if ck.map_id == -1 then return state.db end
 
-  state.db.maps[current_map_id] = state.db.maps[current_map_id] or {}
-  local current_map = state.db.maps[current_map_id]
+  state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
+  local current_map = state.db.maps[ck.map_id]
 
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods) do
     local mod_map_db = current_map[mod_id] or {}
-
-    -- prepare tables
-    mod_map_db.timers  = mod_map_db.timers or {}
-    mod_map_db.objects = mod_map_db.objects or {}
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers

@@ -24,7 +24,7 @@ namespace ck {
     namespace script { void reset(); }
     namespace common {
         bool currently_in_combat();
-        void clear_lua_registries();
+        void lua_map_enter();
     }
 
     namespace proxy {
@@ -36,8 +36,8 @@ namespace ck {
 
 namespace ck {
     void on_map_enter() {
-        // Clears LUA registries
-        ck::common::clear_lua_registries();
+        // Clears LUA registries, updates global meta
+        ck::common::lua_map_enter();
 
         // Restore proto items PID (stored in `id`)
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
@@ -57,7 +57,7 @@ namespace ck {
         // so that map save file holds relevant data
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
 
-        // Resets lua registries, updates state
+        // Resets lua registries, updates state when leaving a map
         if (!fallout::_isLoadingGame()) {
             proxy::execute_proxy_call<bool>(proxy::detail::map_context_change);
         }

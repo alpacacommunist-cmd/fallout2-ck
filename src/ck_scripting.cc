@@ -48,14 +48,17 @@ namespace fallout {
 namespace ck {
     // map/ck_map.cc
 	void on_map_enter();
+    int current_map_id();
     // ce_config/ck_config_patch.cc
     bool apply_worldmap_patches();
 
+    // lua calls
     namespace proxy::detail {
         extern int reload_mods;
         extern int bootstrap;
         extern int set_language;
         extern int clear_registries;
+        extern int map_enter;
     }
 }
 
@@ -77,6 +80,10 @@ namespace ck::common {
 
     void clear_lua_registries() {
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
+    }
+
+    void lua_map_enter() {
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_enter, current_map_id());
     }
 }
 

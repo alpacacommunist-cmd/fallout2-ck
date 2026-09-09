@@ -96,7 +96,7 @@ timers.register_timer = function(tag, timer_type, ticks, callback, params)
   -- If timer isn't in registry yet this should mean game just loaded
   -- In this case apply `created_at` (exec/creation time) from db
   if state.db.maps[ck.map_id][mod_id]["timers"][tag] and not timers.registry[mod_id][tag] then
-    timer.created_at = state.db.maps.[ck.map_id][mod_id]["timers"][tag].created_at
+    timer.created_at = state.db.maps[ck.map_id][mod_id]["timers"][tag].created_at
   end
 
   timers.registry[mod_id][tag] = timer
@@ -116,13 +116,7 @@ timers.check_timers = function(ticks)
           mod_timers[tag] = nil
 
           local state = require('ck.fallout2.state')
-          if state.db.timers and state.db.timers[mod_id] then
-            state.db.timers[mod_id][tag] = nil
-
-            if next(state.db.timers[mod_id]) == nil then
-              state.db.timers[mod_id] = nil
-            end
-          end
+          state.db.maps[map_id][timer.mod_id].timers[tag] = nil
         elseif timer.timer_type == "periodic" then
           timer.created_at = game_time.get_time()
         end

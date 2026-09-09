@@ -12,27 +12,28 @@ lua_State* gLuaState = nullptr;
 extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
-    int bootstrap             = LUA_NOREF;
-    int load_and_init_mod     = LUA_NOREF;
-    int reload_mods           = LUA_NOREF;
-    int emit_for_mod          = LUA_NOREF;
-    int on_map_update         = LUA_NOREF;
-    int on_proc               = LUA_NOREF;
-    int on_proto_proc         = LUA_NOREF;
-    int map_context_change    = LUA_NOREF;
-    int clear_registries      = LUA_NOREF;
-    int critter_killed        = LUA_NOREF;
-    int get_state_data        = LUA_NOREF;
-    int get_proto_list        = LUA_NOREF;
-    int receive_proto_list    = LUA_NOREF;
-    int state_sync_load       = LUA_NOREF;
-    int state_sync_save       = LUA_NOREF;
-    int knowledge_sync        = LUA_NOREF;
-    int set_language          = LUA_NOREF;
+    int bootstrap          = LUA_NOREF;
+    int load_and_init_mod  = LUA_NOREF;
+    int reload_mods        = LUA_NOREF;
+    int emit_for_mod       = LUA_NOREF;
+    int on_map_update      = LUA_NOREF;
+    int on_proc            = LUA_NOREF;
+    int on_proto_proc      = LUA_NOREF;
+    int map_context_change = LUA_NOREF;
+    int map_enter          = LUA_NOREF;
+    int clear_registries   = LUA_NOREF;
+    int critter_killed     = LUA_NOREF;
+    int get_state_data     = LUA_NOREF;
+    int get_proto_list     = LUA_NOREF;
+    int receive_proto_list = LUA_NOREF;
+    int state_sync_load    = LUA_NOREF;
+    int state_sync_save    = LUA_NOREF;
+    int knowledge_sync     = LUA_NOREF;
+    int set_language       = LUA_NOREF;
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 17> hooks = {{
+const std::array<LuaHookBinding, 18> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
 	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
@@ -41,6 +42,7 @@ const std::array<LuaHookBinding, 17> hooks = {{
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
 	{ "ck.system.events",      "on_proto_proc",         &ck::proxy::detail::on_proto_proc },
 	{ "ck.system.events",      "map_context_change",    &ck::proxy::detail::map_context_change },
+    { "ck.system.events",      "map_enter",             &ck::proxy::detail::map_enter },
 	{ "ck.system.events",      "clear_registries",      &ck::proxy::detail::clear_registries },
 	{ "ck.system.events",      "critter_killed",        &ck::proxy::detail::critter_killed },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },

@@ -190,17 +190,12 @@ function Object:has_item(item_pid)
 end
 
 function Object:state()
-  if (not self.tag or not self.mod_id) then return nil end
+  if (not self.tag or not self.mod_id or ck.map_id == -1) then return nil end
 
-  local map_id = ffi.C.ck_map_get_id()
-  if map_id == -1 then return nil end
+  local state_mod_objects = state.db.maps[ck.map_id][self.mod_id]["objects"]
+  state_mod_objects[self.tag] = state_mod_objects[self.tag] or {}
 
-  local maps = state.db.maps
-  maps[map_id] = maps[map_id] or {}
-  maps[map_id][self.mod_id] = maps[map_id][self.mod_id] or {}
-  maps[map_id][self.mod_id][self.tag] = maps[map_id][self.mod_id][self.tag] or {}
-
-  return maps[map_id][self.mod_id][self.tag]
+  return state_mod_objects[self.tag]
 end
 
 function Object:state_readonly()

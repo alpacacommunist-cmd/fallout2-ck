@@ -146,12 +146,31 @@ function events.clear_registries()
   objects.clear_registry()
 end
 
+-- is supposed to be called before map exit
+-- to update inventory/hp/tile and timers in state db
 function events.map_context_change()
-  -- Updates inventory/hp/tile etc
   local state = require('ck.fallout2.state')
   state.sync_save()
 
   events.clear_registries()
+end
+
+-- Makes sure state db tables are initialized
+-- Updates global map-related meta
+function events.map_enter(map_id)
+  events.clear_registries()
+
+  ck.map_id = map_id
+
+  local state = require('ck.fallout2.state')
+
+  state.db.maps[map_id] = state.db.maps[map_id] or {}
+  for _, mod_id in ipairs(ck.active_mods) do
+    state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
+
+    state.db.maps[map_id][mod_id].objects = {}
+    state.db.maps[map_id][mod_id].timers  = {}
+  end
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua
