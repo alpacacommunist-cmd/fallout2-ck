@@ -17,6 +17,20 @@ timers.timer_types = {
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
 timers.registry = {}
 
+function timers.clear_for_mod(mod_id)
+  timers.registry[mod_id] = {}
+  log.info("Cleared timers registry for mod: [%s]", mod_id);
+end
+
+function timers.clear_registry()
+  for _, mod_id in ipairs (ck.active_mods) do
+    timers.registry[mod_id] = {}
+  end
+
+  log.info("Cleared timers registry");
+end
+
+
 -- mod_id + "_timer_" + count
 timers.generate_timer_id = function(mod_id)
   local count = 0

@@ -95,6 +95,10 @@ function loader.reload_mods()
     local objects = require('ck.fallout2.objects')
     objects.clear_for_mod(mod_id)
 
+    -- Resets timers.registry (map-context timers)
+    local timers = require('ck.fallout2.timers')
+    timers.clear_for_mod(mod_id)
+
     -- Resets critters.spawn_counters
     local critters = require('ck.fallout2.objects.critters')
     critters.reset_spawn_counters_for_mod(mod_id)

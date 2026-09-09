@@ -105,7 +105,8 @@ events.on('map_enter', function(map_id)
   log.info(klint.modified)
 
   -- log.info("klint lua_id: %d, mod_id: %s, tag: %s", klint.lua_ia, klint.mod_id, klint.tag);
-  --
+  -- log.info("klint modified: %s", klint.modified)
+
   klint:on('talk', function(self)
     self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
   end)

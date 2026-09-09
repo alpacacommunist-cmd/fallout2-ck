@@ -34,7 +34,7 @@ function state.sync_save()
 
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods) do
-    local mod_map_db = current_map[mod_id] or {}
+    local mod_map_db = current_map[mod_id]
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
@@ -50,7 +50,7 @@ function state.sync_save()
     local objects = require('ck.fallout2.objects')
     local mod_objects = objects.registry[mod_id] or {}
 
-    for _, object in pairs(objects.registry[mod_id]) do
+    for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
       end
@@ -67,27 +67,17 @@ function state.sync_save()
 
       ::continue::
     end
+
+    -- Garbage Collection ✨
+    if next(mod_map_db.timers) == nil and next(mod_map_db.objects) == nil then
+      current_map[mod_id] = nil
+    end
   end
 
   -- Garbage Collection ✨
-  -- TODO: use objects.registry
-  -- local critters = require('ck.fallout2.objects.critters')
-  -- for mod_id, mod_map_db in pairs(current_map) do
-  --   -- critter spawns
-  --   local active_spawns = critters.spawn_tags[mod_id]
-  --
-  --   local saved_tags = mod_map_db["objects"]
-  --   for tag, _ in pairs(saved_tags) do
-  --     if not active_spawns or not active_spawns[tag] then
-  --       saved_tags[tag] = nil
-  --     end
-  --   end
-  --
-  --   -- clears map table if it's empty
-  --   if next(saved_tags) == nil then
-  --     current_map[mod_id]["objects"] = nil
-  --   end
-  -- end
+  if next(current_map) == nil then
+    state.db.maps[ck.map_id] = nil
+  end
 
   utils.print_table(state.db, log)
   return state.db
@@ -95,6 +85,7 @@ end
 
 function state.get_proto_list()
   return state.db.proto_list
+
 end
 
 -- Backend calls this to push registered prototypes

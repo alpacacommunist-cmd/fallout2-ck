@@ -137,6 +137,7 @@ function events.clear_registries()
   -- Clears map context registries
   local dialogue = require('ck.fallout2.dialogue')
   local critters = require('ck.fallout2.objects.critters')
+  local timers   = require('ck.fallout2.timers')
 
   -- Clears registered dialogs
   dialogue.clear_dialogs()
@@ -144,6 +145,8 @@ function events.clear_registries()
   critters.reset_spawn_counters()
   -- Clears objects registry
   objects.clear_registry()
+  -- Clears timers registry
+  timers.clear_registry()
 end
 
 -- is supposed to be called before map exit
@@ -167,9 +170,18 @@ function events.map_enter(map_id)
   state.db.maps[map_id] = state.db.maps[map_id] or {}
   for _, mod_id in ipairs(ck.active_mods) do
     state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
+    local mod_table = state.db.maps[map_id][mod_id]
 
-    state.db.maps[map_id][mod_id].objects = {}
-    state.db.maps[map_id][mod_id].timers  = {}
+    -- Garbage collection ✨
+    for key in pairs(mod_table) do
+      if key ~= "objects" and key ~= "timers" then
+        mod_table[key] = nil
+      end
+    end
+
+    -- allowed tables
+    mod_table.objects = mod_table.objects or {}
+    mod_table.timers  = mod_table.timers or {}
   end
 end
 

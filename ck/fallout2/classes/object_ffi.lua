@@ -72,9 +72,6 @@ function object_ffi:bind()
     self.lua_id = ffi.C.ck_registry_modify_object(self.c_ptr)
 
     if self:is_critter() then
-      local name   = self:get_name()
-      local mod_id = self:get_mod_id()
-
       object = Critter.new(self.lua_id)
     else
       object = Object.new(self.lua_id)
