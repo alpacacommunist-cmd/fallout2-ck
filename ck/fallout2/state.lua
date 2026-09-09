@@ -6,11 +6,10 @@ local state = {}
 local log   = ck.log.new('state.lua')
 
 local db_init_state = {
-  global = {},
-  player = { knowledge = {} },
-  maps = {},
-  proto_list = {},
-  timers = {}
+  ["global"] = {},
+  ["player"] = { knowledge = {} },
+  ["maps"] = {},
+  ["proto_list"] = {}
 }
 state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
 
@@ -22,7 +21,6 @@ function state.sync_load(loaded_db)
   state.db.player = state.db.player or db_init_state.player
   state.db.maps   = state.db.maps or db_init_state.maps
   state.db.proto_list = state.db.proto_list or db_init_state.proto_list
-  state.db.timers = state.db.timers or db_init_state.timers
 
   -- utils.print_table(state.db.proto_list, log)
 end
@@ -36,9 +34,8 @@ function state.sync_save()
   local current_map = state.db.maps[current_map_id]
 
   -- check active mods
-  local bootstrap = require('ck.system.bootstrap')
-  for _, mod_id in ipairs(bootstrap.active_mods) do
-    local mod_map_db = current_map[mod_id]
+  for _, mod_id in ipairs(ck.active_mods) do
+    local mod_map_db = current_map[mod_id] or {}
 
     -- prepare tables
     mod_map_db.timers  = mod_map_db.timers or {}
@@ -47,7 +44,7 @@ function state.sync_save()
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
     local timers = require('ck.fallout2.timers')
-    local mod_tiles = timers.registry[mod_id] or {}
+    local mod_timers = timers.registry[mod_id] or {}
 
     for tag, timer in pairs(mod_timers) do
       mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
@@ -56,51 +53,46 @@ function state.sync_save()
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
     local objects = require('ck.fallout2.objects')
-    local mod_objects = objects.registry[mod_id]
-  end
+    local mod_objects = objects.registry[mod_id] or {}
 
-  -- objects
-  for _, object in pairs(objects.registry) do
-    if not object.lua_id or not object.mod_id or not object.tag or object.modified then
-      goto continue
+    for _, object in pairs(objects.registry[mod_id]) do
+      if not object.lua_id or not object.mod_id or not object.tag or object.modified then
+        goto continue
+      end
+
+      mod_map_db.objects[object.tag] = mod_map_db.objects[object.tag] or {}
+
+      local object_state = mod_map_db.objects[object.tag]
+
+      if object.tile then object_state.tile = object:tile() end
+      if object.hp   then object_state.hp   = object:hp()   end
+
+      object_state.id = object:id()
+      object_state.inventory = object:inventory_table()
+
+      ::continue::
     end
-
-    current_map[object.mod_id] = current_map[object.mod_id] or { objects = {} }
-
-    local objects_db = current_map[object.mod_id]
-    objects_db[object.tag] = objects_db[object.tag] or {}
-
-    local object_state = objects_db[object.tag]
-
-    if object.tile then object_state.tile = object:tile() end
-    if object.hp   then object_state.hp   = object:hp()   end
-
-    object_state.id = object:id()
-    object_state.inventory = object:inventory_table()
-
-    ::continue::
   end
 
   -- Garbage Collection ✨
-  local critters = require('ck.fallout2.objects.critters')
-  for mod_id, mod_map_db in pairs(current_map) do
-    --timers
-
-    -- critter spawns
-    local active_spawns = critters.spawn_tags[mod_id]
-
-    local saved_tags = mod_map_db["objects"]
-    for tag, _ in pairs(saved_tags) do
-      if not active_spawns or not active_spawns[tag] then
-        saved_tags[tag] = nil
-      end
-    end
-
-    -- clears map table if it's empty
-    if next(saved_tags) == nil then
-      current_map[mod_id]["objects"] = nil
-    end
-  end
+  -- TODO: use objects.registry
+  -- local critters = require('ck.fallout2.objects.critters')
+  -- for mod_id, mod_map_db in pairs(current_map) do
+  --   -- critter spawns
+  --   local active_spawns = critters.spawn_tags[mod_id]
+  --
+  --   local saved_tags = mod_map_db["objects"]
+  --   for tag, _ in pairs(saved_tags) do
+  --     if not active_spawns or not active_spawns[tag] then
+  --       saved_tags[tag] = nil
+  --     end
+  --   end
+  --
+  --   -- clears map table if it's empty
+  --   if next(saved_tags) == nil then
+  --     current_map[mod_id]["objects"] = nil
+  --   end
+  -- end
 
   utils.print_table(state.db, log)
   return state.db
@@ -170,11 +162,11 @@ function state.get_global(mod_id, sub_section, key)
 end
 
 function state.get_stored_object_data(mod_id, map_id, tag)
-  if state.db.maps[map_id] and state.db.maps[map_id][mod_id] and state.db.maps[map_id][mod_id][tag] then
-    return state.db.maps[map_id][mod_id][tag]
+  if not (state.db.maps[map_id] and state.db.maps[map_id][mod_id]) then
+    return nil
   end
 
-  return nil
+  return state.db.maps[map_id][mod_id]["objects"][tag]
 end
 
 function state.get_state_data(mod_id, map_id, tag)

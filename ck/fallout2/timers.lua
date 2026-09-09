@@ -52,6 +52,7 @@ local function exec_timer_callback(mod_id, callback)
 end
 
 -- Map context timers, on map exit timers.registry is cleared
+-- (last exec times are written to state db in state.sync_save)
 timers.register_timer = function(tag, timer_type, ticks, callback, params)
   local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
   local current_time = game_time.get_time()
@@ -90,16 +91,12 @@ timers.register_timer = function(tag, timer_type, ticks, callback, params)
 
   local state = require('ck.fallout2.state')
 
-  -- prepare tables
-  timers.registry[mod_id] = timers.registry[mod_id] or {}
-  state.db.timers[mod_id] = state.db.timers[mod_id] or {}
-
   -- check if state has timer's last exec/creation time
   -- needed for savegame/loadgame
   -- If timer isn't in registry yet this should mean game just loaded
   -- In this case apply `created_at` (exec/creation time) from db
-  if state.db.timers[mod_id][tag] and not timers.registry[mod_id][tag] then
-    timer.created_at = state.db.timers[mod_id][tag].created_at
+  if state.db.maps[ck.map_id][mod_id]["timers"][tag] and not timers.registry[mod_id][tag] then
+    timer.created_at = state.db.maps.[ck.map_id][mod_id]["timers"][tag].created_at
   end
 
   timers.registry[mod_id][tag] = timer

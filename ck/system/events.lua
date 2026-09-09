@@ -1,9 +1,9 @@
 -- ck/fallout2/events.lua
 local unpack = table.unpack or unpack
+local ffi = require("ffi")
 
 local objects = require('ck.fallout2.objects')
 local proto   = require('ck.fallout2.proto')
-local state   = require('ck.fallout2.state')
 
 local log     = ck.log.new('events.lua')
 local utils   = require('ck.system.utils')
@@ -88,7 +88,7 @@ function events.critter_killed(victim, killer)
 end
 
 function events.clear_for_mod(mod_id)
-  events.listeners[mod_id] = nil
+  events.listeners[mod_id] = {}
   log.info("Cleared listeners for mod: " .. mod_id)
 end
 
@@ -98,23 +98,31 @@ function events.on_map_update(ticks)
   timers.check_timers(ticks)
 
   -- handle map_update for lua objects
-  for _, object in pairs(objects.registry) do
-    if object._handle_map_update then
-      local success, err = pcall(object._handle_map_update, object, ticks)
-
-      if not success then
-        log.error("in 'map_update' for object " .. tostring(object.id) .. ": " .. tostring(err))
+  for _, mod_id in ipairs(ck.active_mods) do
+    for _, object in pairs(objects.registry[mod_id]) do
+      if not object._handle_map_update then
+        goto continue
       end
+
+      local success, err = pcall(object._handle_map_update, object, ticks)
+      if not success then
+        log.error("in 'map_update' for object " .. tostring(object.lua_id) .. ": " .. tostring(err))
+      end
+
+      ::continue::
     end
   end
 
   events.emit('map_update', ticks)
 end
 
-function events.on_proc(lua_id, proc_id, fixed_param)
-  local object = objects.registry[lua_id]
+function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
+  mod_id = ffi.string(mod_id)
+  if objects.registry[mod_id] == nil then return false end
 
+  local object = objects.registry[mod_id][lua_id]
   if not object then return false end
+
   return object:_handle_proc(proc_id, fixed_param)
 end
 
@@ -140,7 +148,9 @@ end
 
 function events.map_context_change()
   -- Updates inventory/hp/tile etc
+  local state = require('ck.fallout2.state')
   state.sync_save()
+
   events.clear_registries()
 end
 

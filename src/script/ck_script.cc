@@ -121,7 +121,7 @@ namespace ck::script {
 
 		// void* source_ptr = script->source;
 
-		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id.c_str());
+		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
 
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;

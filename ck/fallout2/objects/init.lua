@@ -25,17 +25,16 @@ local objects = {
 
 local log = ck.log.new('objects/init.lua')
 
-function objects.clear_for_mod(mod_name)
-  for lua_id, object_instance in pairs(objects.registry) do
-    if object_instance.mod_id == mod_name then
-      object_instance.c_ptr = nil
-      objects.registry[lua_id] = nil
-    end
-  end
+function objects.clear_for_mod(mod_id)
+  objects[mod_id] = {}
+  log.info("Cleared objects registry for mod: [%s]", mod_id);
 end
 
 function objects.clear_registry()
-  objects.registry = {}
+  for _, mod_id in ipairs (objects.registry) do
+    objects.registry[mod_id] = {}
+  end
+
   log.info("Cleared objects registry");
 end
 

@@ -53,7 +53,7 @@ function Object.new(lua_id)-- tag, mod_id, config)
     end
   end
 
-  objects.registry[lua_id] = self
+  objects.registry[self.mod_id][lua_id] = self
 
   return self
 end

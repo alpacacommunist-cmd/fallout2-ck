@@ -44,7 +44,7 @@ namespace ck::proxy {
 	}
 
     bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
-        return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, fixed_param);
+        return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, fixed_param, object_mod_id);
     }
 
     bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {

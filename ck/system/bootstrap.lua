@@ -11,6 +11,7 @@ ck.log = require('ck.system.log')
 
 local log    = ck.log.new("CK Bootstrap")
 local loader = require('ck.system.loader')
+local utils  = require('ck.system.utils')
 
 function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")
@@ -22,15 +23,22 @@ function bootstrap.bootstrap()
     active_mods = {}
   end
 
+  local objects = require('ck.fallout2.objects')
+  local timers  = require('ck.fallout2.timers')
+
   for _, mod_id in ipairs(active_mods) do
     local success = ffi.C.ck_dispatcher_load_mod(mod_id)
 
     if not success then
       log.error(string.format("Failed to bootstrap mod '%s' in dispatcher", mod_id))
     end
+
+    -- prepare registries
+    objects.registry[mod_id] = {}
+    timers.registry[mod_id]  = {}
   end
 
-  bootstrap.active_mods = active_mods
+  ck.active_mods = active_mods
   log.info("Bootstrap complete! All mods loaded safely.")
 end
 
