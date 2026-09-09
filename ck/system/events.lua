@@ -172,13 +172,6 @@ function events.map_enter(map_id)
     state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
     local mod_table = state.db.maps[map_id][mod_id]
 
-    -- Garbage collection ✨
-    for key in pairs(mod_table) do
-      if key ~= "objects" and key ~= "timers" then
-        mod_table[key] = nil
-      end
-    end
-
     -- allowed tables
     mod_table.objects = mod_table.objects or {}
     mod_table.timers  = mod_table.timers or {}

@@ -50,6 +50,10 @@ function state.sync_save()
     local objects = require('ck.fallout2.objects')
     local mod_objects = objects.registry[mod_id] or {}
 
+    -- while running through objects, remember active tags
+    -- used to GC old tags that were removed from mod code
+    local relevant_tag_list = {}
+
     for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
@@ -65,16 +69,37 @@ function state.sync_save()
       object_state.id = object:id()
       object_state.inventory = object:inventory_table()
 
+      relevant_tag_list[object.tag] = true
+
       ::continue::
     end
 
-    -- Garbage Collection ✨
+    -- [Garbage collection] ✨
+    -- removes elements outside allowed scope
+    for key in pairs(mod_map_db) do
+      if key ~= "objects" and key ~= "timers" then
+        mod_map_db[key] = nil
+      end
+    end
+
+    -- [Garbage Collection] ✨
+    -- removes obsolete tags
+    for tag in pairs(mod_map_db.objects) do
+      if not relevant_tag_list[tag] then
+        log.debug("GC: Removing obsolete object tag '%s' from mod '%s'", tag, mod_id)
+        mod_map_db.objects[tag] = nil
+      end
+    end
+
+    -- [Garbage Collection] ✨
+    -- removes mod_id namespace if empty
     if next(mod_map_db.timers) == nil and next(mod_map_db.objects) == nil then
       current_map[mod_id] = nil
     end
   end
 
   -- Garbage Collection ✨
+  -- removes map_id namespace if empty
   if next(current_map) == nil then
     state.db.maps[ck.map_id] = nil
   end
@@ -85,7 +110,6 @@ end
 
 function state.get_proto_list()
   return state.db.proto_list
-
 end
 
 -- Backend calls this to push registered prototypes

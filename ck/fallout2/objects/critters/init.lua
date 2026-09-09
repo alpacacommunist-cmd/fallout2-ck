@@ -16,15 +16,9 @@ local critters = {}
 -- { "temple_of_trials" = 0, "arroyo_expanded = 4" ... }
 critters.spawn_counters = {}
 
--- This keeps all the spawned critter tags for a current map
--- (used for removing old tags from state)
--- { "temple_of_trials" = { "spawn_1" = true, "spawn_2" = true ... } }
-critters.spawn_tags = {}
-
 function critters.reset_spawn_counters()
   log.debug("spawn counters reset")
   critters.spawn_counters = {}
-  critters.spawn_tags = {}
 end
 
 function critters.reset_spawn_counters_for_mod(mod_id)
@@ -32,9 +26,6 @@ function critters.reset_spawn_counters_for_mod(mod_id)
 
   local mod_counters = critters.spawn_counters[mod_id]
   if mod_counters then critters.spawn_counters[mod_id] = 0 end
-
-  local mod_tags = critters.spawn_tags[mod_id]
-  if mod_tags then critters.spawn_counters[mod_id] = 0 end
 end
 
 function critters.generate_unique_tag(mod_id)
@@ -100,10 +91,6 @@ function critters.register(tag, pid, tile, config)
     log.debug("Critter %s is dead and has default prototype name/description", lua_tag)
     return nil
   end
-
-  -- Add critter's tag to a list of known tags to GC older tags in state
-  critters.spawn_tags[mod_id] = critters.spawn_tags[mod_id] or {}
-  critters.spawn_tags[mod_id][ffi.string(spawn_params.tag)] = true
 
   return CritterClass.new(lua_id, config)
 end
