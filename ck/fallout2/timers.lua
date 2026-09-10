@@ -17,6 +17,14 @@ timers.timer_types = {
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
 timers.registry = {}
 
+-- Timers categories (for quicker polling)
+-- (only stores the tags)
+-- { "temple_of_trials" = { live = {"tag_one", "tag_two"}, map_enter = {"tag_three"} ... }
+timers.categories = {}
+for _, mod_id in ipairs(ck.active_mods) do
+  timers.categories[mod_id] = { live = {}, map_enter = {}, time_advance = {} }
+end
+
 function timers.clear_for_mod(mod_id)
   timers.registry[mod_id] = {}
   log.info("Cleared timers registry for mod: [%s]", mod_id);
@@ -67,7 +75,7 @@ end
 
 -- Map context timers, on map exit timers.registry is cleared
 -- (last exec times are written to state db in state.sync_save)
-timers.register_timer = function(tag, timer_type, ticks, callback, params)
+timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
   local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
   local current_time = game_time.get_time()
 
@@ -89,7 +97,7 @@ timers.register_timer = function(tag, timer_type, ticks, callback, params)
     ticks = ticks,
     callback = callback,
     mod_id = mod_id,
-    params = params
+    events = events
   }
 
   -- check existing timer in registry
@@ -104,13 +112,14 @@ timers.register_timer = function(tag, timer_type, ticks, callback, params)
   end
 
   local state = require('ck.fallout2.state')
+  local state_timer = state.db.maps[ck.map_id][mod_id]["timers"][tag]
 
   -- check if state has timer's last exec/creation time
   -- needed for savegame/loadgame
   -- If timer isn't in registry yet this should mean game just loaded
   -- In this case apply `created_at` (exec/creation time) from db
-  if state.db.maps[ck.map_id][mod_id]["timers"][tag] and not timers.registry[mod_id][tag] then
-    timer.created_at = state.db.maps[ck.map_id][mod_id]["timers"][tag].created_at
+  if state_timer and state_timer.timer_type == timer.timer_type then
+    timer.created_at = state.created_at
   end
 
   timers.registry[mod_id][tag] = timer
