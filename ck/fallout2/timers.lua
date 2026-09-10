@@ -19,11 +19,9 @@ timers.registry = {}
 
 -- Timers categories (for quicker polling)
 -- (only stores the tags)
--- { "temple_of_trials" = { live = {"tag_one", "tag_two"}, map_enter = {"tag_three"} ... }
-timers.categories = {}
-for _, mod_id in ipairs(ck.active_mods) do
-  timers.categories[mod_id] = { live = {}, map_enter = {}, time_advance = {} }
-end
+-- { ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... } }
+-- (only live for now)
+timers.categories = { live = {} }
 
 function timers.clear_for_mod(mod_id)
   timers.registry[mod_id] = {}
@@ -73,6 +71,27 @@ local function exec_timer_callback(mod_id, callback)
   return success
 end
 
+-- removes timer from categories (timers.categories) (flat list)
+local function remove_from_categories(tag, mod_id)
+  local tags_list = timers.categories.live[mod_id]
+  if not tags_list or #tags_list == 0 then return end
+
+  for index = #tags_list, 1, -1 do
+    if tags_list[index] == tag then
+      table.remove(tags_list, index)
+      break
+    end
+  end
+end
+
+-- removes timer from registry/categories
+timers.remove = function(tag)
+  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+
+  timers.registry[mod_id][tag] = nil
+  remove_from_categories(tag, mod_id)
+end
+
 -- Map context timers, on map exit timers.registry is cleared
 -- (last exec times are written to state db in state.sync_save)
 timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
@@ -97,13 +116,12 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
     ticks = ticks,
     callback = callback,
     mod_id = mod_id,
-    events = events
+    events = events_list
   }
 
   -- check existing timer in registry
   if timers.registry[mod_id] and timers.registry[mod_id][tag] then
-    timers.registry[mod_id][tag] = timer
-    return
+    remove_from_categories(tag, mod_id)
   end
 
   -- if one_time and exec now - exec and return
@@ -119,31 +137,35 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
   -- If timer isn't in registry yet this should mean game just loaded
   -- In this case apply `created_at` (exec/creation time) from db
   if state_timer and state_timer.timer_type == timer.timer_type then
-    timer.created_at = state.created_at
+    timer.created_at = state_timer.created_at
   end
 
   timers.registry[mod_id][tag] = timer
+
+  -- update timer.categories
+  if events_list == nil or #events_list == 0 then
+    table.insert(timers.categories.live[mod_id], timer.tag)
+  end
 end
 
-timers.check_timers = function(ticks)
-  for mod_id, mod_timers in pairs(timers.registry) do
-    for tag, timer in pairs(mod_timers) do
-      -- check trigger time
+timers.check_live_timers = function(ticks)
+  for mod_id, timer_tags_list in pairs(timers.categories.live) do
+    for index = #timer_tags_list, 1, -1 do
+      local timer_tag = timer_tags_list[index]
+      local timer     = timers.registry[mod_id][timer_tag]
+
       if ticks >= (timer.created_at + timer.ticks) then
-        -- exec callback
         exec_timer_callback(timer.mod_id, timer.callback)
 
-        -- periodic/one_time logic
         if timer.timer_type == "one_time" then
-          -- remove timer from db, registry
-          mod_timers[tag] = nil
-
-          local state = require('ck.fallout2.state')
-          state.db.maps[map_id][timer.mod_id].timers[tag] = nil
-        elseif timer.timer_type == "periodic" then
-          timer.created_at = game_time.get_time()
+          -- remove from registry
+          timers.registry[mod_id][timer_tag] = nil
+          -- remove from categories
+          table.remove(timer_tags_list, index)
         end
       end
+
+      if timer.timer_type == "periodic" then timer.created_at = game_time.get_time() end
     end
   end
 end

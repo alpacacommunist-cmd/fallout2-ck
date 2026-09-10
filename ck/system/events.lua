@@ -83,7 +83,6 @@ function events.critter_killed(victim, killer)
         return debug.traceback(string.format("[%s] Runtime Error: %s", mod_name, tostring(err)), 2)
       end, victim, killer)
     end
-
   end
 end
 
@@ -95,7 +94,7 @@ end
 function events.on_map_update(ticks)
   -- update timers (timed events)
   local timers = require('ck.fallout2.timers')
-  timers.check_timers(ticks)
+  timers.check_live_timers(ticks)
 
   -- handle map_update for lua objects
   for _, mod_id in ipairs(ck.active_mods) do

@@ -25,6 +25,12 @@ function state.sync_load(loaded_db)
   -- utils.print_table(state.db.proto_list, log)
 end
 
+
+-- while running through entities in sync_save, remember active tags
+-- used to GC old tags that were removed from mod code
+local relevant_timers_tag_list  = {}
+local relevant_objects_tag_list = {}
+
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
   if ck.map_id == -1 then return state.db end
@@ -43,16 +49,14 @@ function state.sync_save()
 
     for tag, timer in pairs(mod_timers) do
       mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
+
+      relevant_timers_tag_list[tag] = true
     end
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
     local objects = require('ck.fallout2.objects')
     local mod_objects = objects.registry[mod_id] or {}
-
-    -- while running through objects, remember active tags
-    -- used to GC old tags that were removed from mod code
-    local relevant_tag_list = {}
 
     for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
@@ -69,7 +73,7 @@ function state.sync_save()
       object_state.id = object:id()
       object_state.inventory = object:inventory_table()
 
-      relevant_tag_list[object.tag] = true
+      relevant_objects_tag_list[object.tag] = true
 
       ::continue::
     end
@@ -83,9 +87,18 @@ function state.sync_save()
     end
 
     -- [Garbage Collection] ✨
-    -- removes obsolete tags
+    -- removes obsolete object tags
+    for tag in pairs(mod_map_db.timers) do
+      if not relevant_timers_tag_list[tag] then
+        log.debug("GC: Removing obsolete timer tag '%s' from mod '%s'", tag, mod_id)
+        mod_map_db.timers[tag] = nil
+      end
+    end
+
+    -- [Garbage Collection] ✨
+    -- removes obsolete object tags
     for tag in pairs(mod_map_db.objects) do
-      if not relevant_tag_list[tag] then
+      if not relevant_objects_tag_list[tag] then
         log.debug("GC: Removing obsolete object tag '%s' from mod '%s'", tag, mod_id)
         mod_map_db.objects[tag] = nil
       end
