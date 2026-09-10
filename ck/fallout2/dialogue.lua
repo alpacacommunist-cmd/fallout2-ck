@@ -6,7 +6,7 @@ local dialogue = {
   -- npc_id -> dialog function
   registry = {},
 
-  reactions = { GOOD = 49, NEUTRAL = 50, BAD = 51 }
+  reactions = { good = 49, neutral = 50, bad = 51 }
 }
 
 -- TODO: add mod_id
@@ -16,7 +16,7 @@ function dialogue.register(lua_id, fn_or_nodes)
 end
 
 function dialogue.add_option(text, reaction)
-  ffi.C.ck_dialog_add_option(text, reaction or dialogue.reactions.NEUTRAL)
+  ffi.C.ck_dialog_add_option(text, reaction or dialogue.reactions.neutral)
 end
 
 function dialogue.exit()
@@ -50,6 +50,34 @@ end
 -- Nodes engine
 --
 
+local context = {
+  new = function(lua_id)
+    self.lua_id = lua_id
+    self.active = true
+
+    self.current_options = {}
+  end,
+
+  reply = function(ctx, text)
+    ffi.C.ck_dialog_set_reply(text)
+
+    for option in pairs(ctx.current_options) do ctx.current_options[option] = nil end
+  end,
+
+  option = function(ctx, text, next_node_name, reaction)
+    table.insert(ctx.current_options, next_node_name)
+
+    local reaction_type = reaction or 'neutral'
+    local reaction = dialogue.reactions[reaction_type]
+
+    dialogue.add_option(text, reaction)
+  end,
+
+  exit = function(ctx)
+    ctx.active = false
+  end
+}
+
 local function run_node_dialogue(npc_id, nodes)
   local current_node = "init"
   local active = true
@@ -66,8 +94,8 @@ local function run_node_dialogue(npc_id, nodes)
   function ctx.option(text, next_node_name, reaction_or_nil)
     table.insert(current_options, next_node_name)
 
-    local r_type = reaction_or_nil or "NEUTRAL"
-    local c_reaction = dialogue.reactions[r_type] or dialogue.reactions.NEUTRAL
+    local r_type = reaction_or_nil or "neutral"
+    local c_reaction = dialogue.reactions[r_type] or dialogue.reactions.neutral
 
     ffi.C.ck_dialog_add_option(text, c_reaction)
   end

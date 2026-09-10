@@ -8,49 +8,49 @@ dialogs.alice_nodes = {
     ctx.reply(T["alice.init_reply"])
 
     if player.stats.intelligence > 7 then
-      ctx.option(T["alice.init_opt_tech"], "talk_tech", "GOOD")
+      ctx.option(T["alice.init_opt_tech"], "talk_tech", "good")
     else
-      ctx.option(T["alice.init_opt_dumb"], "dumb_reply", "NEUTRAL")
+      ctx.option(T["alice.init_opt_dumb"], "dumb_reply", "neutral")
     end
 
-    ctx.option(T["alice.init_opt_rob"], "robbery_attempt", "BAD")
+    ctx.option(T["alice.init_opt_rob"], "robbery_attempt", "bad")
     ctx.option(T["alice.init_opt_exit"], "exit_friendly")
   end,
 
   talk_tech = function(ctx)
     ctx.reply(T["alice.talk_tech_reply"])
 
-    ctx.option(T["alice.talk_tech_opt_nodes"], "talk_nodes", "GOOD")
-    ctx.option(T["alice.talk_tech_opt_quest"], "ask_quest", "NEUTRAL")
+    ctx.option(T["alice.talk_tech_opt_nodes"], "talk_nodes", "good")
+    ctx.option(T["alice.talk_tech_opt_quest"], "ask_quest", "neutral")
     ctx.option(T["alice.talk_tech_opt_exit"], "exit_friendly")
   end,
 
   talk_nodes = function(ctx)
     ctx.reply(T["alice.talk_nodes_reply"])
 
-    ctx.option(T["alice.talk_nodes_opt_back"], "talk_tech", "NEUTRAL")
-    ctx.option(T["alice.talk_nodes_opt_exit"], "exit_friendly", "GOOD")
+    ctx.option(T["alice.talk_nodes_opt_back"], "talk_tech", "neutral")
+    ctx.option(T["alice.talk_nodes_opt_exit"], "exit_friendly", "good")
   end,
 
   dumb_reply = function(ctx)
     ctx.reply(T["alice.dumb_reply_reply"])
 
-    ctx.option(T["alice.dumb_reply_opt_torr"], "dumb_exit", "GOOD")
-    ctx.option(T["alice.dumb_reply_opt_exit"], "dumb_exit", "NEUTRAL")
+    ctx.option(T["alice.dumb_reply_opt_torr"], "dumb_exit", "good")
+    ctx.option(T["alice.dumb_reply_opt_exit"], "dumb_exit", "neutral")
   end,
 
   robbery_attempt = function(ctx)
     ctx.reply(T["alice.robbery_reply"])
 
-    ctx.option(T["alice.robbery_opt_easy"], "talk_tech", "GOOD")
-    ctx.option(T["alice.robbery_opt_kill"], "combat_trigger", "BAD")
+    ctx.option(T["alice.robbery_opt_easy"], "talk_tech", "good")
+    ctx.option(T["alice.robbery_opt_kill"], "combat_trigger", "bad")
   end,
 
   ask_quest = function(ctx)
     ctx.reply(T["alice.ask_quest_reply"])
 
-    ctx.option(T["alice.ask_quest_opt_yes"], "quest_accepted", "GOOD")
-    ctx.option(T["alice.ask_quest_opt_no"], "talk_tech", "NEUTRAL")
+    ctx.option(T["alice.ask_quest_opt_yes"], "quest_accepted", "good")
+    ctx.option(T["alice.ask_quest_opt_no"], "talk_tech", "neutral")
   end,
 
   quest_accepted = function(ctx)
