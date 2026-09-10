@@ -144,7 +144,7 @@ timers.check_live_timers = function(ticks)
       local timer_tag = timer_tags_list[index]
       local timer     = timers.registry[mod_id][timer_tag]
 
-      log.debug("timer.exec_time: %d, current_time: %d", (timer.created_at + timer.ticks), ticks)
+      -- log.debug("timer.exec_time: %d, current_time: %d", (timer.created_at + timer.ticks), ticks)
       if ticks >= (timer.created_at + timer.ticks) then
         exec_timer_callback(timer.mod_id, timer.callback)
 

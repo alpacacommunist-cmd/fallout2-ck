@@ -1,13 +1,6 @@
 -- ck/fallout2/dialogue.lua
 local ffi = require("ffi")
-
-ck.dialogue = {}
-ck.dialogue.set_reply    = ffi.C.ck_dialog_set_reply
-ck.dialogue.add_option   = ffi.C.ck_dialog_add_option
-ck.dialogue.go           = ffi.C.ck_dialog_go
-ck.dialogue.exit         = ffi.C.ck_dialog_exit
-ck.dialogue.init_ui      = ffi.C.ck_dialog_init_ui
-ck.dialogue.close_ui     = ffi.C.ck_dialog_close_ui
+local log = ck.log.new('CK Dialogue')
 
 local dialogue = {
   -- npc_id -> dialog function
@@ -16,26 +9,19 @@ local dialogue = {
   reactions = { GOOD = 49, NEUTRAL = 50, BAD = 51 }
 }
 
-dialogue.set_reply = ck.dialogue.set_reply
-dialogue.go        = ck.dialogue.go
-dialogue.init_ui   = ck.dialogue.init_ui
-dialogue.close_ui  = ck.dialogue.close_ui
-
-function dialogue.add_option(text, reaction)
-  ck.dialogue.add_option(text, reaction or dialogue.reactions.NEUTRAL)
-end
-
-function dialogue.exit()
-  ck.dialogue.exit()
-  dialogue.close_ui()
-end
-
-local log = ck.log.new('CK Dialogue')
-
 -- TODO: add mod_id
 function dialogue.register(lua_id, fn_or_nodes)
   dialogue.registry[lua_id] = fn_or_nodes
   log.info("Registered dialogue for npc: " .. tostring(lua_id))
+end
+
+function dialogue.add_option(text, reaction)
+  ffi.C.ck_dialog_add_option(text, reaction or dialogue.reactions.NEUTRAL)
+end
+
+function dialogue.exit()
+  ffi.C.ck_dialog_exit()
+  ffi.C.ck_dialog_close_ui()
 end
 
 function dialogue.clear_dialogs()
@@ -46,15 +32,15 @@ end
 function dialogue.is_registered(npc_id) return dialogue.registry[npc_id] ~= nil end
 
 function dialogue.say(text)
-  dialogue.set_reply(text)
-  dialogue.add_option("[Continue]")
-  dialogue.go()
+  ffi.C.ck_dialog_set_reply(text)
+  ffi.C.ck_dialog_add_option("[Continue]")
+  ffi.C.ck_dialog_go()
 end
 
 function dialogue.ask(text, options)
-  dialogue.set_reply(text)
+  ffi.C.ck_dialog_set_reply(text)
 
-  for _, opt in ipairs(options) do dialogue.add_option(opt) end
+  for _, opt in ipairs(options) do ffi.C.ck_dialog_add_option(opt) end
 
   local choice = dialogue.go()
   return choice + 1  -- 1-based
@@ -73,7 +59,7 @@ local function run_node_dialogue(npc_id, nodes)
   local current_options = {}
 
   function ctx.reply(text)
-    dialogue.set_reply(text)
+    ffi.C.ck_dialog_set_reply(text)
     current_options = {}
   end
 
@@ -83,7 +69,7 @@ local function run_node_dialogue(npc_id, nodes)
     local r_type = reaction_or_nil or "NEUTRAL"
     local c_reaction = dialogue.reactions[r_type] or dialogue.reactions.NEUTRAL
 
-    dialogue.add_option(text, c_reaction)
+    ffi.C.ck_dialog_add_option(text, c_reaction)
   end
 
   function ctx.exit()
@@ -103,7 +89,7 @@ local function run_node_dialogue(npc_id, nodes)
     if not active then break end
     if #current_options == 0 then break end
 
-    local chosen_c_index = dialogue.go()
+    local chosen_c_index = ffi.C.ck_dialog_go()
 
     local chosen_lua_index = chosen_c_index + 1
     local next_node = current_options[chosen_lua_index]
@@ -125,7 +111,7 @@ function dialogue.start(npc_id)
     return
   end
 
-  if not dialogue.init_ui() then
+  if not ffi.C.ck_dialog_init_ui() then
     log.error("Failed to init dialogue UI for npc: " .. tostring(npc_id))
     return
   end
