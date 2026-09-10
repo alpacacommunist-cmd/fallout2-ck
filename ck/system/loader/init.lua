@@ -2,11 +2,12 @@
 local ffi = require("ffi")
 
 local sandbox   = require('ck.system.loader.sandbox')
-local events    = require('ck.system.events')
 
 local rendering = require('ck.fallout2.rendering')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
+
+local registries = require('ck.system.registries')
 
 local log = ck.log.new('CK Loader')
 
@@ -67,41 +68,34 @@ function loader.load_and_init_mod(mod_id)
   setfenv(mod_init_fn, mod_env)
 
   -- exec mod
+  registries.init_mod(mod_id)
+
   local success, run_err = pcall(mod_init_fn)
   if not success then
     log.error("running mod '" .. mod_id .. "': " .. tostring(run_err))
+    registries.clear_mod(mod_id)
+
+    return nil
   end
 
   return manifest
 end
 
 function loader.reload_mods()
-  rendering.clear()
-
   for _, mod_id in ipairs(reloadable_mods) do
     log.header("Reloading mod: %s", mod_id)
-    local target_prefix = "mods." .. mod_id
     log.info("Clearing out resources for: %s", mod_id)
 
     ffi.C.ck_critter_reset_prototypes_for_mod(mod_id)
     ffi.C.ck_registry_clear_for_mod(mod_id)
+    ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
     -- TODO: remove from reload sequence
     -- ffi.C.ck_config_clear_mod_patches(mod_id)
-    ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
 
-    events.clear_for_mod(mod_id)
+    -- clear lua registries
+    registries.clear_mod(mod_id)
 
-    -- Resets objects.registry (used to dispatch events from backend)
-    local objects = require('ck.fallout2.objects')
-    objects.clear_for_mod(mod_id)
-
-    -- Resets timers.registry (map-context timers)
-    local timers = require('ck.fallout2.timers')
-    timers.clear_for_mod(mod_id)
-
-    -- Resets critters.spawn_counters
-    local critters = require('ck.fallout2.objects.critters')
-    critters.reset_spawn_counters_for_mod(mod_id)
+    local target_prefix = "mods." .. mod_id
 
     for mod_name in pairs(package.loaded) do
       if mod_name:match("^" .. target_prefix) then

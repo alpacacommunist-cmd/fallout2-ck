@@ -3,7 +3,9 @@ local ffi = require("ffi")
 local game_time = require('ck.fallout2.game_time')
 local utils = require('ck.system.utils')
 
-local log   = ck.log.new('game_time.lua')
+local registries = require('ck.system.registries')
+
+local log   = ck.log.new('timers.lua')
 
 local timers = {}
 
@@ -15,27 +17,22 @@ timers.timer_types = {
 
 -- Timers registry
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
-timers.registry = {}
+timers.registry = registries.timers
 
 -- Timers categories (for quicker polling)
 -- (only stores the tags)
 -- { ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... } }
 -- (only live for now)
-timers.categories = { live = {} }
-
-function timers.clear_for_mod(mod_id)
-  timers.registry[mod_id] = {}
-  log.info("Cleared timers registry for mod: [%s]", mod_id);
-end
+timers.categories = registries.timer_categories
 
 function timers.clear_registry()
   for _, mod_id in ipairs (ck.active_mods) do
     timers.registry[mod_id] = {}
+    timers.categories.live[mod_id] = {}
   end
 
   log.info("Cleared timers registry");
 end
-
 
 -- mod_id + "_timer_" + count
 timers.generate_timer_id = function(mod_id)
@@ -150,10 +147,13 @@ end
 
 timers.check_live_timers = function(ticks)
   for mod_id, timer_tags_list in pairs(timers.categories.live) do
+    -- log.debug("checking %d timers for mod: [%s]", #timer_tags_list, mod_id)
+
     for index = #timer_tags_list, 1, -1 do
       local timer_tag = timer_tags_list[index]
       local timer     = timers.registry[mod_id][timer_tag]
 
+      log.debug("timer.exec_time: %d, current_time: %d", (timer.created_at + timer.ticks), ticks)
       if ticks >= (timer.created_at + timer.ticks) then
         exec_timer_callback(timer.mod_id, timer.callback)
 
@@ -163,9 +163,10 @@ timers.check_live_timers = function(ticks)
           -- remove from categories
           table.remove(timer_tags_list, index)
         end
-      end
 
-      if timer.timer_type == "periodic" then timer.created_at = game_time.get_time() end
+        -- updates exec time (created_at)
+        if timer.timer_type == "periodic" then timer.created_at = game_time.get_time() end
+      end
     end
   end
 end

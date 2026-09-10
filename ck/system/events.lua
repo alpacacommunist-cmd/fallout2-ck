@@ -2,6 +2,8 @@
 local unpack = table.unpack or unpack
 local ffi = require("ffi")
 
+local registries = require('ck.system.registries')
+
 local objects = require('ck.fallout2.objects')
 local proto   = require('ck.fallout2.proto')
 
@@ -10,30 +12,11 @@ local utils   = require('ck.system.utils')
 
 local object_ffi = require('ck.fallout2.classes.object_ffi')
 
-local events = {
-  -- listeners stack
-  available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
-    'onDayPassed', 'onHourPassed', 'onTimeAdvance',
-    'onBeforeGameLoad', 'onGameLoaded',
-    'onDialogStart', 'skill_used', 'critter_killed',
-    'map_enter', 'map_update'
-  },
+local events = {}
 
-  listeners = {},
-  map_update_interval  = 10,
-  last_update_time     = 0
-}
-
-function events.init_mod(mod_id)
-  events.listeners[mod_id] = {}
-  for index, listener in ipairs(events.available_listeners) do
-    events.listeners[mod_id][listener] = {}
-  end
-end
+events.listeners = registries.events
 
 function events.register(mod_id, event_name, callback)
-  if not events.listeners[mod_id] then events.init_mod(mod_id) end
-
   if not events.listeners[mod_id][event_name] then
     log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
     return false
@@ -175,6 +158,8 @@ function events.map_enter(map_id)
     mod_table.objects = mod_table.objects or {}
     mod_table.timers  = mod_table.timers or {}
   end
+
+  -- utils.print_table(state.db, log)
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua

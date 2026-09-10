@@ -2,6 +2,8 @@
 local ffi   = require("ffi")
 local utils = require('ck.system.utils')
 
+local registries = require('ck.system.registries')
+
 local state = {}
 local log   = ck.log.new('state.lua')
 
@@ -38,14 +40,16 @@ function state.sync_save()
   state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
   local current_map = state.db.maps[ck.map_id]
 
+  log.info("MODS")
+  utils.print_table(ck.active_mods, log)
+
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods) do
     local mod_map_db = current_map[mod_id]
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
-    local timers = require('ck.fallout2.timers')
-    local mod_timers = timers.registry[mod_id] or {}
+    local mod_timers = registries.timers[mod_id] or {}
 
     for tag, timer in pairs(mod_timers) do
       mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
@@ -55,8 +59,7 @@ function state.sync_save()
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
-    local objects = require('ck.fallout2.objects')
-    local mod_objects = objects.registry[mod_id] or {}
+    local mod_objects = registries.objects[mod_id] or {}
 
     for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
@@ -102,12 +105,6 @@ function state.sync_save()
         log.debug("GC: Removing obsolete object tag '%s' from mod '%s'", tag, mod_id)
         mod_map_db.objects[tag] = nil
       end
-    end
-
-    -- [Garbage Collection] ✨
-    -- removes mod_id namespace if empty
-    if next(mod_map_db.timers) == nil and next(mod_map_db.objects) == nil then
-      current_map[mod_id] = nil
     end
   end
 
