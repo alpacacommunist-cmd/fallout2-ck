@@ -25,15 +25,6 @@ timers.registry = registries.timers
 -- (only live for now)
 timers.categories = registries.timer_categories
 
-function timers.clear_registry()
-  for _, mod_id in ipairs (ck.active_mods) do
-    timers.registry[mod_id] = {}
-    timers.categories.live[mod_id] = {}
-  end
-
-  log.info("Cleared timers registry");
-end
-
 -- mod_id + "_timer_" + count
 timers.generate_timer_id = function(mod_id)
   local count = 0

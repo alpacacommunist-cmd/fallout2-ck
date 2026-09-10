@@ -116,19 +116,12 @@ function events.on_proto_proc(pid, proc_id, fixed_param)
 end
 
 function events.clear_registries()
-  -- Clears map context registries
-  local dialogue = require('ck.fallout2.dialogue')
-  local critters = require('ck.fallout2.objects.critters')
-  local timers   = require('ck.fallout2.timers')
-
   -- Clears registered dialogs
+  local dialogue = require('ck.fallout2.dialogue')
   dialogue.clear_dialogs()
-  -- Clears registered critter spawns
-  critters.reset_spawn_counters()
-  -- Clears objects registry
-  objects.clear_registry()
-  -- Clears timers registry
-  timers.clear_registry()
+
+  -- Clears map context registries
+  registries.reset_map_context()
 end
 
 -- is supposed to be called before map exit
@@ -158,8 +151,6 @@ function events.map_enter(map_id)
     mod_table.objects = mod_table.objects or {}
     mod_table.timers  = mod_table.timers or {}
   end
-
-  -- utils.print_table(state.db, log)
 end
 
 -- Public mod API, mod gets sandboxed version from sandbox.lua

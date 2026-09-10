@@ -50,4 +50,15 @@ function registries.clear_mod(mod_id)
   registries.spawn_counters[mod_id] = nil
 end
 
+function registries.reset_map_context()
+  for _, mod_id in ipairs(ck.active_mods) do
+    registries.objects[mod_id] = {}
+
+    registries.timers[mod_id]  = {}
+    registries.timer_categories.live[mod_id] = {}
+
+    registries.spawn_counters[mod_id] = 0
+  end
+end
+
 return registries

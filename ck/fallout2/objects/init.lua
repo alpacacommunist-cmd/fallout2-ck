@@ -27,12 +27,4 @@ local objects = {
 
 local log = ck.log.new('objects/init.lua')
 
-function objects.clear_registry()
-  for _, mod_id in ipairs (ck.active_mods) do
-    objects.registry[mod_id] = {}
-  end
-
-  log.info("Cleared objects registry");
-end
-
 return objects

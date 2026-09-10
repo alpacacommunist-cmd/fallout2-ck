@@ -18,14 +18,6 @@ local critters = {}
 -- { "temple_of_trials" = 0, "arroyo_expanded = 4" ... }
 critters.spawn_counters = registries.spawn_counters
 
-function critters.reset_spawn_counters()
-  log.debug("spawn counters reset")
-
-  for _, mod_id in ipairs (ck.active_mods) do
-    critters.spawn_counters[mod_id] = 0
-  end
-end
-
 function critters.generate_unique_tag(mod_id)
   local current_index = critters.spawn_counters[mod_id]
   critters.spawn_counters[mod_id] = current_index + 1
