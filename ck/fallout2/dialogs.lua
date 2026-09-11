@@ -1,48 +1,45 @@
--- ck/fallout2/dialogue.lua
+-- ck/fallout2/dialog.lua
 local ffi = require("ffi")
 local log = ck.log.new('CK Dialogue')
 
-local dialogue = {
-  -- npc_id -> dialog function
-  registry = {},
+local registries = require("ck.system.registries")
+
+local dialog = {
+  -- lua_id -> dialog function
+  registry = registries.dialogs,
 
   reactions = { good = 49, neutral = 50, bad = 51 }
 }
 
 -- TODO: add mod_id
-function dialogue.register(lua_id, fn_or_nodes)
-  dialogue.registry[lua_id] = fn_or_nodes
-  log.info("Registered dialogue for npc: " .. tostring(lua_id))
+function dialog.register(lua_id, fn_or_nodes)
+  dialog.registry[lua_id] = fn_or_nodes
+  log.info("Registered dialog for npc: " .. tostring(lua_id))
 end
 
-function dialogue.add_option(text, reaction)
-  ffi.C.ck_dialog_add_option(text, reaction or dialogue.reactions.neutral)
+function dialog.add_option(text, reaction)
+  ffi.C.ck_dialog_add_option(text, reaction or dialog.reactions.neutral)
 end
 
-function dialogue.exit()
+function dialog.exit()
   ffi.C.ck_dialog_exit()
   ffi.C.ck_dialog_close_ui()
 end
 
-function dialogue.clear_dialogs()
-  dialogue.registry = {}
-  log.info("Cleared dialogues registry")
-end
+function dialog.is_registered(lua_id) return dialog.registry[lua_id] ~= nil end
 
-function dialogue.is_registered(npc_id) return dialogue.registry[npc_id] ~= nil end
-
-function dialogue.say(text)
+function dialog.say(text)
   ffi.C.ck_dialog_set_reply(text)
   ffi.C.ck_dialog_add_option("[Continue]")
   ffi.C.ck_dialog_go()
 end
 
-function dialogue.ask(text, options)
+function dialog.ask(text, options)
   ffi.C.ck_dialog_set_reply(text)
 
   for _, opt in ipairs(options) do ffi.C.ck_dialog_add_option(opt) end
 
-  local choice = dialogue.go()
+  local choice = dialog.go()
   return choice + 1  -- 1-based
 end
 
@@ -68,9 +65,9 @@ local context = {
     table.insert(ctx.current_options, next_node_name)
 
     local reaction_type = reaction or 'neutral'
-    local reaction = dialogue.reactions[reaction_type]
+    local reaction = dialog.reactions[reaction_type]
 
-    dialogue.add_option(text, reaction)
+    dialog.add_option(text, reaction)
   end,
 
   exit = function(ctx)
@@ -78,11 +75,11 @@ local context = {
   end
 }
 
-local function run_node_dialogue(npc_id, nodes)
+local function run_node_dialog(lua_id, nodes)
   local current_node = "init"
   local active = true
 
-  local ctx = { npc_id = npc_id }
+  local ctx = { lua_id = lua_id }
 
   local current_options = {}
 
@@ -95,7 +92,7 @@ local function run_node_dialogue(npc_id, nodes)
     table.insert(current_options, next_node_name)
 
     local r_type = reaction_or_nil or "neutral"
-    local c_reaction = dialogue.reactions[r_type] or dialogue.reactions.neutral
+    local c_reaction = dialog.reactions[r_type] or dialog.reactions.neutral
 
     ffi.C.ck_dialog_add_option(text, c_reaction)
   end
@@ -108,7 +105,7 @@ local function run_node_dialogue(npc_id, nodes)
     local node_fn = nodes[current_node]
 
     if not node_fn then
-      log.error(string.format("Node '%s' not found for npc %s", tostring(current_node), tostring(npc_id)))
+      log.error(string.format("Node '%s' not found for npc %s", tostring(current_node), tostring(lua_id)))
       break
     end
 
@@ -131,26 +128,26 @@ local function run_node_dialogue(npc_id, nodes)
   end
 end
 
-function dialogue.start(npc_id)
-  local target = dialogue.registry[npc_id]
+function dialog.start(lua_id)
+  local target = dialog.registry[lua_id]
 
   if not target then
-    log.error("No dialogue registered for npc: " .. tostring(npc_id))
+    log.error("No dialog registered for npc: " .. tostring(lua_id))
     return
   end
 
   if not ffi.C.ck_dialog_init_ui() then
-    log.error("Failed to init dialogue UI for npc: " .. tostring(npc_id))
+    log.error("Failed to init dialog UI for npc: " .. tostring(lua_id))
     return
   end
 
   if type(target) == "table" then
-    run_node_dialogue(npc_id, target)
+    run_node_dialog(lua_id, target)
   elseif type(target) == "function" then
-    target({ npc_id = npc_id })
+    target({ lua_id = lua_id })
   end
 
-  dialogue.exit()
+  dialog.exit()
 end
 
-return dialogue
+return dialog

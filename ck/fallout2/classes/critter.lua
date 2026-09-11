@@ -3,7 +3,7 @@ local utils = require('ck.system.utils')
 
 local log   = ck.log.new('classes/critter.lua')
 
-local dialogue  = require('ck.fallout2.dialogue')
+local dialogs   = require('ck.fallout2.dialogs')
 local monitor   = require('ck.fallout2.monitor')
 local behaviors = require('ck.fallout2.objects.critters.behaviors')
 local stats     = require('ck.fallout2.objects.critters.stats')
@@ -188,10 +188,10 @@ function Critter:_handle_proc(proc_id, fixed_param)
     return true
 
   elseif event_name == "talk" then
-    if not dialogue.is_registered(self.lua_id) then return end
+    if not dialogs.is_registered(self.lua_id) then return end
 
-    dialogue.start(self.lua_id)
-    self:clear_animations():emit('dialogue_finished')
+    dialogs.start(self.lua_id)
+    self:clear_animations():emit('dialog_finished')
 
     return true
 

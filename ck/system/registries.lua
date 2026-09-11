@@ -3,6 +3,9 @@ local registries = {
 
   objects = {},
 
+  -- 💬
+  dialogs = {},
+
   timers  = {},
   timer_categories = { live = {} },
 
@@ -26,6 +29,9 @@ function registries.init_mod(mod_id)
 
   registries.objects[mod_id] = {}
 
+  -- 💬
+  registries.dialogs[mod_id] = {}
+
   registries.timers[mod_id]  = {}
   registries.timer_categories.live[mod_id] = {}
 
@@ -44,6 +50,9 @@ function registries.clear_mod(mod_id)
 
   registries.objects[mod_id] = nil
 
+  -- 💬
+  registries.dialogs[mod_id] = nil
+
   registries.timers[mod_id]  = nil
   registries.timer_categories.live[mod_id] = nil
 
@@ -53,6 +62,9 @@ end
 function registries.reset_map_context()
   for _, mod_id in ipairs(ck.active_mods) do
     registries.objects[mod_id] = {}
+
+    -- 💬
+    registries.dialogs[mod_id] = {}
 
     registries.timers[mod_id]  = {}
     registries.timer_categories.live[mod_id] = {}

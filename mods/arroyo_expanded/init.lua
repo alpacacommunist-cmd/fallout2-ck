@@ -3,7 +3,7 @@ local ffi = require('ffi')
 
 local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
-local dialogue    = require('ck.fallout2.dialogue')
+local dialogs     = require('ck.fallout2.dialogs')
 local critters    = require('ck.fallout2.objects.critters')
 local player      = require('ck.fallout2.player')
 local behaviors   = require('ck.fallout2.objects.critters.behaviors')
@@ -178,8 +178,8 @@ events.on('map_enter', function(map_id)
 
   villager1:set_hp(1)
   --
-  local alice_dialogue = require('.dialogs').alice_nodes
-  dialogue.register(alice.lua_id, alice_dialogue)
+  local alice_dialog = require('.dialogs').alice_nodes
+  dialogs.register(alice.lua_id, alice_dialog)
 
   -- female_trapper_prototype = critters.allocate_prototype(16777351,
   --   { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
@@ -191,7 +191,7 @@ events.on('map_enter', function(map_id)
   -- local trapper1 = critters.create(female_trapper_prototype.pid, 20909)
   -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
-  alice:on('dialogue_finished', function(self)
+  alice:on('dialog_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
 
     if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then

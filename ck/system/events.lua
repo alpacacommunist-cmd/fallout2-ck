@@ -116,10 +116,6 @@ function events.on_proto_proc(pid, proc_id, fixed_param)
 end
 
 function events.clear_registries()
-  -- Clears registered dialogs
-  local dialogue = require('ck.fallout2.dialogue')
-  dialogue.clear_dialogs()
-
   -- Clears map context registries
   registries.reset_map_context()
 end
