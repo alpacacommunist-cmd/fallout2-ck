@@ -1,74 +1,73 @@
-local player = require('ck.fallout2.player')
 local    T = i18n.bind('arroyo_expanded')
 
 local dialogs = { alice_nodes = {}, minoc_fn = {} }
 
 dialogs.alice_nodes = {
   init = function(ctx)
-    ctx.reply(T["alice.init_reply"])
+    ctx:reply(T["alice.init_reply"])
 
-    if player.stats.intelligence > 7 then
-      ctx.option(T["alice.init_opt_tech"], "talk_tech", "good")
+    if ctx.player.stats.intelligence > 7 then
+      ctx:option(T["alice.init_opt_tech"], "talk_tech", "good")
     else
-      ctx.option(T["alice.init_opt_dumb"], "dumb_reply", "neutral")
+      ctx:option(T["alice.init_opt_dumb"], "dumb_reply", "neutral")
     end
 
-    ctx.option(T["alice.init_opt_rob"], "robbery_attempt", "bad")
-    ctx.option(T["alice.init_opt_exit"], "exit_friendly")
+    ctx:option(T["alice.init_opt_rob"], "robbery_attempt", "bad")
+    ctx:option(T["alice.init_opt_exit"], "exit_friendly")
   end,
 
   talk_tech = function(ctx)
-    ctx.reply(T["alice.talk_tech_reply"])
+    ctx:reply(T["alice.talk_tech_reply"])
 
-    ctx.option(T["alice.talk_tech_opt_nodes"], "talk_nodes", "good")
-    ctx.option(T["alice.talk_tech_opt_quest"], "ask_quest", "neutral")
-    ctx.option(T["alice.talk_tech_opt_exit"], "exit_friendly")
+    ctx:option(T["alice.talk_tech_opt_nodes"], "talk_nodes", "good")
+    ctx:option(T["alice.talk_tech_opt_quest"], "ask_quest", "neutral")
+    ctx:option(T["alice.talk_tech_opt_exit"], "exit_friendly")
   end,
 
   talk_nodes = function(ctx)
-    ctx.reply(T["alice.talk_nodes_reply"])
+    ctx:reply(T["alice.talk_nodes_reply"])
 
-    ctx.option(T["alice.talk_nodes_opt_back"], "talk_tech", "neutral")
-    ctx.option(T["alice.talk_nodes_opt_exit"], "exit_friendly", "good")
+    ctx:option(T["alice.talk_nodes_opt_back"], "talk_tech", "neutral")
+    ctx:option(T["alice.talk_nodes_opt_exit"], "exit_friendly", "good")
   end,
 
   dumb_reply = function(ctx)
-    ctx.reply(T["alice.dumb_reply_reply"])
+    ctx:reply(T["alice.dumb_reply_reply"])
 
-    ctx.option(T["alice.dumb_reply_opt_torr"], "dumb_exit", "good")
-    ctx.option(T["alice.dumb_reply_opt_exit"], "dumb_exit", "neutral")
+    ctx:option(T["alice.dumb_reply_opt_torr"], "dumb_exit", "good")
+    ctx:option(T["alice.dumb_reply_opt_exit"], "dumb_exit", "neutral")
   end,
 
   robbery_attempt = function(ctx)
-    ctx.reply(T["alice.robbery_reply"])
+    ctx:reply(T["alice.robbery_reply"])
 
-    ctx.option(T["alice.robbery_opt_easy"], "talk_tech", "good")
-    ctx.option(T["alice.robbery_opt_kill"], "combat_trigger", "bad")
+    ctx:option(T["alice.robbery_opt_easy"], "talk_tech", "good")
+    ctx:option(T["alice.robbery_opt_kill"], "combat_trigger", "bad")
   end,
 
   ask_quest = function(ctx)
-    ctx.reply(T["alice.ask_quest_reply"])
+    ctx:reply(T["alice.ask_quest_reply"])
 
-    ctx.option(T["alice.ask_quest_opt_yes"], "quest_accepted", "good")
-    ctx.option(T["alice.ask_quest_opt_no"], "talk_tech", "neutral")
+    ctx:option(T["alice.ask_quest_opt_yes"], "quest_accepted", "good")
+    ctx:option(T["alice.ask_quest_opt_no"], "talk_tech", "neutral")
   end,
 
   quest_accepted = function(ctx)
-    ctx.reply(T["alice.quest_acc_reply"])
-    ctx.option(T["alice.quest_acc_opt_leave"], "exit_friendly")
+    ctx:reply(T["alice.quest_acc_reply"])
+    ctx:option(T["alice.quest_acc_opt_leave"], "exit_friendly")
   end,
 
   dumb_exit = function(ctx)
-    ctx.exit()
+    ctx:exit()
   end,
 
   exit_friendly = function(ctx)
-    ctx.reply(T["alice.exit_friendly_reply"])
-    ctx.exit()
+    ctx:reply(T["alice.exit_friendly_reply"])
+    ctx:exit()
   end,
 
   combat_trigger = function(ctx)
-    ctx.exit()
+    ctx:exit()
   end
 }
 
