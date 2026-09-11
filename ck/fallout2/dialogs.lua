@@ -43,38 +43,37 @@ function dialog.ask(text, options)
   return choice + 1  -- 1-based
 end
 
---
+-- Context class
+local Context = {}
+Context.__index = Context
+
+Context.new = function(lua_id)
+  self.lua_id = lua_id
+  self.active = true
+
+  self.current_options = {}
+end
+
+Context.reply = function(text)
+  ffi.C.ck_dialog_set_reply(text)
+
+  for option in pairs(self.current_options) do self.current_options[option] = nil end
+end
+
+Context.option = function(text, next_node_name, reaction)
+  table.insert(self.current_options, next_node_name)
+
+  local reaction_type = reaction or 'neutral'
+  local reaction = dialog.reactions[reaction_type]
+
+  dialog.add_option(text, reaction)
+end
+
+Context.exit = function()
+  self.active = false
+end
+
 -- Nodes engine
---
-
-local context = {
-  new = function(lua_id)
-    self.lua_id = lua_id
-    self.active = true
-
-    self.current_options = {}
-  end,
-
-  reply = function(ctx, text)
-    ffi.C.ck_dialog_set_reply(text)
-
-    for option in pairs(ctx.current_options) do ctx.current_options[option] = nil end
-  end,
-
-  option = function(ctx, text, next_node_name, reaction)
-    table.insert(ctx.current_options, next_node_name)
-
-    local reaction_type = reaction or 'neutral'
-    local reaction = dialog.reactions[reaction_type]
-
-    dialog.add_option(text, reaction)
-  end,
-
-  exit = function(ctx)
-    ctx.active = false
-  end
-}
-
 local function run_node_dialog(lua_id, nodes)
   local current_node = "init"
   local active = true
