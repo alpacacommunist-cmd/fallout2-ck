@@ -112,4 +112,17 @@ function utils.trace(name, func)
   end
 end
 
+function utils.table_remove_by_value(list, value)
+  if not list then return false end
+
+  for index = #list, 1, -1 do
+    if list[index] == value then
+      table.remove(list, index)
+      return true
+    end
+  end
+
+  return false
+end
+
 return utils

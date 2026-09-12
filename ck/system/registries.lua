@@ -1,14 +1,18 @@
 local registries = {
+  -- ck/system/events.lua
   events  = {},
 
+  -- ck/fallout2/objects/init.lua
   objects = {},
 
-  -- 💬
+  -- ck/fallout2/dialogs.lua 💬
   dialogs = {},
 
-  timers  = {},
-  timer_categories = { live = {} },
+  -- ck/fallout2/timers.lua
+  timers = {},
+  timer_categories = { live = {}, evented = {} },
 
+  -- ck/fallout2/critters.lua
   spawn_counters = {}
 }
 
@@ -34,6 +38,7 @@ function registries.init_mod(mod_id)
 
   registries.timers[mod_id]  = {}
   registries.timer_categories.live[mod_id] = {}
+  registries.timer_categories.evented[mod_id] = {}
 
   registries.spawn_counters[mod_id] = 0
 end
@@ -55,6 +60,7 @@ function registries.clear_mod(mod_id)
 
   registries.timers[mod_id]  = nil
   registries.timer_categories.live[mod_id] = nil
+  registries.timer_categories.evented[mod_id] = nil
 
   registries.spawn_counters[mod_id] = nil
 end
@@ -68,6 +74,7 @@ function registries.reset_map_context()
 
     registries.timers[mod_id]  = {}
     registries.timer_categories.live[mod_id] = {}
+    registries.timer_categories.evented[mod_id] = {}
 
     registries.spawn_counters[mod_id] = 0
   end

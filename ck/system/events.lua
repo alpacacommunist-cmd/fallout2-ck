@@ -77,7 +77,10 @@ end
 function events.on_map_update(ticks)
   -- update timers (timed events)
   local timers = require('ck.fallout2.timers')
-  timers.check_live_timers(ticks)
+  for _, mod_id in ipairs (ck.active_mods) do
+    local mod_event_timers = registries.timer_categories.live[mod_id]
+    timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
+  end
 
   -- handle map_update for lua objects
   for _, mod_id in ipairs(ck.active_mods) do
@@ -108,6 +111,7 @@ function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
   return object:_handle_proc(proc_id, fixed_param)
 end
 
+-- TODO: add to registries
 function events.on_proto_proc(pid, proc_id, fixed_param)
   local proto = proto.registry[pid]
 
@@ -135,6 +139,7 @@ end
 function events.map_enter(map_id)
   ck.map_id = map_id
 
+  -- make sure mod state tables exist
   local state = require('ck.fallout2.state')
 
   state.db.maps[map_id] = state.db.maps[map_id] or {}
@@ -145,6 +150,14 @@ function events.map_enter(map_id)
     -- allowed tables
     mod_table.objects = mod_table.objects or {}
     mod_table.timers  = mod_table.timers or {}
+  end
+
+  -- check timers
+  local timers = require('ck.fallout2.timers')
+
+  for _, mod_id in ipairs (ck.active_mods) do
+    local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
+    timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
   end
 end
 
