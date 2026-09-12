@@ -19,7 +19,7 @@ namespace ck::proxy::detail {
     int on_map_update      = LUA_NOREF;
     int on_proc            = LUA_NOREF;
     int on_proto_proc      = LUA_NOREF;
-    int map_context_change = LUA_NOREF;
+    int map_exit           = LUA_NOREF;
     int map_enter          = LUA_NOREF;
     int clear_registries   = LUA_NOREF;
     int critter_killed     = LUA_NOREF;
@@ -41,7 +41,7 @@ const std::array<LuaHookBinding, 18> hooks = {{
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
 	{ "ck.system.events",      "on_proto_proc",         &ck::proxy::detail::on_proto_proc },
-	{ "ck.system.events",      "map_context_change",    &ck::proxy::detail::map_context_change },
+	{ "ck.system.events",      "map_exit",              &ck::proxy::detail::map_exit },
     { "ck.system.events",      "map_enter",             &ck::proxy::detail::map_enter },
 	{ "ck.system.events",      "clear_registries",      &ck::proxy::detail::clear_registries },
 	{ "ck.system.events",      "critter_killed",        &ck::proxy::detail::critter_killed },

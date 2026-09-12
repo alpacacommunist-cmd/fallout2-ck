@@ -120,9 +120,8 @@ function events.clear_registries()
   registries.reset_map_context()
 end
 
--- is supposed to be called before map exit
--- to update inventory/hp/tile and timers in state db
-function events.map_context_change()
+-- is supposed to be called on map exit to update inventory/hp/tile and timers in state db
+function events.map_exit()
   local state = require('ck.fallout2.state')
   state.sync_save()
 
@@ -132,8 +131,6 @@ end
 -- Makes sure state db tables are initialized
 -- Updates global map-related meta
 function events.map_enter(map_id)
-  events.clear_registries()
-
   ck.map_id = map_id
 
   local state = require('ck.fallout2.state')

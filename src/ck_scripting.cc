@@ -59,6 +59,7 @@ namespace ck {
         extern int set_language;
         extern int clear_registries;
         extern int map_enter;
+        extern int map_exit;
     }
 }
 
@@ -84,6 +85,10 @@ namespace ck::common {
 
     void lua_map_enter() {
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_enter, current_map_id());
+    }
+
+    void lua_map_exit() {
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
     }
 }
 
@@ -197,6 +202,10 @@ namespace ck::events {
         logger.debug("ck_scripting_on_before_game_load");
 
         ck::registry::clear();
+        // On game load `map_exit` isn't triggered, hence registries need to be clearead manually
+        // (worth considering is_loading flag)
+        ck::common::clear_lua_registries();
+
         ck_state_load(path);
     }
 
@@ -206,7 +215,6 @@ namespace ck::events {
     }
 
     // Separate hook for destroying objects to help clearing out ptrs
-    // in time
     void object_destroyed(fallout::Object* object) {
         logger.debug("object_destroyed");
         ck::registry::created::remove_by_ptr(object);

@@ -5,7 +5,6 @@
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "map_defs.h"
 
@@ -25,12 +24,7 @@ namespace ck {
     namespace common {
         bool currently_in_combat();
         void lua_map_enter();
-    }
-
-    namespace proxy {
-        namespace detail {
-            extern int map_context_change;
-        }
+        void lua_map_exit();
     }
 }
 
@@ -59,7 +53,7 @@ namespace ck {
 
         // Resets lua registries, updates state when leaving a map
         if (!fallout::_isLoadingGame()) {
-            proxy::execute_proxy_call<bool>(proxy::detail::map_context_change);
+            ck::common::lua_map_exit();
         }
         // Resets custom critter prototypes queue
         ck::critter::reset_prototypes();
