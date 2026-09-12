@@ -76,6 +76,6 @@ events.on('onDayPassed', function()
   monitor.print("Is it evening time: " .. tostring(game_time.is_evening()))
 end)
 
-events.on('onTimeAdvance', function(hours, minutes)
+events.on('time_advance', function(hours, minutes)
   log.info("Time Advanced on " .. tostring(hours) .. " h. and " .. tostring(minutes) .. " minutes")
 end)

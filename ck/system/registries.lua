@@ -17,7 +17,7 @@ local registries = {
 }
 
 local available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
-  'onDayPassed', 'onHourPassed', 'onTimeAdvance',
+  'onDayPassed', 'onHourPassed', 'time_advance',
   'onBeforeGameLoad', 'onGameLoaded',
   'onDialogStart', 'skill_used', 'critter_killed',
   'map_enter', 'map_update'

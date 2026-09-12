@@ -26,7 +26,9 @@ function events.register(mod_id, event_name, callback)
 end
 
 function events.emit(event_name, ...)
-  for mod_id, _ in pairs(events.listeners) do events.emit_for_mod(mod_id, event_name, ...) end
+  for mod_id, _ in pairs(events.listeners) do
+    events.emit_for_mod(mod_id, event_name, ...)
+  end
 end
 
 function events.emit_for_mod(mod_id, event_name, ...)
@@ -36,10 +38,8 @@ function events.emit_for_mod(mod_id, event_name, ...)
   local callbacks = mod_entries[event_name]
   if not callbacks or #callbacks == 0 then return end
 
-  local args = { ... }
-
   for index, callback in ipairs(callbacks) do
-    local ok, err = xpcall(function() callback(unpack(args)) end, debug.traceback)
+    local ok, err = xpcall(callback, debug.traceback, ...)
 
     if not ok then
       log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
@@ -68,7 +68,6 @@ function events.critter_killed(victim, killer)
     end
   end
 end
-
 
 function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
   mod_id = ffi.string(mod_id)

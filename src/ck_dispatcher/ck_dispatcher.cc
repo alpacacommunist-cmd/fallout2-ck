@@ -45,16 +45,16 @@ namespace ck::dispatcher {
     }
 
     template<typename... Args>
-        void emit(const char* event_name, Args... args) {
-            if (!ck::proxy::is_ready() || !event_name) return;
+    void emit(const char* event_name, Args... args) {
+        if (!ck::proxy::is_ready() || !event_name) return;
 
-            for (const auto& mod_id : g_active_mods) {
-                log.debug("Emit event {} for {}", event_name, mod_id);
+        for (const auto& mod_id : g_active_mods) {
+            log.debug("Emit event {} for {}", event_name, mod_id);
 
-                ModContextGuard guard(mod_id.c_str());
-                ck::proxy::emit_for_mod(mod_id.c_str(), event_name, args...);
-            }
+            ModContextGuard guard(mod_id.c_str());
+            ck::proxy::emit_for_mod(mod_id.c_str(), event_name, args...);
         }
+    }
 
     void on_map_update(int ticks) {
         if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
@@ -100,7 +100,7 @@ namespace ck::dispatcher {
     }
 
     void on_time_advance(int hours, int minutes) {
-        emit("onTimeAdvance", hours, minutes);
+        emit("time_advance", hours, minutes);
     }
 
     void on_skill_used(int skill, int success_count, int bonus) {
