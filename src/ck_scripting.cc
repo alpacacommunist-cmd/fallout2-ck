@@ -36,10 +36,16 @@ namespace fallout {
 
     extern int gElevation;
 
+    // savegame.cc
+    bool _isLoadingGame();
+    // tile.cc
 	void tileWindowRefreshRect(Rect* rect, int elevation);
+    // interpreter_extra.cc
     int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect);
 
+    // game.cc
 	void displayMonitorAddMessage(const char* str);
+    // game_sound.cc
     int soundPlayFile(const char* name);
 
     extern CombatState gCombatState;
@@ -48,6 +54,7 @@ namespace fallout {
 namespace ck {
     // map/ck_map.cc
 	void on_map_enter();
+	void on_before_map_load();
     int current_map_id();
     // ce_config/ck_config_patch.cc
     bool apply_worldmap_patches();
@@ -74,6 +81,10 @@ namespace ck::common {
 
     bool reloading_mods() {
         return g_reloading_mods;
+    }
+
+    bool game_is_loading() {
+        return fallout::_isLoadingGame();
     }
 
     unsigned int current_combat_state() { return fallout::gCombatState; }
@@ -201,11 +212,8 @@ namespace ck::events {
     void before_game_load(const char* path) {
         logger.debug("ck_scripting_on_before_game_load");
 
-        ck::registry::clear();
-        // On game load `map_exit` isn't triggered, hence registries need to be clearead manually
-        // (worth considering is_loading flag)
-        ck::common::clear_lua_registries();
-
+        // aka on_map_exit
+        ck::on_before_map_load();
         ck_state_load(path);
     }
 
@@ -284,4 +292,5 @@ void ck_monitor_print_message(const char* message) { ck_print_monitor_message(me
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
 bool ck_in_combat() { return ck::common::currently_in_combat(); }
 bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
+bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }

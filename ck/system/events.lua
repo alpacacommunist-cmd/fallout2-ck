@@ -122,8 +122,10 @@ end
 
 -- is supposed to be called on map exit to update inventory/hp/tile and timers in state db
 function events.map_exit()
-  local state = require('ck.fallout2.state')
-  state.sync_save()
+  if not ffi.C.ck_game_is_loading() then
+    local state = require('ck.fallout2.state')
+    state.sync_save()
+  end
 
   events.clear_registries()
 end

@@ -30,9 +30,6 @@ namespace ck {
 
 namespace ck {
     void on_map_enter() {
-        // Clears LUA registries, updates global meta
-        ck::common::lua_map_enter();
-
         // Restore proto items PID (stored in `id`)
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 
@@ -41,6 +38,9 @@ namespace ck {
 
         ck_rendering_refresh();
         if (ck::common::currently_in_combat()) fallout::_combat_reload_map();
+
+        // Updates global meta, runs timers
+        ck::common::lua_map_enter();
     }
 
     void on_before_map_load() {
@@ -49,12 +49,12 @@ namespace ck {
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data
-        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+        if (!fallout::_isLoadingGame()) {
+            ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+        }
 
         // Resets lua registries, updates state when leaving a map
-        if (!fallout::_isLoadingGame()) {
-            ck::common::lua_map_exit();
-        }
+        ck::common::lua_map_exit();
         // Resets custom critter prototypes queue
         ck::critter::reset_prototypes();
         // Resets custom object scripts

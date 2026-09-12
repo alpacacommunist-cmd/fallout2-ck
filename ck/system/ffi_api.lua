@@ -25,6 +25,7 @@ ffi.cdef[[
   void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
   bool ck_mods_reload_in_progress();
+  bool ck_game_is_loading();
 
   void ck_registry_clear();
   void ck_registry_clear_for_mod(const char* target_mod_id);
