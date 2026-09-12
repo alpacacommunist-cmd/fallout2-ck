@@ -8,6 +8,7 @@ local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
 
 local registries = require('ck.system.registries')
+local mod_tools  = require('ck.system.mod_tools')
 
 local log = ck.log.new('CK Loader')
 
@@ -42,7 +43,7 @@ local function apply_manifest(manifest)
   end
 end
 
-function loader.load_and_init_mod(mod_id)
+function loader.exec_mod(mod_id, manifest)
   local manifest = loader.parse_manifest(mod_id)
   apply_manifest(manifest)
 
@@ -52,7 +53,7 @@ function loader.load_and_init_mod(mod_id)
   local file = io.open(file_path, "r")
   if not file then
     log.error("Cannot open mod file: " .. file_path)
-    return
+    return false
   end
   local content = file:read("*a")
   file:close()
@@ -61,7 +62,7 @@ function loader.load_and_init_mod(mod_id)
   local mod_init_fn, err = loadstring(content, "@" .. file_path)
   if not mod_init_fn then
     log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
-    return
+    return false
   end
 
   local mod_env = sandbox.create_env(mod_id, manifest)
@@ -69,16 +70,18 @@ function loader.load_and_init_mod(mod_id)
 
   -- exec mod
   registries.init_mod(mod_id)
+  ffi.C.ck_dispatcher_add_mod(mod_id)
 
-  local success, run_err = pcall(mod_init_fn)
+  local success = mod_tools.exec_with_mod_context(mod_id, mod_init_fn, true)
+
   if not success then
-    log.error("running mod '" .. mod_id .. "': " .. tostring(run_err))
     registries.clear_mod(mod_id)
+    ffi.C.ck_dispatcher_remove_mod(mod_id)
 
-    return nil
+    return false
   end
 
-  return manifest
+  return true
 end
 
 function loader.reload_mods()

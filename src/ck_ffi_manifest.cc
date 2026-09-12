@@ -1,4 +1,5 @@
 extern "C" {
+    bool ck_dispatcher_add_mod();
     int ck_item_proto_register(...);
     int ck_assets_register_path(...);
     bool ck_proto_get_by_pid(...);
@@ -11,6 +12,7 @@ extern "C" {
 }
 
 static void* const volatile ck_ffi_exports[] = {
+    (void*)&ck_dispatcher_add_mod,
     (void*)&ck_item_proto_register,
     (void*)&ck_assets_register_path,
     (void*)&ck_proto_get_by_pid,
@@ -19,7 +21,7 @@ static void* const volatile ck_ffi_exports[] = {
     (void*)&ck_object_float_msg,
     (void*)&ck_get_perks_metadata,
     (void*)&ck_get_skills_metadata,
-    (void*) ck_map_batch_tiles
+    (void*)&ck_map_batch_tiles
 };
 
 namespace ck {

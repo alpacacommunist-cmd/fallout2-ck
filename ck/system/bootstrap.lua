@@ -37,11 +37,7 @@ function bootstrap.bootstrap()
   end
 
   for _, mod_data in ipairs(gameplay_mods) do
-    local success = ffi.C.ck_dispatcher_load_mod(mod_data.id)
-
-    if not success then
-      log.error(string.format("Failed to bootstrap mod '%s' in dispatcher", mod_data.id))
-    end
+    loader.exec_mod(mod_data.id, mod_data.manifest)
   end
 
   log.info("Bootstrap complete! All mods loaded safely.")

@@ -21,7 +21,8 @@ ffi.cdef[[
   typedef struct fallout_CritterProto fallout_CritterProto;
 
   // --- System & Bootstrap ---
-  bool ck_dispatcher_load_mod(const char* mod_id);
+  bool ck_dispatcher_add_mod(const char* mod_id);
+  bool ck_dispatcher_remove_mod(const char* mod_id);
   void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
   bool ck_mods_reload_in_progress();

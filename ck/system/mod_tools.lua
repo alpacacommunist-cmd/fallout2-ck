@@ -8,6 +8,7 @@ local function error_handler(mod_id, error)
 end
 
 function mod_tools.exec_with_mod_context(mod_id, callback)
+  mod_loading = mod_loading or false
   local raw_context = ffi.C.ck_get_current_mod_id()
 
   -- previous context (could be nullptr)
@@ -20,7 +21,7 @@ function mod_tools.exec_with_mod_context(mod_id, callback)
   local success, result = xpcall(callback, error_handler)
 
   if not success then
-    log.error("Error in mod [%s]!\nError: %s", mod_id, traceback)
+    log.error("Error in mod [%s]!\nError: %s", mod_id, result)
   end
 
   -- restore context (could be nullptr)

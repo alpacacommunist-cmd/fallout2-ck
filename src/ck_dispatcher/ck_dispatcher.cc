@@ -3,7 +3,6 @@
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
 #include "object/ck_object.h"
 
-#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -125,29 +124,6 @@ namespace ck::dispatcher {
 
 // ffi
 
-bool ck_dispatcher_load_mod(const char* mod_id) {
-	log.header("Loading mod: {}", mod_id);
-	if (!ck::proxy::is_ready() || !mod_id) return false;
-
-	std::string target_mod(mod_id);
-	auto it = std::find(g_active_mods.begin(), g_active_mods.end(), target_mod);
-	if (it == g_active_mods.end()) g_active_mods.push_back(target_mod);
-
-	ModContextGuard guard(mod_id);
-	if (!ck::proxy::load_mod(mod_id)) {
-        log.error("Critical LuaJIT compilation error in mod '{}'", mod_id);
-
-        g_active_mods.erase(
-            std::remove(g_active_mods.begin(), g_active_mods.end(), target_mod),
-            g_active_mods.end()
-        );
-
-        return false;
-    }
-
-	return true;
-}
-
 const char* ck_get_current_mod_id() {
     return g_current_mod_id;
 }
@@ -166,6 +142,23 @@ bool ck_set_current_mod_context(const char* mod_id) {
     }
 
     return false;
+}
+
+bool ck_dispatcher_add_mod(const char* mod_id) {
+    if (mod_id == nullptr) return false;
+
+    for (const auto& mod : g_active_mods) {
+        if (mod == mod_id) return false;
+    }
+
+    g_active_mods.push_back(std::string(mod_id));
+    return true;
+}
+
+bool ck_dispatcher_remove_mod(const char* mod_id) {
+    if (mod_id == nullptr) return false;
+
+    return std::erase(g_active_mods, mod_id) > 0;
 }
 
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {

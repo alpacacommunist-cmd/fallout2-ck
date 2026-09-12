@@ -13,7 +13,6 @@ extern const char* g_current_mod_id;
 
 namespace ck::proxy::detail {
     int bootstrap          = LUA_NOREF;
-    int load_and_init_mod  = LUA_NOREF;
     int reload_mods        = LUA_NOREF;
     int emit_for_mod       = LUA_NOREF;
     int on_proc            = LUA_NOREF;
@@ -32,9 +31,8 @@ namespace ck::proxy::detail {
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 17> hooks = {{
+const std::array<LuaHookBinding, 16> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
-	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
