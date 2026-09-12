@@ -21,7 +21,8 @@ namespace ck::common {
     bool game_is_loading();
 
     void clear_lua_registries();
-    void lua_map_enter();
+    void lua_before_map_enter();
+    void lua_after_map_enter();
     void lua_map_exit();
 }
 

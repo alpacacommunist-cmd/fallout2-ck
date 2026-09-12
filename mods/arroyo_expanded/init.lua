@@ -108,7 +108,7 @@ events.on('map_enter', function(map_id)
   local test_timer = timers.register_timer(
     "test_timer", timers.timer_types.periodic, 50,
     function() monitor.print("__callback map_id: " .. tostring(map_id)) end,
-    nil
+    { "map_enter", "time_advance" }
   )
 
   knowledge.grant(KN_SCORPION_HARVEST)

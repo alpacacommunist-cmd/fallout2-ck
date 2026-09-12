@@ -69,13 +69,34 @@ function events.critter_killed(victim, killer)
   end
 end
 
-function events.clear_for_mod(mod_id)
-  events.listeners[mod_id] = {}
-  log.info("Cleared listeners for mod: " .. mod_id)
+
+function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
+  mod_id = ffi.string(mod_id)
+  if objects.registry[mod_id] == nil then return false end
+
+  local object = objects.registry[mod_id][lua_id]
+  if not object then return false end
+
+  return object:_handle_proc(proc_id, fixed_param)
 end
 
+-- TODO: add to registries
+function events.on_proto_proc(pid, proc_id, fixed_param)
+  local proto = proto.registry[pid]
+
+  if not proto then return false end
+  return proto:_handle_proc(proc_id, fixed_param)
+end
+
+function events.clear_registries()
+  -- Clears map context registries
+  registries.reset_map_context()
+end
+
+-- Runs every second (10 ticks)
+-- interval is set in ck_dispatcher.cc
 function events.on_map_update(ticks)
-  -- update timers (timed events)
+  -- update live timers (timed events)
   local timers = require('ck.fallout2.timers')
   for _, mod_id in ipairs (ck.active_mods) do
     local mod_event_timers = registries.timer_categories.live[mod_id]
@@ -101,29 +122,6 @@ function events.on_map_update(ticks)
   events.emit('map_update', ticks)
 end
 
-function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
-  mod_id = ffi.string(mod_id)
-  if objects.registry[mod_id] == nil then return false end
-
-  local object = objects.registry[mod_id][lua_id]
-  if not object then return false end
-
-  return object:_handle_proc(proc_id, fixed_param)
-end
-
--- TODO: add to registries
-function events.on_proto_proc(pid, proc_id, fixed_param)
-  local proto = proto.registry[pid]
-
-  if not proto then return false end
-  return proto:_handle_proc(proc_id, fixed_param)
-end
-
-function events.clear_registries()
-  -- Clears map context registries
-  registries.reset_map_context()
-end
-
 -- is supposed to be called on map exit to update inventory/hp/tile and timers in state db
 function events.map_exit()
   if not ffi.C.ck_game_is_loading() then
@@ -136,7 +134,8 @@ end
 
 -- Makes sure state db tables are initialized
 -- Updates global map-related meta
-function events.map_enter(map_id)
+-- Runs before mod's map_enter callback
+function events.before_map_enter(map_id)
   ck.map_id = map_id
 
   -- make sure mod state tables exist
@@ -151,7 +150,10 @@ function events.map_enter(map_id)
     mod_table.objects = mod_table.objects or {}
     mod_table.timers  = mod_table.timers or {}
   end
+end
 
+-- Runs after mod's map_enter callback
+function events.after_map_enter(map_id)
   -- check timers
   local timers = require('ck.fallout2.timers')
 
