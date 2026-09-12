@@ -23,8 +23,6 @@ namespace ck {
     namespace script { void reset(); }
     namespace common {
         bool currently_in_combat();
-        void lua_before_map_enter();
-        void lua_after_map_enter();
         void lua_map_exit();
     }
 }
@@ -34,14 +32,9 @@ namespace ck {
         // Restore proto items PID (stored in `id`)
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
 
-        // Updates global meta
-        ck::common::lua_before_map_enter();
-
         // Dispatch event
+        // some events like map_enter have additional logic defined in events.lua
         ck::dispatcher::on_map_enter();
-
-        // Runs timers etc
-        ck::common::lua_after_map_enter();
 
         ck_rendering_refresh();
         if (ck::common::currently_in_combat()) fallout::_combat_reload_map();

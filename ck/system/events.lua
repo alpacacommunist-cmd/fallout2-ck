@@ -14,8 +14,38 @@ local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local events = {}
 
+-- dispatched args from C++
+local dispatched_args = {}
+
+-- Executes mod callbacks. Mod might use multiple callbacks for single event
+local function exec_mod_callbacks(callbacks, traceback)
+  for index, callback in ipairs(callbacks) do
+    local ok, err = xpcall(callback, traceback, unpack(dispatched_args))
+
+    if not ok then
+      log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
+    end
+  end
+end
+
 events.listeners = registries.events
 
+events.handlers = {
+  map_enter = function(mod_id, callbacks, traceback)
+    ck.map_id = dispatched_args[1]
+
+    events.before_map_enter(mod_id, ck.map_id)
+    exec_mod_callbacks(callbacks, traceback)
+    events.after_map_enter(mod_id, ck.map_id)
+  end,
+
+  time_advance = function(mod_id, callbacks, traceback)
+    exec_mod_callbacks(callbacks, traceback)
+  end
+}
+
+-- #register is implicitly called by mod when calling #on
+-- defined in sandbox.lua
 function events.register(mod_id, event_name, callback)
   if not events.listeners[mod_id][event_name] then
     log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
@@ -25,12 +55,6 @@ function events.register(mod_id, event_name, callback)
   table.insert(events.listeners[mod_id][event_name], callback)
 end
 
-function events.emit(event_name, ...)
-  for mod_id, _ in pairs(events.listeners) do
-    events.emit_for_mod(mod_id, event_name, ...)
-  end
-end
-
 function events.emit_for_mod(mod_id, event_name, ...)
   local mod_entries = events.listeners[mod_id]
   if not mod_entries then return end
@@ -38,12 +62,16 @@ function events.emit_for_mod(mod_id, event_name, ...)
   local callbacks = mod_entries[event_name]
   if not callbacks or #callbacks == 0 then return end
 
-  for index, callback in ipairs(callbacks) do
-    local ok, err = xpcall(callback, debug.traceback, ...)
+  -- store dispatched args
+  dispatched_args = { ... }
 
-    if not ok then
-      log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
-    end
+  -- check if event has custom logic defined in `events.handlers`
+  local events_handler = events.handlers[event_name]
+
+  if events_handler then
+    events_handler(mod_id, callbacks, debug.traceback)
+  else
+    exec_mod_callbacks(callbacks, debug.traceback)
   end
 end
 
@@ -121,10 +149,11 @@ function events.on_map_update(ticks)
   events.emit('map_update', ticks)
 end
 
--- is supposed to be called on map exit to update inventory/hp/tile and timers in state db
+-- Updates state.db (inventory/hp/tile etc)
 function events.map_exit()
   if not ffi.C.ck_game_is_loading() then
     local state = require('ck.fallout2.state')
+
     state.sync_save()
   end
 
@@ -134,31 +163,34 @@ end
 -- Makes sure state db tables are initialized
 -- Updates global map-related meta
 -- Runs before mod's map_enter callback
-function events.before_map_enter(map_id)
-  ck.map_id = map_id
-
+function events.before_map_enter(mod_id, map_id)
   -- make sure mod state tables exist
   local state = require('ck.fallout2.state')
 
   state.db.maps[map_id] = state.db.maps[map_id] or {}
-  for _, mod_id in ipairs(ck.active_mods) do
-    state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
-    local mod_table = state.db.maps[map_id][mod_id]
+  state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
+  local mod_table = state.db.maps[map_id][mod_id]
 
-    -- allowed tables
-    mod_table.objects = mod_table.objects or {}
-    mod_table.timers  = mod_table.timers or {}
-  end
+  mod_table.objects = mod_table.objects or {}
+  mod_table.timers  = mod_table.timers or {}
 end
 
 -- Runs after mod's map_enter callback
-function events.after_map_enter(map_id)
-  -- check timers
-  local timers = require('ck.fallout2.timers')
+function events.after_map_enter(mod_id, map_id)
+  -- map_enter timers are only executed on map transition
+  if not ffi.C.ck_game_is_loading() then
+    local timers = require('ck.fallout2.timers')
 
-  for _, mod_id in ipairs (ck.active_mods) do
     local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
+  end
+  -- check timers
+end
+
+-- not used yet. could be useful for global (non-mod-specific) logic
+function events.emit(event_name, ...)
+  for mod_id, _ in pairs(events.listeners) do
+    events.emit_for_mod(mod_id, event_name, ...)
   end
 end
 

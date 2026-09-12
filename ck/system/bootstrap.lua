@@ -11,7 +11,6 @@ ck.log = require('ck.system.log')
 
 local log    = ck.log.new("CK Bootstrap")
 local loader = require('ck.system.loader')
-local utils  = require('ck.system.utils')
 
 function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")

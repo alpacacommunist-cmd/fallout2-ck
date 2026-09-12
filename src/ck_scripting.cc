@@ -65,8 +65,6 @@ namespace ck {
         extern int bootstrap;
         extern int set_language;
         extern int clear_registries;
-        extern int before_map_enter;
-        extern int after_map_enter;
         extern int map_exit;
     }
 }
@@ -93,14 +91,6 @@ namespace ck::common {
 
     void clear_lua_registries() {
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
-    }
-
-    void lua_before_map_enter() {
-        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::before_map_enter, current_map_id());
-    }
-
-    void lua_after_map_enter() {
-        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::after_map_enter, current_map_id());
     }
 
     void lua_map_exit() {
