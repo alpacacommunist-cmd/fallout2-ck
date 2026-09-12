@@ -2,6 +2,7 @@
 local ffi = require("ffi")
 local game_time = require('ck.fallout2.game_time')
 local utils = require('ck.system.utils')
+local mod_tools = require('ck.system.mod_tools')
 
 local registries = require('ck.system.registries')
 
@@ -45,27 +46,7 @@ timers.generate_timer_id = function(mod_id)
 end
 
 local function exec_timer_callback(mod_id, callback)
-  local raw_context = ffi.C.ck_get_current_mod_id()
-
-  -- previous context (could be nullptr)
-  local previous_mod_context = nil
-  if raw_context ~= nil then
-    previous_mod_context = ffi.string(raw_context)
-  end
-
-  local function error_handler(err)
-    local traceback = debug.traceback(err, 2)
-    logger.error("Timer failed in mod [%s]!\nError: %s", mod_id, traceback)
-    return err
-  end
-
-  ffi.C.ck_set_current_mod_context(mod_id)
-  local success, result = xpcall(callback, error_handler)
-
-  -- restore context (could be nullptr)
-  ffi.C.ck_set_current_mod_context(previous_mod_context)
-
-  return success
+  return mod_tools.exec_with_mod_context(mod_id, callback)
 end
 
 -- removes timer from categories (timers.categories) (flat list)

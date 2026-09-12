@@ -66,9 +66,7 @@ end
 
 function events.emit_for_mod(mod_id, event_name, ...)
   local mod_entries = events.listeners[mod_id]
-  if not mod_entries then return end
-
-  local callbacks = mod_entries[event_name]
+  local callbacks = mod_entries and mod_entries[event_name]
 
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]

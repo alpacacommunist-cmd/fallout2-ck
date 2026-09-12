@@ -18,7 +18,7 @@ local reloadable_mods = {
 
 local loader = {}
 
-local function load_manifest(mod_id)
+function loader.parse_manifest(mod_id)
   local key = 'mods.' .. mod_id .. '.mod'
 
   local ok, manifest = pcall(require, key)
@@ -43,7 +43,7 @@ local function apply_manifest(manifest)
 end
 
 function loader.load_and_init_mod(mod_id)
-  local manifest = load_manifest(mod_id)
+  local manifest = loader.parse_manifest(mod_id)
   apply_manifest(manifest)
 
   local mod_key = 'mods.' .. mod_id .. ".init"
