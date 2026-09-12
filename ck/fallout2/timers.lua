@@ -181,30 +181,6 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
   return true
 end
 
--- timers.check_live_timers = function(ticks)
---   for mod_id, timer_tags_list in pairs(timers.categories.live) do
---
---     for index = #timer_tags_list, 1, -1 do
---       local timer_tag = timer_tags_list[index]
---       local timer     = timers.registry[mod_id][timer_tag]
---
---       if ticks >= (timer.created_at + timer.ticks) then
---         exec_timer_callback(timer.mod_id, timer.callback)
---
---         if timer.timer_type == "one_time" then
---           -- remove from registry
---           timers.registry[mod_id][timer_tag] = nil
---           -- remove from categories
---           table.remove(timer_tags_list, index)
---         end
---
---         -- updates exec time (created_at)
---         if timer.timer_type == "periodic" then timer.created_at = game_time.get_time() end
---       end
---     end
---   end
--- end
-
 timers.check_timers = function(collection, ticks, mod_id)
   if not collection or #collection == 0 then return end
 

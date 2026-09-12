@@ -20,8 +20,6 @@ namespace ck::proxy::detail {
     int on_proto_proc      = LUA_NOREF;
     int on_map_update      = LUA_NOREF;
     int map_exit           = LUA_NOREF;
-    int before_map_enter   = LUA_NOREF;
-    int after_map_enter    = LUA_NOREF;
     int clear_registries   = LUA_NOREF;
     int critter_killed     = LUA_NOREF;
     int get_state_data     = LUA_NOREF;
@@ -34,7 +32,7 @@ namespace ck::proxy::detail {
 }
 
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
-const std::array<LuaHookBinding, 19> hooks = {{
+const std::array<LuaHookBinding, 17> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
 	{ "ck.system.loader",      "load_and_init_mod",     &ck::proxy::detail::load_and_init_mod },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
@@ -43,8 +41,6 @@ const std::array<LuaHookBinding, 19> hooks = {{
 	{ "ck.system.events",      "on_proto_proc",         &ck::proxy::detail::on_proto_proc },
 	{ "ck.system.events",      "on_map_update",         &ck::proxy::detail::on_map_update },
 	{ "ck.system.events",      "map_exit",              &ck::proxy::detail::map_exit },
-    { "ck.system.events",      "before_map_enter",      &ck::proxy::detail::before_map_enter },
-    { "ck.system.events",      "after_map_enter",       &ck::proxy::detail::after_map_enter },
 	{ "ck.system.events",      "clear_registries",      &ck::proxy::detail::clear_registries },
 	{ "ck.system.events",      "critter_killed",        &ck::proxy::detail::critter_killed },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },

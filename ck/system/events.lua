@@ -2,6 +2,9 @@
 local unpack = table.unpack or unpack
 local ffi = require("ffi")
 
+-- local vzone = require("jit.v")
+-- vzone.start("jit_profile.log")
+
 local registries = require('ck.system.registries')
 
 local objects = require('ck.fallout2.objects')
@@ -13,34 +16,40 @@ local utils   = require('ck.system.utils')
 local object_ffi = require('ck.fallout2.classes.object_ffi')
 
 local events = {}
+events.listeners = registries.events
 
--- dispatched args from C++
-local dispatched_args = {}
-
--- Executes mod callbacks. Mod might use multiple callbacks for single event
-local function exec_mod_callbacks(callbacks, traceback)
-  for index, callback in ipairs(callbacks) do
-    local ok, err = xpcall(callback, traceback, unpack(dispatched_args))
-
-    if not ok then
-      log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
-    end
+-- Safe exec for mod callbacks (with traceback)
+local function safe_exec(callback, mod_id, event_name, index, ...)
+  local ok, err = xpcall(callback, debug.traceback, ...)
+  if not ok then
+    log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
   end
 end
 
-events.listeners = registries.events
+-- Executes mod callbacks. Mod might use multiple callbacks for single event
+local function exec_mod_callbacks(mod_id, event_name, callbacks, ...)
+  if not callbacks or #callbacks == 0 then return end
+
+  for index = 1, #callbacks do
+    safe_exec(callbacks[index], mod_id, event_name, index, ...)
+  end
+end
 
 events.handlers = {
-  map_enter = function(mod_id, callbacks, traceback)
-    ck.map_id = dispatched_args[1]
+  map_enter = function(mod_id, event_name, callbacks, map_id)
+    ck.map_id = map_id
 
     events.before_map_enter(mod_id, ck.map_id)
-    exec_mod_callbacks(callbacks, traceback)
-    events.after_map_enter(mod_id, ck.map_id)
+    exec_mod_callbacks(mod_id, event_name, callbacks, map_id)
+
+    if not ffi.C.ck_game_is_loading() then
+      events.after_map_enter(mod_id, ck.map_id)
+    end
   end,
 
-  time_advance = function(mod_id, callbacks, traceback)
-    exec_mod_callbacks(callbacks, traceback)
+  time_advance = function(mod_id, event_name, callbacks, ...)
+    exec_mod_callbacks(mod_id, event_name, callbacks, ...)
+    events.after_time_advance(mod_id)
   end
 }
 
@@ -60,18 +69,14 @@ function events.emit_for_mod(mod_id, event_name, ...)
   if not mod_entries then return end
 
   local callbacks = mod_entries[event_name]
-  if not callbacks or #callbacks == 0 then return end
-
-  -- store dispatched args
-  dispatched_args = { ... }
 
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]
 
   if events_handler then
-    events_handler(mod_id, callbacks, debug.traceback)
+    events_handler(mod_id, event_name, callbacks, ...)
   else
-    exec_mod_callbacks(callbacks, debug.traceback)
+    exec_mod_callbacks(mod_id, event_name, callbacks, ...)
   end
 end
 
@@ -175,16 +180,19 @@ function events.before_map_enter(mod_id, map_id)
   mod_table.timers  = mod_table.timers or {}
 end
 
--- Runs after mod's map_enter callback
 function events.after_map_enter(mod_id, map_id)
   -- map_enter timers are only executed on map transition
-  if not ffi.C.ck_game_is_loading() then
-    local timers = require('ck.fallout2.timers')
+  local timers = require('ck.fallout2.timers')
 
-    local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
-    timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
-  end
-  -- check timers
+  local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
+  timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
+end
+
+function events.after_time_advance(mod_id)
+  local timers = require('ck.fallout2.timers')
+
+  local mod_event_timers = registries.timer_categories.evented[mod_id]["time_advance"]
+  timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
 end
 
 -- not used yet. could be useful for global (non-mod-specific) logic
