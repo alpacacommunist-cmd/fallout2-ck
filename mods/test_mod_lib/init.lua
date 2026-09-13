@@ -12,7 +12,7 @@ function wall_utils.get_matching_fid(current_fid, direction)
 end
 
 function wall_utils.is_wall_blocking(hex_id)
-  return false 
+  return false
 end
 
 return wall_utils
