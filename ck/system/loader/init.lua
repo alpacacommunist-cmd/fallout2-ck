@@ -44,9 +44,9 @@ local function apply_manifest(manifest)
 end
 
 function loader.exec_mod(mod_id, manifest)
-  local manifest = loader.parse_manifest(mod_id)
   apply_manifest(manifest)
 
+  local is_library = manifest and manifest.type == "library"
   local mod_key = 'mods.' .. mod_id .. ".init"
   local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
 
@@ -68,17 +68,32 @@ function loader.exec_mod(mod_id, manifest)
   local mod_env = sandbox.create_env(mod_id, manifest)
   setfenv(mod_init_fn, mod_env)
 
-  -- exec mod
-  registries.init_mod(mod_id)
-  ffi.C.ck_dispatcher_add_mod(mod_id)
+  if is_library then
+    local success, result = pcall(mod_init_fn)
 
-  local success = mod_tools.exec_with_mod_context(mod_id, mod_init_fn, true)
+    if not success then
+      log.error("running library '" .. mod_id .. "': " .. tostring(result))
+      return false
+    end
 
-  if not success then
-    registries.clear_mod(mod_id)
-    ffi.C.ck_dispatcher_remove_mod(mod_id)
+    if type(result) == "table" then
+      ck.libs[mod_id] = result
+      log.info(string.format("Library '%s' registered to ck.libs.%s", mod_id, mod_id))
+    else
+      log.warn(string.format("Library '%s' loaded but did not return an API table!", mod_id))
+    end
+  else
+    registries.init_mod(mod_id)
+    ffi.C.ck_dispatcher_add_mod(mod_id)
 
-    return false
+    local success = mod_tools.exec_with_mod_context(mod_id, mod_init_fn)
+
+    if not success then
+      registries.clear_mod(mod_id)
+      ffi.C.ck_dispatcher_remove_mod(mod_id)
+
+      return false
+    end
   end
 
   return true

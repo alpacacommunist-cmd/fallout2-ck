@@ -1,6 +1,8 @@
 -- mods/arroyo_expanded/init.lua
 local ffi = require('ffi')
 
+local wall_utils = require('ck.libs.test_mod_lib')
+
 local monitor     = require('ck.fallout2.monitor')
 local map         = require('ck.fallout2.map')
 local dialogs     = require('ck.fallout2.dialogs')

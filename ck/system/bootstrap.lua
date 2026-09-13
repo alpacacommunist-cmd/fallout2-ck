@@ -11,7 +11,6 @@ ck.log = require('ck.system.log')
 
 local log    = ck.log.new('bootstrap.lua')
 local loader = require('ck.system.loader')
-local mod_tools = require('ck.system.mod_tools')
 
 function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")
@@ -36,6 +35,12 @@ function bootstrap.bootstrap()
     end
   end
 
+  log.info("Loading framework libraries...")
+  for _, mod_data in ipairs(libraries) do
+    loader.exec_mod(mod_data.id, mod_data.manifest)
+  end
+
+  log.info("Loading gameplay modules...")
   for _, mod_data in ipairs(gameplay_mods) do
     loader.exec_mod(mod_data.id, mod_data.manifest)
   end

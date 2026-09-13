@@ -4,10 +4,11 @@ local i18n          = require('ck.fallout2.i18n')
 
 local log = ck.log.new('CK Events Sandbox')
 
-local M = {}
+local sandbox = {}
 
-function M.create_env(mod_folder, manifest_table)
+function sandbox.create_env(mod_folder, manifest_table)
   local env = setmetatable({}, { __index = _G })
+  local is_library = manifest_table.type and manifest_table.type == "library"
 
   env.__manifest = manifest_table
   env.__mod_id   = manifest_table.id
@@ -20,14 +21,27 @@ function M.create_env(mod_folder, manifest_table)
   function env.require(mod_name)
     local target_name = mod_name
 
+    if mod_name:match("^ck%.libs%.") then
+      local lib_id = mod_name:gsub("^ck%.libs%.", "")
+      local library = ck.libs[lib_id]
+
+      if not library then
+        error(string.format("Runtime Error: Core library '%s' requested by mod '%s' is not available!", lib_id, env.__mod_id))
+      end
+
+      return library
+    end
+
     -- relative requires (as in require('.outskirts') instead of require('temple_of_trials.outskirts')
     if mod_name:sub(1, 1) == "." then
       target_name = "mods." .. mod_folder .. mod_name
     end
 
     -- replace explicit require from mod to proxied version
-    if target_name == "ck.fallout2.events" then return env.events end
-    if target_name == "ck.fallout2.i18n"   then return env.i18n end
+    if not is_library then
+      if target_name == "ck.fallout2.events" then return env.events end
+      if target_name == "ck.fallout2.i18n"   then return env.i18n end
+    end
 
     -- check if module is loaded
     if package.loaded[target_name] then
@@ -62,26 +76,30 @@ function M.create_env(mod_folder, manifest_table)
   ------ events
   ---------------------------------------------------------------
 
-  env.events = setmetatable({}, { __index = core_events })
+  if not is_library then
+    env.events = setmetatable({}, { __index = core_events })
 
-  function env.events.on(event_name, callback)
-    core_events.register(manifest_table.id, event_name, callback)
+    function env.events.on(event_name, callback)
+      core_events.register(manifest_table.id, event_name, callback)
+    end
   end
 
   ---------------------------------------------------------------
   ------ I18n
   ---------------------------------------------------------------
 
-  env.i18n = setmetatable({}, { __index = i18n })
+  if not is_library then
+    env.i18n = setmetatable({}, { __index = i18n })
 
-  function env.i18n.t(key, ...)
-    if select('#', ...) == 0 or type(key) == 'string' and type(select(1, ...)) ~= 'string' then
-      return i18n.t(mod_folder, key, ...)
+    function env.i18n.t(key, ...)
+      if select('#', ...) == 0 or type(key) == 'string' and type(select(1, ...)) ~= 'string' then
+        return i18n.t(mod_folder, key, ...)
+      end
+      return i18n.t(key, ...)
     end
-    return i18n.t(key, ...)
   end
 
   return env
 end
 
-return M
+return sandbox
