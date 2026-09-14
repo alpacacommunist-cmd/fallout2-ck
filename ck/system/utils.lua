@@ -1,8 +1,10 @@
 local utils = {}
 local log   = ck.log.new('system/utils.lua')
 
-function utils.print_table(t, log, indent)
+function utils.print_table(t, caller_log, indent)
   indent = indent or 0
+  log    = caller_log or log
+
   for k, v in pairs(t) do
     local formatting = string.rep("  ", indent) .. k .. ": "
     if type(v) == "table" then

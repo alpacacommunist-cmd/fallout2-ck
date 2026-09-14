@@ -91,7 +91,7 @@ function loader.exec_mod(mod_data)
   end
 
   -- add mod env
-  local mod_env = sandbox.create_env(mod_id, manifest)
+  local mod_env = sandbox.create_env(mod_data)
   setfenv(mod_init_fn, mod_env)
 
   -- exec

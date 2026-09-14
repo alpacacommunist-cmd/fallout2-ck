@@ -29,6 +29,7 @@ local function mod_paths(mod_id)
   local mod_prefix = 'mods.' .. mod_id
 
   return {
+    ["base"]     = mod_prefix,
     ["manifest"] = mod_prefix .. '.mod',
     ["init"]     = mod_prefix .. '.init',
     ["assets"]   = mod_prefix .. '/assets',
@@ -71,9 +72,9 @@ function bootstrap.bootstrap()
     end
 
     -- ensure core attributes
-    manifest.type = bootstrap.mod_types_hash_table[manifest.type] and manifest.type
-    manifest.type = manifest.type or registries.default_mod_type
+    manifest.type = (bootstrap.mod_types_hash_table[manifest.type] and manifest.type) or registries.default_mod_type
     manifest.id   = manifest.id or mod_id
+    manifest.name = manifest.name or manifest.id
 
     table.insert(ck.active_mods[manifest.type], { id = manifest.id, manifest = manifest, paths = mod_paths })
   end
