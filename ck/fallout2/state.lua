@@ -31,7 +31,6 @@ end
 -- while running through entities in sync_save, remember active tags
 -- used to GC old tags that were removed from mod code
 local relevant_timers_tag_list  = {}
-local relevant_objects_tag_list = {}
 
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
@@ -40,7 +39,7 @@ function state.sync_save()
   state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
   local current_map = state.db.maps[ck.map_id]
 
-  log.info("MODS")
+  log.header("MODS")
   utils.print_table(ck.active_mods_list, log)
 
   -- check active mods
@@ -76,8 +75,6 @@ function state.sync_save()
       object_state.id = object:id()
       object_state.inventory = object:inventory_table()
 
-      relevant_objects_tag_list[object.tag] = true
-
       ::continue::
     end
 
@@ -90,7 +87,7 @@ function state.sync_save()
     end
 
     -- [Garbage Collection] ✨
-    -- removes obsolete object tags
+    -- removes obsolete timers
     for tag in pairs(mod_map_db.timers) do
       if not relevant_timers_tag_list[tag] then
         log.debug("GC: Removing obsolete timer tag '%s' from mod '%s'", tag, mod_id)
@@ -101,10 +98,17 @@ function state.sync_save()
     -- [Garbage Collection] ✨
     -- removes obsolete object tags
     for tag in pairs(mod_map_db.objects) do
-      if not relevant_objects_tag_list[tag] then
-        log.debug("GC: Removing obsolete object tag '%s' from mod '%s'", tag, mod_id)
+      if not registries.relevant_critter_tags[mod_id][tag] then
+        log.debug("GC: Removing obsolete critter tag '%s' from mod '%s'", tag, mod_id)
         mod_map_db.objects[tag] = nil
       end
+    end
+
+    -- [Garbage collection] ✨
+    -- removes mod from map namespace if both timers and objects are empty
+    -- TODO: abstractize expected elements
+    if next(mod_map_db.objects) == nil and next(mod_map_db.timers) == nil then
+      current_map[mod_id] = nil
     end
   end
 
@@ -114,7 +118,9 @@ function state.sync_save()
     state.db.maps[ck.map_id] = nil
   end
 
+  log.header("state_table:")
   utils.print_table(state.db, log)
+
   return state.db
 end
 

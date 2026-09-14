@@ -19,8 +19,9 @@ local registries = {
   timers = {},
   timer_categories = { live = {}, evented = {} },
 
-  -- ck/fallout2/critters.lua
-  spawn_counters = {}
+  -- ck/fallout2/critters.lua 🦂
+  spawn_counters = {},
+  relevant_critter_tags = {}
 }
 
 local available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
@@ -48,7 +49,9 @@ function registries.init_mod(mod_id)
   registries.timer_categories.live[mod_id] = {}
   registries.timer_categories.evented[mod_id] = {}
 
+  -- 🦂
   registries.spawn_counters[mod_id] = 0
+  registries.relevant_critter_tags[mod_id] = {}
 end
 
 function registries.clear_mod(mod_id)
@@ -66,11 +69,14 @@ function registries.clear_mod(mod_id)
   -- 💬
   registries.dialogs[mod_id] = nil
 
+  -- ⏱️
   registries.timers[mod_id]  = nil
   registries.timer_categories.live[mod_id] = nil
   registries.timer_categories.evented[mod_id] = nil
 
+  -- 🦂
   registries.spawn_counters[mod_id] = nil
+  registries.relevant_critter_tags[mod_id] = nil
 end
 
 function registries.reset_map_context()
@@ -85,7 +91,9 @@ function registries.reset_map_context()
     registries.timer_categories.live[mod_id] = {}
     registries.timer_categories.evented[mod_id] = {}
 
+    -- 🦂
     registries.spawn_counters[mod_id] = 0
+    registries.relevant_critter_tags[mod_id] = {}
   end
 end
 

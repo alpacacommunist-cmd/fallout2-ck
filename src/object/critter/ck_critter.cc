@@ -155,6 +155,8 @@ namespace ck::critter {
             // to let lua handle procs
             if (corpse != nullptr) {
                 lua_id = registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
+            } else {
+                lua_id = -2;
             }
         }
 
