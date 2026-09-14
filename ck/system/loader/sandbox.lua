@@ -23,7 +23,7 @@ function sandbox.create_env(mod_folder, manifest_table)
 
     if mod_name:match("^ck%.libs%.") then
       local lib_id = mod_name:gsub("^ck%.libs%.", "")
-      local library = ck.libs[lib_id]
+      local library = ck.loaded_libs[lib_id]
 
       if not library then
         error(string.format("Runtime Error: Core library '%s' requested by mod '%s' is not available!", lib_id, env.__mod_id))

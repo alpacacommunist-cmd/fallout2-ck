@@ -1,4 +1,11 @@
 local registries = {
+  --🎮📦
+  -- Common
+  default_mod_type = "gameplay",
+  mod_types = { "gameplay", "library" },
+  mod_load_sequence_by_type = { "library", "gameplay" },
+
+  -- Mod specific
   -- ck/system/events.lua
   events  = {},
 

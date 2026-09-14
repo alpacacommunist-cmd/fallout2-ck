@@ -1,17 +1,55 @@
 -- bootstrap.lua
+local bootstrap = { mod_types_hash_table = {} }
+
+-- system registries
+local registries = require('ck.system.registries')
+
+-- set global search path
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
-local bootstrap = {}
+-- Common global namespace
+ck = { active_mods = {}, loaded_libs = {}, log = require('ck.system.log') }
+for _, mod_type in ipairs(registries.mod_types) do
+  -- reserve type table in global namespace
+  ck.active_mods[mod_type] = {}
 
-require('ck.system.ffi_api')
-local ffi = require("ffi")
+  -- add type to a hash table for faster checks
+  bootstrap.mod_types_hash_table[mod_type] = true
+end
 
-ck = { active_mods = {}, libs = {} }
-ck.log = require('ck.system.log')
-
-local log    = ck.log.new('bootstrap.lua')
+local ffi = require('ck.system.ffi_api')
 local loader = require('ck.system.loader')
 
+local log = ck.log.new('bootstrap.lua')
+
+----
+-- Local helper functions
+----
+local function mod_paths(mod_id)
+  local mod_prefix = 'mods.' .. mod_id
+
+  return {
+    ["manifest"] = mod_prefix .. '.mod',
+    ["init"]     = mod_prefix .. '.init',
+    ["assets"]   = mod_prefix .. '/assets',
+    ["maps"]     = mod_prefix .. '/maps',
+  }
+end
+
+local function parse_manifest(path)
+  local ok, manifest = pcall(require, path)
+
+  if not ok or type(manifest) ~= 'table' then
+    log.warn("WARNING: failed to parse manifest: " .. path)
+    return nil
+  end
+
+  return manifest
+end
+
+----
+-- Module code
+----
 function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")
 
@@ -21,30 +59,36 @@ function bootstrap.bootstrap()
     log.error("Failed to load mods.lua config! Please ensure gamedir/mods.lua exists and returns a table.")
   end
 
-  -- 📦
-  local libraries = {}
-  -- 🎮
-  local gameplay_mods = {}
-
   -- parse and analyze manifests
   for _, mod_id in ipairs(active_mods) do
-    local manifest = loader.parse_manifest(mod_id)
+    local mod_paths = mod_paths(mod_id)
+    local manifest  = parse_manifest(mod_paths.manifest)
 
-    if manifest and manifest.type == "library" then
-      table.insert(libraries, { id = mod_id, manifest = manifest })
-    else
-      table.insert(gameplay_mods, { id = mod_id, manifest = manifest })
+    -- ✨Validating manifest
+    if not manifest then
+      log.warn("Mod '%s' is missing a valid manifest (mod.lua). Using generic fallback.", mod_id)
+      manifest = { id = mod_id, name = "Unnamed Mod (" .. mod_id .. ")", type = registries.default_mod_type }
     end
+
+    -- ensure core attributes
+    manifest.type = bootstrap.mod_types_hash_table[manifest.type] and manifest.type
+    manifest.type = manifest.type or registries.default_mod_type
+    manifest.id   = manifest.id or mod_id
+
+    table.insert(ck.active_mods[manifest.type], { id = manifest.id, manifest = manifest, paths = mod_paths })
   end
 
-  log.info("Loading framework libraries...")
-  for _, mod_data in ipairs(libraries) do
-    loader.exec_mod(mod_data.id, mod_data.manifest)
-  end
+  for index, mod_type in ipairs(registries.mod_load_sequence_by_type) do
+    local mods_by_type = ck.active_mods[mod_type]
 
-  log.info("Loading gameplay modules...")
-  for _, mod_data in ipairs(gameplay_mods) do
-    loader.exec_mod(mod_data.id, mod_data.manifest)
+    if mods_by_type and #mods_by_type > 0 then
+      log.header("Loading sequence #[%d]: %s", index, mod_type)
+
+      for _, mod_data in ipairs(ck.active_mods[mod_type]) do
+        log.info("Loading mod_id: [%s]", mod_data.id)
+        loader.exec_mod(mod_data)
+      end
+    end
   end
 
   log.info("Bootstrap complete! All mods loaded safely.")

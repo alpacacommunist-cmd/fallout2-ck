@@ -10,7 +10,7 @@ local i18n      = require('ck.fallout2.i18n')
 local registries = require('ck.system.registries')
 local mod_tools  = require('ck.system.mod_tools')
 
-local log = ck.log.new('CK Loader')
+local log = ck.log.new('loader/init.lua')
 
 local reloadable_mods = {
   "arroyo_expanded",
@@ -19,18 +19,18 @@ local reloadable_mods = {
 
 local loader = {}
 
-function loader.parse_manifest(mod_id)
-  local key = 'mods.' .. mod_id .. '.mod'
-
-  local ok, manifest = pcall(require, key)
-
-  if not ok or type(manifest) ~= 'table' then
-    log.warn("WARNING: no manifest for " .. mod_id)
-    return nil
-  end
-
-  return manifest
-end
+-- function loader.parse_manifest(mod_id)
+--   local key = 'mods.' .. mod_id .. '.mod'
+--
+--   local ok, manifest = pcall(require, key)
+--
+--   if not ok or type(manifest) ~= 'table' then
+--     log.warn("WARNING: no manifest for " .. mod_id)
+--     return nil
+--   end
+--
+--   return manifest
+-- end
 
 local function apply_manifest(manifest)
   if not manifest then return end
@@ -43,10 +43,12 @@ local function apply_manifest(manifest)
   end
 end
 
-function loader.exec_mod(mod_id, manifest)
+function loader.exec_mod(mod_data)
+  local manifest = mod_data.manifest
+  local mod_id   = manifest.id
   apply_manifest(manifest)
 
-  local is_library = manifest and manifest.type == "library"
+  local is_library = manifest.type == "library"
   local mod_key = 'mods.' .. mod_id .. ".init"
   local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
 
@@ -77,7 +79,7 @@ function loader.exec_mod(mod_id, manifest)
     end
 
     if type(result) == "table" then
-      ck.libs[mod_id] = result
+      ck.loaded_libs[mod_id] = result
       log.info(string.format("Library '%s' registered to ck.libs.%s", mod_id, mod_id))
     else
       log.warn(string.format("Library '%s' loaded but did not return an API table!", mod_id))
