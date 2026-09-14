@@ -7,7 +7,6 @@ local ffi = require("ffi")
 
 local registries = require('ck.system.registries')
 
-local objects = require('ck.fallout2.objects')
 local proto   = require('ck.fallout2.proto')
 
 local log     = ck.log.new('events.lua')
@@ -41,10 +40,7 @@ events.handlers = {
 
     events.before_map_enter(mod_id, ck.map_id)
     exec_mod_callbacks(mod_id, event_name, callbacks, map_id)
-
-    if not ffi.C.ck_game_is_loading() then
-      events.after_map_enter(mod_id, ck.map_id)
-    end
+    events.after_map_enter(mod_id, ck.map_id)
   end,
 
   time_advance = function(mod_id, event_name, callbacks, ...)
@@ -102,9 +98,8 @@ end
 
 function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
   mod_id = ffi.string(mod_id)
-  if objects.registry[mod_id] == nil then return false end
 
-  local object = objects.registry[mod_id][lua_id]
+  local object = registries.objects[mod_id][lua_id]
   if not object then return false end
 
   return object:_handle_proc(proc_id, fixed_param)
@@ -135,7 +130,7 @@ function events.on_map_update(ticks)
 
   -- handle map_update for lua objects
   for _, mod_id in ipairs(ck.active_mods_list) do
-    for _, object in pairs(objects.registry[mod_id]) do
+    for _, object in pairs(registries.objects[mod_id]) do
       if not object._handle_map_update then
         goto continue
       end
@@ -153,10 +148,12 @@ function events.on_map_update(ticks)
 end
 
 -- Updates state.db (inventory/hp/tile etc)
+-- aka on_before_map_load. Called before any map_enter
 function events.map_exit()
-  if not ffi.C.ck_game_is_loading() then
-    local state = require('ck.fallout2.state')
+  ck.map_enter_through_game_load = ffi.C.ck_game_is_loading()
 
+  if not ck.map_enter_through_game_load then
+    local state = require('ck.fallout2.state')
     state.sync_save()
   end
 
@@ -180,10 +177,12 @@ end
 
 function events.after_map_enter(mod_id, map_id)
   -- map_enter timers are only executed on map transition
-  local timers = require('ck.fallout2.timers')
+  if not ck.map_enter_through_game_load then
+    local timers = require('ck.fallout2.timers')
 
-  local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
-  timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
+    local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
+    timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
+  end
 end
 
 function events.after_time_advance(mod_id)

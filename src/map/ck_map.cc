@@ -22,6 +22,7 @@ namespace ck {
     namespace critter { void reset_prototypes(); }
     namespace script { void reset(); }
     namespace common {
+        bool game_is_loading();
         bool currently_in_combat();
         void lua_map_exit();
     }
@@ -41,12 +42,11 @@ namespace ck {
     }
 
     void on_before_map_load() {
-        // Clears map context queues
         log.debug("on_before_map_load");
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data
-        if (!fallout::_isLoadingGame()) {
+        if (!ck::common::game_is_loading()) {
             ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
         }
 
