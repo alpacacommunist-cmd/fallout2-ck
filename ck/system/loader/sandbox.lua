@@ -73,7 +73,7 @@ function sandbox.create_env(mod_data)
     -- read and compile
     local content = utils.read_file(loader_fn, log)
 
-    local chunk, chunk_err = loadstring(content, "@" .. loader_fn)
+    local chunk, chunk_err = utils.compile_chunk(content, loader_fn)
     if not chunk then
       local trace = debug.traceback(string.format("Syntax error compiling module '%s':\n%s", target_name, chunk_err), 2)
       error(trace)

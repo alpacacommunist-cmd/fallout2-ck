@@ -87,16 +87,16 @@ function loader.exec_mod(mod_data)
   local content = utils.read_file(init_file_path, log)
 
   -- create chunk
-  local mod_init_fn, err = loadstring(content, "@" .. init_file_path)
+  local mod_init_fn, error = utils.compile_chunk(content, init_file_path)
   if not mod_init_fn then
-    log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
+    log.error("compiling mod '" .. mod_id .. "': " .. tostring(error))
     return false
   end
 
-  setfenv(mod_init_fn, mod_env)
-
   -- exec
   local handler = loader.handlers[manifest.type]
+
+  setfenv(mod_init_fn, mod_env)
   return handler(mod_data, mod_init_fn)
 end
 

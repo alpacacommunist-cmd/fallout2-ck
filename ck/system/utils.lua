@@ -1,9 +1,9 @@
 local utils = {}
 local log   = ck.log.new('system/utils.lua')
 
-function utils.print_table(t, caller_log, indent)
+function utils.print_table(t, context_log, indent)
   indent = indent or 0
-  log    = caller_log or log
+  log    = context_log or log
 
   for k, v in pairs(t) do
     local formatting = string.rep("  ", indent) .. k .. ": "
@@ -25,10 +25,10 @@ function utils.compile_chunk(content, name)
   return chunk
 end
 
-function utils.safe_exec_in_env(env, chunk, name)
-  setfenv(chunk, env)
+function utils.safe_exec(callback, name)
+  -- setfenv(chunk, env)
 
-  local success, result = xpcall(chunk, debug.traceback)
+  local success, result = xpcall(callback, debug.traceback)
   if not success then
     return false, string.format("Runtime error executing '%s':\n%s", name, result)
   end
@@ -147,8 +147,9 @@ function utils.table_remove_by_value(list, value)
   return false
 end
 
-function utils.read_file(path, log)
+function utils.read_file(path, context_log)
   local file = io.open(path, "r")
+  local log = context_log or log
 
   if not file then
     log.error("Cannot open mod file: " .. path)
