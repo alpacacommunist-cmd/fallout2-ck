@@ -8,7 +8,7 @@ local registries = {
   -- ck/fallout2/dialogs.lua 💬
   dialogs = {},
 
-  -- ck/fallout2/timers.lua
+  -- ck/fallout2/timers.lua ⏱️
   timers = {},
   timer_categories = { live = {}, evented = {} },
 
@@ -36,6 +36,7 @@ function registries.init_mod(mod_id)
   -- 💬
   registries.dialogs[mod_id] = {}
 
+  -- ⏱️
   registries.timers[mod_id]  = {}
   registries.timer_categories.live[mod_id] = {}
   registries.timer_categories.evented[mod_id] = {}
@@ -72,6 +73,7 @@ function registries.reset_map_context()
     -- 💬
     registries.dialogs[mod_id] = {}
 
+    -- ⏱️
     registries.timers[mod_id]  = {}
     registries.timer_categories.live[mod_id] = {}
     registries.timer_categories.evented[mod_id] = {}

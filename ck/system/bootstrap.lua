@@ -21,7 +21,9 @@ function bootstrap.bootstrap()
     log.error("Failed to load mods.lua config! Please ensure gamedir/mods.lua exists and returns a table.")
   end
 
+  -- 📦
   local libraries = {}
+  -- 🎮
   local gameplay_mods = {}
 
   -- parse and analyze manifests
