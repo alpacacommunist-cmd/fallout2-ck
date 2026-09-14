@@ -10,6 +10,24 @@
 #include "ck_log.h"
 static const Logger logger("CK Item");
 
+namespace fallout {
+	struct Object;
+	struct Rect;
+
+    enum CritterFlags : int;
+
+    bool critterFlagCheck(int pid, CritterFlags flag);
+
+    int itemAdd(Object* owner, Object* itemToAdd, int quantity);
+    int itemDropAll(Object* critter, int tile);
+
+	int _obj_disconnect(Object* obj, Rect* rect);
+	int objectDestroy(Object* object, Rect* rect);
+    int objectCreateWithFrmIdPid(Object** objectPtr, const FrmId& frmId, int pid);
+	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
+	int objectGetCarriedQuantityByPid(Object* obj, int pid);
+}
+
 namespace ck {
 	void clear_inventory(fallout::Object* object) {
 		fallout::Inventory* inventory = &(object->data.inventory);
@@ -37,7 +55,7 @@ namespace ck {
 		}
 
 		fallout::Object* new_item = nullptr;
-		if (fallout::objectCreateWithFidPid(&new_item, proto->fid, item_pid) == -1 || !new_item) {
+		if (fallout::objectCreateWithFrmIdPid(&new_item, fallout::FrmId(proto->fid), item_pid) == -1 || !new_item) {
 			return false;
 		}
 

@@ -33,7 +33,7 @@ static const CachedArt* get_or_cache_art(int fid) {
     if (it != gArtCache.end()) return &(it->second);
 
     fallout::CacheEntry* entry = nullptr;
-    fallout::Art* art = fallout::artLock(fid, &entry);
+    fallout::Art* art = fallout::artLock(fallout::FrmId(fid), &entry);
 
     if (art == nullptr) return nullptr;
 
