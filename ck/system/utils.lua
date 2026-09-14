@@ -125,4 +125,18 @@ function utils.table_remove_by_value(list, value)
   return false
 end
 
+function utils.read_file(path, log)
+  local file = io.open(path, "r")
+
+  if not file then
+    log.error("Cannot open mod file: " .. path)
+    return false
+  end
+
+  local content = file:read("*a")
+  file:close()
+
+  return content
+end
+
 return utils

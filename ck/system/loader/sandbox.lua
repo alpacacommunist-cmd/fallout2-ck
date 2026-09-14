@@ -1,7 +1,5 @@
 -- ck/fallout2/loader/sandbox.lua
-local core_events   = require('ck.system.events')
-local i18n          = require('ck.fallout2.i18n')
-
+local core_events = require('ck.system.events')
 local log = ck.log.new('CK Events Sandbox')
 
 local sandbox = {}
@@ -40,7 +38,6 @@ function sandbox.create_env(mod_folder, manifest_table)
     -- replace explicit require from mod to proxied version
     if not is_library then
       if target_name == "ck.fallout2.events" then return env.events end
-      if target_name == "ck.fallout2.i18n"   then return env.i18n end
     end
 
     -- check if module is loaded
@@ -81,21 +78,6 @@ function sandbox.create_env(mod_folder, manifest_table)
 
     function env.events.on(event_name, callback)
       core_events.register(manifest_table.id, event_name, callback)
-    end
-  end
-
-  ---------------------------------------------------------------
-  ------ I18n
-  ---------------------------------------------------------------
-
-  if not is_library then
-    env.i18n = setmetatable({}, { __index = i18n })
-
-    function env.i18n.t(key, ...)
-      if select('#', ...) == 0 or type(key) == 'string' and type(select(1, ...)) ~= 'string' then
-        return i18n.t(mod_folder, key, ...)
-      end
-      return i18n.t(key, ...)
     end
   end
 

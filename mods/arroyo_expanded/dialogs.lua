@@ -1,4 +1,6 @@
-local    T = i18n.bind('arroyo_expanded')
+local i18n = require('ck.fallout2.i18n')
+
+local T = i18n.bind('arroyo_expanded')
 
 local dialogs = { alice_nodes = {}, minoc_fn = {} }
 

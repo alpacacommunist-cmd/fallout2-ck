@@ -1,9 +1,9 @@
 -- ck/system/loader/init.lua
 local ffi = require("ffi")
 
-local sandbox   = require('ck.system.loader.sandbox')
+local utils = require('ck.system.utils')
+local sandbox = require('ck.system.loader.sandbox')
 
-local rendering = require('ck.fallout2.rendering')
 local assets    = require('ck.fallout2.assets')
 local i18n      = require('ck.fallout2.i18n')
 
@@ -19,19 +19,6 @@ local reloadable_mods = {
 
 local loader = {}
 
--- function loader.parse_manifest(mod_id)
---   local key = 'mods.' .. mod_id .. '.mod'
---
---   local ok, manifest = pcall(require, key)
---
---   if not ok or type(manifest) ~= 'table' then
---     log.warn("WARNING: no manifest for " .. mod_id)
---     return nil
---   end
---
---   return manifest
--- end
-
 local function apply_manifest(manifest)
   if not manifest then return end
 
@@ -43,48 +30,11 @@ local function apply_manifest(manifest)
   end
 end
 
-function loader.exec_mod(mod_data)
-  local manifest = mod_data.manifest
-  local mod_id   = manifest.id
-  apply_manifest(manifest)
+loader.handlers = {
+  --🎮
+  gameplay = function(mod_data, mod_init_fn)
+    local mod_id = mod_data.id
 
-  local is_library = manifest.type == "library"
-  local mod_key = 'mods.' .. mod_id .. ".init"
-  local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
-
-  local file = io.open(file_path, "r")
-  if not file then
-    log.error("Cannot open mod file: " .. file_path)
-    return false
-  end
-  local content = file:read("*a")
-  file:close()
-
-  -- compile file into function
-  local mod_init_fn, err = loadstring(content, "@" .. file_path)
-  if not mod_init_fn then
-    log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
-    return false
-  end
-
-  local mod_env = sandbox.create_env(mod_id, manifest)
-  setfenv(mod_init_fn, mod_env)
-
-  if is_library then
-    local success, result = pcall(mod_init_fn)
-
-    if not success then
-      log.error("running library '" .. mod_id .. "': " .. tostring(result))
-      return false
-    end
-
-    if type(result) == "table" then
-      ck.loaded_libs[mod_id] = result
-      log.info(string.format("Library '%s' registered to ck.libs.%s", mod_id, mod_id))
-    else
-      log.warn(string.format("Library '%s' loaded but did not return an API table!", mod_id))
-    end
-  else
     registries.init_mod(mod_id)
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
@@ -96,9 +46,57 @@ function loader.exec_mod(mod_data)
 
       return false
     end
+
+    return true
+  end,
+
+  --📦
+  library = function(mod_data, mod_init_fn)
+    local mod_id = mod_data.id
+    local success, result = pcall(mod_init_fn)
+
+    if not success then
+      log.error("running library '" .. mod_id .. "': " .. tostring(result))
+      return false
+    end
+
+    if type(result) == "table" then
+      ck.loaded_libs[mod_id] = result
+      log.info("Library '%s' registered to ck.libs.%s", mod_id, mod_id)
+    else
+      log.warn("Library '%s' loaded but did not return an API table!", mod_id)
+    end
+
+    return true
+  end
+}
+
+function loader.exec_mod(mod_data)
+  local manifest = mod_data.manifest
+  local mod_id   = mod_data.id
+
+  apply_manifest(manifest)
+
+  local mod_key = mod_data.paths.init
+  local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
+
+  -- read file
+  local content = utils.read_file(file_path, log)
+
+  -- create chunk
+  local mod_init_fn, err = loadstring(content, "@" .. file_path)
+  if not mod_init_fn then
+    log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
+    return false
   end
 
-  return true
+  -- add mod env
+  local mod_env = sandbox.create_env(mod_id, manifest)
+  setfenv(mod_init_fn, mod_env)
+
+  -- exec
+  local handler = loader.handlers[manifest.type]
+  return handler(mod_data, mod_init_fn)
 end
 
 function loader.reload_mods()

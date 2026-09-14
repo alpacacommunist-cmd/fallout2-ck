@@ -18,6 +18,7 @@ local assets      = require("ck.fallout2.assets")
 local sfx         = require('ck.fallout2.sound_sfx')
 local objects     = require('ck.fallout2.objects')
 local timers      = require('ck.fallout2.timers')
+local i18n        = require('ck.fallout2.i18n')
 
 local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
