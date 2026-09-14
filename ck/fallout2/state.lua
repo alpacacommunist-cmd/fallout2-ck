@@ -41,10 +41,10 @@ function state.sync_save()
   local current_map = state.db.maps[ck.map_id]
 
   log.info("MODS")
-  utils.print_table(ck.active_mods, log)
+  utils.print_table(ck.active_mods_list, log)
 
   -- check active mods
-  for _, mod_id in ipairs(ck.active_mods) do
+  for _, mod_id in ipairs(ck.active_mods_list) do
     local mod_map_db = current_map[mod_id]
 
     -- timers

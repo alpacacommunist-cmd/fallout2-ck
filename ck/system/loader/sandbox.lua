@@ -50,7 +50,7 @@ function sandbox.create_env(mod_data)
 
     -- relative requires (as in require('.outskirts') instead of require('temple_of_trials.outskirts')
     if target_name:sub(1, 1) == "." then
-      target_name = mod_data.paths.base .. target_name
+      target_name = mod_data.keys.base .. target_name
     end
 
     -- replace explicit require from mod to proxied version

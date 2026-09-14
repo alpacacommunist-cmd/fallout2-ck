@@ -37,7 +37,7 @@ local log = ck.log.new('bootstrap.lua')
 ----
 -- Local helper functions
 ----
-local function mod_paths(mod_id)
+local function mod_keys(mod_id)
   local mod_prefix = 'mods.' .. mod_id
 
   return {
@@ -74,8 +74,8 @@ function bootstrap.bootstrap()
 
   -- parse and analyze manifests
   for _, mod_id in ipairs(active_mods) do
-    local mod_paths = mod_paths(mod_id)
-    local manifest  = parse_manifest(mod_paths.manifest)
+    local mod_keys = mod_keys(mod_id)
+    local manifest = parse_manifest(mod_keys.manifest)
 
     -- ✨Validating manifest
     if not manifest then
@@ -88,12 +88,14 @@ function bootstrap.bootstrap()
     manifest.id   = manifest.id or mod_id
     manifest.name = manifest.name or manifest.id
 
-    local mod_data = { id = manifest.id, manifest = manifest, paths = mod_paths }
+    local mod_data = { id = manifest.id, manifest = manifest, keys = mod_keys }
 
     -- update type categories
     table.insert(ck.active_mods_by_type[manifest.type], mod_data)
     -- update flat list
-    table.insert(ck.active_mods_list, manifest.id)
+    if manifest.type == 'gameplay' then
+      table.insert(ck.active_mods_list, manifest.id)
+    end
     -- update quick ref data table
     ck.active_mods[manifest.id] = mod_data
   end

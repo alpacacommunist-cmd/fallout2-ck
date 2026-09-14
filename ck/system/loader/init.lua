@@ -77,21 +77,22 @@ function loader.exec_mod(mod_data)
 
   apply_manifest(manifest)
 
-  local mod_key = mod_data.paths.init
-  local file_path = "../" .. mod_key:gsub("%.", "/") .. ".lua"
+  -- add mod env
+  local mod_env = sandbox.create_env(mod_data)
+
+  -- filepath of mod's .init
+  local init_file_path = mod_tools.key_to_path(mod_data.keys.init)
 
   -- read file
-  local content = utils.read_file(file_path, log)
+  local content = utils.read_file(init_file_path, log)
 
   -- create chunk
-  local mod_init_fn, err = loadstring(content, "@" .. file_path)
+  local mod_init_fn, err = loadstring(content, "@" .. init_file_path)
   if not mod_init_fn then
     log.error("compiling mod '" .. mod_id .. "': " .. tostring(err))
     return false
   end
 
-  -- add mod env
-  local mod_env = sandbox.create_env(mod_data)
   setfenv(mod_init_fn, mod_env)
 
   -- exec
@@ -115,12 +116,11 @@ function loader.reload_mods()
     -- clear lua registries
     registries.clear_mod(mod_id)
 
-    local target_prefix = "mods." .. mod_id
-
-    for mod_name in pairs(package.loaded) do
-      if mod_name:match("^" .. target_prefix) then
-        package.loaded[mod_name] = nil
-        log.info("Unloaded: " .. mod_name)
+    -- unload requires (submodules)
+    for module_name in pairs(package.loaded) do
+      if module_name:match("^" .. mod_data.keys.base) then
+        package.loaded[module_name] = nil
+        log.info("Unloaded: " .. module_name)
       end
     end
 

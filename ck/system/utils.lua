@@ -16,6 +16,26 @@ function utils.print_table(t, caller_log, indent)
   end
 end
 
+function utils.compile_chunk(content, name)
+  local chunk, error = loadstring(content, "@" .. name)
+  if not chunk then
+    return nil, debug.traceback(string.format("Syntax error compiling '%s':\n%s", name, error), 2)
+  end
+
+  return chunk
+end
+
+function utils.safe_exec_in_env(env, chunk, name)
+  setfenv(chunk, env)
+
+  local success, result = xpcall(chunk, debug.traceback)
+  if not success then
+    return false, string.format("Runtime error executing '%s':\n%s", name, result)
+  end
+
+  return true, result
+end
+
 function utils.shallow_copy(orig)
   if type(orig) ~= 'table' then return orig end
 

@@ -19,4 +19,9 @@ function mod_tools.exec_with_mod_context(mod_id, callback)
   return success
 end
 
+-- mods.game_time_extender.init -> ../mods/game_time_extender/init.lua
+function mod_tools.key_to_path(key)
+  return "../" .. key:gsub("%.", "/") .. ".lua"
+end
+
 return mod_tools
