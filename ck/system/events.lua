@@ -128,13 +128,13 @@ end
 function events.on_map_update(ticks)
   -- update live timers (timed events)
   local timers = require('ck.fallout2.timers')
-  for _, mod_id in ipairs (ck.active_mods) do
+  for _, mod_id in ipairs (ck.active_mods_list) do
     local mod_event_timers = registries.timer_categories.live[mod_id]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
   end
 
   -- handle map_update for lua objects
-  for _, mod_id in ipairs(ck.active_mods) do
+  for _, mod_id in ipairs(ck.active_mods_list) do
     for _, object in pairs(objects.registry[mod_id]) do
       if not object._handle_map_update then
         goto continue

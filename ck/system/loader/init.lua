@@ -101,6 +101,8 @@ end
 
 function loader.reload_mods()
   for _, mod_id in ipairs(reloadable_mods) do
+    local mod_data = ck.active_mods[mod_id]
+
     log.header("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
 
@@ -122,11 +124,11 @@ function loader.reload_mods()
       end
     end
 
-    local success = ffi.C.ck_dispatcher_load_mod(mod_id)
-
-    if success then
-      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")
-      ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
+    if loader.exec_mod(mod_data) then
+      if mod_data.manifest.type == 'gameplay' then
+        ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")
+        ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
+      end
     end
   end
 

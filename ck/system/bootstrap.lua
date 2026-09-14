@@ -8,10 +8,22 @@ local registries = require('ck.system.registries')
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
 -- Common global namespace
-ck = { active_mods = {}, loaded_libs = {}, log = require('ck.system.log') }
+ck = {
+  -- quick ref data table
+  active_mods = {},
+  -- flat list of loaded mods
+  active_mods_list = {},
+  -- mods sorted by type
+  active_mods_by_type = {},
+  -- list of loaded lib mods
+  loaded_libs = {},
+
+  log = require('ck.system.log')
+}
+
 for _, mod_type in ipairs(registries.mod_types) do
   -- reserve type table in global namespace
-  ck.active_mods[mod_type] = {}
+  ck.active_mods_by_type[mod_type] = {}
 
   -- add type to a hash table for faster checks
   bootstrap.mod_types_hash_table[mod_type] = true
@@ -76,16 +88,23 @@ function bootstrap.bootstrap()
     manifest.id   = manifest.id or mod_id
     manifest.name = manifest.name or manifest.id
 
-    table.insert(ck.active_mods[manifest.type], { id = manifest.id, manifest = manifest, paths = mod_paths })
+    local mod_data = { id = manifest.id, manifest = manifest, paths = mod_paths }
+
+    -- update type categories
+    table.insert(ck.active_mods_by_type[manifest.type], mod_data)
+    -- update flat list
+    table.insert(ck.active_mods_list, manifest.id)
+    -- update quick ref data table
+    ck.active_mods[manifest.id] = mod_data
   end
 
   for index, mod_type in ipairs(registries.mod_load_sequence_by_type) do
-    local mods_by_type = ck.active_mods[mod_type]
+    local mods_by_type = ck.active_mods_by_type[mod_type]
 
     if mods_by_type and #mods_by_type > 0 then
       log.header("Loading sequence #[%d]: %s", index, mod_type)
 
-      for _, mod_data in ipairs(ck.active_mods[mod_type]) do
+      for _, mod_data in ipairs(ck.active_mods_by_type[mod_type]) do
         log.info("Loading mod_id: [%s]", mod_data.id)
         loader.exec_mod(mod_data)
       end
