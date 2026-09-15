@@ -50,17 +50,6 @@ events.handlers = {
   end
 }
 
--- #register is implicitly called by mod when calling #on
--- defined in sandbox.lua
-function events.register(mod_id, event_name, callback)
-  if not events.listeners[mod_id][event_name] then
-    log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
-    return false
-  end
-
-  table.insert(events.listeners[mod_id][event_name], callback)
-end
-
 function events.emit_for_mod(mod_id, event_name, ...)
   local mod_entries = events.listeners[mod_id]
   local callbacks = mod_entries and mod_entries[event_name]
@@ -185,8 +174,18 @@ function events.emit(event_name, ...)
   end
 end
 
+function events.register(mod_id, event_name, callback)
+  if not events.listeners[mod_id][event_name] then
+    log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
+    return false
+  end
+
+  table.insert(events.listeners[mod_id][event_name], callback)
+end
+
 function events.on(event_name, callback)
-  local mod_id = ffi.C.ck_get_current_mod_id()
+  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+
   events.register(mod_id, event_name, callback)
 end
 

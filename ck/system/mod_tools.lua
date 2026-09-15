@@ -3,6 +3,14 @@ local log = ck.log.new('mods.lua')
 
 local mod_tools = {}
 
+function mod_tools.current_mod_id()
+  local mod_id = ffi.C.ck_get_current_mod_id()
+
+  if mod_id == nil then return nil end
+
+  return ffi.string(mod_id)
+end
+
 function mod_tools.exec_with_mod_context(mod_id, callback)
   ffi.C.ck_set_current_mod_context(mod_id)
   local success, result = xpcall(callback, debug.traceback)
