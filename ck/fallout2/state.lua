@@ -9,26 +9,30 @@ local log   = ck.log.new('state.lua')
 
 state.create_mod_table = function()
   local mod_namespace = {}
-  for _, key in ipairs (registries.state_mod_namespace_keys) do
-    mod_namespace[key] = {}
-  end
+
+  setmetatable(mod_namespace, {
+    __index = function(self, key)
+      if registries.state_mod_namespace_keys_lookup[key] then
+        local sub_table = {}
+        rawset(self, key, sub_table)
+        return sub_table
+      end
+    end
+  })
 
   return mod_namespace
 end
 
 state.create_map_table = function()
   local map = {}
-
   setmetatable(map, {
     __index = function(self, mod_id)
-      -- when requested state.db.maps[map_id][mod_id]
-      -- ensure valid structure
-      local mod_namespace = state.create_mod_table()
-      rawset(self, mod_id, mod_namespace)
-      return mod_namespace
+      return state.create_mod_table()
+    end,
+    __newindex = function(self, mod_id, value)
+      rawset(self, mod_id, value)
     end
   })
-
   return map
 end
 
@@ -38,12 +42,11 @@ local db_init_state = {
   ["proto_list"] = {},
   ["maps"]   = setmetatable({}, {
     __index = function(self, map_id)
-      local map_namespace = state.create_map_table()
-      rawset(self, map_id, map_namespace)
-      return map_namespace
+      return state.create_map_table()
     end
   })
 }
+
 state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
 
 -- gets marshalld json -> lua from backend
@@ -67,14 +70,23 @@ local relevant_timers_tag_list  = {}
 function state.sync_save()
   if ck.map_id == -1 then return state.db end
 
-  local current_map = state.db.maps[ck.map_id] or state.create_map_table()
-
-  log.header("MODS")
+  log.header("mods list:")
   utils.print_table(ck.active_mods_list, log)
+
+  local current_map = rawget(state.db.maps, ck.map_id)
+
+  if not current_map then
+    log.header("Nothing to save on a map")
+    return state.db
+  end
 
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods_list) do
-    local mod_map_db = current_map[mod_id] or state.create_mod_table()
+    local mod_map_db = rawget(current_map, mod_id)
+    if (mod_map_db == nil) then
+      log.debug("Mod [%s] has nothing to save on a map", mod_id)
+      goto continue
+    end
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
@@ -111,7 +123,7 @@ function state.sync_save()
     -- [Garbage collection] ✨
     -- removes elements outside allowed scope
     for key in pairs(mod_map_db) do
-      if key ~= "objects" and key ~= "timers" then
+      if not registries.state_mod_namespace_keys_lookup[key] then
         mod_map_db[key] = nil
       end
     end
@@ -140,6 +152,8 @@ function state.sync_save()
     if next(mod_map_db.objects) == nil and next(mod_map_db.timers) == nil then
       current_map[mod_id] = nil
     end
+
+    ::continue::
   end
 
   -- Garbage Collection ✨

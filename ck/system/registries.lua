@@ -9,7 +9,10 @@ local registries = {
   -- state.db.maps[map_id][mod_id] structure (keys flat list)
   state_mod_namespace_keys = { "objects", "timers" },
   -- quick ref table
-  state_mod_namespace_keys_lookup = { objects = true, timers = true },
+  state_mod_namespace_keys_lookup = {}
+  for _, key in iprairs(state_mod_namespace_keys) do
+    state_mod_namespace_keys_lookup[key] = true
+  end
 
   -- Mod specific
   -- ck/system/events.lua

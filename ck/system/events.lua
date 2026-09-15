@@ -159,16 +159,8 @@ function events.map_exit()
   events.clear_registries()
 end
 
--- Makes sure state db tables are initialized
--- Updates global map-related meta
 -- Runs before mod's map_enter callback
 function events.before_map_enter(mod_id, map_id)
-  -- state.db.maps[map_id] = state.db.maps[map_id] or {}
-  -- state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
-  -- local mod_table = state.db.maps[map_id][mod_id]
-  --
-  -- mod_table.objects = mod_table.objects or {}
-  -- mod_table.timers  = mod_table.timers or {}
 end
 
 function events.after_map_enter(mod_id, map_id)
