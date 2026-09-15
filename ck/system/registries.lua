@@ -9,10 +9,7 @@ local registries = {
   -- state.db.maps[map_id][mod_id] structure (keys flat list)
   state_mod_namespace_keys = { "objects", "timers" },
   -- quick ref table
-  state_mod_namespace_keys_lookup = {}
-  for _, key in iprairs(state_mod_namespace_keys) do
-    state_mod_namespace_keys_lookup[key] = true
-  end
+  state_mod_namespace_keys_lookup = {},
 
   -- Mod specific
   -- ck/system/events.lua
@@ -32,6 +29,10 @@ local registries = {
   spawn_counters = {},
   relevant_critter_tags = {}
 }
+
+for _, key in ipairs(registries.state_mod_namespace_keys) do
+  registries.state_mod_namespace_keys_lookup[key] = true
+end
 
 local available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
   'onDayPassed', 'onHourPassed', 'time_advance',

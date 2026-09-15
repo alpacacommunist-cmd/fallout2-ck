@@ -18,7 +18,6 @@ local assets      = require("ck.fallout2.assets")
 local sfx         = require('ck.fallout2.sound_sfx')
 local objects     = require('ck.fallout2.objects')
 local timers      = require('ck.fallout2.timers')
-local i18n        = require('ck.fallout2.i18n')
 
 local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
@@ -120,8 +119,8 @@ events.on('map_enter', function(map_id)
   local alice = critters.register("alice_arroyo", 16777255, 19908, {
     stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
     skills = { small_guns = 200 },
-    name        = i18n.t('arroyo_expanded', 'alice_name'),
-    description = i18n.t('arroyo_expanded', 'alice_description'),
+    name        = 'Алиса', -- i18n.t('alice_name'),
+    description = 'Алиса', -- i18n.t('alice_description'),
     ai_packet = 'Merc Captain',
     script_index = 8,
     team = 0

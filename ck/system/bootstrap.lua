@@ -18,6 +18,8 @@ ck = {
   -- list of loaded lib mods
   loaded_libs = {},
 
+  language = 'english',
+
   log = require('ck.system.log')
 }
 
@@ -63,6 +65,11 @@ end
 ----
 -- Module code
 ----
+function bootstrap.set_language(language)
+  ck.language = language
+  log.header("Language set to [%s]", ck.language)
+end
+
 function bootstrap.bootstrap()
   log.info("Bootstrapping active mods...")
 

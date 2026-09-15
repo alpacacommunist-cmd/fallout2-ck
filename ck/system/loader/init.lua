@@ -5,7 +5,6 @@ local utils = require('ck.system.utils')
 local sandbox = require('ck.system.loader.sandbox')
 
 local assets    = require('ck.fallout2.assets')
-local i18n      = require('ck.fallout2.i18n')
 
 local registries = require('ck.system.registries')
 local mod_tools  = require('ck.system.mod_tools')
@@ -26,7 +25,7 @@ local function apply_manifest(manifest)
   end
 
   if manifest.locale then
-    i18n.register(manifest.id, manifest.locale)
+    -- i18n.register(manifest.id, manifest.locale)
   end
 end
 

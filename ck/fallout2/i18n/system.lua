@@ -31,5 +31,4 @@ system.translations = {
   }
 }
 
-
 return system

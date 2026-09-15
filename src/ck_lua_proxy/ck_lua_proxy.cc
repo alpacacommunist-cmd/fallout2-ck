@@ -33,6 +33,7 @@ namespace ck::proxy::detail {
 struct LuaHookBinding { std::string_view module_name; std::string_view function_name; int* target_ref; };
 const std::array<LuaHookBinding, 16> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
+	{ "ck.system.bootstrap",   "set_language",          &ck::proxy::detail::set_language },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },
@@ -46,8 +47,7 @@ const std::array<LuaHookBinding, 16> hooks = {{
 	{ "ck.fallout2.state",     "receive_proto_list",    &ck::proxy::detail::receive_proto_list },
 	{ "ck.fallout2.state",     "sync_load",             &ck::proxy::detail::state_sync_load },
 	{ "ck.fallout2.state",     "sync_save",             &ck::proxy::detail::state_sync_save },
-	{ "ck.fallout2.knowledge", "sync",                  &ck::proxy::detail::knowledge_sync },
-	{ "ck.fallout2.i18n",      "set_language",          &ck::proxy::detail::set_language }
+	{ "ck.fallout2.knowledge", "sync",                  &ck::proxy::detail::knowledge_sync }
 }};
 
 static int cache_module_function(const char* module_name, const char* function_name) {
