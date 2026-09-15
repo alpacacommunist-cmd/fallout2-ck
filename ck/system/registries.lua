@@ -5,6 +5,12 @@ local registries = {
   mod_types = { "gameplay", "library" },
   mod_load_sequence_by_type = { "library", "gameplay" },
 
+  -- state.lua
+  -- state.db.maps[map_id][mod_id] structure (keys flat list)
+  state_mod_namespace_keys = { "objects", "timers" },
+  -- quick ref table
+  state_mod_namespace_keys_lookup = { objects = true, timers = true },
+
   -- Mod specific
   -- ck/system/events.lua
   events  = {},

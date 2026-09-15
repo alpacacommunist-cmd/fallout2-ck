@@ -1,16 +1,17 @@
 -- ck/fallout2/events.lua
-local unpack = table.unpack or unpack
 local ffi = require("ffi")
+local utils = require('ck.system.utils')
 
 -- local vzone = require("jit.v")
 -- vzone.start("jit_profile.log")
 
 local registries = require('ck.system.registries')
 
-local proto   = require('ck.fallout2.proto')
+local proto = require('ck.fallout2.proto')
+local state = require('ck.fallout2.state')
+local timers = require('ck.fallout2.timers')
 
 local log     = ck.log.new('events.lua')
-local utils   = require('ck.system.utils')
 
 local object_ffi = require('ck.fallout2.classes.object_ffi')
 
@@ -122,7 +123,6 @@ end
 -- interval is set in ck_dispatcher.cc
 function events.on_map_update(ticks)
   -- update live timers (timed events)
-  local timers = require('ck.fallout2.timers')
   for _, mod_id in ipairs (ck.active_mods_list) do
     local mod_event_timers = registries.timer_categories.live[mod_id]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
@@ -153,7 +153,6 @@ function events.map_exit()
   ck.map_enter_through_game_load = ffi.C.ck_game_is_loading()
 
   if not ck.map_enter_through_game_load then
-    local state = require('ck.fallout2.state')
     state.sync_save()
   end
 
@@ -164,15 +163,12 @@ end
 -- Updates global map-related meta
 -- Runs before mod's map_enter callback
 function events.before_map_enter(mod_id, map_id)
-  -- make sure mod state tables exist
-  local state = require('ck.fallout2.state')
-
-  state.db.maps[map_id] = state.db.maps[map_id] or {}
-  state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
-  local mod_table = state.db.maps[map_id][mod_id]
-
-  mod_table.objects = mod_table.objects or {}
-  mod_table.timers  = mod_table.timers or {}
+  -- state.db.maps[map_id] = state.db.maps[map_id] or {}
+  -- state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
+  -- local mod_table = state.db.maps[map_id][mod_id]
+  --
+  -- mod_table.objects = mod_table.objects or {}
+  -- mod_table.timers  = mod_table.timers or {}
 end
 
 function events.after_map_enter(mod_id, map_id)
@@ -186,8 +182,6 @@ function events.after_map_enter(mod_id, map_id)
 end
 
 function events.after_time_advance(mod_id)
-  local timers = require('ck.fallout2.timers')
-
   local mod_event_timers = registries.timer_categories.evented[mod_id]["time_advance"]
   timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
 end

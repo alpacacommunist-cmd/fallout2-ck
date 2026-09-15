@@ -7,11 +7,42 @@ local registries = require('ck.system.registries')
 local state = {}
 local log   = ck.log.new('state.lua')
 
+state.create_mod_table = function()
+  local mod_namespace = {}
+  for _, key in ipairs (registries.state_mod_namespace_keys) do
+    mod_namespace[key] = {}
+  end
+
+  return mod_namespace
+end
+
+state.create_map_table = function()
+  local map = {}
+
+  setmetatable(map, {
+    __index = function(self, mod_id)
+      -- when requested state.db.maps[map_id][mod_id]
+      -- ensure valid structure
+      local mod_namespace = state.create_mod_table()
+      rawset(self, mod_id, mod_namespace)
+      return mod_namespace
+    end
+  })
+
+  return map
+end
+
 local db_init_state = {
   ["global"] = {},
   ["player"] = { knowledge = {} },
-  ["maps"] = {},
-  ["proto_list"] = {}
+  ["proto_list"] = {},
+  ["maps"]   = setmetatable({}, {
+    __index = function(self, map_id)
+      local map_namespace = state.create_map_table()
+      rawset(self, map_id, map_namespace)
+      return map_namespace
+    end
+  })
 }
 state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
 
@@ -36,15 +67,14 @@ local relevant_timers_tag_list  = {}
 function state.sync_save()
   if ck.map_id == -1 then return state.db end
 
-  state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
-  local current_map = state.db.maps[ck.map_id]
+  local current_map = state.db.maps[ck.map_id] or state.create_map_table()
 
   log.header("MODS")
   utils.print_table(ck.active_mods_list, log)
 
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods_list) do
-    local mod_map_db = current_map[mod_id]
+    local mod_map_db = current_map[mod_id] or state.create_mod_table()
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
