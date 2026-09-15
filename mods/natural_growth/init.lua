@@ -1,3 +1,4 @@
+local events  = require('ck.system.events')
 local skills  = require('ck.fallout2.objects.critters.skills')
 local player  = require('ck.fallout2.player')
 local monitor = require('ck.fallout2.monitor')

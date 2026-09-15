@@ -1,6 +1,5 @@
 -- ck/fallout2/loader/sandbox.lua
 local utils = require('ck.system.utils')
-local core_events = require('ck.system.events')
 local log = ck.log.new('sandbox.lua')
 
 local sandbox = {}
@@ -8,18 +7,10 @@ local sandbox = {}
 sandbox.handlers = {
   -- 📦 libs
   library = function(env, mod_folder, manifest)
-    -- Nothing here for now
-    -- Just the basic env
   end,
 
   -- 🎮 gameplay
   gameplay = function(env, mod_folder, manifest)
-    -- events override
-    env.events = setmetatable({}, { __index = core_events })
-
-    function env.events.on(event_name, callback)
-      core_events.register(manifest.id, event_name, callback)
-    end
   end
 }
 
@@ -51,11 +42,6 @@ function sandbox.create_env(mod_data)
     -- relative requires (as in require('.outskirts') instead of require('temple_of_trials.outskirts')
     if target_name:sub(1, 1) == "." then
       target_name = mod_data.keys.base .. target_name
-    end
-
-    -- replace explicit require from mod to proxied version
-    if target_name == "ck.fallout2.events" and env.events then
-      return env.events
     end
 
     -- check if module is loaded

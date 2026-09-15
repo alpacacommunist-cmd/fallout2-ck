@@ -185,8 +185,9 @@ function events.emit(event_name, ...)
   end
 end
 
--- Public mod API, mod gets sandboxed version from sandbox.lua
 function events.on(event_name, callback)
+  local mod_id = ffi.C.ck_get_current_mod_id()
+  events.register(mod_id, event_name, callback)
 end
 
 return events

@@ -1,4 +1,5 @@
 -- mods/temple_of_trials/init.lua
+local events    = require('ck.system.events')
 local map       = require('ck.fallout2.map')
 local assets    = require('ck.fallout2.assets')
 local critters  = require('ck.fallout2.objects.critters')
