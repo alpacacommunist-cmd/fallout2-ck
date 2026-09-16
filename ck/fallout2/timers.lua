@@ -45,8 +45,8 @@ timers.generate_timer_id = function(mod_id)
   return mod_id .. "_timer_" .. count
 end
 
-local function exec_timer_callback(mod_id, callback)
-  return mod_tools.exec_with_mod_context(mod_id, callback)
+local function exec_timer_callbacks(mod_id, callbacks)
+  return mod_tools.exec_with_mod_context(mod_id, callbacks)
 end
 
 -- removes timer from categories (timers.categories) (flat list)
@@ -110,7 +110,7 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
     tag = tag,
     ticks = ticks,
     timer_type = timer_type,
-    callback = callback,
+    callbacks = type(callback) == "function" and { callback } or {},
     events_list = {},
     created_at = current_time
   }
@@ -172,7 +172,7 @@ timers.check_timers = function(collection, ticks, mod_id)
     local timer     = timers.registry[mod_id][timer_tag]
 
     if ticks >= (timer.created_at + timer.ticks) then
-      exec_timer_callback(timer.mod_id, timer.callback)
+      exec_timer_callbacks(timer.mod_id, timer.callbacks)
 
       if timer.timer_type == "one_time" then
         -- remove from registry
