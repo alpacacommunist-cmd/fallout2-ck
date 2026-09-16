@@ -114,6 +114,8 @@ events.on('map_enter', function(map_id)
     { "map_enter", "time_advance" }
   )
 
+  timers.add_callback(test_timer, function() monitor.print("__callback2 map_id: " .. tostring(map_id)) end)
+
   knowledge.grant(KN_SCORPION_HARVEST)
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341

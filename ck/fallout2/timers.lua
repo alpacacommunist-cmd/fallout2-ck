@@ -88,6 +88,17 @@ timers.remove = function(tag)
   return true
 end
 
+timers.add_callback = function(tag, callback)
+  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local timer  = timers.registry[mod_id][tag]
+
+  if not timer or type(callback) ~= "function" then return false end
+
+  table.insert(timer.callbacks, callback)
+
+  return true
+end
+
 -- Map context timers, on map exit timers.registry is cleared
 -- (last exec times are written to state db in state.sync_save)
 timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
@@ -159,7 +170,7 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
   end
 
   timers.registry[mod_id][tag] = timer
-  return true
+  return timer.tag
 end
 
 timers.check_timers = function(collection, ticks, mod_id)
