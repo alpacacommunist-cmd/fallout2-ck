@@ -26,8 +26,9 @@ local registries = {
   timer_categories = { live = {}, evented = {} },
 
   -- ck/fallout2/critters.lua 🦂
-  spawn_counters = {},
-  relevant_critter_tags = {}
+  critter_spawn_counters = {},
+  critter_respawns = {},
+  critter_relevant_tags = {}
 }
 
 for _, key in ipairs(registries.state_mod_namespace_keys) do
@@ -60,8 +61,9 @@ function registries.init_mod(mod_id)
   registries.timer_categories.evented[mod_id] = {}
 
   -- 🦂
-  registries.spawn_counters[mod_id] = 0
-  registries.relevant_critter_tags[mod_id] = {}
+  registries.critter_spawn_counters[mod_id] = 0
+  registries.critter_respawns[mod_id] = {}
+  registries.critter_relevant_tags[mod_id] = {}
 end
 
 function registries.clear_mod(mod_id)
@@ -85,8 +87,9 @@ function registries.clear_mod(mod_id)
   registries.timer_categories.evented[mod_id] = nil
 
   -- 🦂
-  registries.spawn_counters[mod_id] = nil
-  registries.relevant_critter_tags[mod_id] = nil
+  registries.critter_spawn_counters[mod_id] = nil
+  registries.critter_respawns[mod_id] = nil
+  registries.critter_relevant_tags[mod_id] = nil
 end
 
 function registries.reset_map_context()
@@ -102,8 +105,9 @@ function registries.reset_map_context()
     registries.timer_categories.evented[mod_id] = {}
 
     -- 🦂
-    registries.spawn_counters[mod_id] = 0
-    registries.relevant_critter_tags[mod_id] = {}
+    registries.critter_spawn_counters[mod_id] = 0
+    registries.critter_respawns[mod_id] = {}
+    registries.critter_relevant_tags[mod_id] = {}
   end
 end
 

@@ -140,7 +140,7 @@ function state.sync_save()
     -- [Garbage Collection] ✨
     -- removes obsolete object tags
     for tag in pairs(mod_map_db.objects) do
-      if not registries.relevant_critter_tags[mod_id][tag] then
+      if not registries.critter_relevant_tags[mod_id][tag] then
         log.debug("GC: Removing obsolete critter tag '%s' from mod '%s'", tag, mod_id)
         mod_map_db.objects[tag] = nil
       end
