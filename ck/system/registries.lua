@@ -1,3 +1,5 @@
+local ck = require('ck')
+
 local registries = {
   --🎮📦
   -- Common

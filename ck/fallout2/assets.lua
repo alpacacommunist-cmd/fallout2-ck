@@ -1,6 +1,6 @@
 local assets = {}
 
-local log = ck.log.new('assets.lua')
+local log = require('ck.system.log').new('assets.lua')
 local ffi = require('ffi')
 
 local path_to_fid_cache = {}

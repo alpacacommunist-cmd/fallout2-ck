@@ -1,8 +1,9 @@
 -- ck/fallout2/timers.lua
-local ffi = require("ffi")
+local ck = require('ck')
+local ffi = require('ffi')
+
 local game_time = require('ck.fallout2.game_time')
 local utils = require('ck.system.utils')
-local mod_tools = require('ck.system.mod_tools')
 
 local registries = require('ck.system.registries')
 
@@ -46,7 +47,7 @@ timers.generate_timer_id = function(mod_id)
 end
 
 local function exec_timer_callbacks(mod_id, callbacks)
-  return mod_tools.exec_with_mod_context(mod_id, callbacks)
+  return ck.tools.exec_with_mod_context(mod_id, callbacks)
 end
 
 -- removes timer from categories (timers.categories) (flat list)

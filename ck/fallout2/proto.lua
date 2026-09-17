@@ -1,5 +1,5 @@
 local ffi = require("ffi")
-local log = ck.log.new('proto.lua')
+local log = require('ck.system.log').new('proto.lua')
 
 local proto = {}
 

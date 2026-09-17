@@ -4,7 +4,7 @@ local ffi = require("ffi")
 
 
 local state = require('ck.fallout2.state')
-local log   = ck.log.new('CK Quests')
+local log   = require('ck.system.log').new('CK Quests')
 
 local quests = {}
 

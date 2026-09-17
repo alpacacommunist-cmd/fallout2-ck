@@ -178,6 +178,8 @@ events.on('map_enter', function(map_id)
   villager3:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
 
+  critters.register_respawn_timer()
+
   radscorpion1 = critters.create(16777221, 27916, { team = 2 })
   radscorpion2 = critters.create(16777221, 28513, { team = 2 })
 

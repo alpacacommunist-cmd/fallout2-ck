@@ -1,5 +1,5 @@
 local ffi = require('ffi')
-local log = ck.log.new('sound_sfx.lua')
+local log = require('ck.system.log').new('sound_sfx.lua')
 
 local sfx = {}
 

@@ -1,7 +1,7 @@
 local ffi   = require("ffi")
 local utils = require('ck.system.utils')
 
-local log   = ck.log.new('classes/critter.lua')
+local log   = require('ck.system.log').new('classes/critter.lua')
 
 local dialogs   = require('ck.fallout2.dialogs')
 local monitor   = require('ck.fallout2.monitor')

@@ -1,5 +1,5 @@
 local ffi = require("ffi")
-local log = ck.log.new('mods.lua')
+local log = require('ck.system.log').new('mods.lua')
 
 local mod_tools = {}
 

@@ -1,4 +1,5 @@
-local ffi = require("ffi")
+local ck = require('ck')
+local ffi = require('ffi')
 
 local log = ck.log.new('classes/object')
 local utils = require('ck.system.utils')

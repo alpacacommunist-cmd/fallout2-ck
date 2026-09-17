@@ -25,6 +25,6 @@ local objects = {
   }
 }
 
-local log = ck.log.new('objects/init.lua')
+local log = require('ck.system.log').new('objects/init.lua')
 
 return objects

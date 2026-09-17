@@ -5,7 +5,7 @@ local utils = require('ck.system.utils')
 local registries = require('ck.system.registries')
 
 local state = {}
-local log   = ck.log.new('state.lua')
+local log   = require('ck.system.log').new('state.lua')
 
 state.create_mod_table = function()
   local mod_namespace = {}

@@ -1,8 +1,18 @@
 -- ck/fallout2/loader/sandbox.lua
+local ck = require('ck')
 local utils = require('ck.system.utils')
-local log = ck.log.new('sandbox.lua')
+local log   = ck.log.new('sandbox.lua')
 
 local sandbox = {}
+
+local safe_globals = {
+  print = print, pairs = pairs, ipairs = ipairs, next = next,
+  tostring = tostring, tonumber = tonumber, type = type,
+  select = select, pcall = pcall, xpcall = xpcall, error = error,
+  assert = assert,
+
+  string = string, table = table, math = math, bit = bit
+}
 
 sandbox.handlers = {
   -- 📦 libs
@@ -15,7 +25,7 @@ sandbox.handlers = {
 }
 
 function sandbox.create_env(mod_data)
-  local env = setmetatable({}, { __index = _G })
+  local env = setmetatable({}, { __index = safe_globals })
   local manifest = mod_data.manifest
 
   env.__manifest = manifest
@@ -27,6 +37,12 @@ function sandbox.create_env(mod_data)
   ------ require
   ---------------------------------------------------------------
   function env.require(target_name)
+    if target_name == "ck.init" or target_name == "ck" then
+      return ck.public
+    end
+
+    if target_name == 'ffi' then return nil end
+
     -- mod libs
     if target_name:match("^ck%.libs%.") then
       local lib_id = target_name:gsub("^ck%.libs%.", "")
@@ -56,6 +72,8 @@ function sandbox.create_env(mod_data)
       return _G.require(target_name)
     end
 
+    local is_system_module = target_name:match("^ck%.")
+
     -- read and compile
     local content = utils.read_file(loader_fn, log)
 
@@ -65,7 +83,11 @@ function sandbox.create_env(mod_data)
       error(trace)
     end
 
-    setfenv(chunk, env)
+    if is_system_module then
+      setfenv(chunk, _G)
+    else
+      setfenv(chunk, env)
+    end
 
     local success, result = xpcall(chunk, debug.traceback)
     if not success then

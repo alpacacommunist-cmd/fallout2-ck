@@ -1,5 +1,6 @@
 -- ck/system/loader/init.lua
-local ffi = require("ffi")
+local ffi = require('ffi')
+local ck  = require('ck')
 
 local utils = require('ck.system.utils')
 local sandbox = require('ck.system.loader.sandbox')
@@ -7,9 +8,8 @@ local sandbox = require('ck.system.loader.sandbox')
 local assets    = require('ck.fallout2.assets')
 
 local registries = require('ck.system.registries')
-local mod_tools  = require('ck.system.mod_tools')
 
-local log = ck.log.new('loader/init.lua')
+local log = require('ck.system.log').new('loader/init.lua')
 
 local reloadable_mods = {
   "arroyo_expanded",
@@ -37,7 +37,7 @@ loader.handlers = {
     registries.init_mod(mod_id)
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
-    local success = mod_tools.exec_with_mod_context(mod_id, mod_init_fn)
+    local success = ck.tools.exec_with_mod_context(mod_id, mod_init_fn)
 
     if not success then
       registries.clear_mod(mod_id)
@@ -80,7 +80,7 @@ function loader.exec_mod(mod_data)
   local mod_env = sandbox.create_env(mod_data)
 
   -- filepath of mod's .init
-  local init_file_path = mod_tools.key_to_path(mod_data.keys.init)
+  local init_file_path = ck.tools.key_to_path(mod_data.keys.init)
 
   -- read file
   local content = utils.read_file(init_file_path, log)

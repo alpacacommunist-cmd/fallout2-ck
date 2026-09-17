@@ -3,7 +3,7 @@ local state = require('ck.fallout2.state')
 local assets = require('ck.fallout2.assets')
 
 local knowledge = {}
-local log       = ck.log.new('knowledge.lua')
+local log       = require('ck.system.log').new('knowledge.lua')
 
 knowledge.registry     = {}
 knowledge.player_state = state.db.player.knowledge

@@ -8,20 +8,11 @@ local registries = require('ck.system.registries')
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
 -- Common global namespace
-ck = {
-  -- quick ref data table
-  active_mods = {},
-  -- flat list of loaded mods
-  active_mods_list = {},
-  -- mods sorted by type
-  active_mods_by_type = {},
-  -- list of loaded lib mods
-  loaded_libs = {},
+local ck  = require('ck')
+local log = ck.log.new('bootstrap.lua')
 
-  language = 'english',
-
-  log = require('ck.system.log')
-}
+local ffi = require('ck.system.ffi_api')
+local loader = require('ck.system.loader')
 
 for _, mod_type in ipairs(registries.mod_types) do
   -- reserve type table in global namespace
@@ -30,11 +21,6 @@ for _, mod_type in ipairs(registries.mod_types) do
   -- add type to a hash table for faster checks
   bootstrap.mod_types_hash_table[mod_type] = true
 end
-
-local ffi = require('ck.system.ffi_api')
-local loader = require('ck.system.loader')
-
-local log = ck.log.new('bootstrap.lua')
 
 ----
 -- Local helper functions

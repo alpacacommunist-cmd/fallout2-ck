@@ -2,7 +2,7 @@
 local ffi = require("ffi")
 
 local utils = require('ck.system.utils')
-local log   = ck.log.new('game_time.lua')
+local log   = require('ck.system.log').new('game_time.lua')
 
 local game_time = {}
 

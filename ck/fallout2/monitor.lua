@@ -3,7 +3,7 @@
 local monitor = {}
 
 local ffi = require('ffi')
-local log = ck.log.new('minitor.log')
+local log = require('ck.system.log').new('minitor.log')
 
 function monitor.print(message)
   log.debug(message)

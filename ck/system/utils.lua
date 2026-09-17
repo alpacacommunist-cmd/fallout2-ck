@@ -1,5 +1,7 @@
+local ck = require('ck')
+local log = ck.log.new('system/utils.lua')
+
 local utils = {}
-local log   = ck.log.new('system/utils.lua')
 
 function utils.print_table(t, context_log, indent)
   indent = indent or 0

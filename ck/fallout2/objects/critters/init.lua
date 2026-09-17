@@ -1,13 +1,13 @@
-local ffi = require("ffi")
-
-local log = ck.log.new('objects/critters.lua')
+local ck = require('ck')
+local ffi = require('ffi')
 local utils = require('ck.system.utils')
 
 local registries = require('ck.system.registries')
 
 local CritterClass = require('ck.fallout2.classes.critter')
 local CritterProto = require('ck.fallout2.classes.critter_proto')
-local map          = require('ck.fallout2.map')
+
+local log = ck.log.new('objects/critters.lua')
 
 local critters = {}
 
@@ -49,10 +49,22 @@ function critters.allocate_prototype(pid, config)
   return CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
 end
 
+function critters.register_respawn_timer(tag, ticks, config)
+  if tag and utils.is_blank(tag) then tag = nil end
+
+  if tag == nil then
+    log.error("register_respawn_timer expects valid tag name")
+    return nil
+  end
+
+  local mod_id = ck.tools.current_mod_id()
+  local timers = require('ck.fallout2.timers')
+end
+
 --- args tracer
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 function critters.register(tag, pid, tile, config)
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local mod_id = ck.tools.current_mod_id()
 
   -- Check if tag is blank, treat it as nil
   if tag and utils.is_blank(tag) then tag = nil end

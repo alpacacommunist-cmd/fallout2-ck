@@ -1,5 +1,6 @@
 -- ck/fallout2/events.lua
-local ffi = require("ffi")
+local ck  = require('ck')
+local ffi = require('ffi')
 local utils = require('ck.system.utils')
 
 -- local vzone = require("jit.v")
@@ -10,10 +11,9 @@ local registries = require('ck.system.registries')
 local proto = require('ck.fallout2.proto')
 local state = require('ck.fallout2.state')
 local timers = require('ck.fallout2.timers')
-
-local log     = ck.log.new('events.lua')
-
 local object_ffi = require('ck.fallout2.classes.object_ffi')
+
+local log = ck.log.new('events.lua')
 
 local events = {}
 events.listeners = registries.events

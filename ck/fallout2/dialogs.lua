@@ -1,6 +1,6 @@
 -- ck/fallout2/dialog.lua
 local ffi = require("ffi")
-local log = ck.log.new('CK Dialogue')
+local log = require('ck.system.log').new('CK Dialogue')
 
 local registries = require("ck.system.registries")
 
