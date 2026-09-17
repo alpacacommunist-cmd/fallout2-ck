@@ -9,10 +9,6 @@ local path_to_fid_cache = {}
 function assets.resolve(asset_string, art_type)
   art_type = art_type or 6
 
-  if path_to_fid_cache[asset_string] then
-    return path_to_fid_cache[asset_string]
-  end
-
   local asset_mod_id, resource_path = asset_string:match("([^:]+):(.+)")
   -- assume local asset
   if not asset_mod_id or not resource_path then
@@ -26,6 +22,12 @@ function assets.resolve(asset_string, art_type)
     resource_path = resource_path .. ".frm"
   end
 
+  local full_cache_key = string.format("%s:%s", asset_mod_id, resource_path)
+
+  if path_to_fid_cache[full_cache_key] then
+    return path_to_fid_cache[full_cache_key]
+  end
+
   local full_path = string.format("../mods/%s/assets/%s", asset_mod_id, resource_path)
 
   local assigned_frm_id = ffi.C.ck_assets_register_path(full_path)
@@ -35,7 +37,7 @@ function assets.resolve(asset_string, art_type)
 
   local fid = ffi.C.ck_ids_make_ck_fid(assigned_frm_id, art_type)
 
-  path_to_fid_cache[asset_string] = fid
+  path_to_fid_cache[full_cache_key] = fid
 
   log.debug("Resolved '%s' -> FID: 0x%X (Path: %s)", asset_string, fid, full_path)
 
