@@ -1,7 +1,8 @@
 local assets = {}
 
-local log = require('ck.system.log').new('assets.lua')
+local ck = require('ck')
 local ffi = require('ffi')
+local log = ck.log.new('assets.lua')
 
 local path_to_fid_cache = {}
 
@@ -12,9 +13,11 @@ function assets.resolve(asset_string, art_type)
     return path_to_fid_cache[asset_string]
   end
 
-  local mod_id, resource_path = asset_string:match("([^:]+):(.+)")
-  if not mod_id or not resource_path then
-    error("Invalid asset string format: " .. tostring(asset_string))
+  local asset_mod_id, resource_path = asset_string:match("([^:]+):(.+)")
+  -- assume local asset
+  if not asset_mod_id or not resource_path then
+    asset_mod_id  = ck.tools.current_mod_id()
+    resource_path = asset_string
   end
 
   resource_path = string.lower(resource_path)
@@ -23,7 +26,7 @@ function assets.resolve(asset_string, art_type)
     resource_path = resource_path .. ".frm"
   end
 
-  local full_path = string.format("../mods/%s/assets/%s", mod_id, resource_path)
+  local full_path = string.format("../mods/%s/assets/%s", asset_mod_id, resource_path)
 
   local assigned_frm_id = ffi.C.ck_assets_register_path(full_path)
   if assigned_frm_id == -1 then

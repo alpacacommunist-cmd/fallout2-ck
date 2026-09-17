@@ -122,7 +122,7 @@ events.on('map_enter', function(map_id)
   --   self:float_message('Denied', 2)
   -- end)
 
-  local asset = assets.resolve('temple_of_trials:scenery/tree10')
+  local asset = assets.resolve('scenery/tree10')
 
   map.batch.scenery(outskirts.mountain_scenery)
   map.batch.floor.tiles(outskirts.mountain_tiles)
@@ -130,7 +130,7 @@ events.on('map_enter', function(map_id)
   map.batch.clear(outskirts.remove_blockers)
   map.batch.blockers(outskirts.create_blockers)
 
-  map.tools.render.floor.brush(19472, 2, 0.3, {"temple_of_trials:tiles/grass01", "temple_of_trials:tiles/grass02"},
+  map.tools.render.floor.brush(19472, 2, 0.3, {"tiles/grass01", "tiles/grass02"},
     { type = "tile" })
   map.tools.objects.floor.brush(19472, 2, 0.3, {33555377, 33555378, 33555379})
 
@@ -140,9 +140,9 @@ events.on('map_enter', function(map_id)
     "   mm  mm   ",
     "GGG      GG "
   }, {
-    M = { assets = {"temple_of_trials:scenery/tree10"}, block = false },
-    m = { assets = {"temple_of_trials:scenery/tree11"}, block = false },
-    G = { assets = {"temple_of_trials:tiles/GRASS01"}, type = "tile" }
+    M = { assets = {"scenery/tree10"}, block = false },
+    m = { assets = {"scenery/tree11"}, block = false },
+    G = { assets = {"tiles/GRASS01"}, type = "tile" }
   })
 
   -- map.render.roof.tile(0x040005E5, 19487, 1)
