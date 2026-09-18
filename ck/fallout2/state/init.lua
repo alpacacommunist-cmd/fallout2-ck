@@ -2,11 +2,12 @@
 local ck    = require('ck')
 local ffi   = require('ffi')
 local utils = require('ck.system.utils')
+local state_gc = require('ck.fallout2.state.gc')
 
 local registries = require('ck.system.registries')
 
 local state = {}
-local log   = ck.log.new('state.lua')
+local log   = ck.log.new('state/init.lua')
 
 state.create_mod_table = function()
   local mod_namespace = {}
@@ -85,6 +86,11 @@ function state.sync_save()
     return state.db
   end
 
+  local context = {
+    current_map = current_map,
+    relevant_timers_tag_list = relevant_timers_tag_list
+  }
+
   -- check active mods
   log.header("GC:")
   for _, mod_id in ipairs(ck.active_mods_list) do
@@ -96,7 +102,7 @@ function state.sync_save()
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
-    local mod_timers = registries.timers[mod_id] or {}
+    local mod_timers = registries.timers[mod_id]
 
     for tag, timer in pairs(mod_timers) do
       mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
@@ -106,14 +112,12 @@ function state.sync_save()
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
-    local mod_objects = registries.objects[mod_id] or {}
+    local mod_objects = registries.objects[mod_id]
 
-    for _, object in ipairs(mod_objects) do
+    for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
       end
-
-      mod_map_db.objects[object.tag] = mod_map_db.objects[object.tag] or {}
 
       local object_state = mod_map_db.objects[object.tag]
 
@@ -126,60 +130,12 @@ function state.sync_save()
       ::continue::
     end
 
-    -- [Garbage collection] ✨
-    -- removes elements outside allowed scope
-    for key in pairs(mod_map_db) do
-      if not registries.state_mod_namespace_keys_lookup[key] then
-        log.debug("GC: Removing non-whitelisted mod namespace element: [%s]", key)
-        mod_map_db[key] = nil
-      end
-    end
-
-    -- [Garbage Collection] ✨
-    -- removes obsolete timers
-    for tag in pairs(mod_map_db.timers) do
-      if not relevant_timers_tag_list[tag] then
-        log.debug("GC: Removing obsolete timer tag '%s' from mod '%s'", tag, mod_id)
-        mod_map_db.timers[tag] = nil
-      end
-    end
-
-    -- [Garbage Collection] ✨
-    -- removes obsolete object tags
-    for tag in pairs(mod_map_db.objects) do
-      if not registries.critter_relevant_tags[mod_id][tag] then
-        log.debug("GC: Removing obsolete critter tag '%s' from mod '%s'", tag, mod_id)
-        mod_map_db.objects[tag] = nil
-      end
-    end
-
-    -- [Garbage collection] ✨
-    -- removes mod from map namespace if both timers and objects are empty
-    if next(mod_map_db.objects) == nil and next(mod_map_db.timers) == nil then
-      log.debug("GC: Removing maps[%d][%s] mod namespace", ck.map_id, mod_id)
-      current_map[mod_id] = nil
-    end
+    state_gc.purge_mod_namespace(mod_id, mod_map_db, context)
 
     ::continue::
   end
 
-  -- Garbage Collection ✨
-  -- removes map_id namespace if empty
-  if next(current_map) == nil then
-    log.debug("GC: Removing maps[%d]", ck.map_id)
-    state.db.maps[ck.map_id] = nil
-  end
-
-  for map_id, _ in pairs(state.db.maps) do
-    if map_id == ck.map_id then goto continue end
-
-    if not ffi.C.ck_config_is_map_savable(map_id) then
-      log.debug("GC: Removing 'saved=no' map[%d]", map_id)
-      state.db.maps[map_id] = nil
-    end
-
-    ::continue::
-  end
+  state_gc.purge_maps(state.db, context)
 
   log.header("state_table:")
   utils.print_table(state.db, log)
