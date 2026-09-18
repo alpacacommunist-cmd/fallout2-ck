@@ -122,7 +122,7 @@ namespace ck::critter {
 
         if (critter_alive) {
             fallout::Object* critter = create(pid, tile, spawn_params->elevation);
-            if (critter == nullptr) return lua_id;
+            if (critter == nullptr) return -1;
 
             if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
@@ -135,34 +135,24 @@ namespace ck::critter {
                 critter->data.critter.combat.team = spawn_params->team;
                 logger.debug("Assigned team ID: {} to critter {}", spawn_params->team, lua_tag);
             }
-        } else { // critter is dead
-            // Has no custom proto attributes, body is handled by fallout2-ce
-            if (!prototype_required) return -2;
 
-            fallout::Object* corpse = nullptr;
-            fallout::Object* object = fallout::objectFindFirstAtLocation(spawn_params->elevation, tile);
-
-            while (object != nullptr) {
-                if (object->id == state.id) {
-                    corpse = object;
-                    break;
-                }
-
-                object = fallout::objectFindNextAtLocation();
-            }
-
-            // Mod specifies custom name/description (for look_at/examine).
-            // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
-            // critter.cc (critterGetName(Object* obj)
-            if (corpse != nullptr) {
-                logger.debug("Critter {} is dead, corpse found", pid);
-                corpse->data.critter.radiation = pid;
-            }
-
-            return -3;
+            return lua_id;
         }
 
-        return lua_id;
+        // Has no custom proto attributes, body is handled by fallout2-ce
+        if (!prototype_required) return -2;
+
+        fallout::Object* corpse = ck::object::find_id_at(tile, spawn_params->elevation, state.id);
+
+        // Mod specifies custom name/description (for look_at/examine).
+        // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
+        // critter.cc (critterGetName(Object* obj)
+        if (corpse != nullptr) {
+            logger.debug("Critter {} is dead, corpse found", pid);
+            corpse->data.critter.radiation = pid;
+        }
+
+        return -3;
 	}
 
 	bool kill(int lua_id) {

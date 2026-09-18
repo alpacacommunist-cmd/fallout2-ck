@@ -1,6 +1,5 @@
 #include "ck_utils.h"
 #include "object/ck_object.h"
-#include "object/ck_item.h"
 #include "ck_registry/ck_registry.h"
 
 #include "object.h"
@@ -62,7 +61,7 @@ namespace ck::object {
 		for (fallout::Object* object : to_delete) ck::registry::deleted::add(object);
 	}
 
-	int find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
+	int find_at(int tile, CkObjectFFI* buffer, int max_count) {
 		int count = 0, elevation = fallout::gElevation;
 
         fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
@@ -91,6 +90,18 @@ namespace ck::object {
 
 		return count;
 	}
+
+    fallout::Object* find_id_at(int tile, int elevation, int id) {
+        fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
+
+        while (object != nullptr) {
+            if (object->id == id) return object;
+
+            object = fallout::objectFindNextAtLocation();
+        }
+
+        return nullptr;
+    }
 
     int type(int pid) {
         return static_cast<int>(fallout::objectTypeFromPid(pid));
@@ -191,7 +202,7 @@ int ck_object_get_type(void* ptr) {
 }
 
 int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
-	return ck::object::find_at_tile(tile, buffer, max_count);
+	return ck::object::find_at(tile, buffer, max_count);
 }
 
 int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
