@@ -170,7 +170,7 @@ namespace ck::critter {
         logger.info("critter killed! {}", lua_id);
 
         // let fallout2-ce handle the corpse
-		registry_object->ptr->flags &= ~fallout::OBJECT_NO_SAVE;
+		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
 
         if (ck::critter::proto::has_custom_prototype(registry_object->ptr->pid)) {
             logger.debug("Killed critter {} identified as custom prototype", registry_object->ptr->pid);

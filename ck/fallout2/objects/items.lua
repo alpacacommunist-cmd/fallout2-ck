@@ -5,8 +5,8 @@ local items = {}
 
 items.count = ffi.C.ck_inventory_count
 
-function items.add(ptr, pid, count, persistent)
-  ffi.C.ck_inventory_add(ptr, pid, count, persistent)
+function items.add(ptr, pid, count)
+  ffi.C.ck_inventory_add(ptr, pid, count)
 end
 
 items.PID_LEATHER_ARMOR = 1

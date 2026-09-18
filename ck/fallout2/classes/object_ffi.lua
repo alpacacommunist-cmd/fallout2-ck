@@ -41,8 +41,8 @@ function object_ffi.from_ptr(light_user_data_ptr)
   return ffi.cast("CkObjectFFI*", light_user_data_ptr)
 end
 
-function object_ffi:give_item(item_pid, count, persistent)
-  items.add(self.c_ptr, item_pid, count, persistent)
+function object_ffi:give_item(item_pid, count)
+  items.add(self.c_ptr, item_pid, count)
 end
 
 function object_ffi:restore()
