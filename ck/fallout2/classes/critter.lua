@@ -20,39 +20,32 @@ function Critter.new(lua_id, config)
 
   self.in_combat       = false
   self.active_behavior = nil
-  self.is_dead         = self:hp() <= 0
 
   log.debug("critter %s pid: %d", self.tag, self.pid)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
 
-  if (self.is_dead) then
-    log.debug("critter %s is dead!", self.tag)
-  end
+  -- behivours
+  self._is_moving = false
+  self._action_queue   = {}
+  self._next_behavior_tick = 0
+  self._behavior_interval  = 20
 
-  if (not self.is_dead) then
-    -- behivours
-    self._is_moving = false
-    self._action_queue   = {}
-    self._next_behavior_tick = 0
-    self._behavior_interval  = 20
+  if (self.has_custom_prototype) then
+    -- stats
+    self._stats_proxy = stats.create_proxy(function(stat_id)
+      local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+      local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
 
-    if (self.has_custom_prototype) then
-      -- stats
-      self._stats_proxy = stats.create_proxy(function(stat_id)
-        local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-        local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+      return base + bonus
+    end)
+    -- skills
+    self._skills_proxy = skills.create_proxy(function(skill_id)
+      return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
+    end)
 
-        return base + bonus
-      end)
-      -- skills
-      self._skills_proxy = skills.create_proxy(function(skill_id)
-        return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
-      end)
-
-      if config and config.stats  then self.stats = config.stats end
-      if config and config.skills then self.skills = config.skills end
-    end
+    if config and config.stats  then self.stats = config.stats end
+    if config and config.skills then self.skills = config.skills end
   end
 
   return self
@@ -62,8 +55,8 @@ end
 -- refactoring candidate
 --
 function Critter:__index(key)
-  if key == "stats"  and not self.is_dead then return self._stats_proxy end
-  if key == "skills" and not self.is_dead then return self._skills_proxy end
+  if key == "stats"  then return self._stats_proxy end
+  if key == "skills" then return self._skills_proxy end
 
   local val = rawget(Critter, key)
   if val ~= nil then return val end
@@ -75,11 +68,11 @@ end
 -- refactoring candidate
 --
 function Critter:__newindex(key, value)
-  if key == "stats" and not self.is_dead then
+  if key == "stats" then
     self._stats_pending = value
 
     stats.assign(self.c_ptr, value)
-  elseif key == "skills" and not self.is_dead then
+  elseif key == "skills" then
     self._skills_pending = value
 
     for skill_id, skill_value in pairs(value) do
@@ -96,8 +89,6 @@ function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end
 function Critter:set_hp(hp) return ffi.C.ck_critter_set_current_hp(self.c_ptr, hp) end
 
 function Critter:set_behavior(behavior_fn, ...)
-  if self.is_dead then return false end
-
   if type(behavior_fn) ~= "function" then
     log.error("is not a function: " .. tostring(behavior_fn))
   else
@@ -114,8 +105,6 @@ function Critter:set_behavior(behavior_fn, ...)
 end
 
 function Critter:is_busy()
-  if self.is_dead then return true end
-
   return ffi.C.ck_critter_is_busy(self.c_ptr)
 end
 
@@ -168,8 +157,6 @@ function Critter:_handle_proc(proc_id, fixed_param)
   -- check if proc is already handled in Object
   if Object._handle_proc(self, proc_id, fixed_param) then return true end
 
-  if self.is_dead then return false end
-
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
@@ -203,7 +190,6 @@ function Critter:_handle_proc(proc_id, fixed_param)
 end
 
 function Critter:_handle_map_update(current_ticks)
-  if self.is_dead then return false end
   if ffi.C.ck_in_combat() then return end
 
   -- 1: handle object's on:('map_update')
