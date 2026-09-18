@@ -22,7 +22,7 @@ critters.respawns = registries.critter_respawns
 
 -- flat list of mod's spawned tags
 -- used by state.db GC to clear out unused tags
-critters.relevant_tags = registries.critter_relevant_tags
+critters.active_tags = registries.critter_active_tags
 
 function critters.generate_unique_tag(mod_id)
   local current_index = critters.spawn_counters[mod_id]
@@ -71,7 +71,7 @@ function critters.register(tag, pid, tile, config)
   -- autogenerate tag if not explicitly specified
   tag = tag or critters.generate_unique_tag(mod_id)
   -- update relevant tags list
-  critters.relevant_tags[mod_id][tag] = true
+  critters.active_tags[mod_id][tag] = true
 
   -- spawn params
   local spawn_params = ffi.new("CritterLuaSpawnParams", {

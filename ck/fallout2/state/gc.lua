@@ -22,7 +22,7 @@ function gc.purge_mod_namespace(mod_id, mod_map_db, ctx)
     end
   end
 
-  local mod_critter_tags = registries.critter_relevant_tags[mod_id] or {}
+  local mod_critter_tags = registries.critter_active_tags[mod_id] or {}
   for tag in pairs(mod_map_db.objects) do
     if not mod_critter_tags[tag] then
       log.debug("GC: Removing obsolete critter tag '%s' from mod '%s'", tag, mod_id)

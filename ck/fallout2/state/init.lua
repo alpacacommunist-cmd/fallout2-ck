@@ -67,7 +67,6 @@ function state.sync_load(loaded_db)
   -- utils.print_table(state.db.proto_list, log)
 end
 
-
 -- while running through entities in sync_save, remember active tags
 -- used to GC old tags that were removed from mod code
 local relevant_timers_tag_list  = {}
