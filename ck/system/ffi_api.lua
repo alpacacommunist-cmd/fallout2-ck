@@ -243,6 +243,8 @@ ffi.cdef[[
   int ck_area_register_location(const char* name, int world_x, int world_y, const char* size);
   int ck_area_expand_location(int area_id, const char* custom_map_lookup_name, int townmap_x, int townmap_y);
 
+  bool ck_config_is_map_savable(int index);
+
   // --- Map ---
   int  ck_map_get_mvar(int index);
   void ck_map_set_mvar(int index, int value);

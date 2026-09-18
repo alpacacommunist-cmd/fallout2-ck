@@ -170,6 +170,17 @@ function state.sync_save()
     state.db.maps[ck.map_id] = nil
   end
 
+  for map_id, _ in pairs(state.db.maps) do
+    if map_id == ck.map_id then goto continue end
+
+    if not ffi.C.ck_config_is_map_savable(map_id) then
+      log.debug("GC: Removing 'saved=no' map[%d]", map_id)
+      state.db.maps[map_id] = nil
+    end
+
+    ::continue::
+  end
+
   log.header("state_table:")
   utils.print_table(state.db, log)
 

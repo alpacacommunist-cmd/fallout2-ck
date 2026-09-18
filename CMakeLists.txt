@@ -95,7 +95,7 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_object_format.cc
 )
 
-target_precompile_headers(fallout2-ck PRIVATE <vector> <string> "include/ck_log.h" "include/ck_utils.h")
+target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> "include/ck_log.h" "include/ck_utils.h")
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
 target_include_directories(fallout2-ck PUBLIC 

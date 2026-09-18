@@ -10,6 +10,7 @@ static const Logger log("CK Maps Config");
 
 namespace ck::config_maps {
     static std::unordered_set<std::string> g_registered_lookup_names;
+    static std::vector<int> g_registered_non_savable_maps;
     static int current_maps_count = 0;
 
     std::string format_section(int map_id) {
@@ -34,6 +35,7 @@ namespace ck::config_maps {
         while (true) {
             snprintf(section, sizeof(section), "Map %03d", idx);
             char* lookup_name = nullptr;
+            char* saved = nullptr;
 
             if (!fallout::configGetString(&cfg, section, "lookup_name", &lookup_name)) break;
 
@@ -41,6 +43,15 @@ namespace ck::config_maps {
                 std::string name_lower(lookup_name);
                 std::transform(name_lower.begin(), name_lower.end(), name_lower.begin(), ::tolower);
                 g_registered_lookup_names.insert(name_lower);
+
+                if (fallout::configGetString(&cfg, section, "saved", &saved)) {
+                    std::string saved_lower(saved);
+                    std::transform(saved_lower.begin(), saved_lower.end(), saved_lower.begin(), ::tolower);
+
+                    if (saved_lower == "no") {
+                        g_registered_non_savable_maps.push_back(idx);
+                    }
+                }
             }
 
             idx++;
@@ -60,8 +71,7 @@ namespace ck::config_maps {
         int map_index = next_index();
 
         if (g_registered_lookup_names.find(name_lower) != g_registered_lookup_names.end()) {
-            log.error("Mod '{}' failed to register map! lookup_name '{}' is already in use!",
-                    mod_id, name);
+            log.error("Mod '{}' failed to register map! lookup_name '{}' is already in use!", mod_id, name);
 
             return -1;
         }
@@ -85,4 +95,13 @@ namespace ck::config_maps {
         current_maps_count++;
         return map_index;
     }
+
+    bool is_map_savable(int index) {
+        return std::find(g_registered_non_savable_maps.begin(), g_registered_non_savable_maps.end(), index) ==
+               g_registered_non_savable_maps.end();
+    }
+}
+
+bool ck_config_is_map_savable(int index) {
+    return ck::config_maps::is_map_savable(index);
 }
