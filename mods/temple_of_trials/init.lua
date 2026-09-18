@@ -15,7 +15,7 @@ local utils     = require('ck.system.utils')
 --
 
 map.register_borders(126, {left = 95, right = 113, top = 82, bottom = 110})
-map.register_borders(72, {left = 85, right = 101, top = 112, bottom = 120})
+-- map.register_borders(72, {left = 85, right = 101, top = 112, bottom = 120})
 
 events.on('onModReload', function()
   map.rendering_refresh()

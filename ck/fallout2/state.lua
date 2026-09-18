@@ -28,7 +28,9 @@ state.create_map_table = function()
   local map = {}
   setmetatable(map, {
     __index = function(self, mod_id)
-      return state.create_mod_table()
+      local sub_table = state.create_mod_table()
+      rawset(self, mod_id, sub_table)
+      return sub_table
     end,
     __newindex = function(self, mod_id, value)
       rawset(self, mod_id, value)
@@ -43,7 +45,9 @@ local db_init_state = {
   ["proto_list"] = {},
   ["maps"]   = setmetatable({}, {
     __index = function(self, map_id)
-      return state.create_map_table()
+      local map_table = state.create_map_table()
+      rawset(self, map_id, map_table)
+      return map_table
     end
   })
 }
@@ -74,7 +78,7 @@ function state.sync_save()
   log.header("mods list:")
   utils.print_table(ck.active_mods_list, log)
 
-  local current_map = rawget(state.db.maps, ck.map_id)
+  local current_map = state.db.maps[ck.map_id] --rawget(state.db.maps, ck.map_id)
 
   if not current_map then
     log.header("Nothing to save on a map")
@@ -82,8 +86,9 @@ function state.sync_save()
   end
 
   -- check active mods
+  log.header("GC:")
   for _, mod_id in ipairs(ck.active_mods_list) do
-    local mod_map_db = rawget(current_map, mod_id)
+    local mod_map_db = current_map[mod_id] -- rawget(current_map, mod_id)
     if (mod_map_db == nil) then
       log.debug("Mod [%s] has nothing to save on a map", mod_id)
       goto continue
@@ -103,7 +108,7 @@ function state.sync_save()
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
     local mod_objects = registries.objects[mod_id] or {}
 
-    for _, object in pairs(mod_objects) do
+    for _, object in ipairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
       end
@@ -125,6 +130,7 @@ function state.sync_save()
     -- removes elements outside allowed scope
     for key in pairs(mod_map_db) do
       if not registries.state_mod_namespace_keys_lookup[key] then
+        log.debug("GC: Removing non-whitelisted mod namespace element: [%s]", key)
         mod_map_db[key] = nil
       end
     end
@@ -149,8 +155,8 @@ function state.sync_save()
 
     -- [Garbage collection] ✨
     -- removes mod from map namespace if both timers and objects are empty
-    -- TODO: abstractize expected elements
     if next(mod_map_db.objects) == nil and next(mod_map_db.timers) == nil then
+      log.debug("GC: Removing maps[%d][%s] mod namespace", ck.map_id, mod_id)
       current_map[mod_id] = nil
     end
 
@@ -160,6 +166,7 @@ function state.sync_save()
   -- Garbage Collection ✨
   -- removes map_id namespace if empty
   if next(current_map) == nil then
+    log.debug("GC: Removing maps[%d]", ck.map_id)
     state.db.maps[ck.map_id] = nil
   end
 
@@ -237,6 +244,7 @@ function state.get_stored_object_data(mod_id, map_id, tag)
     return nil
   end
 
+  utils.print_table(state.db.maps[map_id][mod_id])
   return state.db.maps[map_id][mod_id]["objects"][tag]
 end
 
