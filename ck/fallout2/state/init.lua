@@ -25,8 +25,9 @@ state.create_mod_table = function()
   return mod_namespace
 end
 
-state.create_map_table = function()
-  local map = {}
+state.create_map_table = function(map)
+  local map = map or {}
+
   setmetatable(map, {
     __index = function(self, mod_id)
       local sub_table = state.create_mod_table()
@@ -37,23 +38,33 @@ state.create_map_table = function()
       rawset(self, mod_id, value)
     end
   })
+
   return map
 end
 
-local db_init_state = {
-  ["global"] = {},
-  ["player"] = { knowledge = {} },
-  ["proto_list"] = {},
-  ["maps"]   = setmetatable({}, {
+state.maps_table = function(state_table)
+  state_table = state_table or {}
+
+  setmetatable(state_table, {
     __index = function(self, map_id)
       local map_table = state.create_map_table()
       rawset(self, map_id, map_table)
       return map_table
     end
   })
+
+  return state_table
+end
+
+local db_init_state = {
+  ["global"] = {},
+  ["player"] = { knowledge = {} },
+  ["proto_list"] = {},
+
+  ["maps"] = {}
 }
 
-state.db = { player = db_init_state.player, global = db_init_state.global, maps = db_init_state.maps }
+state.db = { player = db_init_state.player, global = db_init_state.global, maps = state.maps_table() }
 
 -- gets marshalld json -> lua from backend
 function state.sync_load(loaded_db)
@@ -61,15 +72,15 @@ function state.sync_load(loaded_db)
 
   state.db.global = state.db.global or db_init_state.global
   state.db.player = state.db.player or db_init_state.player
-  state.db.maps   = state.db.maps or db_init_state.maps
   state.db.proto_list = state.db.proto_list or db_init_state.proto_list
 
+  state.db.maps = state.maps_table(state.db.maps)
+
+  for map_id, map_data in pairs(state.db.maps) do
+    state.db.maps[map_id] = state.create_map_table(map_data)
+  end
   -- utils.print_table(state.db.proto_list, log)
 end
-
--- while running through entities in sync_save, remember active tags
--- used to GC old tags that were removed from mod code
-local relevant_timers_tag_list  = {}
 
 -- returns lua, backend marshalls it to json and saves
 function state.sync_save()
@@ -78,41 +89,27 @@ function state.sync_save()
   log.header("mods list:")
   utils.print_table(ck.active_mods_list, log)
 
-  local current_map = state.db.maps[ck.map_id] --rawget(state.db.maps, ck.map_id)
+  local current_map = state.db.maps[ck.map_id]
 
   if not current_map then
     log.header("Nothing to save on a map")
     return state.db
   end
 
-  local context = {
-    current_map = current_map,
-    relevant_timers_tag_list = relevant_timers_tag_list
-  }
-
   -- check active mods
-  log.header("GC:")
   for _, mod_id in ipairs(ck.active_mods_list) do
-    local mod_map_db = current_map[mod_id] -- rawget(current_map, mod_id)
-    if (mod_map_db == nil) then
-      log.debug("Mod [%s] has nothing to save on a map", mod_id)
-      goto continue
-    end
+    local mod_map_db = current_map[mod_id]
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
     local mod_timers = registries.timers[mod_id]
-
     for tag, timer in pairs(mod_timers) do
       mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
-
-      relevant_timers_tag_list[tag] = true
     end
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
     local mod_objects = registries.objects[mod_id]
-
     for _, object in pairs(mod_objects) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
@@ -128,13 +125,14 @@ function state.sync_save()
 
       ::continue::
     end
-
-    state_gc.purge_mod_namespace(mod_id, mod_map_db, context)
-
-    ::continue::
   end
 
-  state_gc.purge_maps(state.db, context)
+  log.header("GC:")
+  for _, mod_id in ipairs(ck.active_mods_list) do
+    state_gc.purge_mod_namespace(mod_id, current_map[mod_id], current_map)
+  end
+
+  state_gc.purge_maps(state.db, current_map)
 
   log.header("state_table:")
   utils.print_table(state.db, log)

@@ -175,7 +175,7 @@ timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
   end
 
   timers.registry[mod_id][tag] = timer
-  table.insert(timers.active_tags[mod_id], timer.tag)
+  timers.active_tags[mod_id][tag] = true
 
   return timer.tag
 end
