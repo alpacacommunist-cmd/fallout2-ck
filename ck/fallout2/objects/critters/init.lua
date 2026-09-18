@@ -104,6 +104,11 @@ function critters.register(tag, pid, tile, config)
     return nil
   end
 
+  if lua_id == -3 then
+    log.debug("Critter %s is dead, body found, allocated pid assigned to object->radiation", tag)
+    return nil
+  end
+
   return CritterClass.new(lua_id, config)
 end
 

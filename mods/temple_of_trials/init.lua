@@ -56,17 +56,15 @@ events.on('map_enter', function(map_id)
     description = 'Ralph the Wanderer',
     elevation = 0
   })
-  --
-  local villager1 = critters.create(16777219, 25900, { team = 0 })
-  --
-  ralph.stats = { max_hp = 10, hp = 1 }
 
-  -- ralph:set_behavior(behaviors.wander, 3)
-
-  if (not ralph.is_dead) then
+  if (ralph) then
+    ralph.stats = { max_hp = 10, hp = 1 }
+    -- ralph:set_behavior(behaviors.wander, 3)
     ralph:give_item(items.PID_KNIFE, 1)
     ralph:give_item(items.PID_STIMPAK, 5)
   end
+
+  local villager1 = critters.create(16777219, 25900, { team = 0 })
 
   if (map.elevation() == 1) then
     map.tools.objects.brush(19907, 2, 0.3, {33555377, 33555378, 33555379})

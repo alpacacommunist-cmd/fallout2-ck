@@ -103,11 +103,7 @@ function Object:_handle_proc(proc_id, fixed_param)
   -- defaults
   if event_name == "look_at" then
     if self.name then
-      if self:type() == 'critter' and self.is_dead then
-        monitor.print(ck_t('you_see_dead', self.name))
-      else
-        monitor.print(ck_t('you_see', self.name))
-      end
+      monitor.print(self.name)
 
       return true
     end

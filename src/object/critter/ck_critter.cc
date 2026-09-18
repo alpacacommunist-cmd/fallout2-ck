@@ -101,7 +101,14 @@ namespace ck::critter {
 		std::string mod_id = common::current_mod_id();
 
         int source_pid = pid;
+
         bool prototype_required = !utils::is_blank(spawn_params->tag) && has_proto_params(params);
+        if (prototype_required) {
+            int unique_pid = ck::critter::proto::allocate(pid, params);
+            if (unique_pid == -1) return lua_id;
+
+            pid = unique_pid;
+        }
 
         std::string lua_tag = spawn_params->tag;
 
@@ -114,13 +121,6 @@ namespace ck::critter {
         bool critter_alive = (state.hp > 0 || state.id == -1);
 
         if (critter_alive) {
-            if (prototype_required) {
-                int unique_pid = ck::critter::proto::allocate(pid, params);
-                if (unique_pid == -1) return lua_id;
-
-                pid = unique_pid;
-            }
-
             fallout::Object* critter = create(pid, tile, spawn_params->elevation);
             if (critter == nullptr) return lua_id;
 
@@ -151,13 +151,15 @@ namespace ck::critter {
                 object = fallout::objectFindNextAtLocation();
             }
 
-            // Mod specifies custom name/description (for look_at/examine). Assign custom SID to a corpse
-            // to let lua handle procs
+            // Mod specifies custom name/description (for look_at/examine).
+            // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
+            // critter.cc (critterGetName(Object* obj)
             if (corpse != nullptr) {
-                lua_id = registry::modified::add(corpse, { mod_id, lua_tag, source_pid, -1 });
-            } else {
-                lua_id = -2;
+                logger.debug("Critter {} is dead, corpse found", pid);
+                corpse->data.critter.radiation = pid;
             }
+
+            return -3;
         }
 
         return lua_id;
@@ -179,13 +181,6 @@ namespace ck::critter {
             // reset pid for savegames
             registry_object->ptr->pid = registry_object->meta.source_pid;
         }
-
-        // std::string mod_id = std::move(registry_object->meta.mod_id), lua_tag = std::move(registry_object->meta.tag);
-        // int source_pid     = registry_object->meta.source_pid;
-        // fallout::Object* corpse = registry_object->ptr;
-        //
-        // ck::registry::created::remove_by_ptr(registry_object->ptr);
-        // int modified_lua_id = ck::registry::modified::add(corpse, { std::move(mod_id), std::move(lua_tag), source_pid, -1 });
 
 		return true;
 	}
