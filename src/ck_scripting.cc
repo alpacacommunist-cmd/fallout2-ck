@@ -38,6 +38,8 @@ namespace fallout {
 
     // savegame.cc
     bool _isLoadingGame();
+    int mapIdBeingLoaded();
+
     // tile.cc
 	void tileWindowRefreshRect(Rect* rect, int elevation);
     // interpreter_extra.cc
@@ -84,6 +86,10 @@ namespace ck::common {
 
     bool game_is_loading() {
         return fallout::_isLoadingGame();
+    }
+
+    int loading_map_id() {
+        return fallout::mapIdBeingLoaded();
     }
 
     unsigned int current_combat_state() { return fallout::gCombatState; }
@@ -281,6 +287,8 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
     return false;
 }
 
+// ffi
+
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
 void ck_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
@@ -288,4 +296,5 @@ void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPl
 bool ck_in_combat() { return ck::common::currently_in_combat(); }
 bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 bool ck_game_is_loading() { return ck::common::game_is_loading(); }
+int ck_loading_map_id() { return ck::common::loading_map_id(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }

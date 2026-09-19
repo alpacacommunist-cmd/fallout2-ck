@@ -9,53 +9,6 @@ local registries = require('ck.system.registries')
 local state = {}
 local log   = ck.log.new('state/init.lua')
 
-state.create_mod_table = function()
-  local mod_namespace = {}
-
-  setmetatable(mod_namespace, {
-    __index = function(self, key)
-      if registries.state_mod_namespace_keys_lookup[key] then
-        local sub_table = {}
-        rawset(self, key, sub_table)
-        return sub_table
-      end
-    end
-  })
-
-  return mod_namespace
-end
-
-state.create_map_table = function(map)
-  local map = map or {}
-
-  setmetatable(map, {
-    __index = function(self, mod_id)
-      local sub_table = state.create_mod_table()
-      rawset(self, mod_id, sub_table)
-      return sub_table
-    end,
-    __newindex = function(self, mod_id, value)
-      rawset(self, mod_id, value)
-    end
-  })
-
-  return map
-end
-
-state.maps_table = function(state_table)
-  state_table = state_table or {}
-
-  setmetatable(state_table, {
-    __index = function(self, map_id)
-      local map_table = state.create_map_table()
-      rawset(self, map_id, map_table)
-      return map_table
-    end
-  })
-
-  return state_table
-end
-
 local db_init_state = {
   ["global"] = {},
   ["player"] = { knowledge = {} },
@@ -64,22 +17,35 @@ local db_init_state = {
   ["maps"] = {}
 }
 
-state.db = { player = db_init_state.player, global = db_init_state.global, maps = state.maps_table() }
+state.db = {
+  ["global"] = db_init_state.global,
+  ["player"] = db_init_state.player,
+  ["proto_list"] = db_init_state.proto_list,
+
+  ["maps"] = db_init_state.maps
+}
+
+-- ensures mod's state table structure is present
+function state.ensure_mod_namespace(mod_id)
+  if ck.map_id == -1 then return nil end
+  state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
+
+  local current_map_db = state.db.maps[ck.map_id]
+  current_map_db[mod_id] = current_map_db[mod_id] or {}
+
+  for _, key in ipairs(registries.state_mod_namespace_keys) do
+    current_map_db[mod_id][key] = current_map_db[mod_id][key] or {}
+  end
+end
 
 -- gets marshalld json -> lua from backend
 function state.sync_load(loaded_db)
-  state.db = loaded_db
+  state.db = loaded_db or {}
 
   state.db.global = state.db.global or db_init_state.global
   state.db.player = state.db.player or db_init_state.player
   state.db.proto_list = state.db.proto_list or db_init_state.proto_list
-
-  state.db.maps = state.maps_table(state.db.maps)
-
-  for map_id, map_data in pairs(state.db.maps) do
-    state.db.maps[map_id] = state.create_map_table(map_data)
-  end
-  -- utils.print_table(state.db.proto_list, log)
+  state.db.maps = state.db.maps or db_init_state.maps
 end
 
 -- returns lua, backend marshalls it to json and saves
@@ -91,20 +57,20 @@ function state.sync_save()
 
   local current_map = state.db.maps[ck.map_id]
 
-  if not current_map then
-    log.header("Nothing to save on a map")
-    return state.db
-  end
-
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods_list) do
-    local mod_map_db = current_map[mod_id]
+    state.ensure_mod_namespace(mod_id)
+    local mod_namespace = current_map[mod_id]
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
     local mod_timers = registries.timers[mod_id]
     for tag, timer in pairs(mod_timers) do
-      mod_map_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
+      mod_namespace.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
+    end
+    -- nullify `timers` namespace to avoid writing empty tables to state
+    if next(mod_namespace.timers) == nil then
+      mod_namespace.timers = nil
     end
 
     -- objects
@@ -115,7 +81,7 @@ function state.sync_save()
         goto continue
       end
 
-      local object_state = mod_map_db.objects[object.tag]
+      local object_state = mod_namespace.objects[object.tag]
 
       if object.tile then object_state.tile = object:tile() end
       if object.hp   then object_state.hp   = object:hp()   end
@@ -125,18 +91,29 @@ function state.sync_save()
 
       ::continue::
     end
+    -- nullify `objects` namespace to avoid writing empty tables to state
+    if next(mod_namespace.objects) == nil then
+      mod_namespace.objects = nil
+    end
+
+    -- nullify mod_namespace if all elements are empty
+    local mod_namespace_empty = true
+    for _, key in ipairs(registries.state_mod_namespace_keys) do
+      if mod_namespace[key] ~= nil and next(mod_namespace[key]) ~= nil then
+        mod_namespace_empty = false
+      end
+    end
+
+    if mod_namespace_empty then current_map[mod_id] = nil end
   end
 
-  log.header("GC:")
-  for _, mod_id in ipairs(ck.active_mods_list) do
-    state_gc.purge_mod_namespace(mod_id, current_map[mod_id], current_map)
-  end
+  -- log.header("GC:")
+  --
+  -- state_gc.purge_maps(state.db, current_map)
+  --
+  -- log.header("state_table:")
 
-  state_gc.purge_maps(state.db, current_map)
-
-  log.header("state_table:")
   utils.print_table(state.db, log)
-
   return state.db
 end
 
@@ -208,7 +185,6 @@ function state.get_stored_object_data(mod_id, map_id, tag)
     return nil
   end
 
-  utils.print_table(state.db.maps[map_id][mod_id])
   return state.db.maps[map_id][mod_id]["objects"][tag]
 end
 

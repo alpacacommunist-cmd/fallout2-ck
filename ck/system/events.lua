@@ -137,19 +137,21 @@ function events.on_map_update(ticks)
 end
 
 -- Updates state.db (inventory/hp/tile etc)
--- aka on_before_map_load. Called before any map_enter
+-- aka on_before_map_load. Called before map_enter
 function events.map_exit()
   ck.map_enter_through_game_load = ffi.C.ck_game_is_loading()
-
   if not ck.map_enter_through_game_load then
     state.sync_save()
   end
+
+  ck.map_id = ffi.C.ck_loading_map_id()
 
   events.clear_registries()
 end
 
 -- Runs before mod's map_enter callback
 function events.before_map_enter(mod_id, map_id)
+  for _, mod_id in ipairs(ck.active_mods_list) do state.ensure_mod_namespace(mod_id) end
 end
 
 function events.after_map_enter(mod_id, map_id)

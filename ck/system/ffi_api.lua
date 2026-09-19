@@ -27,6 +27,7 @@ ffi.cdef[[
 
   bool ck_mods_reload_in_progress();
   bool ck_game_is_loading();
+  int  ck_loading_map_id();
 
   void ck_registry_clear();
   void ck_registry_clear_for_mod(const char* target_mod_id);
