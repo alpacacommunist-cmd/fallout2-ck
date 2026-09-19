@@ -42,6 +42,8 @@ namespace ck::events {
     void before_game_load(const char* path);
     void game_loaded();
 
+    void worldmap_open();
+
     void object_destroyed(fallout::Object* object);
     void exit();
 }

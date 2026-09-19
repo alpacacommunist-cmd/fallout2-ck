@@ -223,6 +223,11 @@ namespace ck::events {
         ck::on_map_enter();
     }
 
+    void worldmap_open() {
+        logger.debug("worldmap_open");
+        ck::on_before_map_load();
+    }
+
     // Separate hook for destroying objects to help clearing out ptrs
     void object_destroyed(fallout::Object* object) {
         logger.debug("object_destroyed");
