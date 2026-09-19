@@ -36,6 +36,8 @@ function state.ensure_mod_namespace(mod_id)
   for _, key in ipairs(registries.state_mod_namespace_keys) do
     current_map_db[mod_id][key] = current_map_db[mod_id][key] or {}
   end
+
+  return state.db.maps[ck.map_id][mod_id]
 end
 
 -- gets marshalld json -> lua from backend
@@ -52,36 +54,52 @@ end
 function state.sync_save()
   if ck.map_id == -1 then return state.db end
 
+  -- print current mods header
   log.header("mods list:")
   utils.print_table(ck.active_mods_list, log)
 
+  -- current_map state db
   local current_map = state.db.maps[ck.map_id]
 
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods_list) do
-    state.ensure_mod_namespace(mod_id)
-    local mod_namespace = current_map[mod_id]
+    -- make sure mod structure is present
+    local mod_namespace_db = state.ensure_mod_namespace(mod_id)
+
+    -- check if any data for mod_namespace_db is present
+    local mod_namespace_is_empty = true
+
+    for _, key in ipairs(registries.state_mod_namespace_keys) do
+      local mod_entities = registries[key][mod_id]
+
+      if (next(mod_entities) == nil) then
+        mod_namespace_db[key] = nil
+      else
+        mod_namespace_is_empty = false
+      end
+    end
+
+    if (mod_namespace_is_empty) then
+      log.debug("Mod [%s] has nothing to save on a map", mod_id, key)
+      state.db.maps[ck.map_id][mod_id] = nil
+
+      goto continue
+    end
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
-    local mod_timers = registries.timers[mod_id]
-    for tag, timer in pairs(mod_timers) do
-      mod_namespace.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
-    end
-    -- nullify `timers` namespace to avoid writing empty tables to state
-    if next(mod_namespace.timers) == nil then
-      mod_namespace.timers = nil
+    for tag, timer in pairs(registries.timers[mod_id]) do
+      mod_namespace_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
     end
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
-    local mod_objects = registries.objects[mod_id]
-    for _, object in pairs(mod_objects) do
+    for _, object in pairs(registries.objects[mod_id]) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
       end
 
-      local object_state = mod_namespace.objects[object.tag]
+      local object_state = mod_namespace_db.objects[object.tag]
 
       if object.tile then object_state.tile = object:tile() end
       if object.hp   then object_state.hp   = object:hp()   end
@@ -91,29 +109,25 @@ function state.sync_save()
 
       ::continue::
     end
-    -- nullify `objects` namespace to avoid writing empty tables to state
-    if next(mod_namespace.objects) == nil then
-      mod_namespace.objects = nil
-    end
 
-    -- nullify mod_namespace if all elements are empty
-    local mod_namespace_empty = true
-    for _, key in ipairs(registries.state_mod_namespace_keys) do
-      if mod_namespace[key] ~= nil and next(mod_namespace[key]) ~= nil then
-        mod_namespace_empty = false
-      end
-    end
-
-    if mod_namespace_empty then current_map[mod_id] = nil end
+    ::continue::
   end
 
-  -- log.header("GC:")
-  --
-  -- state_gc.purge_maps(state.db, current_map)
-  --
-  -- log.header("state_table:")
+  -- clear out random encounter maps (unless it's current map)
+  for map_id, _ in pairs(state.db.maps) do
+    if map_id == ck.map_id then goto continue end
 
+    if not ffi.C.ck_config_is_map_savable(map_id) then
+      log.debug("GC: Removing 'saved=no' map[%d]", map_id)
+      state.db.maps[map_id] = nil
+    end
+
+    ::continue::
+  end
+
+  log.header('state.db table:')
   utils.print_table(state.db, log)
+
   return state.db
 end
 

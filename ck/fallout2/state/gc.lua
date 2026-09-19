@@ -75,18 +75,6 @@ function gc.purge_maps(db, current_map)
     log.debug("GC: Removing maps[%d]", ck.map_id)
     db.maps[ck.map_id] = nil
   end
-
-  local ffi = require('ffi')
-  for map_id, _ in pairs(db.maps) do
-    if map_id == ck.map_id then goto continue end
-
-    if not ffi.C.ck_config_is_map_savable(map_id) then
-      log.debug("GC: Removing 'saved=no' map[%d]", map_id)
-      db.maps[map_id] = nil
-    end
-
-    ::continue::
-  end
 end
 
 return gc
