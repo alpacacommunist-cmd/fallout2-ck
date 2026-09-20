@@ -7,8 +7,6 @@ local sandbox = require('ck.system.loader.sandbox')
 
 local assets    = require('ck.fallout2.assets')
 
-local registries = require('ck.system.registries')
-
 local log = require('ck.system.log').new('loader/init.lua')
 
 local reloadable_mods = {
@@ -34,13 +32,13 @@ loader.handlers = {
   gameplay = function(mod_data, mod_init_fn)
     local mod_id = mod_data.id
 
-    registries.init_mod(mod_id)
+    ck.registries.init_mod(mod_id)
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
     local success = ck.tools.exec_with_mod_context(mod_id, mod_init_fn)
 
     if not success then
-      registries.clear_mod(mod_id)
+      ck.registries.clear_mod(mod_id)
       ffi.C.ck_dispatcher_remove_mod(mod_id)
 
       return false
@@ -113,7 +111,7 @@ function loader.reload_mods()
     -- ffi.C.ck_config_clear_mod_patches(mod_id)
 
     -- clear lua registries
-    registries.clear_mod(mod_id)
+    ck.registries.clear_mod(mod_id)
 
     -- unload requires (submodules)
     for module_name in pairs(package.loaded) do

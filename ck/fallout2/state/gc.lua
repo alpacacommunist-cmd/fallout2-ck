@@ -1,5 +1,4 @@
 local ck = require('ck')
-local registries = require('ck.system.registries')
 
 local log = ck.log.new('state/gc.lua')
 
@@ -21,7 +20,7 @@ function gc.mod_namespace()
 
     -- allowed elements
     for key, _ in pairs(mod_namespace) do
-      if not registries.state_mod_namespace_keys_lookup[key] then
+      if not ck.registries.state_mod_namespace_keys_lookup[key] then
         log.debug("GC: Removing non-whitelisted mod namespace element: [%s]", key)
         mod_namespace[key] = nil
       end
@@ -32,7 +31,7 @@ function gc.mod_namespace()
       log.debug("GC: Removing [%s][timers] (empty)", mod_id, key)
     end
 
-    local mod_timer_tags = registries.timer_active_tags[mod_id]
+    local mod_timer_tags = ck.registries.timer_active_tags[mod_id]
     for tag in pairs(mod_map_db.timers) do
       if not mod_timer_tags[tag] then
         log.debug("GC: Removing obsolete timer tag '%s' from mod '%s'", tag, mod_id)
@@ -48,7 +47,7 @@ function gc.mod_namespace()
 
 
 
-  local mod_critter_tags = registries.critter_active_tags[mod_id]
+  local mod_critter_tags = ck.registries.critter_active_tags[mod_id]
   for tag in pairs(mod_map_db.objects) do
     if not mod_critter_tags[tag] then
       log.debug("GC: Removing obsolete critter tag '%s' from mod '%s'", tag, mod_id)
@@ -56,7 +55,7 @@ function gc.mod_namespace()
     end
   end
 
-  for _, key in ipairs(registries.state_mod_namespace_keys) do
+  for _, key in ipairs(ck.registries.state_mod_namespace_keys) do
     if next(mod_map_db[key]) == nil then
       mod_map_db[key] = nil
     end

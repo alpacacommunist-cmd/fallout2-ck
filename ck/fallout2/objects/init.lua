@@ -1,7 +1,7 @@
-local registries = require('ck.system.registries')
+local ck = require('ck')
 
 local objects = {
-  registry = registries.objects,
+  registry = ck.registries.objects,
 
   PROC_NAMES = {
     [3]  = "description",
@@ -25,6 +25,6 @@ local objects = {
   }
 }
 
-local log = require('ck.system.log').new('objects/init.lua')
+local log = ck.log.new('objects/init.lua')
 
 return objects

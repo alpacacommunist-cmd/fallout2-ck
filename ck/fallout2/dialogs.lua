@@ -1,12 +1,12 @@
 -- ck/fallout2/dialog.lua
 local ffi = require("ffi")
-local log = require('ck.system.log').new('CK Dialogue')
+local ck = require('ck')
 
-local registries = require("ck.system.registries")
+local log = ck.log.new('dialogs.lua')
 
 local dialog = {
   -- lua_id -> dialog function
-  registry = registries.dialogs,
+  registry = ck.registries.dialogs,
 
   reactions = { good = 49, neutral = 50, bad = 51 }
 }

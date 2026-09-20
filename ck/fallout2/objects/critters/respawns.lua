@@ -1,6 +1,5 @@
 local ck = require('ck')
 local timers = require('ck.fallout2.timers')
-local registries = require('ck.system.registries')
 local validations = require('ck.fallout2.objects.critters.validations')
 
 local log = ck.log.new('critters/respawns.lua')
@@ -9,7 +8,7 @@ local respawns = {}
 
 -- Mod registered respawn timers:
 -- { `mod_id` = { `respawn_tag` = { timer_tag = `timer_tag`, spawned_count = 0, ... }, ... } }
-respawns.registry = registries.critter_respawns
+respawns.registry = ck.registries.critter_respawns
 
 function respawns.autogenerate_unique_tag(mod_id, tag)
   local respawn = respawns.registry[mod_id][tag]
@@ -40,7 +39,7 @@ function respawns.register_respawn(tag, ticks, config)
     return nil
   end
 
-  if (registries.timers[mod_id][timer_tag]) then
+  if (timers.registry[mod_id][timer_tag]) then
     log.debug("Mod timer [%s] already exists", tag)
   end
 

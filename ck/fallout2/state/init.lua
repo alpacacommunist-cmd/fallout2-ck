@@ -4,8 +4,6 @@ local ffi   = require('ffi')
 local utils = require('ck.system.utils')
 local state_gc = require('ck.fallout2.state.gc')
 
-local registries = require('ck.system.registries')
-
 local state = {}
 local log   = ck.log.new('state/init.lua')
 
@@ -33,7 +31,7 @@ function state.ensure_mod_namespace(mod_id)
   local current_map_db = state.db.maps[ck.map_id]
   current_map_db[mod_id] = current_map_db[mod_id] or {}
 
-  for _, key in ipairs(registries.state_mod_namespace_keys) do
+  for _, key in ipairs(ck.registries.state_mod_namespace_keys) do
     current_map_db[mod_id][key] = current_map_db[mod_id][key] or {}
   end
 
@@ -69,8 +67,8 @@ function state.sync_save()
     -- check if any data for mod_namespace_db is present
     local mod_namespace_is_empty = true
 
-    for _, key in ipairs(registries.state_mod_namespace_keys) do
-      local mod_entities = registries[key][mod_id]
+    for _, key in ipairs(ck.registries.state_mod_namespace_keys) do
+      local mod_entities = ck.registries[key][mod_id]
 
       if (next(mod_entities) == nil) then
         mod_namespace_db[key] = nil
@@ -88,13 +86,13 @@ function state.sync_save()
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
-    for tag, timer in pairs(registries.timers[mod_id]) do
+    for tag, timer in pairs(ck.registries.timers[mod_id]) do
       mod_namespace_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
     end
 
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
-    for _, object in pairs(registries.objects[mod_id]) do
+    for _, object in pairs(ck.registries.objects[mod_id]) do
       if not object.lua_id or not object.mod_id or not object.tag or object.modified then
         goto continue
       end

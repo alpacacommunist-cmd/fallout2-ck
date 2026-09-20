@@ -1,9 +1,6 @@
 -- bootstrap.lua
 local bootstrap = { mod_types_hash_table = {} }
 
--- system registries
-local registries = require('ck.system.registries')
-
 -- set global search path
 package.path = package.path .. ";../?.lua;../?/init.lua"
 
@@ -14,7 +11,7 @@ local log = ck.log.new('bootstrap.lua')
 local ffi = require('ck.system.ffi_api')
 local loader = require('ck.system.loader')
 
-for _, mod_type in ipairs(registries.mod_types) do
+for _, mod_type in ipairs(ck.registries.mod_types) do
   -- reserve type table in global namespace
   ck.active_mods_by_type[mod_type] = {}
 
@@ -73,11 +70,11 @@ function bootstrap.bootstrap()
     -- ✨Validating manifest
     if not manifest then
       log.warn("Mod '%s' is missing a valid manifest (mod.lua). Using generic fallback.", mod_id)
-      manifest = { id = mod_id, name = "Unnamed Mod (" .. mod_id .. ")", type = registries.default_mod_type }
+      manifest = { id = mod_id, name = "Unnamed Mod (" .. mod_id .. ")", type = ck.registries.default_mod_type }
     end
 
     -- ensure core attributes
-    manifest.type = (bootstrap.mod_types_hash_table[manifest.type] and manifest.type) or registries.default_mod_type
+    manifest.type = (bootstrap.mod_types_hash_table[manifest.type] and manifest.type) or ck.registries.default_mod_type
     manifest.id   = manifest.id or mod_id
     manifest.name = manifest.name or manifest.id
 
@@ -93,7 +90,7 @@ function bootstrap.bootstrap()
     ck.active_mods[manifest.id] = mod_data
   end
 
-  for index, mod_type in ipairs(registries.mod_load_sequence_by_type) do
+  for index, mod_type in ipairs(ck.registries.mod_load_sequence_by_type) do
     local mods_by_type = ck.active_mods_by_type[mod_type]
 
     if mods_by_type and #mods_by_type > 0 then

@@ -6,8 +6,6 @@ local utils = require('ck.system.utils')
 -- local vzone = require("jit.v")
 -- vzone.start("jit_profile.log")
 
-local registries = require('ck.system.registries')
-
 local proto = require('ck.fallout2.proto')
 local state = require('ck.fallout2.state')
 local timers = require('ck.fallout2.timers')
@@ -16,7 +14,7 @@ local object_ffi = require('ck.fallout2.classes.object_ffi')
 local log = ck.log.new('events.lua')
 
 local events = {}
-events.listeners = registries.events
+events.listeners = ck.registries.events
 
 -- Safe exec for mod callbacks (with traceback)
 local function safe_exec(callback, mod_id, event_name, index, ...)
@@ -89,7 +87,7 @@ end
 function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
   mod_id = ffi.string(mod_id)
 
-  local object = registries.objects[mod_id][lua_id]
+  local object = ck.registries.objects[mod_id][lua_id]
   if not object then return false end
 
   return object:_handle_proc(proc_id, fixed_param)
@@ -105,7 +103,7 @@ end
 
 function events.clear_registries()
   -- Clears map context registries
-  registries.reset_map_context()
+  ck.registries.reset_map_context()
 end
 
 -- Runs every second (10 ticks)
@@ -113,13 +111,13 @@ end
 function events.on_map_update(ticks)
   -- update live timers (timed events)
   for _, mod_id in ipairs (ck.active_mods_list) do
-    local mod_event_timers = registries.timer_categories.live[mod_id]
+    local mod_event_timers = ck.registries.timer_categories.live[mod_id]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
   end
 
   -- handle map_update for lua objects
   for _, mod_id in ipairs(ck.active_mods_list) do
-    for _, object in pairs(registries.objects[mod_id]) do
+    for _, object in pairs(ck.registries.objects[mod_id]) do
       if not object._handle_map_update then
         goto continue
       end
@@ -159,13 +157,13 @@ function events.after_map_enter(mod_id, map_id)
   if not ck.map_enter_through_game_load then
     local timers = require('ck.fallout2.timers')
 
-    local mod_event_timers = registries.timer_categories.evented[mod_id]["map_enter"]
+    local mod_event_timers = ck.registries.timer_categories.evented[mod_id]["map_enter"]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
   end
 end
 
 function events.after_time_advance(mod_id)
-  local mod_event_timers = registries.timer_categories.evented[mod_id]["time_advance"]
+  local mod_event_timers = ck.registries.timer_categories.evented[mod_id]["time_advance"]
   timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
 end
 

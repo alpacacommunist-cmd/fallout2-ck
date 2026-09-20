@@ -5,9 +5,7 @@ local ffi = require('ffi')
 local game_time = require('ck.fallout2.game_time')
 local utils = require('ck.system.utils')
 
-local registries = require('ck.system.registries')
-
-local log   = ck.log.new('timers.lua')
+local log = ck.log.new('timers.lua')
 
 local timers = {}
 
@@ -25,17 +23,17 @@ timers.allowed_events = {
 
 -- Timers registry
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
-timers.registry = registries.timers
+timers.registry = ck.registries.timers
 
 -- flat list of mod's timer tags
 -- used by state.db GC to clear out unused tags
-timers.active_tags = registries.timer_active_tags
+timers.active_tags = ck.registries.timer_active_tags
 
 -- Timers categories (for quicker polling)
 -- (only stores the tags)
 -- { ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... },
 -- ["evented"] = { arroyo_expanded = { map_enter = { ... } } }
-timers.categories = registries.timer_categories
+timers.categories = ck.registries.timer_categories
 
 -- current ticks
 timers.current_ticks = function() return game_time.get_time() end
