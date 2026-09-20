@@ -47,25 +47,18 @@ function critters.allocate_prototype(pid, config)
 end
 
 -- Spawn/create
---- args tracer
+-- [debug] args tracer
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 
+-- main register function
 function critters.register(tag, pid, tile, config)
   config = config or {}
   local mod_id = ck.tools.current_mod_id()
 
-  if (config.respawn) then
-    -- autogenerate tag based on respawn counter
-    local respawn = respawns.registry[mod_id][config.respawn]
-
-    if not respawn then
-    end
-  else
-    -- Check if tag is blank, treat it as nil
-    if tag and utils.is_blank(tag) then tag = nil end
-    -- autogenerate tag if not explicitly specified
-    tag = tag or critters.generate_unique_tag(mod_id)
-  end
+  -- Check if tag is blank, treat it as nil
+  if tag and utils.is_blank(tag) then tag = nil end
+  -- autogenerate tag if not explicitly specified
+  tag = tag or critters.generate_unique_tag(mod_id)
 
   -- update active tags list
   critters.active_tags[mod_id][tag] = true
@@ -88,8 +81,29 @@ function critters.register(tag, pid, tile, config)
     name = proto_name, description = proto_description, ai_packet = ai_packet, team = team_id
   })
 
+  if (config.respawn) then
+    local respawn = critters.respawns.registry[mod_id][config.respawn]
+
+    if not respawn then
+      log.error("respawn [%s] not found! Skipping critter creation", config.respawn)
+      return nil
+    end
+
+    -- autogenerate tag based on respawn counter
+    spawn_params.tag = critters.respawns.autogenerate_unique_tag(mod_id, config.respawn)
+    -- add critter creation callback
+    critters.respawns.append(
+      mod_id,
+      config.respawn,
+      function() ck_critter_spawn_traced(pid, tile, spawn_params, proto_params) end
+    )
+
+    log.debug("added critter pid [%d], tile [%d] to respawn queue: [%s]", pid, tile, config.respawn)
+    return nil
+  end
+
   --- args tracer function
-  local lua_id  = ck_critter_spawn_traced(pid, tile, spawn_params, proto_params)
+  local lua_id = ck_critter_spawn_traced(pid, tile, spawn_params, proto_params)
 
   if lua_id == -1 then
     log.warn("Failed to register critter (FFI) (tag: %s)", spawn_params.tag)
@@ -111,9 +125,11 @@ end
 
 function critters.create(pid, tile, config)
   local spawn_params = {}
+
   spawn_params.elevation    = config.elevation or 0
   spawn_params.script_index = config.script_index or -1
   spawn_params.team         = config.team or -1
+  spawn_params.respawn      = config.respawn or nil
   -- This is used for critters without explicitly specified tag
   -- critters.spawn automatically generates spawn_{index} tag (without custom prototype)
   return critters.register(nil, pid, tile, spawn_params)

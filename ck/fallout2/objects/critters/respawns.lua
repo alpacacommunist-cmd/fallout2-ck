@@ -59,11 +59,8 @@ function respawns.register_respawn(tag, ticks, config)
   respawns.registry[mod_id][tag] = respawn
 end
 
--- remove function
-function respawns.remove_respawn_timer(tag)
-  local mod_id = ck.tools.current_mod_id()
+function respawns.remove_respawn_timer(mod_id, tag)
   local respawn = respawns.regitry[mod_id][tag]
-
   if not respawn then return false end
 
   if timers.remove(respawn.timer_tag) then
@@ -74,7 +71,22 @@ function respawns.remove_respawn_timer(tag)
   return false
 end
 
-function respawns.add_callback(tag, callback)
+function respawns.append(mod_id, tag, callback)
+  local respawn = respawns.registry[mod_id][tag]
+
+  if not respawn then
+    logger.error("failed to find respawn queue [%s] for mod_id [%s]", tag, mod_id)
+    return false
+  end
+
+  local timer = timers.registry[mod_id][respawn.timer_tag]
+  if not timer then
+    logger.error("failed to find respawn timer [%s] for mod_id [%s]", respawn.timer_tag, mod_id)
+    return false
+  end
+
+  table.insert(timer.callbacks, callback)
+  return true
 end
 
 return respawns
