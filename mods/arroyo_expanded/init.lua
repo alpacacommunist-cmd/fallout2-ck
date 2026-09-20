@@ -108,7 +108,7 @@ events.on('map_enter', function(map_id)
 
   if map_id ~= 4 then return end
 
-  local test_timer = timers.register_timer(
+  local test_timer = timers.register(
     "test_timer", timers.timer_types.periodic, 50,
     function() monitor.print("__callback map_id: " .. tostring(map_id)) end,
     { "map_enter", "time_advance" }
@@ -179,7 +179,7 @@ events.on('map_enter', function(map_id)
     :set_behavior(behaviors.wander, 12)
 
   local game_time = require('ck.fallout2.game_time')
-  critters.respawns.register_respawn("radscorpions", game_time.in_ticks.days(1))
+  critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))
 
   radscorpion1 = critters.create(16777221, 27916, { team = 2, respawn = 'radscorpions' })
   radscorpion2 = critters.create(16777221, 28513, { team = 2, respawn = 'radscorpions' })

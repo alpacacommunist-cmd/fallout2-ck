@@ -55,13 +55,28 @@ function critters.register(tag, pid, tile, config)
   config = config or {}
   local mod_id = ck.tools.current_mod_id()
 
+  -- modder registered respawn queue
+  -- append callback and return
+  if (config.respawn) then
+    return critters.respawns.append(mod_id, pid, tile, config, critters.register)
+  end
+
   -- Check if tag is blank, treat it as nil
   if tag and utils.is_blank(tag) then tag = nil end
   -- autogenerate tag if not explicitly specified
   tag = tag or critters.generate_unique_tag(mod_id)
 
+  -- _respawn_queue is set by timer callback (critters.respawns.append)
+  if config._respawn_queue then
+    tag = critters.respawns.generate_unique_tag(mod_id, config._respawn_queue)
+
+    local respawn_queue = critters.respawns.registry[mod_id][config._respawn_queue]
+    respawn_queue.spawned_count = respawn_queue.spawned_count + 1
+  end
+
   -- update active tags list
   critters.active_tags[mod_id][tag] = true
+  log.debug("active_tag: %s", tag)
 
   -- spawn params
   local spawn_params = ffi.new("CritterLuaSpawnParams", {
@@ -80,27 +95,6 @@ function critters.register(tag, pid, tile, config)
   local proto_params = ffi.new("CritterLuaProtoParams", {
     name = proto_name, description = proto_description, ai_packet = ai_packet, team = team_id
   })
-
-  if (config.respawn) then
-    local respawn = critters.respawns.registry[mod_id][config.respawn]
-
-    if not respawn then
-      log.error("respawn [%s] not found! Skipping critter creation", config.respawn)
-      return nil
-    end
-
-    -- autogenerate tag based on respawn counter
-    spawn_params.tag = critters.respawns.autogenerate_unique_tag(mod_id, config.respawn)
-    -- add critter creation callback
-    critters.respawns.append(
-      mod_id,
-      config.respawn,
-      function() ck_critter_spawn_traced(pid, tile, spawn_params, proto_params) end
-    )
-
-    log.debug("added critter pid [%d], tile [%d] to respawn queue: [%s]", pid, tile, config.respawn)
-    return nil
-  end
 
   --- args tracer function
   local lua_id = ck_critter_spawn_traced(pid, tile, spawn_params, proto_params)

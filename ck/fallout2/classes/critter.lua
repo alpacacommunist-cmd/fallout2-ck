@@ -18,12 +18,12 @@ function Critter.new(lua_id, config)
   local self = Object.new(lua_id)--, config)
   setmetatable(self, Critter)
 
+  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
+  -- save respawn tag (used on object_destroy)
+  self._respawn_queue = config._respawn_queue or nil
+
   self.in_combat       = false
   self.active_behavior = nil
-
-  log.debug("critter %s pid: %d", self.tag, self.pid)
-
-  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
 
   -- behivours
   self._is_moving = false

@@ -23,6 +23,8 @@ ck = {
   tools = {}
 }
 
+local log = ck.log.new('ck/init.lua')
+
 -- TOOLS
 -- current_mod_id (nullptr or string)
 -- is set in dispatcher.cc

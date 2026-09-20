@@ -104,7 +104,7 @@ end
 
 -- Map context timers, on map exit timers.registry is cleared
 -- (last exec times are written to state db in state.sync_save)
-timers.register_timer = function(tag, timer_type, ticks, callback, events_list)
+timers.register = function(tag, timer_type, ticks, callback, events_list)
   local mod_id = ck.tools.current_mod_id()
   local current_time = game_time.get_time()
 
@@ -200,8 +200,8 @@ timers.check_timers = function(collection, ticks, mod_id)
       -- updates exec time (created_at)
       if timer.timer_type == "periodic" then timer.created_at = game_time.get_time() end
     end
-
   end
+
 end
 
 return timers
