@@ -125,21 +125,21 @@ function Object:_handle_proc(proc_id, fixed_param)
 
     log.info('Object destroyed: ' .. tostring(self.lua_id))
 
+    -- remove from registry
+    objects.registry[self.mod_id][self.lua_id] = nil
+
     if self:type() == 'critter' then
       log.info('Critter destroyed: ' .. tostring(self.lua_id))
 
       -- run callback
       ffi.C.ck_critter_kill(self.lua_id)
-      -- remove from registry
-      objects.registry[self.lua_id] = nil
+      -- update active tags
+      -- ck.registries.critter_active_tags[self.mod_id][self.tag] = false
 
       if (self._respawn_queue) then
         -- update respawn counters
         local respawn = ck.registries.critter_respawns[self.mod_id][self._respawn_queue]
         respawn.spawned_count = respawn.spawned_count - 1
-
-        -- update active tags
-        ck.registries.critter_active_tags[self.mod_id][self.tag] = false
       end
 
       return true

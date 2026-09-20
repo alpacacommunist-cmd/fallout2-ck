@@ -150,6 +150,9 @@ namespace ck::critter {
         if (corpse != nullptr) {
             logger.debug("Critter {} is dead, corpse found", pid);
             corpse->data.critter.radiation = pid;
+        } else {
+            // TODO: remove from state.db
+            logger.debug("Removing critter from state.db: {} (dead, corpse not found)", pid);
         }
 
         return -3;
@@ -158,8 +161,6 @@ namespace ck::critter {
 	bool kill(int lua_id) {
 		const CkCreatedObject* registry_object = ck::registry::created::get(lua_id);
 		if (!registry_object || !registry_object->ptr) return false;
-
-        logger.info("critter killed! {}", lua_id);
 
         // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
