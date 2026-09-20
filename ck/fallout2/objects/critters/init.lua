@@ -49,16 +49,43 @@ function critters.allocate_prototype(pid, config)
   return CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
 end
 
-function critters.register_respawn_timer(tag, ticks, config)
-  if tag and utils.is_blank(tag) then tag = nil end
+-- Respawns
+-- validator function
+local function validate_respawn_params(tag, ticks, config)
+  local errors = false
+  local game_time = require('ck.fallout2.game_time')
 
-  if tag == nil then
+  config = config or {}
+  config.events_list = config.events.list or { 'map_enter' }
+
+  if (tag == nil or (tag and utils.is_blank(tag))) then
     log.error("register_respawn_timer expects valid tag name")
-    return nil
+    errors = true
   end
 
-  local mod_id = ck.tools.current_mod_id()
+  if (ticks == nil or (ticks and ticks <= 0)) then
+    log.error("register_respawn_timer expects ticks >= 0")
+  end
+
+  local minimum_respoawn_interval = game_time.in_ticks.hours(1)
+  if ticks < minimum_respoawn_interval then
+    ticks = minimum_respoawn_interval
+    log.debug("setting interval to minimal value [%d] for respawn_timer [%s]", minimum_respoawn_interval, tag)
+  end
+
+  return tag, ticks, config
+end
+
+-- register function
+function critters.register_respawn_timer(tag, ticks, config)
+  tag, ticks, config = validate_respawn_params(tag, ticks, config)
+
   local timers = require('ck.fallout2.timers')
+  local respawn_timer = timers.register_timer(tag, timers.timer_types.periodic, ticks, nil, events_list)
+
+  if respawn_timer then
+    local mod_id = ck.tools.current_mod_id()
+  end
 end
 
 --- args tracer
