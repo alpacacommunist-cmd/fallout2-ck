@@ -1,4 +1,9 @@
+local ck = require('ck')
 local timers = require('ck.fallout2.timers')
+local registries = require('ck.system.registries')
+local validations = require('ck.fallout2.objects.critters.validations')
+
+local log = ck.log.new('critters/respawns.lua')
 
 local respawns = {}
 
@@ -6,19 +11,31 @@ local respawns = {}
 -- { `mod_id` = { `respawn_tag` = { timer_tag = `timer_tag`, spawned_count = 0, ... }, ... } }
 respawns.registry = registries.critter_respawns
 
+function respawns.autogenerate_unique_tag(mod_id, tag)
+  local respawn = respawns.registry[mod_id][tag]
+
+  if not respawn then
+    log.error("Respawn [%s] not for mod_id: [%s]", tag, mod_id)
+    return nil
+  end
+
+  -- radscorpions_respawn_0, radscorpions_respawn_1 ...
+  return tag .. "_respawn_" .. tostring(respawn.spawned_count)
+end
+
 -- register function
-function critters.register_respawn(tag, ticks, config)
+function respawns.register_respawn(tag, ticks, config)
   tag, ticks, config, errors = validations.respawn_params(tag, ticks, config)
   if errors then return nil end
 
-  -- tag is written to critters.respawns
+  -- tag is written to respawns.registry
   -- timer_tag is written to timers.registry
   local timer_tag = tag .. "_respawn_timer"
 
   -- check if timer already exists
   local mod_id = ck.tools.current_mod_id()
 
-  if (critters.respawns[mod_id][tag]) then
+  if (respawns.registry[mod_id][tag]) then
     log.debug("Mod respawn [%s] already exists", tag)
     return nil
   end
@@ -44,9 +61,9 @@ function critters.register_respawn(tag, ticks, config)
 end
 
 -- remove function
-function critters.remove_respawn_timer(tag)
+function respawns.remove_respawn_timer(tag)
   local mod_id = ck.tools.current_mod_id()
-  local respawn = critters.respawns[mod_id][tag]
+  local respawn = respawns.regitry[mod_id][tag]
 
   if not respawn then return false end
 
