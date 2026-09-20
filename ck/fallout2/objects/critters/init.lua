@@ -8,6 +8,7 @@ local CritterClass = require('ck.fallout2.classes.critter')
 local CritterProto = require('ck.fallout2.classes.critter_proto')
 
 local log = ck.log.new('objects/critters.lua')
+local validations = require('ck.fallout2.objects.critters.validations')
 
 local critters = {}
 
@@ -50,44 +51,30 @@ function critters.allocate_prototype(pid, config)
 end
 
 -- Respawns
--- validator function
-local function validate_respawn_params(tag, ticks, config)
-  local errors = false
-  local game_time = require('ck.fallout2.game_time')
-
-  config = config or {}
-  config.events_list = config.events.list or { 'map_enter' }
-
-  if (tag == nil or (tag and utils.is_blank(tag))) then
-    log.error("register_respawn_timer expects valid tag name")
-    errors = true
-  end
-
-  if (ticks == nil or (ticks and ticks <= 0)) then
-    log.error("register_respawn_timer expects ticks >= 0")
-  end
-
-  local minimum_respoawn_interval = game_time.in_ticks.hours(1)
-  if ticks < minimum_respoawn_interval then
-    ticks = minimum_respoawn_interval
-    log.debug("setting interval to minimal value [%d] for respawn_timer [%s]", minimum_respoawn_interval, tag)
-  end
-
-  return tag, ticks, config
-end
-
 -- register function
 function critters.register_respawn_timer(tag, ticks, config)
-  tag, ticks, config = validate_respawn_params(tag, ticks, config)
+  tag, ticks, config, errors = validations.respawn_params(tag, ticks, config)
+  if errors then return nil end
+
+  -- check if timer already exists
+  local mod_id = ck.tools.current_mod_id()
+  if (critters.respawns[mod_id][tag]) then
+    log.debug("Mod timer [%s] already exists", tag)
+    return nil
+  end
 
   local timers = require('ck.fallout2.timers')
-  local respawn_timer = timers.register_timer(tag, timers.timer_types.periodic, ticks, nil, events_list)
+  local respawn_timer = timers.register_timer(tag, timers.timer_types.periodic, ticks, nil, config.events_list)
 
   if respawn_timer then
-    local mod_id = ck.tools.current_mod_id()
   end
 end
 
+-- remove function
+function critters.remove_respawn_timer(tag)
+end
+
+-- Spawn/create
 --- args tracer
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 function critters.register(tag, pid, tile, config)
