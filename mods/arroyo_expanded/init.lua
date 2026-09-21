@@ -2,6 +2,7 @@
 local ffi = require('ffi')
 
 local wall_utils = require('ck.libs.test_mod_lib')
+local utils = require('ck.system.utils')
 
 local events      = require('ck.system.events')
 local monitor     = require('ck.fallout2.monitor')

@@ -3,6 +3,8 @@ local ck = require('ck')
 local utils = require('ck.system.utils')
 local log   = ck.log.new('sandbox.lua')
 
+local _G_require = _G.require
+
 local sandbox = {}
 
 local safe_globals = {
@@ -51,7 +53,15 @@ local function resolve_relative_path(target_name)
 end
 
 function sandbox.create_env(mod_data)
-  local env = setmetatable({}, { __index = safe_globals })
+  local mod_package = {
+    loaded = {},        -- module cache
+    path = package.path -- module paths
+  }
+
+  local env = setmetatable({
+    package = mod_package,
+  }, { __index = safe_globals })
+
   local manifest = mod_data.manifest
 
   env.__manifest = manifest
@@ -70,9 +80,8 @@ function sandbox.create_env(mod_data)
     -- allow relative paths (eg '.locale.ru' -> 'mods.arroyo_expanded.locale.ru')
     target_name = resolve_relative_path(target_name)
 
-    -- module found in cache, return
-    if package.loaded[target_name] then
-      return package.loaded[target_name]
+    if mod_package.loaded[target_name] then
+      return mod_package.loaded[target_name]
     end
 
     -- system module (ck.*)
@@ -80,9 +89,20 @@ function sandbox.create_env(mod_data)
 
     if is_system_module then
       local success, module = pcall(_G.require, target_name)
-
       if not success then error(module) end
-      return (type(module) == "table" and module.public) or module
+
+      local result_to_cache = module
+
+      if type(module) == "table" and module.public then
+        log.debug('=============')
+        log.debug('returning public table: %s', target_name)
+        log.debug('=============')
+
+        result_to_cache = module.public
+      end
+
+      mod_package.loaded[target_name] = result_to_cache
+      return result_to_cache
     end
 
     -- mod's local file (eg mods.arroyo_expanded.dialogs)

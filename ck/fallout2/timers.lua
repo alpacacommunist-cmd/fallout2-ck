@@ -204,4 +204,12 @@ timers.check_timers = function(collection, ticks, mod_id)
 
 end
 
+timers.public = {
+  timer_types = timers.timer_types,
+
+  register = timers.register,
+  remove   = timers.remove,
+  add_callback = timers.add_callback
+}
+
 return timers

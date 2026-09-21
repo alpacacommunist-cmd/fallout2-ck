@@ -15,6 +15,8 @@ local reloadable_mods = {
   "test_mod_lib"
 }
 
+local active_mod_envs = {}
+
 local loader = {}
 
 local function apply_manifest(manifest)
@@ -30,13 +32,17 @@ end
 
 loader.handlers = {
   --🎮
-  gameplay = function(mod_data, mod_init_fn)
+  gameplay = function(mod_data, mod_env)
     local mod_id = mod_data.id
+
+    local function run_mod_init()
+      return mod_env.require(mod_data.keys.init)
+    end
 
     ck.registries.init_mod(mod_id)
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
-    local success = ck.tools.exec_with_mod_context(mod_id, mod_init_fn)
+    local success = ck.tools.exec_with_mod_context(mod_id, run_mod_init)
 
     if not success then
       ck.registries.clear_mod(mod_id)
@@ -49,24 +55,24 @@ loader.handlers = {
   end,
 
   --📦
-  library = function(mod_data, mod_init_fn)
+  library = function(mod_data, mod_env)
     local mod_id = mod_data.id
-    local success, result = pcall(mod_init_fn)
+
+    local success, mod_api = pcall(mod_env.require, mod_data.keys.init)
 
     if not success then
-      log.error("running library '" .. mod_id .. "': " .. tostring(result))
+      log.error("running library '" .. mod_id .. "': " .. tostring(mod_api))
       return false
     end
 
-    if type(result) == "table" then
+    if type(mod_api) == "table" then
       local preload_key = ck.tools.mod_preload_key(mod_id)
 
       package.preload[preload_key] = function()
-        return result
+        return mod_api
       end
 
       mod_data.keys.preload = preload_key
-
       log.info("Library '%s' registered to package.preload['%s']", mod_id, preload_key)
     else
       log.warn("Library '%s' loaded but did not return an API table!", mod_id)
@@ -84,30 +90,17 @@ function loader.exec_mod(mod_data)
 
   -- add mod env
   local mod_env = sandbox.create_env(mod_data)
-
-  -- filepath of mod's .init
-  local init_file_path = ck.tools.key_to_path(mod_data.keys.init)
-
-  -- read file
-  local content = utils.read_file(init_file_path, log)
-
-  -- create chunk
-  local mod_init_fn, error = utils.compile_chunk(content, init_file_path)
-  if not mod_init_fn then
-    log.error("compiling mod '" .. mod_id .. "': " .. tostring(error))
-    return false
-  end
+  active_mod_envs[mod_data.keys.base] = mod_env
 
   -- exec
   local handler = loader.handlers[manifest.type]
-
-  setfenv(mod_init_fn, mod_env)
-  return handler(mod_data, mod_init_fn)
+  return handler(mod_data, mod_env)
 end
 
 function loader.reload_mods()
   for _, mod_id in ipairs(reloadable_mods) do
     local mod_data = ck.active_mods[mod_id]
+    local mod_env  = active_mod_envs[mod_data.keys.base]
 
     log.header("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
@@ -121,12 +114,12 @@ function loader.reload_mods()
     -- clear lua registries
     ck.registries.clear_mod(mod_id)
 
-    -- unload requires (submodules)
-    for module_name in pairs(package.loaded) do
-      if module_name:match("^" .. mod_data.keys.base) then
-        package.loaded[module_name] = nil
-        log.info("Unloaded: " .. module_name)
+    if mod_env and mod_env.package and mod_env.package.loaded then
+      for module_name in pairs(mod_env.package.loaded) do
+        log.info("Unloaded from mod cache: " .. module_name)
       end
+
+      mod_env.package.loaded = {}
     end
 
     if mod_data.manifest.type == 'library' then
