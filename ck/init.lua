@@ -12,6 +12,8 @@ ck = {
   active_mods_list = {},
   -- mods sorted by type
   active_mods_by_type = {},
+  -- lua preload key for mod libs
+  libs_preload_key = 'ck.libs.',
   -- list of loaded lib mods
   loaded_libs = {},
 
@@ -66,6 +68,10 @@ end
 -- mods.game_time_extender.init -> ../mods/game_time_extender/init.lua
 function ck.tools.key_to_path(key)
   return "../" .. key:gsub("%.", "/") .. ".lua"
+end
+
+function ck.tools.mod_preload_key(mod_id)
+  return ck.libs_preload_key .. mod_id
 end
 
 -- REGISTRIES

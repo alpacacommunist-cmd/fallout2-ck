@@ -11,7 +11,8 @@ local log = require('ck.system.log').new('loader/init.lua')
 
 local reloadable_mods = {
   "arroyo_expanded",
-  "temple_of_trials"
+  "temple_of_trials",
+  "test_mod_lib"
 }
 
 local loader = {}
@@ -58,8 +59,15 @@ loader.handlers = {
     end
 
     if type(result) == "table" then
-      ck.loaded_libs[mod_id] = result
-      log.info("Library '%s' registered to ck.libs.%s", mod_id, mod_id)
+      local preload_key = ck.tools.mod_preload_key(mod_id)
+
+      package.preload[preload_key] = function()
+        return result
+      end
+
+      mod_data.keys.preload = preload_key
+
+      log.info("Library '%s' registered to package.preload['%s']", mod_id, preload_key)
     else
       log.warn("Library '%s' loaded but did not return an API table!", mod_id)
     end
@@ -119,6 +127,11 @@ function loader.reload_mods()
         package.loaded[module_name] = nil
         log.info("Unloaded: " .. module_name)
       end
+    end
+
+    if mod_data.manifest.type == 'library' then
+      package.preload[mod_data.keys.preload] = nil
+      log.info("[preload] Unloaded: " .. mod_data.keys.preload)
     end
 
     if loader.exec_mod(mod_data) then

@@ -67,17 +67,6 @@ function sandbox.create_env(mod_data)
     if target_name == "ck.init" or target_name == "ck" then return ck.public end
     if target_name == 'ffi' then return nil end
 
-    if target_name:match("^ck%.libs%.") then
-      local lib_id = target_name:gsub("^ck%.libs%.", "")
-      local library = ck.loaded_libs[lib_id]
-
-      if not library then
-        error(string.format("Runtime Error: Core library '%s' requested by mod '%s' is not available!", lib_id, env.__mod_id))
-      end
-
-      return library
-    end
-
     -- allow relative paths (eg '.locale.ru' -> 'mods.arroyo_expanded.locale.ru')
     target_name = resolve_relative_path(target_name)
 
@@ -98,7 +87,7 @@ function sandbox.create_env(mod_data)
 
     -- mod's local file (eg mods.arroyo_expanded.dialogs)
     -- find file
-    local filepath, err = package.searchpath(target_name, package.path)
+    local filepath, error = package.searchpath(target_name, package.path)
     -- if not filepath then
     --   -- (just in case)
     --   local success, res = pcall(_G.require, target_name)
