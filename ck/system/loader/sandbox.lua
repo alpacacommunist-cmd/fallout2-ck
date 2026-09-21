@@ -83,7 +83,6 @@ function sandbox.create_env(mod_data)
     if mod_package.loaded[target_name] then
       return mod_package.loaded[target_name]
     end
-
     -- system module (ck.*)
     local is_system_module = target_name:match("^ck%.")
 
@@ -106,14 +105,7 @@ function sandbox.create_env(mod_data)
     end
 
     -- mod's local file (eg mods.arroyo_expanded.dialogs)
-    -- find file
     local filepath, error = package.searchpath(target_name, package.path)
-    -- if not filepath then
-    --   -- (just in case)
-    --   local success, res = pcall(_G.require, target_name)
-    --   if success then return res end
-    --   error(string.format("Module '%s' not found:\n%s", target_name, err))
-    -- end
 
     -- read and compile using mod env
     local content = utils.read_file(filepath, log)

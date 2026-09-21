@@ -9,7 +9,7 @@
 #include "ck_log.h"
 static const Logger log("CK Dispatcher");
 
-namespace ck {
+namespace ck::common {
     int current_map_id();
 }
 
@@ -118,7 +118,7 @@ namespace ck::dispatcher {
         log.debug("ck_dispatcher_on_map_enter");
         g_last_update_ticks = 0;
 
-        emit("map_enter", ck::current_map_id());
+        emit("map_enter", ck::common::current_map_id());
     }
 }
 
@@ -165,6 +165,6 @@ void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 
     ModContextGuard guard(mod_id);
-    ck::proxy::emit_for_mod(mod_id, event_name, ck::current_map_id());
+    ck::proxy::emit_for_mod(mod_id, event_name, ck::common::current_map_id());
 }
 

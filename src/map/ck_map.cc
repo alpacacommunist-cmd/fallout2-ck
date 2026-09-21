@@ -66,8 +66,6 @@ namespace ck {
         if (ck::debug_overlay::enabled()) ck::debug_overlay::toggle();
     }
 
-    int current_map_id() { return static_cast<int>(fallout::mapGetCurrentMap()); }
-
     bool map_has_camera_borders(int map_index) {
         return ck::map::borders::has_borders_for_map(map_index);
     }
@@ -121,8 +119,6 @@ void ck_map_add_roof_tile(int fid, int tile, int roof_block_id) {
 }
 
 // ffi
-
-int ck_map_get_id() { return ck::current_map_id(); }
 
 void ck_map_add_scenery_fid(int fid, int tile) { ck_map_add_scenery(fid, tile); }
 void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y) { ck_map_add_roof_scenery(fid, tile, offset_y); }

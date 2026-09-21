@@ -44,11 +44,12 @@ namespace fallout {
 	void tileWindowRefreshRect(Rect* rect, int elevation);
     // interpreter_extra.cc
     int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect);
-
     // game.cc
 	void displayMonitorAddMessage(const char* str);
     // game_sound.cc
     int soundPlayFile(const char* name);
+    // map.cc
+    Map mapGetCurrentMap();
 
     extern CombatState gCombatState;
 }
@@ -57,7 +58,6 @@ namespace ck {
     // map/ck_map.cc
 	void on_map_enter();
 	void on_before_map_load();
-    int current_map_id();
     // ce_config/ck_config_patch.cc
     bool apply_worldmap_patches();
 
@@ -72,6 +72,13 @@ namespace ck {
 }
 
 namespace ck::common {
+    unsigned int current_combat_state() { return fallout::gCombatState; }
+    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
+
+    int current_map_id() {
+        return static_cast<int>(fallout::mapGetCurrentMap());
+    }
+
     const char* system_mod_id() {
         return SYSTEM_MOD_ID;
     }
@@ -91,9 +98,6 @@ namespace ck::common {
     int loading_map_id() {
         return fallout::mapIdBeingLoaded();
     }
-
-    unsigned int current_combat_state() { return fallout::gCombatState; }
-    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
 
     void clear_lua_registries() {
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
@@ -302,4 +306,5 @@ bool ck_in_combat() { return ck::common::currently_in_combat(); }
 bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
+int ck_current_map_id() { return ck::common::current_map_id(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }

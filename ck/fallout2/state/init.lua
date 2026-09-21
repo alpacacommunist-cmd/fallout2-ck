@@ -153,7 +153,7 @@ end
 
 local function get_mod_storage(section, mod_id)
   if not mod_id then return nil end
-  local map_id = ffi.C.ck_map_get_id()
+  local map_id = ck.map_id
 
   if section == "global" then
     state.db.global[mod_id] = state.db.global[mod_id] or {}

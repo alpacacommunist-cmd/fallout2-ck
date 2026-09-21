@@ -28,6 +28,7 @@ ffi.cdef[[
   bool ck_mods_reload_in_progress();
   bool ck_game_is_loading();
   int  ck_loading_map_id();
+  int  ck_current_map_id();
 
   void ck_registry_clear();
   void ck_registry_clear_for_mod(const char* target_mod_id);
@@ -256,7 +257,6 @@ ffi.cdef[[
   int ck_current_elevation();
 
   // --- add object/render
-  int  ck_map_get_id();
   void ck_map_add_scenery_fid(int fid, int tile);
   void ck_map_add_tile_fid(int fid, int tile);
   void ck_map_create_blocker_at(int tile);

@@ -19,6 +19,7 @@ namespace ck {
     namespace common {
         bool currently_in_combat();
         const char* current_mod_id();
+        int current_map_id();
     }
 
     // ck_stats.cc
@@ -39,9 +40,7 @@ namespace fallout {
     Object* objectFindFirstAtLocation(int elevation, int tile);
     Object* objectFindNextAtLocation();
 
-	int mapGetCurrentMap();
     WeaponAnimation weaponGetAnimationCode(Object* weapon);
-
 
     int scriptAdd(int* sidPtr, int scriptType);
 }
@@ -57,6 +56,23 @@ namespace ck::critter {
 		if (critter != nullptr) return critter;
 		return nullptr;
 	}
+
+    static int handle_dead_critter_spawn(int id, int pid, int tile, int elevation = fallout::gElevation) {
+        fallout::Object* corpse = ck::object::find_id_at(tile, elevation, id);
+
+        // Mod specifies custom name/description (for look_at/examine).
+        // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
+        // critter.cc (critterGetName(Object* obj)
+        if (corpse != nullptr) {
+            logger.debug("Critter {} is dead, corpse found", pid);
+            corpse->data.critter.radiation = pid;
+        } else {
+            // TODO: remove from state.db
+            logger.debug("Removing critter from state.db: {} (dead, corpse not found)", pid);
+        }
+
+        return -3;
+    }
 
     void reset_prototypes_for_mod(const std::string& mod_id) {
         ck::critter::proto::clear_prototypes_for_mod(mod_id);
@@ -97,7 +113,7 @@ namespace ck::critter {
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params) {
         int lua_id = -1;
 
-		int map_id         = fallout::mapGetCurrentMap();
+		int map_id         = common::current_map_id();
 		std::string mod_id = common::current_mod_id();
 
         int source_pid = pid;
@@ -120,42 +136,28 @@ namespace ck::critter {
         // either alive or first spawn
         bool critter_alive = (state.hp > 0 || state.id == -1);
 
-        if (critter_alive) {
-            fallout::Object* critter = create(pid, tile, spawn_params->elevation);
-            if (critter == nullptr) return -1;
-
-            if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
-
-            LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
-            lua_id = registry::created::add(critter, std::move(meta));
-
-            ck::critter::assign_script(critter, spawn_params->script_index, lua_id);
-
-            if (spawn_params->team != -1) {
-                critter->data.critter.combat.team = spawn_params->team;
-                logger.debug("Assigned team ID: {} to critter {}", spawn_params->team, lua_tag);
-            }
-
-            return lua_id;
+        if (!critter_alive) {
+            // Has no custom proto attributes, body is handled by fallout2-ce
+            if (!prototype_required) return -2;
+            return handle_dead_critter_spawn(state.id, pid, tile, spawn_params->elevation);
         }
 
-        // Has no custom proto attributes, body is handled by fallout2-ce
-        if (!prototype_required) return -2;
+        fallout::Object* critter = create(pid, tile, spawn_params->elevation);
+        if (critter == nullptr) return -1;
 
-        fallout::Object* corpse = ck::object::find_id_at(tile, spawn_params->elevation, state.id);
+        if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
-        // Mod specifies custom name/description (for look_at/examine).
-        // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
-        // critter.cc (critterGetName(Object* obj)
-        if (corpse != nullptr) {
-            logger.debug("Critter {} is dead, corpse found", pid);
-            corpse->data.critter.radiation = pid;
-        } else {
-            // TODO: remove from state.db
-            logger.debug("Removing critter from state.db: {} (dead, corpse not found)", pid);
+        LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
+        lua_id = registry::created::add(critter, std::move(meta));
+
+        ck::critter::assign_script(critter, spawn_params->script_index, lua_id);
+
+        if (spawn_params->team != -1) {
+            critter->data.critter.combat.team = spawn_params->team;
+            logger.debug("Assigned team ID: {} to critter {}", spawn_params->team, lua_tag);
         }
 
-        return -3;
+        return lua_id;
 	}
 
 	bool kill(int lua_id) {

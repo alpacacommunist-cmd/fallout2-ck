@@ -22,10 +22,9 @@ critters.spawn_counters = ck.registries.critter_spawn_counters
 critters.active_tags = ck.registries.critter_active_tags
 
 function critters.generate_unique_tag(mod_id)
-  local current_index = critters.spawn_counters[mod_id]
-  critters.spawn_counters[mod_id] = current_index + 1
+  critters.spawn_counters[mod_id] = critters.spawn_counters[mod_id] + 1
 
-  return "spawn_" .. mod_id .. "_" .. current_index
+  return "spawn_" .. mod_id .. "_" .. (critters.spawn_counters[mod_id])
 end
 
 -- Allocates critter prototype
@@ -53,13 +52,13 @@ local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_cri
 -- main register function
 function critters.register(tag, pid, tile, config)
   config = config or {}
-  local mod_id = ck.tools.current_mod_id()
 
-  -- modder registered respawn queue
-  -- append callback and return
-  if (config.respawn) then
-    return critters.respawns.append(mod_id, pid, tile, config, critters.register)
+  if config.respawn then
+    log.error("Can't use :respawn with critters.register, please use critters.create instead")
+    return nil
   end
+
+  local mod_id = ck.tools.current_mod_id()
 
   -- Check if tag is blank, treat it as nil
   if tag and utils.is_blank(tag) then tag = nil end
@@ -124,6 +123,13 @@ function critters.create(pid, tile, config)
   spawn_params.script_index = config.script_index or -1
   spawn_params.team         = config.team or -1
   spawn_params.respawn      = config.respawn or nil
+
+  -- modder registered respawn queue
+  -- append callback and return
+  if spawn_params.respawn then
+    return critters.respawns.append(mod_id, pid, tile, spawn_params, critters.register)
+  end
+
   -- This is used for critters without explicitly specified tag
   -- critters.spawn automatically generates spawn_{index} tag (without custom prototype)
   return critters.register(nil, pid, tile, spawn_params)

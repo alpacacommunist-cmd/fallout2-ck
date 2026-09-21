@@ -15,7 +15,7 @@ map.tools.init(map)
 
 map.get_var           = ffi.C.ck_map_get_mvar
 map.set_var           = ffi.C.ck_map_set_mvar
-map.get_id            = ffi.C.ck_map_get_id
+map.get_id            = ffi.C.ck_current_map_id
 map.rendering_refresh = ffi.C.ck_rendering_refresh
 
 map.physics = {

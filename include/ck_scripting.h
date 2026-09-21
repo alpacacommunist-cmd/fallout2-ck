@@ -14,6 +14,8 @@ namespace ck::common {
     unsigned int current_combat_state();
     bool currently_in_combat();
 
+    int current_map_id();
+
     const char* system_mod_id();
     const char* current_mod_id();
 
@@ -60,6 +62,7 @@ CK_API bool ck_in_combat();
 CK_API bool ck_mods_reload_in_progress();
 CK_API bool ck_game_is_loading();
 CK_API int  ck_loading_map_id();
+CK_API int  ck_current_map_id();
 CK_API const char* ck_mods_system_id();
 
 #endif // CK_SCRIPTING_H

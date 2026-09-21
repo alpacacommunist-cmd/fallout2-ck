@@ -35,13 +35,14 @@ loader.handlers = {
   gameplay = function(mod_data, mod_env)
     local mod_id = mod_data.id
 
+    -- inits mod data tables
+    ck.registries.init_mod(mod_id)
+    -- register mod in backend (to allow setting mod context (current_mod_id))
+    ffi.C.ck_dispatcher_add_mod(mod_id)
+
     local function run_mod_init()
       return mod_env.require(mod_data.keys.init)
     end
-
-    ck.registries.init_mod(mod_id)
-    ffi.C.ck_dispatcher_add_mod(mod_id)
-
     local success = ck.tools.exec_with_mod_context(mod_id, run_mod_init)
 
     if not success then

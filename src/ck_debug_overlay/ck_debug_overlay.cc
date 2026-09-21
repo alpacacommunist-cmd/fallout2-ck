@@ -13,6 +13,10 @@
 #include "ck_log.h"
 static const Logger log("CK DBG");
 
+namespace ck::common {
+    int current_map_id();
+}
+
 static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
@@ -84,9 +88,9 @@ static void ck_toggle_camera_square() {
 		return;
 	}
 
-	if (!ck_map_has_camera_borders(ck_map_get_id())) return;
+	if (!ck_map_has_camera_borders(ck::common::current_map_id())) return;
 
-	const CkCameraBorders& borders = ck_map_get_camera_borders(ck_map_get_id());
+	const CkCameraBorders& borders = ck_map_get_camera_borders(ck::common::current_map_id());
 
 	// tileX = gridWidth - 1 - tile % gridWidth; -> tile % gridWidth = gridWidth - 1 - tileX;
 	// tileY = tile / gridWidth; -> tile = tileY * gridWidth + (tile % gridWidth);

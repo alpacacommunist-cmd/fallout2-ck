@@ -1,4 +1,3 @@
-#include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 
 #include <unordered_map>
@@ -9,6 +8,11 @@
 static const Logger log("CK Camera Borders");
 
 extern "C" const char* ck_get_current_mod_id();
+
+namespace ck::common {
+    int current_map_id();
+    const char* current_mod_id();
+}
 
 namespace {
     //  map_id -> coordinates
@@ -46,7 +50,7 @@ namespace ck::map::borders {
     }
 
     bool is_camera_position_allowed(int tile) {
-        int map_id = ck_map_get_id();
+        int map_id = ck::common::current_map_id();
 
         auto it = g_camera_borders.find(map_id);
         if (it == g_camera_borders.end()) {
@@ -72,15 +76,15 @@ void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders) {
 
 	g_camera_borders[map_id] = *borders;
 
-	std::string mod_str(ck_get_current_mod_id());
+	std::string mod_id(ck::common::current_mod_id());
 
-	auto& map_list = g_mod_camera_borders[mod_str];
+	auto& map_list = g_mod_camera_borders[mod_id];
 	if (std::find(map_list.begin(), map_list.end(), map_id) == map_list.end()) {
 		map_list.push_back(map_id);
 	}
 
 	log.debug("Registered borders for map {} (Mod: {}): L:{}, R:{}, T:{}, B:{}",
-			map_id, mod_str,
+			map_id, mod_id,
 			borders->left, borders->right, borders->top, borders->bottom);
 }
 

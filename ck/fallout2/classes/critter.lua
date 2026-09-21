@@ -20,7 +20,7 @@ function Critter.new(lua_id, config)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
   -- save respawn tag (used on object_destroy)
-  self._respawn_queue = config._respawn_queue or nil
+  self._respawn_queue = config and config._respawn_queue or nil
 
   self.in_combat       = false
   self.active_behavior = nil
