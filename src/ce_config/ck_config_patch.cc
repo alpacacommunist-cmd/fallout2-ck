@@ -12,8 +12,8 @@ static const Logger log("CK Config Patch");
 
 namespace fallout {
     bool configSetString(Config*, const char*, const char*, const char*);
-    bool wmParseMapsConfig(Config* cfg);
-    bool wmParseAreasConfig(Config* cfg);
+    bool wmParseMapsConfig(Config* cfg, bool reindex);
+    bool wmParseAreasConfig(Config* cfg, bool reindex);
 }
 
 namespace {
@@ -84,7 +84,7 @@ namespace ck {
         if (maps_applied > 0) {
             log.info("Compiling {} map patches into worldmap. Max index before: {}",
                     maps_applied, ck::config_maps::next_index() - 1);
-            fallout::wmParseMapsConfig(&maps_cfg);
+            fallout::wmParseMapsConfig(&maps_cfg, false);
         }
 
         fallout::configFree(&maps_cfg);
@@ -110,7 +110,7 @@ namespace ck {
         if (city_applied > 0) {
             log.info("Compiling {} area patches into worldmap. Max index before: {}",
                     city_applied, ck::config_city::next_index() - 1);
-            fallout::wmParseAreasConfig(&city_cfg);
+            fallout::wmParseAreasConfig(&city_cfg, false);
         }
 
         fallout::configFree(&city_cfg);

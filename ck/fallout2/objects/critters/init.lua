@@ -127,6 +127,7 @@ function critters.create(pid, tile, config)
   -- modder registered respawn queue
   -- append callback and return
   if spawn_params.respawn then
+    local mod_id = ck.tools.current_mod_id()
     return critters.respawns.append(mod_id, pid, tile, spawn_params, critters.register)
   end
 

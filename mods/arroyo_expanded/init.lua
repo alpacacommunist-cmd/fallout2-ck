@@ -180,10 +180,10 @@ events.on('map_enter', function(map_id)
     :set_behavior(behaviors.wander, 12)
 
   local game_time = require('ck.fallout2.game_time')
-  critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))
-
-  radscorpion1 = critters.create(16777221, 27916, { team = 2, respawn = 'radscorpions' })
-  radscorpion2 = critters.create(16777221, 28513, { team = 2, respawn = 'radscorpions' })
+  -- critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))
+  --
+  -- radscorpion1 = critters.create(16777221, 27916, { team = 2, respawn = 'radscorpions' })
+  -- radscorpion2 = critters.create(16777221, 28513, { team = 2, respawn = 'radscorpions' })
 
   villager1:set_hp(1)
   --
