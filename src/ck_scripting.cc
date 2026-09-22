@@ -42,8 +42,13 @@ namespace fallout {
 
     // tile.cc
 	void tileWindowRefreshRect(Rect* rect, int elevation);
-    // interpreter_extra.cc
-    int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect);
+    // text_object.cc
+    int textObjectAdd(Object* object, char* string, int font, ColorWithFlags color, ColorWithFlags outlineColor, Rect* rect);
+
+    inline int textObjectAdd(Object* object, char* string, int font, Color color, Color outlineColor, Rect* rect)
+    {
+        return textObjectAdd(object, string, font, color | DRAW_TEXT_FLAG_NONE, outlineColor | DRAW_TEXT_FLAG_NONE, rect);
+    }
     // game.cc
 	void displayMonitorAddMessage(const char* str);
     // game_sound.cc
@@ -158,8 +163,8 @@ namespace ck::events {
         // Parse maps.txt, city.txt to get total count and cache names for validations
         ck::config_maps::preprocess_maps();
         ck::config_city::preprocess_areas();
-        logger.info("Maps count in maps.txt: {}", ck::config_maps::next_index());
-        logger.info("Areas count in city.txt: {}", ck::config_city::next_index());
+        logger.info("Maps count in maps.txt: {}", ck::config_maps::next_index() - 1);
+        logger.info("Areas count in city.txt: {}", ck::config_city::next_index() - 1);
 
         ck::proxy::init_lua_state("../?.lua;../?/init.lua");
         ck::proxy::cache_functions();

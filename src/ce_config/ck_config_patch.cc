@@ -1,4 +1,6 @@
 #include "ce_config/ck_config_patch.h"
+#include "ce_config/ck_config_maps.h"
+#include "ce_config/ck_config_city.h"
 
 #include <algorithm>
 #include <charconv>
@@ -10,10 +12,8 @@ static const Logger log("CK Config Patch");
 
 namespace fallout {
     bool configSetString(Config*, const char*, const char*, const char*);
-    bool wmParseMapsConfig(Config* cfg, int start_map_idx);
-    bool wmParseAreasConfig(Config* cfg, int start_area_idx);
-    int wmMaxMapIndex();
-    int wmMaxAreaIndex();
+    bool wmParseMapsConfig(Config* cfg);
+    bool wmParseAreasConfig(Config* cfg);
 }
 
 namespace {
@@ -82,8 +82,9 @@ namespace ck {
         }
 
         if (maps_applied > 0) {
-            log.info("Compiling {} map patches into worldmap. Max index before: {}", maps_applied, fallout::wmMaxMapIndex());
-            fallout::wmParseMapsConfig(&maps_cfg, fallout::wmMaxMapIndex() + 1);
+            log.info("Compiling {} map patches into worldmap. Max index before: {}",
+                    maps_applied, ck::config_maps::next_index() - 1);
+            fallout::wmParseMapsConfig(&maps_cfg);
         }
 
         fallout::configFree(&maps_cfg);
@@ -107,8 +108,9 @@ namespace ck {
         }
 
         if (city_applied > 0) {
-            log.info("Compiling {} area patches into worldmap. Max index before: {}", city_applied, fallout::wmMaxAreaIndex());
-            fallout::wmParseAreasConfig(&city_cfg, fallout::wmMaxAreaIndex() + 1);
+            log.info("Compiling {} area patches into worldmap. Max index before: {}",
+                    city_applied, ck::config_city::next_index() - 1);
+            fallout::wmParseAreasConfig(&city_cfg);
         }
 
         fallout::configFree(&city_cfg);
