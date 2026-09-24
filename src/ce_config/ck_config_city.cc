@@ -11,7 +11,13 @@ static const Logger log("CK City");
 
 namespace ck::config_city {
     static std::unordered_set<std::string> g_registered_area_names;
+    static std::unordered_map<std::string, int> g_area_entrances_cache;
     static int current_areas_num = 0;
+
+    std::string to_lower(std::string string) {
+        std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+        return string;
+    }
 
     std::string format_section(int area_id) {
         return std::format("Area {:02d}", area_id);
@@ -40,9 +46,19 @@ namespace ck::config_city {
 
             if (!fallout::configGetString(&cfg, section, "area_name", &area_name)) break;
             if (area_name) {
-                std::string area_lower(area_name);
-                std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
-                g_registered_area_names.insert(area_lower);
+                g_registered_area_names.insert(to_lower(area_name));
+
+                // entrances count
+                int entrances = 0;
+                char key[64];
+                while (true) {
+                    snprintf(key, sizeof(key), "entrance_%d", entrances);
+                    char* dummy_str = nullptr;
+                    if (!fallout::configGetString(&cfg, section, key, &dummy_str)) break;
+                    entrances++;
+                }
+
+                g_area_entrances_cache[to_lower(section)] = entrances;
             }
 
             idx++;
@@ -50,29 +66,18 @@ namespace ck::config_city {
         }
 
         fallout::configFree(&cfg);
-
         return true;
     }
 
     int next_entrance_index(const char* section_name) {
-        fallout::Config cfg;
+        std::string sec_lower = to_lower(section_name);
 
-        if (!fallout::configInit(&cfg)) return -1;
-        if (!configRead(&cfg, "data\\city.txt", true)) return 0;
-
-        int ent_idx = 0;
-        char key[64];
-
-        while (true) {
-            snprintf(key, sizeof(key), "entrance_%d", ent_idx);
-            char* dummy_str = nullptr;
-
-            if (!fallout::configGetString(&cfg, section_name, key, &dummy_str)) break;
-            ent_idx++;
+        auto it = g_area_entrances_cache.find(sec_lower);
+        if (it != g_area_entrances_cache.end()) {
+            return it->second;
         }
 
-        fallout::configFree(&cfg);
-        return ent_idx;
+        return 0;
     }
 
     int expand_location(const std::string& mod_id, int area_id,
@@ -89,14 +94,14 @@ namespace ck::config_city {
 
 		ck::config_patch_add(mod_id, city_path, area_section, entrance_key, entrance_value);
 
+        g_area_entrances_cache[to_lower(area_section)] = target_entrance_id + 1;
 		return target_entrance_id;
     }
 
 	int register_location(const std::string& mod_id, const std::string& name,
                           int world_x, int world_y, const std::string& size) {
 
-        std::string area_lower = name;
-        std::transform(area_lower.begin(), area_lower.end(), area_lower.begin(), ::tolower);
+        std::string area_lower = to_lower(name);
         int area_index = next_index();
 
         if (g_registered_area_names.find(area_lower) != g_registered_area_names.end()) {
