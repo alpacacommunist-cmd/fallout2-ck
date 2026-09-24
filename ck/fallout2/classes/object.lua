@@ -89,63 +89,58 @@ function Object:emit(event_name, ...)
   return self
 end
 
+local proc_defaults = {
+  look_at = function(self, fixed_param)
+    if self.name then
+      monitor.print(self.name)
+      return true
+    end
+  end,
+
+  description = function(self, fixed_param)
+    if self.description then
+      monitor.print(self.description)
+      return true
+    end
+  end,
+
+  damage = function(self, fixed_param)
+    log.info('damaged object: ' .. tostring(self.lua_id))
+    return false
+  end,
+
+  destroy = function(self, fixed_param)
+    if ffi.C.ck_mods_reload_in_progress() then return false end
+
+    log.info('Object destroyed: ' .. tostring(self.lua_id))
+
+    if self:type() == 'critter' then
+      log.info('Critter destroyed: ' .. tostring(self.lua_id))
+
+      ffi.C.ck_critter_kill(self.lua_id)
+      objects.registry[self.lua_id] = nil
+
+      return true
+    end
+  end
+}
+
 function Object:_handle_proc(proc_id, fixed_param)
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
   -- check custom callbacks eg alice:on, door:on etc
-  if self.handlers[event_name] then
-    local result = self.handlers[event_name](self, fixed_param)
-
+  local object_handler = self.handlers[event_name]
+  if object_handler then
+    local result = object_handler(self, fixed_param)
     if result ~= nil then return result end
   end
 
   -- defaults
-  if event_name == "look_at" then
-    if self.name then
-      monitor.print(self.name)
-
-      return true
-    end
-
-  elseif event_name == "description" then
-    if self.description then
-      monitor.print(self.description)
-
-      return true
-    end
-
-  elseif event_name == "damage" then
-    log.info('damaged object: ' .. tostring(self.lua_id))
-
-    return false
-
-  elseif event_name == "destroy" then
-    if (ffi.C.ck_mods_reload_in_progress()) then return false end
-
-    log.info('Object destroyed: ' .. tostring(self.lua_id))
-
-    -- remove from registry
-    objects.registry[self.mod_id][self.lua_id] = nil
-
-    if self:type() == 'critter' then
-      log.info('Critter destroyed: ' .. tostring(self.lua_id))
-
-      -- run callback
-      ffi.C.ck_critter_kill(self.lua_id)
-      -- update active tags
-      -- ck.registries.critter_active_tags[self.mod_id][self.tag] = false
-
-      if (self._respawn_queue) then
-        -- update respawn counters
-        local respawn = ck.registries.critter_respawns[self.mod_id][self._respawn_queue]
-        respawn.spawned_count = respawn.spawned_count - 1
-      end
-
-      return true
-    end
-
-    return false
+  local default_handler = proc_defaults[event_name]
+  if default_handler then
+    local result = default_handler(self, fixed_param)
+    if result ~= nil then return result end
   end
 
   return false
@@ -176,7 +171,7 @@ function Object:type()
 end
 
 function Object:give_item(item_pid, count)
-  count      = count or 1
+  count = count or 1
 
   return items.add(self.c_ptr, item_pid, count)
 end
