@@ -153,14 +153,8 @@ function Critter:animate()
   return builder
 end
 
-function Critter:_handle_proc(proc_id, fixed_param)
-  -- check if proc is already handled in Object
-  if Object._handle_proc(self, proc_id, fixed_param) then return true end
-
-  local event_name = Object.PROC_NAMES[proc_id]
-  if not event_name then return false end
-
-  if event_name == "combat" then
+local proc_handlers = {
+  combat = function(self, fixed_param)
     log.info(string.format("combat npc: %d, fixed_param: %d", self.lua_id, fixed_param))
 
     if fixed_param == 5 then
@@ -173,17 +167,31 @@ function Critter:_handle_proc(proc_id, fixed_param)
     end
 
     return true
+  end,
 
-  elseif event_name == "talk" then
+  talk = function(self, fixed_param)
     if not dialogs.is_registered(self.lua_id) then return end
 
     dialogs.start(self.lua_id)
     self:clear_animations():emit('dialog_finished')
 
     return true
+  end,
 
-  elseif event_name == "push" then
+  push = function(self, fixed_param)
     return false
+  end
+}
+
+function Critter:_handle_proc(proc_id, fixed_param)
+  local event_name = Object.PROC_NAMES[proc_id]
+  if not event_name then return false end
+
+  -- defaults
+  local default_handler = proc_handlers[event_name]
+  if default_handler then
+    local result = default_handler(self, fixed_param)
+    if result ~= nil then return result end
   end
 
   return false

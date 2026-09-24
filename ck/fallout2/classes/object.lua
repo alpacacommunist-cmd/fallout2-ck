@@ -89,7 +89,7 @@ function Object:emit(event_name, ...)
   return self
 end
 
-local proc_defaults = {
+local proc_handlers = {
   look_at = function(self, fixed_param)
     if self.name then
       monitor.print(self.name)
@@ -137,7 +137,7 @@ function Object:_handle_proc(proc_id, fixed_param)
   end
 
   -- defaults
-  local default_handler = proc_defaults[event_name]
+  local default_handler = proc_handlers[event_name]
   if default_handler then
     local result = default_handler(self, fixed_param)
     if result ~= nil then return result end
