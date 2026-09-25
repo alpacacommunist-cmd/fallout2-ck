@@ -89,8 +89,11 @@ ck.registries = {
   state_mod_namespace_keys_lookup = {},
 
   -- Mod specific
-  -- ck/system/events.lua
+  -- ck/system/events.lua 📞
   events  = {},
+
+  -- ck/fallout2/assets.lua 🌲
+  assets = {},
 
   -- ck/fallout2/objects/init.lua
   objects = {},
@@ -128,6 +131,9 @@ function ck.registries.init_mod(mod_id)
     ck.registries.events[mod_id][listener] = {}
   end
 
+  -- 🌲
+  ck.registries.assets[mod_id] = {}
+
   ck.registries.objects[mod_id] = {}
 
   -- 💬
@@ -154,6 +160,8 @@ function ck.registries.clear_mod(mod_id)
   end
 
   ck.registries.events[mod_id] = nil
+  -- 🌲
+  ck.registries.assets[mod_id] = nil
 
   ck.registries.objects[mod_id] = nil
 
@@ -174,6 +182,9 @@ end
 
 function ck.registries.reset_map_context()
   for _, mod_id in ipairs(ck.active_mods) do
+    -- 🌲
+    ck.registries.assets[mod_id] = {}
+
     ck.registries.objects[mod_id] = {}
 
     -- 💬
