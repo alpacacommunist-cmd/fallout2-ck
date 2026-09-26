@@ -29,6 +29,7 @@ bool ck_input_pressed(CkKey key);
 bool ck_input_just_pressed(CkKey key);
 
 CkKey ck_input_get_just_pressed_key();
+void ck_input_reset();
 
 bool ck_input_shift();
 bool ck_input_ctrl();

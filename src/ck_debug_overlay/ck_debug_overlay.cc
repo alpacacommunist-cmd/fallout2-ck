@@ -9,9 +9,12 @@
 #include "map/ck_map_camera_borders.h"
 
 #include "game_sound.h"
+// #include "svga.h"
+// #include "map.h"
+// #include "dbox.h"
 
 #include "ck_log.h"
-static const Logger log("CK DBG");
+static const Logger logger("CK DBG");
 
 namespace ck::common {
     int current_map_id();
@@ -47,7 +50,7 @@ static void mode_palette() {
 			? hex->customColor
 			: ck_debug_get_color_for_state(hex->state);
 
-		log.debug("tile={}, state={}, color= edge: {}, inner: {}", currentMouseTile, (int)hex->state,
+		logger.debug("tile={}, state={}, color= edge: {}, inner: {}", currentMouseTile, (int)hex->state,
 				(int)color.edge, (int)color.inner);
 	} else {
 		if (!isShift) return;
@@ -197,7 +200,7 @@ static void mode_main_export() {
 	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
 
     if (selectedHexes.empty()) {
-        log.info("no hexes selected!");
+        logger.info("no hexes selected!");
         return;
     }
 
@@ -244,6 +247,34 @@ static void mode_main_toggle_hidden_in_rect() {
 	gNeedsRefresh = true;
 }
 
+// static void mode_main_teleport_to_map() {
+//     int windowX = (fallout::screenGetWidth() - 277) / 2;
+//     int windowY = (fallout::screenGetHeight() - 170) / 2;
+//
+//     fallout::isoDisable();
+//     auto inputResult = fallout::showInputDialog("", windowX, windowY, "Done");
+//
+//     if (inputResult.has_value()) {
+//         try {
+//             int map_id = std::stoi(*inputResult);
+//             logger.info("MAP ID: {}", map_id);
+//             // ck_teleport_to_map(map_id); 
+//
+//             gNeedsRefresh = true; 
+//         } 
+//         catch (const std::invalid_argument& e) {
+//             logger.error("Invalid map ID format");
+//         }
+//         catch (const std::out_of_range& e) {
+//             logger.error("Map ID out of range");
+//         }
+//     }
+//
+//     fallout::isoEnable();
+//
+//     ck_input_reset(); 
+// }
+
 static void mode_main() {
 	mode_main_dude_scan();
 	mode_main_paint(); // uses shift+w (select) shift+x(clear)
@@ -271,13 +302,13 @@ static void mode_main() {
 
 		case CK_KEY_T:     {
 							   if (ck_input_alt()) ck_teleport_to_tile();
+                               // if (ck_input_ctrl()) mode_main_teleport_to_map();
 							   break;
 						   }
 	}
 
 	ck_input_update(); // key just pressed
 }
-
 
 namespace ck::debug_overlay {
     bool enabled() { return gDebugOverlayEnabled; }

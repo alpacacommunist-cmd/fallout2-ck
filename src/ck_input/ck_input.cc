@@ -64,6 +64,15 @@ CkKey ck_input_get_just_pressed_key() {
     return CK_KEY_NONE;
 }
 
+void ck_input_reset() {
+    for (int i = 0; i < CK_KEY_COUNT; ++i) {
+        int scancode = ck_to_scancode(static_cast<CkKey>(i));
+        if (scancode > 0 && scancode < 512) {
+            g_previous_keys[scancode] = (fallout::gPressedPhysicalKeys[scancode] != KEY_STATE_UP);
+        }
+    }
+}
+
 bool ck_input_shift() {
     return fallout::gPressedPhysicalKeys[SDL_SCANCODE_LSHIFT] || fallout::gPressedPhysicalKeys[SDL_SCANCODE_RSHIFT];
 }
