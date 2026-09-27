@@ -252,9 +252,9 @@ static void mode_main_toggle_hidden_in_rect() {
 //     int windowY = (fallout::screenGetHeight() - 170) / 2;
 //
 //     fallout::isoDisable();
-//     auto inputResult = fallout::showInputDialog("", windowX, windowY, "Done");
+//     const char* result = fallout::showInputDialog("", windowX, windowY, "Done");
 //
-//     if (inputResult.has_value()) {
+//     if (result != nullptr) {
 //         try {
 //             int map_id = std::stoi(*inputResult);
 //             logger.info("MAP ID: {}", map_id);
@@ -262,11 +262,8 @@ static void mode_main_toggle_hidden_in_rect() {
 //
 //             gNeedsRefresh = true; 
 //         } 
-//         catch (const std::invalid_argument& e) {
-//             logger.error("Invalid map ID format");
-//         }
-//         catch (const std::out_of_range& e) {
-//             logger.error("Map ID out of range");
+//         catch (const std::exception& e) {
+//             logger.error("Invalid map ID format or range");
 //         }
 //     }
 //
