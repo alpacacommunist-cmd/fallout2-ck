@@ -14,12 +14,23 @@ namespace ck::config_city {
     static std::unordered_map<std::string, int> g_area_entrances_cache;
     static int current_areas_num = 0;
 
-    std::string to_lower(std::string string) {
+    static std::string to_lower(std::string string) {
         std::transform(string.begin(), string.end(), string.begin(), ::tolower);
         return string;
     }
 
-    std::string format_section(int area_id) {
+    static int next_entrance_index(const char* area_name) {
+        std::string area_lower = to_lower(area_name);
+
+        auto it = g_area_entrances_cache.find(area_lower);
+        if (it != g_area_entrances_cache.end()) {
+            return it->second;
+        }
+
+        return 0;
+    }
+
+    static std::string format_section(int area_id) {
         return std::format("Area {:02d}", area_id);
     }
 
@@ -67,17 +78,6 @@ namespace ck::config_city {
 
         fallout::configFree(&cfg);
         return true;
-    }
-
-    int next_entrance_index(const char* section_name) {
-        std::string sec_lower = to_lower(section_name);
-
-        auto it = g_area_entrances_cache.find(sec_lower);
-        if (it != g_area_entrances_cache.end()) {
-            return it->second;
-        }
-
-        return 0;
     }
 
     int expand_location(const std::string& mod_id, int area_id,

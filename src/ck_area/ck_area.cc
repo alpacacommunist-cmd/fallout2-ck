@@ -89,7 +89,6 @@ namespace ck {
 	void area_on_map_header_set(fallout::MapHeader* header) {
 		if (g_current_loading_map_id != -1 && header != nullptr) {
 			logger.info("Memory patching map header index: {} -> {}", static_cast<int>(header->index), g_current_loading_map_id);
-
 			header->index = fallout::Map(g_current_loading_map_id);
 		}
 
