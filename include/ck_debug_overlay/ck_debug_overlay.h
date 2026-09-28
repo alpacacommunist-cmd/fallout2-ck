@@ -12,29 +12,8 @@ enum class ExportMode {
 
 namespace fallout {
 #define MOUSE_EVENT_LEFT_BUTTON_REPEAT 0x04
-    enum Rotation : int;
-
 	struct Rect;
-	struct Object;
-
-	extern Object* gDude;
-
-	int  mouseGetEvent();
-	void mouseGetPosition(int* out_x, int* out_y);
-
-    int tileGetTileInDirection(int tile, Rotation rotation, int distance);
-
-	int  tileFromScreenXY(int x, int y, bool ignoreBounds);
-	void tileWindowRefresh();
-
-	void displayMonitorAddMessage(const char* str);
-
-	bool isExitGridAt(int tile, int elevation);
-	char* objectGetName(Object* obj);
-	Object* _obj_blocking_at(Object* excludeObj, int tile_num, int elev);
-	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
 }
-
 
 namespace ck::debug_overlay {
     bool enabled();

@@ -20,6 +20,39 @@ namespace ck::common {
     int current_map_id();
 }
 
+namespace fallout {
+    enum Rotation : int;
+	struct Object;
+
+	extern Object* gDude;
+
+	int  mouseGetEvent();
+	void mouseGetPosition(int* out_x, int* out_y);
+
+    int tileGetTileInDirection(int tile, Rotation rotation, int distance);
+
+	int  tileFromScreenXY(int x, int y, bool ignoreBounds);
+	void tileWindowRefresh();
+
+	void displayMonitorAddMessage(const char* str);
+
+	bool isExitGridAt(int tile, int elevation);
+	char* objectGetName(Object* obj);
+	Object* _obj_blocking_at(Object* excludeObj, int tile_num, int elev);
+	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
+
+    // svga.cc
+    int screenGetWidth();
+    int screenGetHeight();
+
+    // map.cc
+    bool isoDisable();
+    bool isoEnable();
+
+    // dbox.cc
+    const char* showInputDialog(const char* currentInput, int x, int y, const char* doneText);
+}
+
 static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
@@ -247,30 +280,30 @@ static void mode_main_toggle_hidden_in_rect() {
 	gNeedsRefresh = true;
 }
 
-// static void mode_main_teleport_to_map() {
-//     int windowX = (fallout::screenGetWidth() - 277) / 2;
-//     int windowY = (fallout::screenGetHeight() - 170) / 2;
-//
-//     fallout::isoDisable();
-//     const char* result = fallout::showInputDialog("", windowX, windowY, "Done");
-//
-//     if (result != nullptr) {
-//         try {
-//             int map_id = std::stoi(*inputResult);
-//             logger.info("MAP ID: {}", map_id);
-//             // ck_teleport_to_map(map_id); 
-//
-//             gNeedsRefresh = true; 
-//         } 
-//         catch (const std::exception& e) {
-//             logger.error("Invalid map ID format or range");
-//         }
-//     }
-//
-//     fallout::isoEnable();
-//
-//     ck_input_reset(); 
-// }
+static void mode_main_teleport_to_map() {
+    int windowX = (fallout::screenGetWidth() / 2);
+    int windowY = (fallout::screenGetHeight() / 2);
+
+    fallout::isoDisable();
+    const char* result = fallout::showInputDialog("", windowX, windowY, "Done");
+
+    if (result != nullptr) {
+        try {
+            int map_id = std::stoi(result);
+            logger.info("MAP ID: {}", map_id);
+            // ck_teleport_to_map(map_id);
+
+            gNeedsRefresh = true;
+        }
+        catch (const std::exception& e) {
+            logger.error("Invalid map ID format or range");
+        }
+    }
+
+    fallout::isoEnable();
+
+    ck_input_reset();
+}
 
 static void mode_main() {
 	mode_main_dude_scan();
@@ -299,7 +332,7 @@ static void mode_main() {
 
 		case CK_KEY_T:     {
 							   if (ck_input_alt()) ck_teleport_to_tile();
-                               // if (ck_input_ctrl()) mode_main_teleport_to_map();
+                               if (ck_input_ctrl()) mode_main_teleport_to_map();
 							   break;
 						   }
 	}
