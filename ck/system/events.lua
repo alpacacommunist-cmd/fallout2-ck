@@ -149,7 +149,7 @@ end
 
 -- Runs before mod's map_enter callback
 function events.before_map_enter(mod_id, map_id)
-  for _, mod_id in ipairs(ck.active_mods_list) do state.ensure_mod_namespace(mod_id) end
+  state.ensure_mod_namespace(mod_id)
 end
 
 function events.after_map_enter(mod_id, map_id)

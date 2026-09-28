@@ -187,6 +187,10 @@ function Critter:_handle_proc(proc_id, fixed_param)
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end
 
+  -- check if proc is handled in Object
+  local result = Object._handle_proc(self, proc_id, fixed_param)
+  if result ~= nil then return result end
+
   -- defaults
   local default_handler = proc_handlers[event_name]
   if default_handler then
