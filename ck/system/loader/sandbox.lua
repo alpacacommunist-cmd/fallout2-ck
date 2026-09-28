@@ -88,7 +88,7 @@ function sandbox.create_env(mod_data)
 
     if is_system_module then
       local success, module = pcall(_G.require, target_name)
-      if not success then error(module) end
+      if not success then _G.error(module) end
 
       local result_to_cache = module
 
@@ -111,7 +111,7 @@ function sandbox.create_env(mod_data)
     local content = utils.read_file(filepath, log)
     local chunk, chunk_err = utils.compile_chunk(content, filepath)
     if not chunk then
-      error(string.format("Syntax error in '%s':\n%s", target_name, chunk_err))
+      _G.error(string.format("Syntax error in '%s':\n%s", target_name, chunk_err))
     end
 
     -- (JIT-friendly, chunk wasn't executed yet)
@@ -120,7 +120,7 @@ function sandbox.create_env(mod_data)
     -- exec chunk
     local success, result = xpcall(chunk, debug.traceback)
     if not success then
-      error(string.format("Runtime error in '%s':\n%s", target_name, result))
+      _G.error(string.format("Runtime error in '%s':\n%s", target_name, result))
     end
 
     package.loaded[target_name] = result or true
