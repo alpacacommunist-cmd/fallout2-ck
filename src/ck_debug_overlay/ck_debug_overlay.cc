@@ -285,7 +285,7 @@ static void mode_main_teleport_to_map() {
     int windowY = (fallout::screenGetHeight() / 2);
 
     fallout::isoDisable();
-    const char* result = fallout::showInputDialog("", windowX, windowY, "Done");
+    const char* result = fallout::showInputDialog("MAP ID", windowX, windowY, "Done");
 
     if (result != nullptr) {
         try {
