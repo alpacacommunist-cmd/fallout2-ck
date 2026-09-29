@@ -1,4 +1,5 @@
 local ffi = require('ffi')
+local log = require('ck/system/log').new('stats.lua')
 
 local SKILLS_MAP    = {} -- name -> int
 local SKILLS_ID_MAP = {} -- int -> name
@@ -33,11 +34,11 @@ function skills.create_proxy(read_skill_fn, write_skill_fn)
       local c_skill = SKILLS_MAP[key]
       if c_skill then
         if type(value) ~= "number" then
-          error(string.format("Skill '%s' must be a number, got %s", key, type(value)))
+          log.error("Skill '%s' must be a number, got %s", key, type(value))
         end
         write_skill_fn(c_skill, value)
       else
-        error(string.format("Unknown skill name: '%s'", tostring(key)))
+        log.error("Unknown skill name: '%s'", tostring(key))
       end
     end
   end

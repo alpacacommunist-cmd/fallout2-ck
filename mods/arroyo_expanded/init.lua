@@ -120,16 +120,15 @@ events.on('map_enter', function(map_id)
   knowledge.grant(KN_SCORPION_HARVEST)
 
   -- Alice --
-  local alice_prototype = critters.allocate_prototype(16777255,
-    { name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain' }
-  )
-  alice_prototype
-    :set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 })
-    :set_skills({ small_guns = 200 })
+  local alice_prototype = critters.allocate_prototype(16777255, {
+    name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain',
+    stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
+    skills = { small_guns = 200 }
+  })
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
-  alice:bind()
+  alice:bind() -- removed script_index, assigns lua SID
   alice.stats = { max_hp = 355, hp = 255 }
 
   local alice_dialog = require('.dialogs').alice_nodes

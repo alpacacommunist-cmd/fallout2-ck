@@ -149,6 +149,10 @@ function utils.table_remove_by_value(list, value)
   return false
 end
 
+function utils.table_is_empty(table)
+  return next(table) == nil
+end
+
 function utils.read_file(path, context_log)
   local file = io.open(path, "r")
   local log = context_log or log

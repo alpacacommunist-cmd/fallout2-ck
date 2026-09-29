@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local log = require('ck/system/log').new('stats.lua')
 
 local STATS_MAP = {}
 local PC_STATS_MAP = {}
@@ -35,11 +36,11 @@ function stats.create_proxy(read_stat_fn, write_stat_fn)
       local c_stat = STATS_MAP[key]
       if c_stat then
         if type(value) ~= "number" then
-          error(string.format("Stat '%s' must be a number, got %s", key, type(value)))
+          log.error("Stat '%s' must be a number, got %s", key, type(value))
         end
         write_stat_fn(c_stat, value)
       else
-        error(string.format("Unknown stat name: '%s'", tostring(key)))
+        log.error("Unknown stat name: '%s'", tostring(key))
       end
     end
   end

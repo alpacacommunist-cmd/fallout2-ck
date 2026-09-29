@@ -37,12 +37,21 @@ function critters.allocate_prototype(pid, config)
   local proto_params = ffi.new("CritterLuaProtoParams", {
     name = proto_name,
     description = proto_description,
-    ai_packet = ai_packet,
+    ai_packet = ai_packet
   })
 
   local allocated_pid = ffi.C.ck_critter_allocate_prototype(pid, proto_params)
+  local proto = CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
 
-  return CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
+  if config.stats and not utils.table_is_empty(config.stats) then
+    proto:set_stats(config.stats)
+  end
+
+  if config.skills and not utils.table_is_empty(config.skills) then
+    proto:set_skills(config.skills)
+  end
+
+  return proto
 end
 
 -- Spawn/create

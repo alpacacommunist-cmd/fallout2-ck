@@ -60,7 +60,7 @@ function respawns.register(tag, ticks, config)
 end
 
 function respawns.remove(mod_id, tag)
-  local respawn = respawns.regitry[mod_id][tag]
+  local respawn = respawns.regitsry[mod_id][tag]
   if not respawn then return false end
 
   if timers.remove(respawn.timer_tag) then
