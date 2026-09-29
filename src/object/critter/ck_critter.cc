@@ -46,10 +46,6 @@ namespace fallout {
 }
 
 namespace ck::critter {
-    static bool has_proto_params(const CritterLuaProtoParams* params) {
-        return !(utils::is_blank(params->name) && utils::is_blank(params->description));
-    }
-
 	static fallout::Object* create(int pid, int tile, int elevation) {
 		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
 
@@ -76,13 +72,11 @@ namespace ck::critter {
 
     void reset_prototypes_for_mod(const std::string& mod_id) {
         ck::critter::proto::clear_prototypes_for_mod(mod_id);
-
         logger.debug("Reset prototypes for mod: {}", mod_id);
     }
 
     void reset_prototypes() {
         ck::critter::proto::clear_prototypes();
-
         logger.debug("Cleared map context critter prototypes");
     }
 
@@ -110,22 +104,13 @@ namespace ck::critter {
         logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
     }
 
-	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params) {
+	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
         int lua_id = -1;
 
 		int map_id         = common::current_map_id();
 		std::string mod_id = common::current_mod_id();
 
         int source_pid = pid;
-
-        bool prototype_required = !utils::is_blank(spawn_params->tag) && has_proto_params(params);
-        if (prototype_required) {
-            int unique_pid = ck::critter::proto::allocate(pid, params);
-            if (unique_pid == -1) return lua_id;
-
-            pid = unique_pid;
-        }
-
         std::string lua_tag = spawn_params->tag;
 
         // Check if state json exists for given tag
@@ -137,8 +122,6 @@ namespace ck::critter {
         bool critter_alive = (state.hp > 0 || state.id == -1);
 
         if (!critter_alive) {
-            // Has no custom proto attributes, body is handled by fallout2-ce
-            if (!prototype_required) return -2;
             return handle_dead_critter_spawn(state.id, pid, tile, spawn_params->elevation);
         }
 
@@ -179,8 +162,8 @@ namespace ck::critter {
 	}
 }
 
-int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params) {
-	return ck::critter::spawn(pid, tile, spawn_params, params);
+int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
+	return ck::critter::spawn(pid, tile, spawn_params);
 }
 
 int ck_anim_begin(void* ptr, int request_options) {

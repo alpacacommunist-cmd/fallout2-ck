@@ -21,12 +21,12 @@ namespace ck::critter {
     bool has_custom_prototype(int pid);
     void clear_spawn_queues();
 
-	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
+	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
     void assign_script(fallout::Object* critter, int script_index, int lua_id);
     bool kill(int lua_id);
 }
 
-CK_API int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
+CK_API int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_take_out_weapon(fallout::Object* critter, int delay);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);

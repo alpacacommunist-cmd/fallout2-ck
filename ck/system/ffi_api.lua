@@ -132,7 +132,7 @@ ffi.cdef[[
     int team;
   } CritterLuaProtoParams;
 
-  int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params, const CritterLuaProtoParams* params);
+  int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
 
   int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
