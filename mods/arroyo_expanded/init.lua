@@ -122,12 +122,13 @@ events.on('map_enter', function(map_id)
   -- Alice --
   local alice_prototype = critters.allocate_prototype(16777255, {
     name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain',
-    stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
+    stats = { strength = 8, endurance = 8, agility = 8, perception = 7, luck = 5, hp = 75, max_hp = 90 },
     skills = { small_guns = 200 }
   })
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
+  alice:set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 375, max_hp = 390 })
   alice:bind() -- removes script_index, assigns lua SID
 
   local alice_dialog = require('.dialogs').alice_nodes
@@ -161,13 +162,13 @@ events.on('map_enter', function(map_id)
     :play(16)
   :submit()
 
-  log.info("Alice endurance: %d", alice:stats().endurance)
+  log.info("Alice endurance: %d", alice.stats.endurance)
+  log.info("Alice proto endurance: %d", alice.proto.stats.endurance)
   log.info("Alice hp: %d", alice:hp())
   log.info("Alice max hp: %d", alice:max_hp())
-  log.info("Alice crit_chance: %d", alice:stats().critical_chance)
-  log.info("Alice small_weapons: %d", alice:skills().small_guns)
+  log.info("Alice crit_chance: %d", alice.stats.critical_chance)
+  log.info("Alice small_weapons: %d", alice.skills.small_guns)
   --! Alice --
-
 
   local villager1 = critters.create(16777219, 21119, { team = 0, script_index = 8 })
   local villager2 = critters.create(16777220, 21716, { team = 0, script_index = 8 })
@@ -198,7 +199,7 @@ events.on('map_enter', function(map_id)
     :set_skills({ unarmed = 100, small_guns = 85 })
 
   local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8 })
-  log.info("trapper1 unarmed: %d", trapper1:skills().unarmed)
+  log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))

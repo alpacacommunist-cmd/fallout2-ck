@@ -38,11 +38,36 @@ function Critter.new(lua_id, config)
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
+  -- stats/skills (critterGetStat, critterGetSkill proxies)
+  self.stats = stats.create_proxy(function(stat_id)
+    local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
+    local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+
+    return base + bonus
+  end)
+
+  self.skills = skills.create_proxy(function(skill_id)
+    return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
+  end)
+
   return self
 end
 
-function Critter:stats() return self.proto.stats end
-function Critter:skills() return self.proto.skills end
+-- TODO: supposed to set bonus stats
+function Critter:set_stats(stats_table)
+  if stats_table == nil or utils.table_is_empty(stats_table) then return nil end
+
+  stats.assign(self.c_ptr, stats_table)
+end
+
+-- TODO: see if it makes sense (bonus skills/buffs)
+function Critter:set_skills(skills)
+  if skills == nil or utils.table_is_empty(skills) then return nil end
+
+  for skill_id, skill_value in pairs(skills) do
+    ffi.C.ck_critter_set_skill(self.c_ptr, skills.MAP[skill_id], skill_value)
+  end
+end
 
 function Critter:gender() return ffi.C.ck_critter_get_gender(self.c_ptr) end
 function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
