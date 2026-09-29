@@ -32,55 +32,16 @@ function Critter.new(lua_id, config)
   self._behavior_interval  = 20
 
   if (self.has_custom_prototype) then
-    -- stats
-    self._stats_proxy = stats.create_proxy(function(stat_id)
-      local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-      local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
-
-      return base + bonus
-    end)
-    -- skills
-    self._skills_proxy = skills.create_proxy(function(skill_id)
-      return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
-    end)
-
-    if config and config.stats  then self.stats = config.stats end
-    if config and config.skills then self.skills = config.skills end
+    -- redirect stats/skills to proto
   end
 
   return self
 end
 
---
--- refactoring candidate
---
 function Critter:__index(key)
-  if key == "stats"  then return self._stats_proxy end
-  if key == "skills" then return self._skills_proxy end
-
-  local val = rawget(Critter, key)
-  if val ~= nil then return val end
-
-  return Object[key]
 end
 
---
--- refactoring candidate
---
 function Critter:__newindex(key, value)
-  if key == "stats" then
-    self._stats_pending = value
-
-    stats.assign(self.c_ptr, value)
-  elseif key == "skills" then
-    self._skills_pending = value
-
-    for skill_id, skill_value in pairs(value) do
-      ffi.C.ck_critter_set_skill(self.c_ptr, skills.MAP[skill_id], skill_value)
-    end
-  else
-    rawset(self, key, value)
-  end
 end
 
 function Critter:gender() return ffi.C.ck_critter_get_gender(self.c_ptr) end

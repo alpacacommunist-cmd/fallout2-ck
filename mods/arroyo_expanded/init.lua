@@ -128,7 +128,7 @@ events.on('map_enter', function(map_id)
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
-  alice:bind() -- removed script_index, assigns lua SID
+  alice:bind() -- removes script_index, assigns lua SID
   alice.stats = { max_hp = 355, hp = 255 }
 
   local alice_dialog = require('.dialogs').alice_nodes

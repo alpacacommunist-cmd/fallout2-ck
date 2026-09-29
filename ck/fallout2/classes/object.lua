@@ -34,17 +34,6 @@ function Object.new(lua_id)-- tag, mod_id, config)
   self.modified    = ffi.C.ck_registry_object_is_modified(self.lua_id)
   self.created     = ffi.C.ck_registry_object_is_created(self.lua_id)
 
-  -- log.debug("object is created: %s, mod_id: %s, tag: %s", self.created, self.mod_id, self.tag)
-  -- self.has_lua_script = ffi.C.ck_is_sid_ck_custom(self.sid)
-  -- if self.has_lua_script then
-  --   log.debug("object lua_id: %d has custom lua sid: %d", self.lua_id, self.sid)
-  -- else
-  --   log.debug("object lua_id: %d has base sid: %d", self.lua_id, self.sid)
-  -- end
-
-  -- self.name        = config.name
-  -- self.description = config.description
-  --
   self.elevation = self.fallout_Object.elevation
 
   self.handlers = {}
