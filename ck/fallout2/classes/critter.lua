@@ -198,7 +198,7 @@ function Critter:_handle_proc(proc_id, fixed_param)
     if result ~= nil then return result end
   end
 
-  return false
+  return nil
 end
 
 function Critter:_handle_map_update(current_ticks)

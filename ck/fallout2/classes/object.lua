@@ -143,7 +143,7 @@ function Object:_handle_proc(proc_id, fixed_param)
     if result ~= nil then return result end
   end
 
-  return false
+  return nil
 end
 
 function Object:restore()

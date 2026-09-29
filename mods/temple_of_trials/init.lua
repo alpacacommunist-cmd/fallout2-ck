@@ -37,12 +37,10 @@ end)
 events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
-  local ralph = critters.register("ralph_arroyo", 16777217, 19905, {
-    name        = 'Ralph',
-    description = 'Ralph the Wanderer'
-  })
+  local ralph_prototype = critters.allocate_prototype(16777217, { name = 'Ralph', description = 'Ralph The Wanderer' })
+  ralph_prototype:set_stats({ max_hp = 10, hp = 1 })
 
-  ralph.stats = { max_hp = 10, hp = 1 }
+  local ralph = critters.register('ralph_arroyo', ralph_prototype.pid, 19905)
 
   -- ralph:set_behavior(behaviors.wander, 3)
 end)
@@ -50,12 +48,10 @@ end)
 events.on('map_enter', function(map_id)
   if map_id ~= 72 then return end
 
-  local ralph = critters.register("ralph_the_second_arroyo", 16777217, 25103, { -- elevation 0 test
-  -- local ralph = critters.register("ralph_the_second_arroyo", 16777217, 18536, { -- elevation 1 test
-    name        = 'Ralph The Second',
-    description = 'Ralph the Wanderer',
-    elevation = 0
-  })
+  local ralph_prototype = critters.allocate_prototype(16777217, { name = 'Ralph', description = 'Ralph The Wanderer' })
+  ralph_prototype:set_stats({ max_hp = 10, hp = 1 })
+
+  local ralph = critters.register('ralph_arroyo', ralph_prototype.pid, 25103)
 
   if (ralph) then
     ralph.stats = { max_hp = 10, hp = 1 }

@@ -119,25 +119,21 @@ events.on('map_enter', function(map_id)
 
   knowledge.grant(KN_SCORPION_HARVEST)
 
+  -- Alice --
+  local alice_prototype = critters.allocate_prototype(16777255,
+    { name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain' }
+  )
+  alice_prototype
+    :set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 })
+    :set_skills({ small_guns = 200 })
+
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
-  local alice = critters.register("alice_arroyo", 16777255, 19908, {
-    stats = { strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 75, max_hp = 90 },
-    skills = { small_guns = 200 },
-    name        = 'Алиса', -- i18n.t('alice_name'),
-    description = 'Алиса', -- i18n.t('alice_description'),
-    ai_packet = 'Merc Captain',
-    script_index = 8,
-    team = 0
-  })
+  local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
   alice:bind()
-  --
   alice.stats = { max_hp = 355, hp = 255 }
 
-  log.info("Alice endurance: %d", alice.stats.endurance)
-  log.info("Alice hp: %d", alice:hp())
-  log.info("Alice max hp: %d", alice:max_hp())
-  log.info("Alice crit_chance: %d", alice.stats.critical_chance)
-  log.info("Alice small_weapons: %d", alice.skills.small_guns)
+  local alice_dialog = require('.dialogs').alice_nodes
+  dialogs.register(alice.lua_id, alice_dialog)
 
   if (alice:has_inventory()) then
     log.info("Alice inventory is managed through state")
@@ -167,6 +163,14 @@ events.on('map_enter', function(map_id)
     :play(16)
   :submit()
 
+  log.info("Alice endurance: %d", alice.stats.endurance)
+  log.info("Alice hp: %d", alice:hp())
+  log.info("Alice max hp: %d", alice:max_hp())
+  log.info("Alice crit_chance: %d", alice.stats.critical_chance)
+  log.info("Alice small_weapons: %d", alice.skills.small_guns)
+  --! Alice --
+
+
   local villager1 = critters.create(16777219, 21119, { team = 0, script_index = 8 })
   local villager2 = critters.create(16777220, 21716, { team = 0, script_index = 8 })
   local villager3 = critters.create(16777220, 21716, { team = 0 })
@@ -187,10 +191,8 @@ events.on('map_enter', function(map_id)
 
   villager1:set_hp(1)
   --
-  local alice_dialog = require('.dialogs').alice_nodes
-  dialogs.register(alice.lua_id, alice_dialog)
 
-  female_trapper_prototype = critters.allocate_prototype(16777391,
+  local female_trapper_prototype = critters.allocate_prototype(16777391,
     { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
   )
   female_trapper_prototype
