@@ -129,7 +129,6 @@ events.on('map_enter', function(map_id)
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
   alice:bind() -- removes script_index, assigns lua SID
-  alice.stats = { max_hp = 355, hp = 255 }
 
   local alice_dialog = require('.dialogs').alice_nodes
   dialogs.register(alice.lua_id, alice_dialog)
@@ -162,11 +161,11 @@ events.on('map_enter', function(map_id)
     :play(16)
   :submit()
 
-  log.info("Alice endurance: %d", alice.stats.endurance)
+  log.info("Alice endurance: %d", alice:stats().endurance)
   log.info("Alice hp: %d", alice:hp())
   log.info("Alice max hp: %d", alice:max_hp())
-  log.info("Alice crit_chance: %d", alice.stats.critical_chance)
-  log.info("Alice small_weapons: %d", alice.skills.small_guns)
+  log.info("Alice crit_chance: %d", alice:stats().critical_chance)
+  log.info("Alice small_weapons: %d", alice:skills().small_guns)
   --! Alice --
 
 
@@ -199,7 +198,7 @@ events.on('map_enter', function(map_id)
     :set_skills({ unarmed = 100, small_guns = 85 })
 
   local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8 })
-  log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
+  log.info("trapper1 unarmed: %d", trapper1:skills().unarmed)
 
   alice:on('dialog_finished', function(self)
     log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))

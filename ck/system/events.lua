@@ -20,7 +20,7 @@ events.listeners = ck.registries.events
 local function safe_exec(callback, mod_id, event_name, index, ...)
   local ok, err = xpcall(callback, debug.traceback, ...)
   if not ok then
-    log.error(string.format("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err))
+    log.error("Runtime error in mod '%s' on event '%s' (#%d):\n%s", mod_id, event_name, index, err)
   end
 end
 

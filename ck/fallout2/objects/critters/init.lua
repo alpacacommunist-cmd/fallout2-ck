@@ -21,6 +21,10 @@ critters.spawn_counters = ck.registries.critter_spawn_counters
 -- used by state.db GC to clear out unused tags
 critters.active_tags = ck.registries.critter_active_tags
 
+-- stores allocated prototypes ref table
+-- { "temple_of_trials" = { pid = CritterProto } ... }
+critters.prototypes = ck.registries.critter_prototypes
+
 function critters.generate_unique_tag(mod_id)
   critters.spawn_counters[mod_id] = critters.spawn_counters[mod_id] + 1
 
@@ -50,6 +54,10 @@ function critters.allocate_prototype(pid, config)
   if config.skills and not utils.table_is_empty(config.skills) then
     proto:set_skills(config.skills)
   end
+
+  -- store proto instance
+  local mod_id = ck.tools.current_mod_id()
+  critters.prototypes[mod_id][allocated_pid] = proto
 
   return proto
 end

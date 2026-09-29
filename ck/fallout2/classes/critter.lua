@@ -1,7 +1,8 @@
-local ffi   = require("ffi")
+local ffi   = require('ffi')
+local ck    = require('ck')
 local utils = require('ck.system.utils')
 
-local log   = require('ck.system.log').new('classes/critter.lua')
+local log   = ck.log.new('classes/critter.lua')
 
 local dialogs   = require('ck.fallout2.dialogs')
 local monitor   = require('ck.fallout2.monitor')
@@ -12,6 +13,8 @@ local skills    = require('ck.fallout2.objects.critters.skills')
 local Object = require("ck.fallout2.classes.object")
 
 local Critter = {}
+Critter.__index = Critter -- instances look for methods here
+
 setmetatable(Critter, { __index = Object })
 
 function Critter.new(lua_id, config)
@@ -19,6 +22,10 @@ function Critter.new(lua_id, config)
   setmetatable(self, Critter)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
+  if self.has_custom_prototype then
+    self.proto = ck.registries.critter_prototypes[self.mod_id][self.pid]
+  end
+
   -- save respawn tag (used on object_destroy)
   self._respawn_queue = config and config._respawn_queue or nil
 
@@ -31,18 +38,11 @@ function Critter.new(lua_id, config)
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
-  if (self.has_custom_prototype) then
-    -- redirect stats/skills to proto
-  end
-
   return self
 end
 
-function Critter:__index(key)
-end
-
-function Critter:__newindex(key, value)
-end
+function Critter:stats() return self.proto.stats end
+function Critter:skills() return self.proto.skills end
 
 function Critter:gender() return ffi.C.ck_critter_get_gender(self.c_ptr) end
 function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
