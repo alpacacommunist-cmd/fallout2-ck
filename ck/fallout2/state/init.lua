@@ -86,6 +86,8 @@ function state.sync_save()
 
     -- timers
     -- `maps.id.mod_id.timers` e.g. maps.4.arroyo_expanded.timers
+    -- clear state.db table and re-populate with relevant data
+    mod_namespace_db.timers = {}
     for tag, timer in pairs(ck.registries.timers[mod_id]) do
       mod_namespace_db.timers[tag] = { created_at = timer.created_at, timer_type = timer.timer_type }
     end

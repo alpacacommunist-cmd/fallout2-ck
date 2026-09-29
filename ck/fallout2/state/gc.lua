@@ -30,22 +30,12 @@ function gc.mod_namespace()
     if not current_map[mod_id].timers then
       log.debug("GC: Removing [%s][timers] (empty)", mod_id, key)
     end
-
-    local mod_timer_tags = ck.registries.timer_active_tags[mod_id]
-    for tag in pairs(mod_map_db.timers) do
-      if not mod_timer_tags[tag] then
-        log.debug("GC: Removing obsolete timer tag '%s' from mod '%s'", tag, mod_id)
-        mod_map_db.timers[tag] = nil
-      end
-    end
   end
 
   if not mod_map_db then
     log.debug("Mod [%s]: nothing to save on a map", mod_id)
     return
   end
-
-
 
   local mod_critter_tags = ck.registries.critter_active_tags[mod_id]
   for tag in pairs(mod_map_db.objects) do

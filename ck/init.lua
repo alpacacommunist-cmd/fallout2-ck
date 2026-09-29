@@ -103,7 +103,6 @@ ck.registries = {
 
   -- ck/fallout2/timers.lua ⏱️
   timers = {},
-  timer_active_tags = {},
   timer_categories = { live = {}, evented = {} },
 
   -- ck/fallout2/critters.lua 🦂
@@ -141,7 +140,6 @@ function ck.registries.init_mod(mod_id)
 
   -- ⏱️
   ck.registries.timers[mod_id]  = {}
-  ck.registries.timer_active_tags[mod_id] = {}
   ck.registries.timer_categories.live[mod_id] = {}
   ck.registries.timer_categories.evented[mod_id] = {}
 
@@ -170,7 +168,6 @@ function ck.registries.clear_mod(mod_id)
 
   -- ⏱️
   ck.registries.timers[mod_id]  = nil
-  ck.registries.timer_active_tags[mod_id] = nil
   ck.registries.timer_categories.live[mod_id] = nil
   ck.registries.timer_categories.evented[mod_id] = nil
 
@@ -192,7 +189,6 @@ function ck.registries.reset_map_context()
 
     -- ⏱️
     ck.registries.timers[mod_id]  = {}
-    ck.registries.timer_active_tags[mod_id] = {}
     ck.registries.timer_categories.live[mod_id] = {}
     ck.registries.timer_categories.evented[mod_id] = {}
 

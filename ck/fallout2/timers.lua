@@ -25,10 +25,6 @@ timers.allowed_events = {
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
 timers.registry = ck.registries.timers
 
--- flat list of mod's timer tags
--- used by state.db GC to clear out unused tags
-timers.active_tags = ck.registries.timer_active_tags
-
 -- Timers categories (for quicker polling)
 -- (only stores the tags)
 -- { ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... },
@@ -173,8 +169,6 @@ timers.register = function(tag, timer_type, ticks, callback, events_list)
   end
 
   timers.registry[mod_id][tag] = timer
-  timers.active_tags[mod_id][tag] = true
-
   return timer.tag
 end
 
