@@ -120,8 +120,8 @@ events.on('map_enter', function(map_id)
   knowledge.grant(KN_SCORPION_HARVEST)
 
   -- api remark
-  local alice_prototype = critters.define(16777255, {
-  })
+  -- local alice_prototype = critters.define(16777255, {
+  -- })
 
   -- Alice --
   local alice_prototype = critters.allocate_prototype(16777255, {
