@@ -82,7 +82,7 @@ events.on('map_enter', function(map_id)
   -- end
 
   -- map.exit_grid.destroy_in_rect(21514, 22727, 24113, 24323);
-  -- --
+  --
   -- map.exit_grid.spawn_in_line(22533, 24734, {
   --   map = 4, tile = 11683, elevation = 0, rotation = 1, style = 4
   -- },3 )
@@ -113,9 +113,6 @@ events.on('map_enter', function(map_id)
 
   -- local orig_klint_sid = klint:restore()
   -- log.warn(orig_klint_sid)
-  -- klint:on('push', function(self)
-  --   self:float_message('Denied', 2)
-  -- end)
 
   local asset = assets.resolve('scenery/tree10')
 
