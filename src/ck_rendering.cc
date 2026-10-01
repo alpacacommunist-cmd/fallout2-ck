@@ -12,9 +12,9 @@
 static const Logger logger("CK Rendering");
 
 std::vector<CkSceneryInstance> gScenery;
-std::vector<CkTileInstance> gTiles;
-
 std::vector<CkSceneryInstance> gRoofScenery;
+
+std::vector<CkTileInstance> gTiles;
 std::vector<CkTileInstance> gRoofTiles;
 
 struct CachedArt {
@@ -120,31 +120,32 @@ void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
     instance.roof_block_id = roof_block_id;
 
     auto it = std::upper_bound(gRoofTiles.begin(), gRoofTiles.end(), instance,
-            [](const CkTileInstance& a, const CkTileInstance& b) {
-                return a.tile < b.tile;
-            });
+        [](const CkTileInstance& a, const CkTileInstance& b) {
+            return a.tile < b.tile;
+        });
 
     gRoofTiles.insert(it, instance);
 }
 
 void ck_rendering_clear() {
     auto clear_vector = [](auto& vec) {
+        logger.debug("===== Clearing size: {} ======", vec.size());
+
         vec.clear();
         vec.shrink_to_fit();
     };
 
-    clear_vector(gScenery); clear_vector(gTiles);
-    clear_vector(gRoofScenery); clear_vector(gRoofTiles);
+    clear_vector(gScenery);
+    clear_vector(gTiles);
+    clear_vector(gRoofScenery);
+    clear_vector(gRoofTiles);
 
-	ck_rendering_clear_art_cache();
+    ck_rendering_clear_art_cache();
 }
 
 void ck_rendering_refresh() {
 	fallout::tileWindowRefresh();
 }
-
-using namespace fallout;
-
 
 static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
     const CachedArt* cached = get_or_cache_art(fid);
@@ -172,33 +173,17 @@ static void ck_rendering_update_roof_visibility() {
 
     for (auto &tile_instance : gRoofTiles) {
         bool should_hide = (tile_instance.roof_block_id != -1 && tile_instance.roof_block_id == active_roof_block_id);
-        bool is_currently_hidden = (tile_instance.flags & ObjectFlags::OBJECT_HIDDEN) != 0;
+        bool is_currently_hidden = (tile_instance.flags & fallout::ObjectFlags::OBJECT_HIDDEN) != 0;
 
         if (should_hide != is_currently_hidden) {
             if (should_hide) {
-                tile_instance.flags |= ObjectFlags::OBJECT_HIDDEN;
+                tile_instance.flags |= fallout::ObjectFlags::OBJECT_HIDDEN;
             } else {
-                tile_instance.flags &= ~ObjectFlags::OBJECT_HIDDEN;
+                tile_instance.flags &= ~fallout::ObjectFlags::OBJECT_HIDDEN;
             }
             state_changed = true;
         }
     }
-
-    // for (auto& scenery_instance : gRoofScenery) {
-    //     bool should_hide = (scenery_instance.roof_block_id != -1 &&
-    //                         scenery_instance.roof_block_id == active_roof_block_id);
-    //
-    //     bool is_currently_hidden = (scenery_instance.flags & 0x01) != 0;
-    //
-    //     if (should_hide != is_currently_hidden) {
-    //         if (should_hide) {
-    //             scenery_instance.flags |= 0x01;
-    //         } else {
-    //             scenery_instance.flags &= ~0x01;
-    //         }
-    //         state_changed = true;
-    //     }
-    // }
 
     if (state_changed) {
         fallout::tileWindowRefresh();
@@ -211,7 +196,7 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
     int visible_count = 0;
 
     for (const auto& tile_instance : tiles) {
-        if (tile_instance.flags & ObjectFlags::OBJECT_HIDDEN) {
+        if (tile_instance.flags & fallout::ObjectFlags::OBJECT_HIDDEN) {
             continue;
         }
 
@@ -246,7 +231,7 @@ static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkScenery
 
     for (const auto& scenery : scenery_list) {
         int screenX, screenY;
-        tileToScreenXY(scenery.tile, &screenX, &screenY);
+        fallout::tileToScreenXY(scenery.tile, &screenX, &screenY);
 
         if (layer == CkRenderLayer::Roof) {
             screenY += scenery.offset_y;

@@ -30,10 +30,9 @@ void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
         gRoofTiles.push_back(instance);
     }
 
-    std::sort(gRoofTiles.begin(), gRoofTiles.end(),
-        [](const CkTileInstance& a, const CkTileInstance& b) {
-            return a.tile < b.tile;
-        });
+    std::sort(gRoofTiles.begin(), gRoofTiles.end(), [](const CkTileInstance &a, const CkTileInstance &b) {
+        return a.tile < b.tile;
+    });
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
@@ -51,8 +50,9 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
         gScenery.push_back(instance);
     }
 
-    std::sort(gScenery.begin(), gScenery.end(),
-              [](const CkSceneryInstance& a, const CkSceneryInstance& b) { return a.tile < b.tile; });
+    std::sort(gScenery.begin(), gScenery.end(), [](const CkSceneryInstance &a, const CkSceneryInstance &b) {
+        return a.tile < b.tile;
+    });
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {

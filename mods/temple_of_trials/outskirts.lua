@@ -2,26 +2,26 @@
 
 local outskirts = {}
 
-outskirts.mountain_tiles = {
-  { fid = 0x040005E5, tile = 13893 },
-  { fid = 0x040005E4, tile = 14896 },
-  { fid = 0x040005E4, tile = 15498 },
-  { fid = 0x040005E4, tile = 15098 },
-  { fid = 0x040005E4, tile = 15899 },
-  { fid = 0x040005E4, tile = 12890 }
-}
-
-outskirts.church_roofs = {
-  { fid = 0x040005E5, tile = 20871, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 20872, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21072, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21073, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21271, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21272, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21273, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21472, roof_block_id = 1 },
-  { fid = 0x040005E5, tile = 21473, roof_block_id = 1 }
-}
+-- outskirts.mountain_tiles = {
+--   { fid = 0x040005E5, tile = 13893 },
+--   { fid = 0x040005E4, tile = 14896 },
+--   { fid = 0x040005E4, tile = 15498 },
+--   { fid = 0x040005E4, tile = 15098 },
+--   { fid = 0x040005E4, tile = 15899 },
+--   { fid = 0x040005E4, tile = 12890 }
+-- }
+--
+-- outskirts.church_roofs = {
+--   { fid = 0x040005E5, tile = 20871, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 20872, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21072, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21073, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21271, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21272, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21273, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21472, roof_block_id = 1 },
+--   { fid = 0x040005E5, tile = 21473, roof_block_id = 1 }
+-- }
 
 outskirts.warehouse_roofs = {
   { fid = 67109713, tile = 18693, roof_block_id = 2 },
