@@ -84,6 +84,10 @@ namespace ck::common {
         return static_cast<int>(fallout::mapGetCurrentMap());
     }
 
+    int current_elevation() {
+        return fallout::gElevation;
+    }
+
     const char* system_mod_id() {
         return SYSTEM_MOD_ID;
     }
@@ -312,4 +316,5 @@ bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
 int ck_current_map_id() { return ck::common::current_map_id(); }
+int ck_current_elevation() { return ck::common::current_elevation(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }

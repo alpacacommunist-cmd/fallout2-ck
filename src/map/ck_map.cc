@@ -149,4 +149,3 @@ void ck_map_set_mvar(int index, int value) {
 }
 
 bool ck_tile_is_blocked(int tile, int elevation) { return ck_object_blocking(tile, elevation); }
-int ck_current_elevation() { return fallout::gElevation; }

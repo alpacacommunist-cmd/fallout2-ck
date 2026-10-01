@@ -25,15 +25,15 @@ ffi.cdef[[
   bool ck_dispatcher_remove_mod(const char* mod_id);
   void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
+  // --- Common ---
   bool ck_mods_reload_in_progress();
   bool ck_game_is_loading();
   int  ck_loading_map_id();
   int  ck_current_map_id();
+  int  ck_current_elevation();
 
   void ck_registry_clear();
   void ck_registry_clear_for_mod(const char* target_mod_id);
-
-  void ck_config_clear_mod_patches(const char* mod_id);
 
   const char* ck_get_current_mod_id();
   bool ck_set_current_mod_context(const char* mod_id);
@@ -254,7 +254,6 @@ ffi.cdef[[
   // --- remove object ---
   void ck_object_remove_at(int tile);
   bool ck_tile_is_blocked(int tile, int elevation);
-  int ck_current_elevation();
 
   // --- add object/render
   void ck_map_add_scenery_fid(int fid, int tile);
