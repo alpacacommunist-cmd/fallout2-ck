@@ -14,7 +14,6 @@ local object_ffi = require('ck.fallout2.classes.object_ffi')
 local log = ck.log.new('events.lua')
 
 local events = {}
-events.listeners = ck.registries.events
 
 -- Safe exec for mod callbacks (with traceback)
 local function safe_exec(callback, mod_id, event_name, index, ...)
@@ -49,8 +48,7 @@ events.handlers = {
 }
 
 function events.emit_for_mod(mod_id, event_name, ...)
-  local mod_entries = events.listeners[mod_id]
-  local callbacks = mod_entries and mod_entries[event_name]
+  local callbacks = events.listeners[mod_id][event_name]
 
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]
@@ -174,17 +172,45 @@ function events.emit(event_name, ...)
   end
 end
 
+----------
+--- MOD SUBSCRIPTIONS
+----------
+
+-- available listeners
+local available_listeners = {
+  ['onGameStart'] = true,
+  ['onEngineReady'] = true,
+  ['onModReload'] = true,
+  ['onDayPassed'] = true,
+  ['onHourPassed'] = true,
+  ['time_advance'] = true,
+  ['onBeforeGameLoad'] = true,
+  ['onGameLoaded'] = true,
+  ['onDialogStart'] = true,
+  ['skill_used'] = true,
+  ['critter_killed'] = true,
+  ['map_enter'] = true,
+  ['map_update'] = true
+}
+
+-- callbacks table
+-- { arroyo_expanded = { map_enter = { callback, callback .. }, time_advance = { callback } ... } }
+events.listeners = {}
+
 function events.register(mod_id, event_name, callback)
-  if not events.listeners[mod_id][event_name] then
-    log.warn(string.format("[%s] Unknown event '%s'", mod_id, tostring(event_name)))
+  if not available_listeners[event_name] then
+    log.warn("[%s] Unknown event '%s'", mod_id, tostring(event_name))
     return false
   end
+
+  events.listeners[mod_id] = events.listeners[mod_id] or {}
+  events.listeners[mod_id][event_name] = events.listeners[mod_id][event_name] or {}
 
   table.insert(events.listeners[mod_id][event_name], callback)
 end
 
 function events.on(event_name, callback)
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local mod_id = ck.tools.current_mod_id()
 
   events.register(mod_id, event_name, callback)
 end

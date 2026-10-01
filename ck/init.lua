@@ -94,10 +94,6 @@ ck.registries = {
   mod_definition_keys = { "critters" },
   mod_definition_keys_lookup = {},
 
-  -- Mod specific
-  -- ck/system/events.lua 📞
-  events  = {},
-
   -- ck/fallout2/assets.lua 🌲
   assets = {},
 
@@ -129,20 +125,8 @@ for _, key in ipairs(ck.registries.mod_definition_keys) do
   ck.registries.mod_definition_keys_lookup[key] = true
 end
 
-local available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
-  'onDayPassed', 'onHourPassed', 'time_advance',
-  'onBeforeGameLoad', 'onGameLoaded',
-  'onDialogStart', 'skill_used', 'critter_killed',
-  'map_enter', 'map_update'
-}
-
 function ck.registries.init_mod(mod_id)
   table.insert(ck.active_mods, mod_id)
-
-  ck.registries.events[mod_id] = {}
-  for index, listener in ipairs(available_listeners) do
-    ck.registries.events[mod_id][listener] = {}
-  end
 
   -- 🌲
   ck.registries.assets[mod_id] = {}
@@ -172,7 +156,6 @@ function ck.registries.clear_mod(mod_id)
     end
   end
 
-  ck.registries.events[mod_id] = nil
   -- 🌲
   ck.registries.assets[mod_id] = nil
 
