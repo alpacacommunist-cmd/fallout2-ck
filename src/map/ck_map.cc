@@ -37,7 +37,7 @@ namespace ck {
         // some events like map_enter have additional logic defined in events.lua
         ck::dispatcher::on_map_enter();
 
-        ck_rendering_refresh();
+        ck::rendering::refresh();
         if (ck::common::currently_in_combat()) fallout::_combat_reload_map();
     }
 
@@ -61,7 +61,7 @@ namespace ck {
 
         // Resets rendering
         fallout::mapEdgeFree();
-        ck_rendering_clear();
+        ck::rendering::clear();
 
         if (ck::debug_overlay::enabled()) ck::debug_overlay::toggle();
     }
@@ -118,8 +118,7 @@ void ck_map_add_roof_tile(int fid, int tile, int roof_block_id) {
     ck_rendering_add_tile_roof(fid, tile, roof_block_id);
 }
 
-// ffi
-
+// FFI
 void ck_map_add_scenery_fid(int fid, int tile) { ck_map_add_scenery(fid, tile); }
 void ck_map_add_roof_scenery_fid(int fid, int tile, int offset_y) { ck_map_add_roof_scenery(fid, tile, offset_y); }
 

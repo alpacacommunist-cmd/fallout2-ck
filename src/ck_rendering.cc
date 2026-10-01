@@ -9,7 +9,7 @@
 #include "ck_rendering.h"
 
 #include "ck_log.h"
-static const Logger logger("CK Rendering");
+static const Logger logger("ck_rendering.cc");
 
 std::vector<CkSceneryInstance> gScenery;
 std::vector<CkSceneryInstance> gRoofScenery;
@@ -65,12 +65,12 @@ static void blit_sub_buffer(const unsigned char* pixels, int src_width, int dest
     int light = fallout::lightGetAmbientIntensity();
 
     fallout::_dark_trans_buf_to_buf(
-            const_cast<unsigned char*>(src),
-            fallout::rectGetWidth(&intersection), fallout::rectGetHeight(&intersection), src_width,
-            fallout::tileGetWindowBuffer(),
-            intersection.left, intersection.top,
-            fallout::tileGetWindowPitch(),
-            light
+        const_cast<unsigned char*>(src),
+        fallout::rectGetWidth(&intersection), fallout::rectGetHeight(&intersection), src_width,
+        fallout::tileGetWindowBuffer(),
+        intersection.left, intersection.top,
+        fallout::tileGetWindowPitch(),
+        light
     );
 }
 
@@ -106,11 +106,11 @@ void ck_rendering_add_scenery(int fid, int tile, CkRenderLayer layer, int offset
 }
 
 void ck_rendering_add_tile(int fid, int tile) {
-    CkTileInstance inst;
-    inst.tile = tile;
-    inst.fid = fid;
+    CkTileInstance instance;
+    instance.tile = tile;
+    instance.fid = fid;
 
-    gTiles.push_back(inst);
+    gTiles.push_back(instance);
 }
 
 void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
@@ -125,26 +125,6 @@ void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
         });
 
     gRoofTiles.insert(it, instance);
-}
-
-void ck_rendering_clear() {
-    auto clear_vector = [](auto& vec) {
-        logger.debug("===== Clearing size: {} ======", vec.size());
-
-        vec.clear();
-        vec.shrink_to_fit();
-    };
-
-    clear_vector(gScenery);
-    clear_vector(gTiles);
-    clear_vector(gRoofScenery);
-    clear_vector(gRoofTiles);
-
-    ck_rendering_clear_art_cache();
-}
-
-void ck_rendering_refresh() {
-	fallout::tileWindowRefresh();
 }
 
 static void draw_scenery_art(int fid, int x, int y, fallout::Rect* rect) {
@@ -264,6 +244,24 @@ static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkScenery
 }
 
 namespace ck::rendering {
+    void refresh() {
+        fallout::tileWindowRefresh();
+    }
+
+    void clear() {
+        auto clear_vector = [](auto& vec) {
+            vec.clear();
+            vec.shrink_to_fit();
+        };
+
+        clear_vector(gScenery);
+        clear_vector(gTiles);
+        clear_vector(gRoofScenery);
+        clear_vector(gRoofTiles);
+
+        ck_rendering_clear_art_cache();
+    }
+
     void floor(fallout::Rect* rect) {
         int visible_tiles   = ck_rendering_tiles(rect, gTiles, CkRenderLayer::Floor);
         int visible_scenery = ck_rendering_scenery(rect, gScenery, CkRenderLayer::Floor);
@@ -298,4 +296,8 @@ namespace ck::rendering {
         }
     }
 }
+
+// FFI
+void ck_rendering_refresh() { ck::rendering::refresh(); }
+void ck_rendering_clear() { ck::rendering::clear(); }
 

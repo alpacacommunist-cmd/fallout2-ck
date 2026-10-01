@@ -41,6 +41,9 @@ void ck_rendering_add_tile(int fid, int tile);
 void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id);
 
 namespace ck::rendering {
+    void refresh();
+    void clear();
+
     void floor(fallout::Rect* rect);
     void roof(fallout::Rect* rect);
 }
