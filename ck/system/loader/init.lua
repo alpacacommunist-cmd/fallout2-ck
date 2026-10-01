@@ -109,8 +109,6 @@ function loader.reload_mods()
     ffi.C.ck_critter_reset_prototypes_for_mod(mod_id)
     ffi.C.ck_registry_clear_for_mod(mod_id)
     ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
-    -- TODO: remove from reload sequence
-    -- ffi.C.ck_config_clear_mod_patches(mod_id)
 
     -- clear lua registries
     ck.registries.clear_mod(mod_id)

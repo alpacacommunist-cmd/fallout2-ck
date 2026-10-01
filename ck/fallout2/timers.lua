@@ -25,10 +25,11 @@ timers.allowed_events = {
 -- { "temple_of_trials" = { "timer_1" = {}, "timer_2" = {} ... } }
 timers.registry = ck.registries.timers
 
--- Timers categories (for quicker polling)
--- (only stores the tags)
--- { ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... },
--- ["evented"] = { arroyo_expanded = { map_enter = { ... } } }
+-- Timers categories (for quicker polling) (only stores the tags)
+-- {
+--   ["live"] = { temple_of_trials = {"tag_one", "tag_two"} ... },
+--   ["evented"] = { arroyo_expanded = { map_enter = { ... } }
+-- }
 timers.categories = ck.registries.timer_categories
 
 -- current ticks

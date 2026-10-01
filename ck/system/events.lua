@@ -48,7 +48,7 @@ events.handlers = {
 }
 
 function events.emit_for_mod(mod_id, event_name, ...)
-  local callbacks = events.listeners[mod_id][event_name]
+  local callbacks = events.registry[mod_id][event_name]
 
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]
@@ -66,7 +66,7 @@ function events.critter_killed(victim, killer)
   victim = object_ffi.from_ptr(victim)
   killer = object_ffi.from_ptr(killer)
 
-  for mod_name, mod_events in pairs(events.listeners) do
+  for mod_name, mod_events in pairs(events.registry) do
     local callbacks = mod_events.critter_killed
 
     if not callbacks then return end
@@ -167,7 +167,7 @@ end
 
 -- not used yet. could be useful for global (non-mod-specific) logic
 function events.emit(event_name, ...)
-  for mod_id, _ in pairs(events.listeners) do
+  for mod_id, _ in pairs(events.registry) do
     events.emit_for_mod(mod_id, event_name, ...)
   end
 end
@@ -195,7 +195,7 @@ local available_listeners = {
 
 -- callbacks table
 -- { arroyo_expanded = { map_enter = { callback, callback .. }, time_advance = { callback } ... } }
-events.listeners = {}
+events.registry = ck.registries.events
 
 function events.register(mod_id, event_name, callback)
   if not available_listeners[event_name] then
@@ -203,10 +203,10 @@ function events.register(mod_id, event_name, callback)
     return false
   end
 
-  events.listeners[mod_id] = events.listeners[mod_id] or {}
-  events.listeners[mod_id][event_name] = events.listeners[mod_id][event_name] or {}
+  events.registry[mod_id] = events.registry[mod_id] or {}
+  events.registry[mod_id][event_name] = events.registry[mod_id][event_name] or {}
 
-  table.insert(events.listeners[mod_id][event_name], callback)
+  table.insert(events.registry[mod_id][event_name], callback)
 end
 
 function events.on(event_name, callback)

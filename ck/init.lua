@@ -94,6 +94,9 @@ ck.registries = {
   mod_definition_keys = { "critters" },
   mod_definition_keys_lookup = {},
 
+  -- ck/system/events.lua 📞
+  events = {},
+
   -- ck/fallout2/assets.lua 🌲
   assets = {},
 
@@ -127,6 +130,8 @@ end
 
 function ck.registries.init_mod(mod_id)
   table.insert(ck.active_mods, mod_id)
+  -- 📞
+  ck.registries.events[mod_id] = {}
 
   -- 🌲
   ck.registries.assets[mod_id] = {}
@@ -155,6 +160,9 @@ function ck.registries.clear_mod(mod_id)
       break
     end
   end
+
+  -- 📞
+  ck.registries.events[mod_id] = nil
 
   -- 🌲
   ck.registries.assets[mod_id] = nil
