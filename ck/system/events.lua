@@ -10,6 +10,7 @@ local proto = require('ck.fallout2.proto')
 local state = require('ck.fallout2.state')
 local timers = require('ck.fallout2.timers')
 local object_ffi = require('ck.fallout2.classes.object_ffi')
+local rendering  = require('ck.fallout2.rendering')
 
 local log = ck.log.new('events.lua')
 
@@ -153,8 +154,6 @@ end
 function events.after_map_enter(mod_id, map_id)
   -- map_enter timers are only executed on map transition
   if not ck.map_enter_through_game_load then
-    local timers = require('ck.fallout2.timers')
-
     local mod_event_timers = ck.registries.timer_categories.evented[mod_id]["map_enter"]
     timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
   end
