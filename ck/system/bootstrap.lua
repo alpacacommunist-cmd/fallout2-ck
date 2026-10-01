@@ -103,7 +103,7 @@ function bootstrap.bootstrap()
     end
   end
 
-  log.info("Bootstrap complete! All mods loaded safely.")
+  log.info("Done")
 end
 
 return bootstrap

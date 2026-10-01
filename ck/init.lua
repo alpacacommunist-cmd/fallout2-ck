@@ -16,6 +16,8 @@ ck = {
   libs_preload_key = 'ck.libs.',
   -- list of loaded lib mods
   loaded_libs = {},
+  -- mod definitions table
+  mod_definitions = {},
 
   -- default language (is set to language from fallout2.cfg on init)
   language = 'english',
@@ -88,6 +90,10 @@ ck.registries = {
   -- quick ref table
   state_mod_namespace_keys_lookup = {},
 
+  -- mod definitions
+  mod_definition_keys = { "critters" },
+  mod_definition_keys_lookup = {},
+
   -- Mod specific
   -- ck/system/events.lua 📞
   events  = {},
@@ -114,8 +120,13 @@ ck.registries = {
   critter_prototypes = {}
 }
 
+-- populate quick ref (lookup) tables
 for _, key in ipairs(ck.registries.state_mod_namespace_keys) do
   ck.registries.state_mod_namespace_keys_lookup[key] = true
+end
+
+for _, key in ipairs(ck.registries.mod_definition_keys) do
+  ck.registries.mod_definition_keys_lookup[key] = true
 end
 
 local available_listeners = { 'onGameStart', 'onEngineReady', 'onModReload',
