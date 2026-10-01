@@ -123,8 +123,8 @@ function sandbox.create_env(mod_data)
       _G.error(string.format("Runtime error in '%s':\n%s", target_name, result))
     end
 
-    package.loaded[target_name] = result or true
-    return package.loaded[target_name]
+    mod_package.loaded[target_name] = result or true
+    return mod_package.loaded[target_name]
   end
 
   local decorator = sandbox.handlers[manifest.type]

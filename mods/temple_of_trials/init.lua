@@ -137,7 +137,7 @@ events.on('map_enter', function(map_id)
     G = { assets = {"tiles/GRASS01"}, type = "tile" }
   })
 
-  -- map.render.roof.tile(0x040005E5, 19487, 1)
+  map.render.roof.tile(0x040005E5, 19487, 1)
 
   map.batch.roof.tiles(outskirts.church_roofs)
   map.batch.roof.tiles(outskirts.warehouse_roofs)

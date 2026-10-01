@@ -4,8 +4,10 @@ local ffi = require("ffi")
 local batch = { floor = {}, roof = {} }
 
 function batch.floor.tiles(tiles)
+  if tiles == nil then return nil end
+
   local count = #tiles
-  if count == 0 then return end
+  if count == 0 then return nil end
 
   local tiles_array = ffi.new("CkFFITile[?]", count)
 
@@ -24,8 +26,10 @@ function batch.floor.tiles(tiles)
 end
 
 function batch.roof.tiles(tiles)
+  if tiles == nil then return nil end
+
   local count = #tiles
-  if count == 0 then return end
+  if count == 0 then return nil end
 
   local tiles_array = ffi.new("CkFFITile[?]", count)
 
@@ -40,8 +44,10 @@ function batch.roof.tiles(tiles)
 end
 
 function batch.scenery(scenery)
+  if scenery == nil then return nil end
+
   local count = #scenery
-  if count == 0 then return end
+  if count == 0 then return nil end
 
   local scenery_array = ffi.new("CkFFIScenery[?]", count)
 
@@ -60,6 +66,8 @@ function batch.scenery(scenery)
 end
 
 function batch.blockers(blockers)
+  if blockers == nil then return nil end
+
   local count = #blockers
   if count == 0 then return end
 
@@ -73,8 +81,10 @@ function batch.blockers(blockers)
 end
 
 function batch.clear(objects)
+  if objects == nil then return nil end
+
   local count = #objects
-  if count == 0 then return end
+  if count == 0 then return nil end
 
   local objects_array = ffi.new("CkFFIClear[?]", count)
 

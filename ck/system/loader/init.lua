@@ -5,8 +5,6 @@ local ck  = require('ck')
 local utils = require('ck.system.utils')
 local sandbox = require('ck.system.loader.sandbox')
 
-local assets    = require('ck.fallout2.assets')
-
 local log = require('ck.system.log').new('loader/init.lua')
 
 local reloadable_mods = {
@@ -21,13 +19,6 @@ local loader = {}
 
 local function apply_manifest(manifest)
   if not manifest then return end
-
-  if manifest.assets then
-  end
-
-  if manifest.locale then
-    -- i18n.register(manifest.id, manifest.locale)
-  end
 end
 
 loader.handlers = {
