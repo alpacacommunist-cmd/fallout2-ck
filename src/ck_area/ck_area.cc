@@ -3,6 +3,7 @@
 #include "ce_config/ck_config_maps.h"
 #include "ce_config/ck_config_city.h"
 #include "ck_messages/ck_messages.h"
+#include "ck_scripting.h"
 
 #include <unordered_map>
 #include <algorithm>
@@ -96,7 +97,7 @@ namespace ck {
 	}
 
 	int area_register_map(const CkAreaMapFFI& data) {
-        std::string current_mod = ck_get_current_mod_id();
+        std::string current_mod = ck::common::current_mod_id();
         std::string map_file_name = data.map_file;
 
         std::string map_file_upper = map_file_name;
@@ -144,7 +145,7 @@ namespace ck {
 	//    }
 
 	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
-		int location_index = ck::config_city::register_location(ck_get_current_mod_id(), name, world_x, world_y, size);
+		int location_index = ck::config_city::register_location(ck::common::current_mod_id(), name, world_x, world_y, size);
         if (location_index == -1) return -1;
 
         ck::messages_add_string("map.msg", 1500 + location_index, name);
@@ -152,7 +153,7 @@ namespace ck {
 	}
 
 	int expand_location(int area_id, const std::string& map_lookup_name, int x, int y) {
-		int target_entrance_id = ck::config_city::expand_location(ck_get_current_mod_id(), area_id, map_lookup_name, x, y);
+		int target_entrance_id = ck::config_city::expand_location(ck::common::current_mod_id(), area_id, map_lookup_name, x, y);
 
         int townmap_msg_id = 200 + (area_id * 10) + target_entrance_id;
         ck::messages_add_string("worldmap.msg", townmap_msg_id, map_lookup_name);

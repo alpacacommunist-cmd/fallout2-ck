@@ -36,9 +36,10 @@ namespace fallout {
 
     extern int gElevation;
 
-    // savegame.cc
+    // loadsave.cc
     bool _isLoadingGame();
     int mapIdBeingLoaded();
+	int ck_load_game_slot(int slot);
 
     // tile.cc
 	void tileWindowRefreshRect(Rect* rect, int elevation);

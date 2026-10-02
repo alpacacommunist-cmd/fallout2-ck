@@ -33,7 +33,7 @@ local log = ck.log.new('ck/init.lua')
 -- current_mod_id (nullptr or string)
 -- is set in dispatcher.cc
 function ck.tools.current_mod_id()
-  local mod_id = ffi.C.ck_get_current_mod_id()
+  local mod_id = ffi.C.ck_current_mod_id()
 
   if mod_id == nil then return nil end
 

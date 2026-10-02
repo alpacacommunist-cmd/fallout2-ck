@@ -5,6 +5,7 @@
 
 #include "proto_types.h"
 #include "obj_types.h"
+#include "ck_scripting.h"
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
@@ -68,7 +69,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 	if (!rect.is_valid()) return;
 
 	rect.for_each_tile([pid, &data](int tile) {
-		const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
+		const LuaMeta& meta  = { ck::common::current_mod_id(), {}, {}, {} };
 		int lua_id = ck_object_register(pid, tile, meta);
 
 		fallout::Object* obj = ck::registry::created::get_object(lua_id);
@@ -85,7 +86,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data) {
     if (data == nullptr) return;
 
-    const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
+    const LuaMeta& meta = { ck::common::current_mod_id(), {}, {}, {} };
     int lua_id = ck_object_register(pid, tile, meta);
 
     fallout::Object* obj = ck::registry::created::get_object(lua_id);

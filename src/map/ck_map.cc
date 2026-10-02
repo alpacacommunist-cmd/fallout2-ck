@@ -24,6 +24,7 @@ namespace ck {
     namespace common {
         bool game_is_loading();
         bool currently_in_combat();
+        const char* current_mod_id();
         void lua_map_exit();
     }
 }
@@ -126,13 +127,13 @@ void ck_map_add_tile_fid(int fid, int tile) { ck_map_add_tile(fid, tile); }
 void ck_map_add_roof_tile_fid(int fid, int tile, int roof_block_id ) { ck_map_add_roof_tile(fid, tile, roof_block_id); }
 
 int ck_map_register_object(int pid, int tile) {
-    const LuaMeta& meta  = { ck_get_current_mod_id(), {}, {}, {} };
+    const LuaMeta& meta  = { ck::common::current_mod_id(), {}, {}, {} };
 
     return ck_object_register(pid, tile, meta);
 }
 
 int ck_map_create_blocker_at(int tile) {
-    const LuaMeta& meta = { ck_get_current_mod_id(), {}, {}, {} };
+    const LuaMeta& meta = { ck::common::current_mod_id(), {}, {}, {} };
 
     return ck_object_register(BLOCKER_PID, tile, meta);
 }

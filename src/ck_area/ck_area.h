@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-extern "C" const char* ck_get_current_mod_id();
-
 namespace fallout {
     struct MapHeader;
 }

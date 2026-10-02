@@ -6,8 +6,6 @@
 namespace fallout {
     struct Object;
     struct Rect;
-
-	int ck_load_game_slot(int slot);
 }
 
 namespace ck::common {

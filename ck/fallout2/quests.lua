@@ -1,10 +1,11 @@
 -- ck/fallout2/quests.lua
 
-local ffi = require("ffi")
+local ck = require('ck')
+local ffi = require('ffi')
 
 
 local state = require('ck.fallout2.state')
-local log   = require('ck.system.log').new('CK Quests')
+local log   = ck.log.new('quests.lua')
 
 local quests = {}
 
@@ -18,14 +19,14 @@ quests.status = {
 quests.definitions = {}
 
 function quests.register(quest_id, config)
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local mod_id = ck.tools.current_mod_id()
 
   quests.definitions[mod_id] = quests.definitions[mod_id] or {}
   quests.definitions[mod_id][quest_id] = config
 end
 
 function quests.set(quest_id, status_value)
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local mod_id = ck.tools.current_mod_id()
 
   log.info(mod_id)
 
@@ -33,7 +34,7 @@ function quests.set(quest_id, status_value)
 end
 
 function quests.get(quest_id)
-  local mod_id = ffi.string(ffi.C.ck_get_current_mod_id())
+  local mod_id = ck.tools.current_mod_id()
   local value = state.get_global(mod_id, "quests", quest_id)
 
   return value or quests.status.NOT_STARTED
