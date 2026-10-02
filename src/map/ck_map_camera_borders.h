@@ -29,6 +29,5 @@ void ck_map_clear_camera_borders();
 CkCameraBorders ck_map_get_camera_borders(int map_id);
 
 CK_API void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders);
-CK_API void ck_map_clear_camera_borders_for_mod(const char* mod_id);
 
 #endif // CK_MAP_CAMERA_BORDERS_H

@@ -92,10 +92,6 @@ void ck_map_clear_camera_borders() {
 	ck::map::borders::clear();
 }
 
-void ck_map_clear_camera_borders_for_mod(const char* mod_id) {
-	ck::map::borders::clear_for_mod(mod_id);
-}
-
 CkCameraBorders ck_map_get_camera_borders(int map_id) {
 	auto it = g_camera_borders.find(map_id);
 	if (it != g_camera_borders.end()) {

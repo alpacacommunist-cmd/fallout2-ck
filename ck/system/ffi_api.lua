@@ -32,9 +32,6 @@ ffi.cdef[[
   int  ck_current_map_id();
   int  ck_current_elevation();
 
-  void ck_registry_clear();
-  void ck_registry_clear_for_mod(const char* target_mod_id);
-
   const char* ck_current_mod_id();
   void ck_mods_clear_resources_for_mod(const char* mod_id);
   bool ck_set_current_mod_context(const char* mod_id);
@@ -97,6 +94,9 @@ ffi.cdef[[
       const char* mod_id;
   } CkObjectFFI;
 
+  // Registry
+  void ck_registry_clear();
+
   // modified
   int ck_registry_modify_object(void* ptr);
   bool ck_registry_object_is_modified(int lua_id);
@@ -143,8 +143,6 @@ ffi.cdef[[
   void ck_critter_proto_set_base_stat(fallout_CritterProto* proto, int stat_id, int value);
   int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
   void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
-
-  void ck_critter_reset_prototypes_for_mod(const char* mod_id);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
@@ -269,7 +267,6 @@ ffi.cdef[[
 
   typedef struct { int left; int right; int top; int bottom; } CkCameraBorders;
   void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders);
-  void ck_map_clear_camera_borders_for_mod(const char* mod_id);
 
   // --- Map Batch ---
   typedef struct { int tile; int fid; int roof_block_id; } CkFFITile;

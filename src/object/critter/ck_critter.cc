@@ -229,7 +229,3 @@ bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
 bool ck_critter_kill(int lua_id) {
 	return ck::critter::kill(lua_id);
 }
-
-void ck_critter_reset_prototypes_for_mod(const char* mod_id) {
-    ck::critter::reset_prototypes_for_mod(std::string(mod_id));
-}
