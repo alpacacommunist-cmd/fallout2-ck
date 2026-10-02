@@ -44,6 +44,8 @@ namespace ck::dispatcher {
     }
 
     const char* mod_id_ptr(const char* mod_id) {
+        if (mod_id == nullptr) return nullptr;
+
         for (const auto& mod_string : g_active_mods) {
             if (mod_string == mod_id) {
                 return mod_string.c_str();

@@ -27,6 +27,7 @@ namespace ck::common {
 }
 
 void ck_reload_mods();
+void ck_clear_mod_resources(const char* mod_id);
 void ck_set_language();
 void ck_print_monitor_message(const char* message);
 
@@ -65,5 +66,6 @@ CK_API int  ck_current_map_id();
 CK_API int ck_current_elevation();
 CK_API const char* ck_current_mod_id();
 CK_API const char* ck_mods_system_id();
+CK_API void ck_mods_clear_resources_for_mod(const char* mod_id);
 
 #endif // CK_SCRIPTING_H

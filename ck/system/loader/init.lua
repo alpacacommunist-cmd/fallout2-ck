@@ -97,9 +97,11 @@ function loader.reload_mods()
     log.header("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
 
-    ffi.C.ck_critter_reset_prototypes_for_mod(mod_id)
-    ffi.C.ck_registry_clear_for_mod(mod_id)
-    ffi.C.ck_map_clear_camera_borders_for_mod(mod_id)
+    -- clears critter prototypes,
+    -- object registry pointers
+    -- camera borders
+    -- renering queues
+    ffi.C.ck_mods_clear_resources_for_mod(mod_id)
 
     -- clear lua registries
     ck.registries.clear_mod(mod_id)

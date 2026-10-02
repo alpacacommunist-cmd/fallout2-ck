@@ -66,8 +66,15 @@ namespace ck {
 	void on_before_map_load();
     // ce_config/ck_config_patch.cc
     bool apply_worldmap_patches();
-
-    // lua calls
+    // ck_critter.cc
+    namespace critter::proto {
+        void clear_prototypes_for_mod(const std::string& mod_id);
+    }
+    // map/ck_map_camera_borders.cc
+    namespace map::borders {
+        void clear_for_mod(const char* mod_id);
+    }
+    // ck_lua_proxy.cc
     namespace proxy::detail {
         extern int reload_mods;
         extern int bootstrap;
@@ -129,6 +136,23 @@ void ck_reload_mods() {
     g_reloading_mods = true;
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
     g_reloading_mods = false;
+}
+
+// TODO: move to mods.cc
+void ck_clear_mod_resources(const char* mod_id) {
+    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+
+    if (mod_id_ptr == nullptr) {
+        logger.warn("ck_clear_mod_resources: mod_id is null");
+        return;
+    }
+
+    // TODO: use const char*
+    std::string mod_id_str(mod_id_ptr);
+
+    ck::critter::proto::clear_prototypes_for_mod(mod_id_str);
+    ck::registry::clear_resources_for_mod(mod_id_ptr);
+    ck::map::borders::clear_for_mod(mod_id_ptr);
 }
 
 void ck_set_language() {
@@ -257,8 +281,7 @@ namespace ck::events {
     }
 }
 
-// ffi
-
+// FFI
 void ck_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
@@ -320,3 +343,8 @@ int ck_current_map_id() { return ck::common::current_map_id(); }
 int ck_current_elevation() { return ck::common::current_elevation(); }
 const char* ck_current_mod_id() { return ck::common::current_mod_id(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }
+
+// TODO: move to mods.cc
+void ck_mods_clear_resources_for_mod(const char* mod_id) {
+    ck_clear_mod_resources(mod_id);
+}
