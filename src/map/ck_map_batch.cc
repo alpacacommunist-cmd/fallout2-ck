@@ -4,8 +4,14 @@
 #include "ck_rendering.h"
 #include "object/ck_object.h"
 
+namespace ck::common {
+    const char* current_mod_id();
+    const char* mod_id_ptr(const char* mod_id);
+}
+
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
-    if (count <= 0) return;
+    const char* mod_id_ptr = ck::common::current_mod_id();
+    if (count <= 0 || mod_id_ptr == nullptr) return;
 
     for (int i = 0; i < count; ++i) {
         const auto& src = tiles[i];
@@ -14,7 +20,8 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
 }
 
 void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
-    if (count <= 0) return;
+    const char* mod_id_ptr = ck::common::current_mod_id();
+    if (count <= 0 || mod_id_ptr == nullptr) return;
 
     gRoofTiles.reserve(gRoofTiles.size() + count);
 
@@ -26,6 +33,7 @@ void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
         instance.fid = src.fid;
         instance.roof_block_id = src.roof_block_id;
         instance.flags = 0;
+        instance.mod_id = mod_id_ptr;
 
         gRoofTiles.push_back(instance);
     }
@@ -36,7 +44,8 @@ void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
-    if (count <= 0) return;
+    const char* mod_id_ptr = ck::common::current_mod_id();
+    if (count <= 0 || mod_id_ptr == nullptr) return;
 
     gScenery.reserve(gScenery.size() + count);
 
@@ -46,6 +55,7 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
         CkSceneryInstance instance;
         instance.tile = src.tile;
         instance.fid = src.fid;
+        instance.mod_id = mod_id_ptr;
 
         gScenery.push_back(instance);
     }
@@ -56,6 +66,9 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
+    const char* mod_id_ptr = ck::common::current_mod_id();
+    if (count <= 0 || mod_id_ptr == nullptr) return;
+
     for (int index = 0; index < count; ++index) {
         const auto& src = blockers[index];
         if (src.tile != -1) ck_map_create_blocker_at(src.tile);
@@ -63,6 +76,9 @@ void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
 }
 
 void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
+    const char* mod_id_ptr = ck::common::current_mod_id();
+    if (count <= 0 || mod_id_ptr == nullptr) return;
+
     for (int index = 0; index < count; ++index) {
         const auto& src = tiles[index];
         if (src.tile != -1) ck::object::remove_at(src.tile);
