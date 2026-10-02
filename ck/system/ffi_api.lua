@@ -35,7 +35,7 @@ ffi.cdef[[
   void ck_registry_clear();
   void ck_registry_clear_for_mod(const char* target_mod_id);
 
-  const char* ck_get_current_mod_id();
+  const char* ck_current_mod_id();
   bool ck_set_current_mod_context(const char* mod_id);
 
   bool ck_is_sid_ck_custom(int sid);

@@ -11,6 +11,7 @@ namespace fallout {
 
 namespace ck::dispatcher {
     const char* current_mod_context();
+    const char* mod_id_ptr(const char* mod_id);
 
     void on_game_start();
     void on_engine_ready();

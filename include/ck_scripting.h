@@ -65,6 +65,7 @@ CK_API bool ck_game_is_loading();
 CK_API int  ck_loading_map_id();
 CK_API int  ck_current_map_id();
 CK_API int ck_current_elevation();
+CK_API const char* ck_current_mod_id();
 CK_API const char* ck_mods_system_id();
 
 #endif // CK_SCRIPTING_H

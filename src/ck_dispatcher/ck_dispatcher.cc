@@ -43,6 +43,16 @@ namespace ck::dispatcher {
         return g_current_mod_id;
     }
 
+    const char* mod_id_ptr(const char* mod_id) {
+        for (const auto& mod_string : g_active_mods) {
+            if (mod_string == mod_id) {
+                return mod_string.c_str();
+            }
+        }
+
+        return nullptr;
+    }
+
     template<typename... Args>
     void emit(const char* event_name, Args... args) {
         if (!ck::proxy::is_ready() || !event_name) return;
@@ -122,11 +132,7 @@ namespace ck::dispatcher {
     }
 }
 
-// ffi
-
-const char* ck_get_current_mod_id() {
-    return g_current_mod_id;
-}
+// FFI
 
 bool ck_set_current_mod_context(const char* mod_id) {
     if (mod_id == nullptr) {
@@ -134,11 +140,10 @@ bool ck_set_current_mod_context(const char* mod_id) {
         return true;
     }
 
-    for (const auto& mod : g_active_mods) {
-        if (mod == mod_id) {
-            ck_set_mod_context(mod_id);
-            return true;
-        }
+    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    if (mod_id_ptr != nullptr) {
+        ck_set_mod_context(mod_id_ptr);
+        return true;
     }
 
     return false;
@@ -164,7 +169,10 @@ bool ck_dispatcher_remove_mod(const char* mod_id) {
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 
-    ModContextGuard guard(mod_id);
-    ck::proxy::emit_for_mod(mod_id, event_name, ck::common::current_map_id());
+    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    if (mod_id_ptr == nullptr) return;
+
+    ModContextGuard guard(mod_id_ptr);
+    ck::proxy::emit_for_mod(mod_id_ptr, event_name, ck::common::current_map_id());
 }
 

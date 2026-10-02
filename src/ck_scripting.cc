@@ -317,4 +317,5 @@ bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
 int ck_current_map_id() { return ck::common::current_map_id(); }
 int ck_current_elevation() { return ck::common::current_elevation(); }
+const char* ck_current_mod_id() { return ck::common::current_mod_id(); }
 const char* ck_mods_system_id() { return ck::common::system_mod_id(); }
