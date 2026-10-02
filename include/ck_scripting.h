@@ -17,6 +17,7 @@ namespace ck::common {
 
     const char* system_mod_id();
     const char* current_mod_id();
+    const char* mod_id_ptr(const char* mod_id);
 
     bool reloading_mods();
     bool game_is_loading();

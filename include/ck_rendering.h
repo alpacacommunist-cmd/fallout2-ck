@@ -17,6 +17,8 @@ struct CkSceneryInstance {
     int tile;
     int offset_y = 0;
     int fid = -1;
+
+    const char* mod_id;
 };
 
 struct CkTileInstance {
@@ -25,6 +27,8 @@ struct CkTileInstance {
     int fid = -1;
     int roof_block_id = -1;
     int flags = 0;
+
+    const char* mod_id;
 };
 
 extern std::vector<CkSceneryInstance> gScenery;
@@ -41,6 +45,8 @@ void ck_rendering_add_tile(int fid, int tile);
 void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id);
 
 namespace ck::rendering {
+    void clear_for_mod(const char* mod_id);
+
     void refresh();
     void clear();
 

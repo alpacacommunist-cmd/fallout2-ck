@@ -74,6 +74,10 @@ namespace ck {
     namespace map::borders {
         void clear_for_mod(const char* mod_id);
     }
+    // ck_rendering.cc
+    namespace rendering {
+        void clear_for_mod(const char* mod_id);
+    }
     // ck_lua_proxy.cc
     namespace proxy::detail {
         extern int reload_mods;
@@ -102,6 +106,10 @@ namespace ck::common {
 
     const char* current_mod_id() {
         return ck::dispatcher::current_mod_context();
+    }
+
+    const char* mod_id_ptr(const char* mod_id) {
+        return ck::dispatcher::mod_id_ptr(mod_id);
     }
 
     bool reloading_mods() {
@@ -153,6 +161,7 @@ void ck_clear_mod_resources(const char* mod_id) {
     ck::critter::proto::clear_prototypes_for_mod(mod_id_str);
     ck::registry::clear_resources_for_mod(mod_id_ptr);
     ck::map::borders::clear_for_mod(mod_id_ptr);
+    ck::rendering::clear_for_mod(mod_id_ptr);
 }
 
 void ck_set_language() {

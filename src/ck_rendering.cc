@@ -11,6 +11,11 @@
 #include "ck_log.h"
 static const Logger logger("ck_rendering.cc");
 
+namespace ck::common {
+    const char* current_mod_id();
+    const char* mod_id_ptr(const char* mod_id);
+}
+
 std::vector<CkSceneryInstance> gScenery;
 std::vector<CkSceneryInstance> gRoofScenery;
 
@@ -94,6 +99,7 @@ void ck_rendering_add_scenery(int fid, int tile, CkRenderLayer layer, int offset
     instance.tile = tile;
     instance.offset_y = offset_y;
     instance.fid  = fid;
+    instance.mod_id = ck::common::current_mod_id();
 
     auto& target_vector = (layer == CkRenderLayer::Roof) ? gRoofScenery : gScenery;
 
@@ -109,6 +115,7 @@ void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance instance;
     instance.tile = tile;
     instance.fid = fid;
+    instance.mod_id = ck::common::current_mod_id();
 
     gTiles.push_back(instance);
 }
@@ -118,6 +125,7 @@ void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
     instance.tile = tile;
     instance.fid = fid;
     instance.roof_block_id = roof_block_id;
+    instance.mod_id = ck::common::current_mod_id();
 
     auto it = std::upper_bound(gRoofTiles.begin(), gRoofTiles.end(), instance,
         [](const CkTileInstance& a, const CkTileInstance& b) {
@@ -244,6 +252,23 @@ static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkScenery
 }
 
 namespace ck::rendering {
+    void clear_for_mod(const char* mod_id) {
+        const char* mod_id_ptr = ck::common::mod_id_ptr(mod_id);
+        if (mod_id_ptr == nullptr) return;
+
+        auto belongs_to_mod = [mod_id_ptr](const auto& instance) {
+            return instance.mod_id == mod_id_ptr;
+        };
+
+        std::erase_if(gScenery,     belongs_to_mod);
+        std::erase_if(gRoofScenery, belongs_to_mod);
+
+        std::erase_if(gTiles,       belongs_to_mod);
+        std::erase_if(gRoofTiles,   belongs_to_mod);
+
+        refresh();
+    }
+
     void refresh() {
         fallout::tileWindowRefresh();
     }
