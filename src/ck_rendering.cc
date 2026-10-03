@@ -213,7 +213,7 @@ static int ck_rendering_tiles(fallout::Rect* rect, const std::vector<CkTileInsta
 }
 
 static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkSceneryInstance>& scenery_list, CkRenderLayer layer) {
-    const int SCENERY_PADDING_X = 160;
+    const int SCENERY_PADDING_X = 240;
     const int SCENERY_PADDING_Y = 240;
     int visible_count = 0;
 
@@ -298,8 +298,7 @@ namespace ck::rendering {
             last_log_time = now;
 
             logger.debug("Culling info [floor]: Tiles: {}/{} | Scenery: {}/{}",
-                    visible_tiles, gTiles.size(),
-                    visible_scenery, gScenery.size());
+                    visible_tiles, gTiles.size(), visible_scenery, gScenery.size());
         }
     }
 
@@ -316,8 +315,7 @@ namespace ck::rendering {
             last_log_time = now;
 
             logger.debug("Culling info [roof]: Tiles: {}/{} | Scenery: {}/{}",
-                    visible_tiles, gRoofTiles.size(),
-                    visible_scenery, gRoofScenery.size());
+                    visible_tiles, gRoofTiles.size(), visible_scenery, gRoofScenery.size());
         }
     }
 }

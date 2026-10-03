@@ -3,8 +3,16 @@
 local outskirts = {}
 
 outskirts.mountain_tiles = {
-  { fid = 0x040005E5, tile = 13893 },
-  { fid = 0x040005E4, tile = 14896 },
+  { fid = 0x040005E2, tile = 13692 },
+  { fid = 0x040005E1, tile = 13694 },
+  { fid = 0x040005E3, tile = 14094 },
+  { fid = 0x040005E4, tile = 14096 },
+  { fid = 0x040005E4, tile = 14296 },
+  { fid = 0x040005E3, tile = 14495 },
+  { fid = 0x040005E4, tile = 14695 },
+  { fid = 0x040005E4, tile = 14697 },
+  { fid = 0x040005E4, tile = 14699 },
+  { fid = 0x040005E4, tile = 14897 },
   { fid = 0x040005E4, tile = 15498 },
   { fid = 0x040005E4, tile = 15098 },
   { fid = 0x040005E4, tile = 15899 },
@@ -41,8 +49,7 @@ outskirts.mountain_scenery = {
   { fid = 0x020002C0, tile = 12290 },
   { fid = 0x020002BF, tile = 12097 },
   { fid = 0x020002BE, tile = 13301 },
-  { fid = 0x020002BD, tile = 14092 },
-  { fid = 0x02000568, tile = 14705 },
+  { fid = 0x020002C1, tile = 13495 },
   { fid = 0x020002BE, tile = 14908 },
   { fid = 0x020002C2, tile = 15303 },
 
