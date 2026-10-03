@@ -5,7 +5,7 @@
 extern lua_State* gLuaState;
 
 #include "ck_log.h"
-static const Logger log("CK Dispatcher Lua Proxy");
+static const Logger log("ck_lua_proxy_dispatcher.cc");
 
 namespace ck::proxy::detail {
     extern int emit_for_mod;

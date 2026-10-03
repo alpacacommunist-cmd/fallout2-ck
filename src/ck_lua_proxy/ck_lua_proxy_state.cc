@@ -86,21 +86,15 @@ namespace ck::proxy {
         }
     }
 
-	template<typename... Args>
-    ObjectState execute_proxy_call_state(int func_ref, Args... args) {
+    template <typename T, typename... Args>
+    T execute_proxy_call_custom_table(int func_ref, std::function<T()> parser, Args... args) {
         LuaStackGuard guard;
-        ObjectState result;
+        T result{};
 
         if (!internal_call_start(func_ref)) return result;
         (push_arg(args), ...);
         if (!internal_call_execute(sizeof...(Args), 1)) return result;
-
-        if (lua_istable(gLuaState, -1)) {
-            result.tile = read_table_int("tile", -1);
-            result.elevation = read_table_int("elevation", -1);
-            result.hp   = read_table_int("hp", -1);
-            result.id   = read_table_int("id", -1);
-        }
+        if (lua_istable(gLuaState, -1)) result = parser();
 
         return result;
     }
@@ -116,9 +110,19 @@ namespace ck::proxy {
         return execute_proxy_call_vector<CustomProtoState>(detail::get_proto_list, parse_proto);
     }
 
-	ObjectState get_object_state(int map_id, const std::string& lua_tag) {
-		return execute_proxy_call_state(detail::get_state_data, g_current_mod_id, map_id, lua_tag);
-	}
+    ObjectState get_object_state(int map_id, const std::string &lua_tag) {
+        auto parser = []() -> ObjectState {
+            ObjectState object_state;
+            object_state.tile = read_table_int("tile", -1);
+            object_state.elevation = read_table_int("elevation", -1);
+            object_state.hp = read_table_int("hp", -1);
+            object_state.id = read_table_int("id", -1);
+
+            return object_state;
+        };
+
+        return execute_proxy_call_custom_table<ObjectState>(detail::get_state_data, parser, g_current_mod_id, map_id, lua_tag);
+    }
 
     bool receive_proto_list(const ItemProtoLuaView* data, int size) {
         return execute_proxy_call<bool>(detail::receive_proto_list, data, size);
