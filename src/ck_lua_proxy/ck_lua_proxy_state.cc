@@ -20,21 +20,37 @@ namespace ck::proxy::detail {
     extern int state_sync_save;
 }
 
-static bool is_number(const std::string& s) {
-    return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit);
+static bool is_integer_key(const std::string& s) {
+    if (s.empty()) return false;
+    size_t start = (s[0] == '-') ? 1 : 0;
+    if (start == s.size()) return false;
+    return std::all_of(s.begin() + start, s.end(), [](unsigned char c) { return std::isdigit(c); });
 }
 
 static void picojson_to_lua(lua_State* L, const picojson::value& val) {
-    if (val.is<double>()) lua_pushnumber(L, val.get<double>());
-    else if (val.is<bool>()) lua_pushboolean(L, val.get<bool>());
-    else if (val.is<std::string>()) lua_pushstring(L, val.get<std::string>().c_str());
-    else if (val.is<picojson::object>()) {
+    if (val.is<double>()) {
+        lua_pushnumber(L, val.get<double>());
+    } else if (val.is<bool>()) {
+        lua_pushboolean(L, val.get<bool>());
+    } else if (val.is<std::string>()) {
+        lua_pushstring(L, val.get<std::string>().c_str());
+    } else if (val.is<picojson::array>()) {
+        lua_newtable(L);
+        const auto& arr = val.get<picojson::array>();
+        for (size_t i = 0; i < arr.size(); ++i) {
+            picojson_to_lua(L, arr[i]);
+            lua_rawseti(L, -2, i + 1);
+        }
+    } else if (val.is<picojson::object>()) {
         lua_newtable(L);
         const picojson::object& obj = val.get<picojson::object>();
 
         for (const auto& [key, value] : obj) {
-            if (is_number(key)) lua_pushinteger(L, std::stoll(key));
-            else lua_pushstring(L, key.c_str());
+            if (is_integer_key(key)) {
+                lua_pushinteger(L, std::stoll(key));
+            } else {
+                lua_pushstring(L, key.c_str());
+            }
 
             picojson_to_lua(L, value);
             lua_settable(L, -3);
@@ -45,6 +61,10 @@ static void picojson_to_lua(lua_State* L, const picojson::value& val) {
 }
 
 static picojson::value lua_to_picojson(lua_State* L, int idx) {
+    if (idx < 0) {
+        idx = lua_gettop(L) + idx + 1;
+    }
+
     int t = lua_type(L, idx);
 
     if (t == LUA_TNUMBER) {
@@ -54,10 +74,20 @@ static picojson::value lua_to_picojson(lua_State* L, int idx) {
     } else if (t == LUA_TSTRING) {
         return picojson::value(std::string(lua_tostring(L, idx)));
     } else if (t == LUA_TTABLE) {
-        picojson::object obj;
+        size_t arr_len = lua_objlen(L, idx);
+        if (arr_len > 0) {
+            picojson::array arr;
+            for (size_t i = 1; i <= arr_len; ++i) {
+                lua_rawgeti(L, idx, i);
+                arr.push_back(lua_to_picojson(L, -1));
+                lua_pop(L, 1);
+            }
+            return picojson::value(arr);
+        }
 
+        picojson::object obj;
         lua_pushnil(L);
-        while (lua_next(L, idx < 0 ? idx - 1 : idx) != 0) {
+        while (lua_next(L, idx) != 0) {
             std::string key;
             if (lua_type(L, -2) == LUA_TNUMBER) {
                 key = std::to_string(lua_tointeger(L, -2));
