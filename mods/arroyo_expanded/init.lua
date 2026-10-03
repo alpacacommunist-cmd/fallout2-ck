@@ -22,8 +22,8 @@ local objects     = require('ck.fallout2.objects')
 local timers      = require('ck.fallout2.timers')
 
 local PID_RADSCORPION_TAIL = 92
-local inv_fid    = assets.resolve("arroyo_expanded:skilldex/scorpg.frm", 7)
-local ground_fid = assets.resolve("arroyo_expanded:skilldex/scorpg_ground.frm", 0)
+local inv_fid    = assets.resolve("skilldex/scorpg.frm", 7)
+local ground_fid = assets.resolve("scorpg_ground.frm", 0)
 
 local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
   object_type = proto.types.item,

@@ -69,8 +69,7 @@ function events.critter_killed(victim, killer)
 
   for mod_name, mod_events in pairs(events.registry) do
     local callbacks = mod_events.critter_killed
-
-    if not callbacks then return end
+    if not callbacks then goto continue end
 
     for index = 1, #callbacks do
       log.debug("global event 'critter_killed' for mod: %s", mod_name)
@@ -80,6 +79,8 @@ function events.critter_killed(victim, killer)
         return debug.traceback(string.format("[%s] Runtime Error: %s", mod_name, tostring(err)), 2)
       end, victim, killer)
     end
+
+    ::continue::
   end
 end
 

@@ -186,9 +186,6 @@ end
 
 function ck.registries.reset_map_context()
   for _, mod_id in ipairs(ck.active_mods) do
-    -- 🌲
-    ck.registries.assets[mod_id] = {}
-
     ck.registries.objects[mod_id] = {}
 
     -- 💬

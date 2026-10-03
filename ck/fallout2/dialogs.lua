@@ -106,7 +106,7 @@ local function run_node_dialog(lua_id, nodes)
     if next_node then
       current_node = next_node
     else
-      log.error("Unknown option index: " .. tostring(chosen_c_index) .. ". Exiting.")
+      log.error("Unknown option index: " .. tostring(chosen_lua_index) .. ". Exiting.")
       context.active = false
     end
   end
