@@ -2,19 +2,15 @@
 #include "obj_types.h"
 
 #include "ck_log.h"
-static const Logger log("CK Registry [Created]");
-
-namespace fallout {
-    int scriptRemove(int index);
-}
+static const Logger log("ck_registry_created.cc");
 
 namespace ck::registry::created {
-    int add(fallout::Object* obj, LuaMeta meta) {
-        if (!obj) return -1;
+    int add(fallout::Object* object, LuaMeta meta) {
+        if (!object) return -1;
         int lua_id = next_lua_id();
 
-        g_created_objects[lua_id] = CkCreatedObject{ obj, lua_id, std::move(meta) };
-        g_ptr_to_lua_id[obj] = lua_id;
+        g_created_objects[lua_id] = CkCreatedObject{ object, lua_id, std::move(meta) };
+        g_ptr_to_lua_id[object] = lua_id;
         return lua_id;
     }
 
@@ -28,10 +24,6 @@ namespace ck::registry::created {
         }
 
         for (fallout::Object* object : to_destroy) {
-            // clear animations queue
-            fallout::reg_anim_clear(object);
-            // remove script if object uses existing game script slot
-            if (object->scriptIndex != -1) fallout::scriptRemove(object->sid);
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
             fallout::objectDestroy(object, nullptr);
         }
