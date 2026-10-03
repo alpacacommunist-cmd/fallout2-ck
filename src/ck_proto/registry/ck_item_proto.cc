@@ -142,16 +142,16 @@ namespace ck::proto::item {
         } else { // SyncMode::Restore (on game load)
             std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
 
+            // (quick ref map)
+            std::unordered_map<std::string, int> tag_to_current_pid;
+            for (const auto& p : registry_item_protos) tag_to_current_pid[p.lua_tag] = p.pid;
+
             for (const auto& proto_state : state_protos) {
-                auto it = std::find_if(registry_item_protos.begin(), registry_item_protos.end(),
-                        [&proto_state](const auto& p) { return p.lua_tag == proto_state.tag; });
-
-                if (it != registry_item_protos.end()) {
-                    id_translation_table[proto_state.id] = it->pid;
+                auto it = tag_to_current_pid.find(proto_state.tag);
+                if (it != tag_to_current_pid.end()) {
+                    id_translation_table[proto_state.id] = it->second;
                 }
-            }
 
-            for (auto& proto_state : state_protos) {
                 logger.info("proto_tag: {}, proto_id: {}", proto_state.tag, proto_state.id);
             }
         }
