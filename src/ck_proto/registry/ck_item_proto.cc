@@ -15,6 +15,15 @@ namespace fallout {
     Object* objectFindNextAtElevation();
 }
 
+static fallout::ItemProto* get_fallout_item_proto(int pid) {
+    fallout::Proto* source_proto = nullptr;
+    if (fallout::protoGetProto(pid, &source_proto) == 0 && source_proto) {
+        return reinterpret_cast<fallout::ItemProto*>(source_proto);
+    }
+
+    return nullptr;
+}
+
 namespace ck::proto::item {
     static int fallout_object_type = static_cast<int>(ids::ObjectType::ITEM);
 
@@ -78,9 +87,16 @@ namespace ck::proto::item {
             return -1;
         }
 
+        auto* fallout_item_proto = get_fallout_item_proto(source_pid);
+        if (!fallout_item_proto) {
+            logger.error("Couldn't find item proto (source_pid: {}), (tag: {})", source_pid, tag);
+            return -1;
+        }
+
         ItemProto proto;
         proto.pid         = pid;
         proto.source_pid  = source_pid;
+        proto.source_fid  = fallout_item_proto->fid;
 
         proto.weight      = ffi_data.weight;
         proto.price       = ffi_data.price;
@@ -103,30 +119,25 @@ namespace ck::proto::item {
 
     static void prepare_object_for_save(fallout::Object* object) {
         const ItemProto* proto = find_by_pid(object->pid);
-        if (proto) {
-            object->id  = object->pid;
-            object->pid = proto->source_pid;
+        auto* fallout_item_proto = get_fallout_item_proto(proto->source_pid);
+        if (!proto || !fallout_item_proto) return;
 
-            fallout::Proto* source_proto = nullptr;
-            if (fallout::protoGetProto(proto->source_pid, &source_proto) == 0 && source_proto) {
-                object->sid = source_proto->sid;
-            } else {
-                object->sid = -1;
-            }
-        }
+        object->id  = object->pid;
+        object->pid = proto->source_pid;
+        object->sid = fallout_item_proto->sid;
+        if (proto->ground_fid) object->fid = proto->source_fid;
     }
 
     static void restore_object_after_save(fallout::Object* object) {
+        const ItemProto* proto = find_by_pid(object->id);
+        auto* fallout_item_proto = get_fallout_item_proto(proto->source_pid);
+        if (!proto || !fallout_item_proto) return;
+
         auto it = id_translation_table.find(object->id);
         if (it != id_translation_table.end()) {
-            int pid = it->second;
-
-            object->pid = pid;
-
-            fallout::Proto* proto = nullptr;
-            if (fallout::protoGetProto(pid, &proto) == 0 && proto) {
-                object->sid = proto->sid;
-            }
+            object->pid = it->second;
+            object->sid = fallout_item_proto->sid;
+            if (proto->ground_fid) object->fid = proto->ground_fid;
         }
 
         object->id = 0;

@@ -21,6 +21,7 @@ struct ProtoNode { int pid; UniqueProtoPtr memory; };
 struct ItemProto {
     int pid;
     int source_pid;
+    int source_fid;
 
     int weight;
     int price;
