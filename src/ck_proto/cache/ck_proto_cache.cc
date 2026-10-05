@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <format>
 
+#include "proto_types.h"
+
 #include "ck_log.h"
 static const Logger log("CK Scripting");
 
@@ -137,7 +139,7 @@ bool CkProtoCache::buildFromEngine() {
             int pid = (type << 24) | id;
             fallout::Proto* proto = nullptr;
 
-            if (fallout::protoGetProto(pid, &proto) != 0 || proto == nullptr) {
+            if (fallout::protoGetProto(fallout::ProtoId(pid), &proto) != 0 || proto == nullptr) {
                 continue;
             }
 

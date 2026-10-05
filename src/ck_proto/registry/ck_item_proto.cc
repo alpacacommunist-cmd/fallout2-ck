@@ -7,6 +7,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "proto.h"
+
 #include "ck_log.h"
 static const Logger logger("CK Proto Item");
 
@@ -16,8 +18,9 @@ namespace fallout {
 }
 
 static fallout::ItemProto* get_fallout_item_proto(int pid) {
-    fallout::Proto* source_proto = nullptr;
-    if (fallout::protoGetProto(pid, &source_proto) == 0 && source_proto) {
+    fallout::Proto*  source_proto = nullptr;
+    fallout::ProtoId item_proto_id(pid);
+    if (fallout::protoGetProto(item_proto_id, &source_proto) == 0 && source_proto) {
         return reinterpret_cast<fallout::ItemProto*>(source_proto);
     }
 
@@ -262,10 +265,9 @@ namespace ck::proto::item {
         if (it != g_mod_allocated_item_pids.end()) {
             for (int pid : it->second) {
                 fallout::Proto* proto = nullptr;
-                fallout::protoGetProto(pid, &proto);
-                if (proto) {
-                    ck::proto::unlink_sid(proto->sid);
-                }
+                fallout::protoGetProto(fallout::ProtoId{pid}, &proto);
+
+                if (proto) ck::proto::unlink_sid(proto->sid);
 
                 std::erase_if(g_item_protos, [pid](const ProtoNode& node) { return node.pid == pid; });
                 std::erase_if(registry_item_protos, [pid](const ItemProto& p) { return p.pid == pid; });

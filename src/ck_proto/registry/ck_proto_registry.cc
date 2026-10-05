@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <cstring>
 
+#include "proto.h"
+
 #include "ck_log.h"
 static const Logger logger("CK Proto Registry");
 
@@ -65,8 +67,10 @@ namespace ck::proto {
     void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
 
     fallout::Proto* build_generic_prototype(int source_pid, int assigned_pid, int object_type) {
-        fallout::Proto* src_proto = nullptr;
-        if (fallout::protoGetProto(source_pid, &src_proto) != 0 || src_proto == nullptr) {
+        fallout::Proto*  source_proto = nullptr;
+        fallout::ProtoId ck_prototype {source_pid};
+
+        if (fallout::protoGetProto(ck_prototype, &source_proto) != 0 || source_proto == nullptr) {
             logger.error("Failed to get source prototype for PID: {}", source_pid);
             return nullptr;
         }
@@ -78,7 +82,7 @@ namespace ck::proto {
             return nullptr;
         }
 
-        std::memcpy(allocated_mem, src_proto, proto_size);
+        std::memcpy(allocated_mem, source_proto, proto_size);
         fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
 
         custom_proto->pid = assigned_pid;

@@ -33,7 +33,7 @@ namespace ck {
 		if (!critter_skill_is_valid(skill)) return -5;
 
 		fallout::Proto* proto;
-		if (fallout::protoGetProto(critter->pid, &proto) != 0 || proto == nullptr) return -5;
+		if (fallout::protoGetProto(fallout::ProtoId(critter->pid), &proto) != 0 || proto == nullptr) return -5;
 
         if (value > 300) value = 300;
         if (value < 0)   value = 0;
@@ -45,7 +45,7 @@ namespace ck {
 
 	int critter_add_skill(fallout::Object* critter, int skill, int value) {
 		fallout::Proto* proto;
-		if (fallout::protoGetProto(critter->pid, &proto) != 0 || proto == nullptr) return -5;
+		if (fallout::protoGetProto(fallout::ProtoId(critter->pid), &proto) != 0 || proto == nullptr) return -5;
 
 		int new_base = proto->critter.data.skills[skill] + value;
 

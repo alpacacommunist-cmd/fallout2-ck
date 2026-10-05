@@ -52,10 +52,6 @@ struct ItemProtoFFI {
     const char *description;
 };
 
-namespace fallout {
-    int protoGetProto(int pid, fallout::Proto** proto);
-}
-
 namespace ck::proto {
     enum class SyncMode {
         Prepare,

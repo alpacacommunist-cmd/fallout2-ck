@@ -1,7 +1,6 @@
 #include "ck_utils.h"
 
 #include "object/ck_item.h"
-#include "ck_proto/registry/ck_proto_registry.h"
 
 #include "item.h"
 #include "object.h"
@@ -49,8 +48,10 @@ namespace ck {
 		if (!container_ptr || count < 1) return false;
 		auto* owner = static_cast<fallout::Object*>(container_ptr);
 
-		fallout::Proto* proto = nullptr;
-		if (fallout::protoGetProto(item_pid, &proto) == -1 || !proto) {
+		fallout::Proto*  proto = nullptr;
+        fallout::ProtoId item_proto_id(item_pid);
+
+		if (fallout::protoGetProto(item_proto_id, &proto) == -1 || !proto) {
 			return false;
 		}
 
