@@ -69,28 +69,28 @@ namespace ck::proto::item {
         return -1;
     }
 
-    static int store_prototype_patch(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
+    static const ItemProto* store_prototype_patch(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
         std::string tag(lua_tag);
         int pid = ck::proto::next_proto_pid();
 
         if (!ck::proto::is_supported_proto_type(fallout_object_type)) {
             logger.error("Cannot register prototype '{}': Unsupported or invalid object type {}!", tag, fallout_object_type);
-            return -1;
+            return nullptr;
         }
 
         for (auto& proto : registry_item_protos) {
-            if (proto.lua_tag == tag) return proto.pid;
+            if (proto.lua_tag == tag) return &proto;
         }
 
         if (pid >= ck::ids::CK_PID_LIMIT) {
             logger.error("Cannot register prototype '{}': Custom item PIDs limit reached!", tag);
-            return -1;
+            return nullptr;
         }
 
         auto* fallout_item_proto = get_fallout_item_proto(source_pid);
         if (!fallout_item_proto) {
             logger.error("Couldn't find item proto (source_pid: {}), (tag: {})", source_pid, tag);
-            return -1;
+            return nullptr;
         }
 
         ItemProto proto;
@@ -104,8 +104,8 @@ namespace ck::proto::item {
         proto.name        = std::string(ffi_data.name);
         proto.description = std::string(ffi_data.description);
 
-        proto.inv_fid     = ffi_data.inv_fid;
-        proto.ground_fid  = ffi_data.ground_fid;
+        if (ffi_data.inv_fid && ck::ids::is_ck_frm(ffi_data.inv_fid)) proto.inv_fid = ffi_data.inv_fid;
+        if (ffi_data.ground_fid && ck::ids::is_ck_frm(ffi_data.ground_fid)) proto.ground_fid = ffi_data.ground_fid;
 
         proto.usable      = ffi_data.usable;
 
@@ -114,7 +114,7 @@ namespace ck::proto::item {
 
         registry_item_protos.push_back(proto);
 
-        return pid;
+        return find_by_pid(proto.pid);
     }
 
     static void prepare_object_for_save(fallout::Object* object) {
@@ -205,39 +205,33 @@ namespace ck::proto::item {
     }
 
     int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
-        int pid = store_prototype_patch(source_pid, lua_tag, ffi_data);
-        if (pid == -1) {
+        const ItemProto* proto = store_prototype_patch(source_pid, lua_tag, ffi_data);
+        if (!proto) {
             logger.error("Failed to save prototype input data {}", lua_tag);
             return -1;
         }
 
-        fallout::Proto* generic_proto = ck::proto::build_generic_prototype(source_pid, pid, fallout_object_type);
+        fallout::Proto* generic_proto = ck::proto::build_generic_prototype(source_pid, proto->pid, fallout_object_type);
 
         if (generic_proto == nullptr) {
             logger.error("Failed to allocate memory for ITEM prototype");
             return -1;
         }
 
-        auto* item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
+        auto* fallout_item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
 
-        item_proto->pid = pid;
+        fallout_item_proto->pid = proto->pid;
+        fallout_item_proto->cost   = proto->price;
+        fallout_item_proto->weight = proto->weight;
 
-        item_proto->cost   = ffi_data.price;
-        item_proto->weight = ffi_data.weight;
-
-        if (ffi_data.usable) {
-            item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
+        if (proto->usable) {
+            fallout_item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
         }
 
-        if (ck::ids::is_ck_frm(ffi_data.inv_fid)) {
-            item_proto->inventoryFid = ffi_data.inv_fid;
-        }
+        if (proto->inv_fid) fallout_item_proto->inventoryFid = ffi_data.inv_fid;
+        if (proto->ground_fid) fallout_item_proto->fid = ffi_data.ground_fid;
 
-        if (ck::ids::is_ck_frm(ffi_data.ground_fid)) {
-            item_proto->fid = ffi_data.ground_fid;
-        }
-
-        int msg_name_id = pid * 100;
+        int msg_name_id = proto->pid * 100;
 
         if (!utils::is_blank(ffi_data.name)) {
             ck::messages_add_string("pro_item.msg", msg_name_id, ffi_data.name);
@@ -247,8 +241,8 @@ namespace ck::proto::item {
             ck::messages_add_string("pro_item.msg", msg_name_id + 1, ffi_data.description);
         }
 
-        g_item_protos.push_back({ pid, UniqueProtoPtr(generic_proto) });
-        return pid;
+        g_item_protos.push_back({ proto->pid, UniqueProtoPtr(generic_proto) });
+        return proto->pid;
     }
 
     void clear() {
