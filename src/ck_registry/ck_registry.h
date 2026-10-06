@@ -16,20 +16,22 @@ struct LuaMeta {
     const char* mod_id;
     std::string tag;
 
-    int         source_pid = -1;
-    int         source_sid = -1;
+    int source_pid = -1;
+    int source_sid = -1;
 };
 
 struct CkCreatedObject {
-    fallout::Object* ptr    = nullptr;
-    int              lua_id = -1;
-    LuaMeta          meta;
+    fallout::Object* ptr = nullptr;
+    int lua_id = -1;
+
+    LuaMeta meta;
 };
 
 struct CkModifiedObject {
-    fallout::Object* ptr    = nullptr;
-    int              lua_id = -1;
-    LuaMeta          meta;
+    fallout::Object* ptr = nullptr;
+    int lua_id = -1;
+
+    LuaMeta meta;
 };
 
 struct CkDeletedObject {

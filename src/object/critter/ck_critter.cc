@@ -104,6 +104,7 @@ namespace ck::critter {
         logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
     }
 
+    // TODO: fix source_pid
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
         int lua_id = -1;
 
