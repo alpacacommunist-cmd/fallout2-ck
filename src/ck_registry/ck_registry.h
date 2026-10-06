@@ -3,7 +3,6 @@
 
 #include <unordered_map>
 #include <vector>
-#include <string>
 #include "ck_api.h"
 
 namespace fallout {
@@ -14,7 +13,7 @@ namespace fallout {
 }
 
 struct LuaMeta {
-    std::string mod_id;
+    const char* mod_id;
     std::string tag;
 
     int         source_pid = -1;
@@ -35,7 +34,7 @@ struct CkModifiedObject {
 
 struct CkDeletedObject {
     fallout::Object* ptr = nullptr;
-    std::string mod_id;
+    const char* mod_id;
 };
 
 namespace ck::registry {
@@ -61,7 +60,7 @@ namespace ck::registry {
     namespace created {
         int  add(fallout::Object* obj, LuaMeta meta = {});
         int  remove_by_ptr(fallout::Object* ptr);
-		void clear_for_mod(std::string_view mod_id);
+		void clear_for_mod(const char* mod_id);
 
         fallout::Object* get_object(int lua_id);
         const CkCreatedObject* get(int lua_id);
@@ -69,7 +68,7 @@ namespace ck::registry {
 
     namespace deleted {
         void add(fallout::Object* obj);
-		void clear_for_mod(std::string_view mod_id);
+		void clear_for_mod(const char* mod_id);
 
         void unhide();
         void hide();
@@ -78,7 +77,7 @@ namespace ck::registry {
 	namespace modified {
 		int  add(fallout::Object* obj, LuaMeta meta = {});
 		int  restore(fallout::Object* object);
-		void clear_for_mod(std::string_view mod_id);
+		void clear_for_mod(const char* mod_id);
 
 		void restore_sids();
 		void reapply_sids();

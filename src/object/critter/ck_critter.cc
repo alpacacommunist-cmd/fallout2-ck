@@ -108,7 +108,7 @@ namespace ck::critter {
         int lua_id = -1;
 
 		int map_id         = common::current_map_id();
-		std::string mod_id = common::current_mod_id();
+		const char* mod_id = common::current_mod_id();
 
         int source_pid = pid;
         std::string lua_tag = spawn_params->tag;

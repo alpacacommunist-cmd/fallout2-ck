@@ -27,9 +27,9 @@ namespace ck::registry::modified {
 		// fill meta
         meta.source_sid = obj->sid;
         meta.source_pid = obj->pid;
-        if (meta.mod_id.empty()) {
+        if (!meta.mod_id) {
             const char* current_mod_id = ck::common::current_mod_id();
-            std::string mod_id = current_mod_id != nullptr ? current_mod_id : ck::common::system_mod_id();
+            const char* mod_id = current_mod_id != nullptr ? current_mod_id : ck::common::system_mod_id();
 
             meta.mod_id = mod_id;
         }
@@ -72,7 +72,7 @@ namespace ck::registry::modified {
         return source_sid;
     }
 
-	void clear_for_mod(std::string_view mod_id) {
+	void clear_for_mod(const char* mod_id) {
 		int restored_sids_count = 0;
 
         auto modified_it = g_modified_objects.begin();

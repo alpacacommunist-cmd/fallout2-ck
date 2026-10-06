@@ -43,7 +43,7 @@ namespace ck::object {
         if (destination.lua_id != -1) {
             const LuaMeta* object_meta = registry::get_meta(destination.lua_id);
 
-            if (object_meta) destination.mod_id = object_meta->mod_id.c_str();
+            if (object_meta) destination.mod_id = object_meta->mod_id;
         }
 	}
 

@@ -14,14 +14,14 @@ namespace ck::registry::deleted {
         if (obj == nullptr) return;
 
 		const char* current_mod_id = ck::common::current_mod_id();
-		std::string mod_id = current_mod_id != nullptr ? current_mod_id : ck::common::system_mod_id();
+		const char* mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::common::system_mod_id();
 
 		obj->flags |= fallout::OBJECT_HIDDEN;
 
         g_deleted_objects.push_back(CkDeletedObject{ obj, mod_id });
     }
 
-	void clear_for_mod(std::string_view mod_id) {
+	void clear_for_mod(const char* mod_id) {
         int restored_count = 0;
 
         std::erase_if(g_deleted_objects, [mod_id, &restored_count](const CkDeletedObject& entry) {

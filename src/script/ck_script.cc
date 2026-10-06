@@ -109,7 +109,7 @@ namespace ck::script {
 		if (meta == nullptr) return false; // game loading
         // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
 
-		if (meta->mod_id.empty()) {
+		if (!meta->mod_id) {
 			logger.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
 			return false;
 		}
@@ -157,7 +157,7 @@ namespace ck::script {
 
             // dispatch proc manually
             logger.debug("Dispatching proc {} to lua_id {} manually (no lua script found)", proc, victim.lua_id);
-            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id.data());
+            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id);
         }
     }
 

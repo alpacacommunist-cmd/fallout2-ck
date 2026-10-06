@@ -63,11 +63,9 @@ namespace ck::registry {
     void clear_resources_for_mod(const char* mod_id) {
         if (mod_id == nullptr) return;
 
-		std::string_view mod_str(mod_id);
-
-		deleted::clear_for_mod(mod_str);
-		modified::clear_for_mod(mod_str);
-		created::clear_for_mod(mod_str);
+		deleted::clear_for_mod(mod_id);
+		modified::clear_for_mod(mod_id);
+		created::clear_for_mod(mod_id);
     }
 
 	void on_map_exit() {
@@ -98,7 +96,7 @@ const char* ck_registry_object_get_mod_id(fallout::Object* object) {
     if (object == nullptr) return nullptr;
 
 	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
-    return (meta != nullptr) ? meta->mod_id.data() : nullptr;
+    return (meta != nullptr) ? meta->mod_id : nullptr;
 }
 
 // MODIFIED critters don't have a tag. Only CREATED

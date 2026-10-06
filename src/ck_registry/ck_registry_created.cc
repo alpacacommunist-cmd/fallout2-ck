@@ -14,7 +14,7 @@ namespace ck::registry::created {
         return lua_id;
     }
 
-	void clear_for_mod(std::string_view mod_id) {
+	void clear_for_mod(const char* mod_id) {
         std::vector<fallout::Object*> to_destroy;
 
         for (const auto& [id, managed] : g_created_objects) {

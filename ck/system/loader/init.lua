@@ -28,7 +28,7 @@ loader.handlers = {
 
     -- inits mod data tables
     ck.registries.init_mod(mod_id)
-    -- register mod in backend (to allow setting mod context (current_mod_id))
+    -- register mod in dispatcher.cc (to allow setting mod context (current_mod_id))
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
     local function run_mod_init()
@@ -103,8 +103,11 @@ function loader.reload_mods()
     -- renering queues
     ffi.C.ck_mods_clear_resources_for_mod(mod_id)
 
-    -- clear lua registries
+    -- clears lua registries
     ck.registries.clear_mod(mod_id)
+
+    -- removes mod_id from ck_dispatcher.cc (g_active_mods ptrs list)
+    ffi.C.ck_dispatcher_remove_mod(mod_id)
 
     if mod_env and mod_env.package and mod_env.package.loaded then
       for module_name in pairs(mod_env.package.loaded) do
