@@ -2,6 +2,8 @@
 local ffi = require('ffi')
 
 local wall_utils = require('ck.libs.test_mod_lib')
+log.info(wall_utils.hello())
+
 local utils = require('ck.system.utils')
 
 local events      = require('ck.system.events')
@@ -40,7 +42,6 @@ local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expan
 })
 
 print("PID: " .. tostring(golden_tail.pid))
-log.error(wall_utils.hello())
 
 golden_tail:bind()
 :on('use', function()

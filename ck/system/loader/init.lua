@@ -8,9 +8,9 @@ local sandbox = require('ck.system.loader.sandbox')
 local log = ck.log.new('loader/init.lua')
 
 local reloadable_mods = {
+  "test_mod_lib",
   "arroyo_expanded",
-  "temple_of_trials",
-  "test_mod_lib"
+  "temple_of_trials"
 }
 
 local active_mod_envs = {}
@@ -131,6 +131,11 @@ function loader.reload_mods()
     if mod_type == 'library' then
       package.preload[mod_data.keys.preload] = nil
       log.info("[preload] Unloaded: " .. mod_data.keys.preload)
+
+      if package.loaded[mod_data.keys.preload] then
+        package.loaded[mod_data.keys.preload] = nil
+        log.info("[global loaded] Unloaded from global cache: " .. mod_data.keys.preload)
+      end
     end
 
     -- loads mod
