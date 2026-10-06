@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "ck_log.h"
-static const Logger log("CK Dispatcher");
+static const Logger log("ck_dispatcher.cc");
 
 namespace ck::common {
     int current_map_id();
@@ -168,12 +168,10 @@ bool ck_dispatcher_remove_mod(const char* mod_id) {
     const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
     if (mod_id_ptr == nullptr) return false;
 
-    if (std::erase(g_active_mods, mod_id) > 0) {
-        log.error("cleared mod_id: {}", mod_id);
-        return true;
-    } else {
-        return false;
-    }
+    bool removed = (std::erase(g_active_mods, mod_id) > 0);
+    removed ? log.debug("Removed mod_id: {}", mod_id) : log.error("Not found: {}", mod_id);
+
+    return removed;
 }
 
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
