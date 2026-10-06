@@ -9,6 +9,7 @@ struct CritterLuaProtoParams {
     const char* name;
     const char* description;
     const char* ai_packet;
+
     int team;
 };
 
@@ -20,8 +21,10 @@ namespace fallout {
 namespace ck::critter::proto {
     void clear_prototypes();
     void clear_prototypes_for_mod(const char* mod_id);
-    int proto_sid_of(int pid);
+    int proto_sid(int pid);
     bool has_custom_prototype(int pid);
+
+    int get_source_pid(int pid);
 
     int allocate(int base_pid, const CritterLuaProtoParams* params);
     int get_gender(fallout::Object* critter);

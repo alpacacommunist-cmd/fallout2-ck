@@ -107,19 +107,22 @@ namespace ck::critter {
     // TODO: fix source_pid
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
         int lua_id = -1;
-
-		int map_id         = common::current_map_id();
-		const char* mod_id = common::current_mod_id();
-
-        int source_pid = pid;
         std::string lua_tag = spawn_params->tag;
+
+        int map_id = common::current_map_id();
+        const char* mod_id = common::current_mod_id();
+
+        // Locate source pid
+        // It's being used when critter dies: source_pid is restored and
+        // OBJECT_NO_SAVE is removed, body is handled by engine
+        int source_pid = proto::get_source_pid(pid);
 
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
         if (state.elevation != -1) spawn_params->elevation = state.elevation;
 		if (state.tile != -1)      tile = state.tile;
 
-        // either alive or first spawn
+        // Either alive or first spawn
         bool critter_alive = (state.hp > 0 || state.id == -1);
 
         if (!critter_alive) {

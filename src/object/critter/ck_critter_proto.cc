@@ -26,7 +26,11 @@ namespace ck {
 }
 
 namespace ck::critter::proto {
+    // pid -> proto pointers
     static std::unordered_map<int, fallout::CritterProto*> g_custom_prototypes;
+    // pid -> source_pid map
+    static std::unordered_map<int, int> g_source_pid_mappings;
+    // mod_id -> pids (vector)
     static std::unordered_map<const char*, std::vector<int>> g_mod_allocated_pids;
 
     void clear_prototypes() {
@@ -35,21 +39,22 @@ namespace ck::critter::proto {
 
     void clear_prototypes_for_mod(const char* mod_id) {
         auto it = g_mod_allocated_pids.find(mod_id);
-        if (it != g_mod_allocated_pids.end()) {
-            for (int pid : it->second) {
-                g_custom_prototypes.erase(pid);
-            }
+        if (it == g_mod_allocated_pids.end()) return;
 
-            g_mod_allocated_pids.erase(it);
-            logger.debug("Cleared prototypes tracker for mod: {}", mod_id);
+        for (int pid : it->second) {
+            g_custom_prototypes.erase(pid);
+            g_source_pid_mappings.erase(pid);
         }
+
+        g_mod_allocated_pids.erase(it);
+        logger.debug("Cleared prototypes tracker for mod: {}", mod_id);
     }
 
     bool has_custom_prototype(int pid) {
         return g_custom_prototypes.count(pid) > 0;
     }
 
-    int proto_sid_of(int pid) {
+    int proto_sid(int pid) {
         fallout::Proto* generic_proto = nullptr;
 
         if (fallout::protoGetProto(fallout::ProtoId{pid}, &generic_proto) == 0 && generic_proto) {
@@ -68,17 +73,24 @@ namespace ck::critter::proto {
         return nullptr;
     }
 
-    int allocate(int base_pid, const CritterLuaProtoParams* params) {
-        fallout::ProtoId source {base_pid};
+    int get_source_pid(int pid) {
+        auto it = g_source_pid_mappings.find(pid);
+        if (it != g_source_pid_mappings.end()) return it->second;
+
+        return -1;
+    }
+
+    int allocate(int source_pid, const CritterLuaProtoParams* params) {
+        fallout::ProtoId source {source_pid};
         fallout::ProtoId ck_proto;
 
         if (fallout::proto_new(ck_proto, static_cast<fallout::ObjectType>(ck::ids::ObjectType::CRITTER)) != 0) {
-            logger.error("Couldn't allocate new prototype (base PID: {})", base_pid);
+            logger.error("Couldn't allocate new prototype (base PID: {})", source_pid);
             return -1;
         }
 
         if (fallout::proto_copy_proto(source, ck_proto) != 0) {
-            logger.error("Couldn't copy prototype data for '{}'", source.pid());
+            logger.error("Couldn't copy prototype data for '{}'", source_pid);
             return -1;
         }
 
@@ -118,11 +130,13 @@ namespace ck::critter::proto {
             return -1;
         }
 
-        logger.info("Created unique prototype for '{}' PID: {}", base_pid, ck_proto.pid());
         g_custom_prototypes[ck_proto.pid()] = critter_proto;
+        g_source_pid_mappings[ck_proto.pid()] = source_pid;
 
         const char* mod_id = common::current_mod_id();
         g_mod_allocated_pids[mod_id].push_back(ck_proto.pid());
+
+        logger.info("Created unique prototype for '{}' PID: {}", source_pid, ck_proto.pid());
 
         return ck_proto.pid();
     }
@@ -153,15 +167,15 @@ int ck_critter_proto_get_skill(fallout::CritterProto* proto, int skill_id) {
 }
 
 void ck_critter_proto_set_base_stat(fallout::CritterProto* proto, int stat_id, int value) {
-    if (proto) {
-        proto->data.baseStats[stat_id] = value;
-        logger.debug("Proto PID {} stat {} changed to {}", proto->pid, stat_id, value);
-    }
+    if (proto == nullptr) return;
+
+    proto->data.baseStats[stat_id] = value;
+    logger.debug("Proto PID {} stat {} changed to {}", proto->pid, stat_id, value);
 }
 
 void ck_critter_proto_set_skill(fallout::CritterProto* proto, int skill_id, int value) {
-    if (proto) {
-        proto->data.skills[skill_id] = value;
-        logger.debug("Proto PID {} skill {} changed to {}", proto->pid, skill_id, value);
-    }
+    if (proto == nullptr) return;
+
+    proto->data.skills[skill_id] = value;
+    logger.debug("Proto PID {} skill {} changed to {}", proto->pid, skill_id, value);
 }
