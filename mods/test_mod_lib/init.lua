@@ -11,6 +11,10 @@ function wall_utils.get_matching_fid(current_fid, direction)
   return WALL_FID_WEST
 end
 
+function wall_utils.hello()
+  return "sup"
+end
+
 function wall_utils.is_wall_blocking(hex_id)
   return false
 end

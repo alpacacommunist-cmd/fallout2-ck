@@ -40,6 +40,7 @@ local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expan
 })
 
 print("PID: " .. tostring(golden_tail.pid))
+log.error(wall_utils.hello())
 
 golden_tail:bind()
 :on('use', function()

@@ -5,7 +5,7 @@ local ck  = require('ck')
 local utils = require('ck.system.utils')
 local sandbox = require('ck.system.loader.sandbox')
 
-local log = require('ck.system.log').new('loader/init.lua')
+local log = ck.log.new('loader/init.lua')
 
 local reloadable_mods = {
   "arroyo_expanded",
@@ -86,22 +86,25 @@ function loader.exec_mod(mod_data)
 
   -- exec
   local handler = loader.handlers[manifest.type]
-  if handler(mod_data, mod_env) then
-    return true
-  else
-    return false
-  end
+  return handler(mod_data, mod_env)
 end
 
 function loader.reload_mods()
   for _, mod_id in ipairs(reloadable_mods) do
     local mod_data = ck.active_mods[mod_id]
     local mod_env  = active_mod_envs[mod_data.keys.base]
+    local mod_type = mod_data.manifest.type
 
     log.header("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
 
-    if mod_data.manifest.type == 'gameplay' then
+    -- clears mod_id ref tables
+    utils.table_remove_by_value(ck.active_mods_by_type[mod_type], mod_id)
+    ck.active_mods[mod_id] = nil
+
+    if mod_type == 'gameplay' then
+      utils.table_remove_by_value(ck.active_mods_list, mod_id)
+
       -- clears critter prototypes,
       -- object registry pointers
       -- camera borders
@@ -112,7 +115,7 @@ function loader.reload_mods()
       ck.registries.clear_mod(mod_id)
 
       -- removes mod from g_active_mods (dispatcher.cc)
-      -- ffi.C.ck_dispatcher_remove_mod(mod_id)
+      ffi.C.ck_dispatcher_remove_mod(mod_id)
     end
 
     -- unloads mod packages (clears mod_env.packages)
@@ -125,14 +128,19 @@ function loader.reload_mods()
     end
 
     -- library only: clears package.preload
-    if mod_data.manifest.type == 'library' then
+    if mod_type == 'library' then
       package.preload[mod_data.keys.preload] = nil
       log.info("[preload] Unloaded: " .. mod_data.keys.preload)
     end
 
     -- loads mod
     if loader.exec_mod(mod_data) then
-      if mod_data.manifest.type == 'gameplay' then
+      ck.active_mods[mod_id] = mod_data
+      table.insert(ck.active_mods_by_type[mod_type], mod_id)
+
+      if mod_type == 'gameplay' then
+        table.insert(ck.active_mods_list, mod_id)
+
         ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")
         ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
       end

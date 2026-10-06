@@ -177,7 +177,7 @@ function ck.registries.clear_mod(mod_id)
 end
 
 function ck.registries.reset_map_context()
-  for _, mod_id in ipairs(ck.active_mods) do
+  for _, mod_id in ipairs(ck.active_mods_list) do
     ck.registries.objects[mod_id] = {}
 
     -- 💬
