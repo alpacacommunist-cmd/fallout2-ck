@@ -165,7 +165,15 @@ bool ck_dispatcher_add_mod(const char* mod_id) {
 bool ck_dispatcher_remove_mod(const char* mod_id) {
     if (mod_id == nullptr) return false;
 
-    return std::erase(g_active_mods, mod_id) > 0;
+    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    if (mod_id_ptr == nullptr) return false;
+
+    if (std::erase(g_active_mods, mod_id) > 0) {
+        log.error("cleared mod_id: {}", mod_id);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {

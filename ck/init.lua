@@ -129,7 +129,6 @@ for _, key in ipairs(ck.registries.mod_definition_keys) do
 end
 
 function ck.registries.init_mod(mod_id)
-  table.insert(ck.active_mods, mod_id)
   -- 📞
   ck.registries.events[mod_id] = {}
 
@@ -154,13 +153,6 @@ function ck.registries.init_mod(mod_id)
 end
 
 function ck.registries.clear_mod(mod_id)
-  for index = #ck.active_mods, 1, -1 do
-    if ck.active_mods[index] == mod_id then
-      table.remove(ck.active_mods, index)
-      break
-    end
-  end
-
   -- 📞
   ck.registries.events[mod_id] = nil
 

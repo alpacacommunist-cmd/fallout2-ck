@@ -150,7 +150,7 @@ void ck_reload_mods() {
 void ck_clear_mod_resources(const char* mod_id) {
     const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
 
-    // ck::registry::clear_resources_for_mod(mod_id_ptr);
+    ck::registry::clear_resources_for_mod(mod_id_ptr);
     ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
     ck::map::borders::clear_for_mod(mod_id_ptr);
     ck::rendering::clear_for_mod(mod_id_ptr);

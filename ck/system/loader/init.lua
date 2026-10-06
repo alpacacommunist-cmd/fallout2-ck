@@ -28,7 +28,7 @@ loader.handlers = {
 
     -- inits mod data tables
     ck.registries.init_mod(mod_id)
-    -- register mod in dispatcher.cc (to allow setting mod context (current_mod_id))
+    -- register mod in backend (to allow setting mod context (current_mod_id))
     ffi.C.ck_dispatcher_add_mod(mod_id)
 
     local function run_mod_init()
@@ -86,7 +86,13 @@ function loader.exec_mod(mod_data)
 
   -- exec
   local handler = loader.handlers[manifest.type]
-  return handler(mod_data, mod_env)
+  if handler(mod_data, mod_env) then
+    table.insert(ck.active_mods, mod_id)
+
+    return true
+  else
+    return false
+  end
 end
 
 function loader.reload_mods()
@@ -106,9 +112,13 @@ function loader.reload_mods()
     -- clears lua registries
     ck.registries.clear_mod(mod_id)
 
-    -- removes mod_id from ck_dispatcher.cc (g_active_mods ptrs list)
+    -- removes mod from g_active_mods (dispatcher.cc)
     ffi.C.ck_dispatcher_remove_mod(mod_id)
 
+    -- removes mod from ck.active_mods
+    utils.table_remove_by_value(ck.active_mods, mod_id)
+
+    -- unloads mod packages (clears mod_env.packages)
     if mod_env and mod_env.package and mod_env.package.loaded then
       for module_name in pairs(mod_env.package.loaded) do
         log.info("Unloaded from mod cache: " .. module_name)
@@ -117,11 +127,13 @@ function loader.reload_mods()
       mod_env.package.loaded = {}
     end
 
+    -- library only: clears package.preload
     if mod_data.manifest.type == 'library' then
       package.preload[mod_data.keys.preload] = nil
       log.info("[preload] Unloaded: " .. mod_data.keys.preload)
     end
 
+    -- loads mod
     if loader.exec_mod(mod_data) then
       if mod_data.manifest.type == 'gameplay' then
         ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")

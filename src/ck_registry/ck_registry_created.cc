@@ -4,6 +4,13 @@
 #include "ck_log.h"
 static const Logger log("ck_registry_created.cc");
 
+namespace fallout {
+    // animation.cc
+    void animationStop();
+    // scripts.cc
+    int scriptRemove(int index);
+}
+
 namespace ck::registry::created {
     int add(fallout::Object* object, LuaMeta meta) {
         if (!object) return -1;
@@ -15,6 +22,7 @@ namespace ck::registry::created {
     }
 
 	void clear_for_mod(const char* mod_id) {
+
         std::vector<fallout::Object*> to_destroy;
 
         for (const auto& [id, managed] : g_created_objects) {
@@ -23,7 +31,13 @@ namespace ck::registry::created {
             }
         }
 
+        // stops active animations
+        fallout::animationStop();
+
         for (fallout::Object* object : to_destroy) {
+            // Removes script + active engine timers
+            fallout::scriptRemove(object->sid);
+
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
             fallout::objectDestroy(object, nullptr);
         }
