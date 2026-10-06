@@ -85,8 +85,6 @@ function events.critter_killed(victim, killer)
 end
 
 function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
-  mod_id = ffi.string(mod_id)
-
   local object = ck.registries.objects[mod_id][lua_id]
   if not object then return false end
 
@@ -94,7 +92,7 @@ function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
 end
 
 -- TODO: add to registries
-function events.on_proto_proc(pid, proc_id, fixed_param)
+function events.on_proto_proc(pid, proc_id, fixed_param, mod_id)
   local proto = proto.registry[pid]
 
   if not proto then return false end

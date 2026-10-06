@@ -87,8 +87,6 @@ function loader.exec_mod(mod_data)
   -- exec
   local handler = loader.handlers[manifest.type]
   if handler(mod_data, mod_env) then
-    table.insert(ck.active_mods, mod_id)
-
     return true
   else
     return false
@@ -103,20 +101,19 @@ function loader.reload_mods()
     log.header("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
 
-    -- clears critter prototypes,
-    -- object registry pointers
-    -- camera borders
-    -- renering queues
-    ffi.C.ck_mods_clear_resources_for_mod(mod_id)
+    if mod_data.manifest.type == 'gameplay' then
+      -- clears critter prototypes,
+      -- object registry pointers
+      -- camera borders
+      -- renering queues
+      ffi.C.ck_mods_clear_resources_for_mod(mod_id)
 
-    -- clears lua registries
-    ck.registries.clear_mod(mod_id)
+      -- clears lua registries
+      ck.registries.clear_mod(mod_id)
 
-    -- removes mod from g_active_mods (dispatcher.cc)
-    ffi.C.ck_dispatcher_remove_mod(mod_id)
-
-    -- removes mod from ck.active_mods
-    utils.table_remove_by_value(ck.active_mods, mod_id)
+      -- removes mod from g_active_mods (dispatcher.cc)
+      -- ffi.C.ck_dispatcher_remove_mod(mod_id)
+    end
 
     -- unloads mod packages (clears mod_env.packages)
     if mod_env and mod_env.package and mod_env.package.loaded then
