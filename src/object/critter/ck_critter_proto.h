@@ -3,7 +3,6 @@
 #define CK_CRITTER_PROTO_H
 
 #include "ck_api.h"
-#include <string>
 
 // passed from lua
 struct CritterLuaProtoParams {
@@ -20,7 +19,7 @@ namespace fallout {
 
 namespace ck::critter::proto {
     void clear_prototypes();
-    void clear_prototypes_for_mod(const std::string& mod_id);
+    void clear_prototypes_for_mod(const char* mod_id);
     int proto_sid_of(int pid);
     bool has_custom_prototype(int pid);
 

@@ -68,7 +68,7 @@ namespace ck {
     bool apply_worldmap_patches();
     // ck_critter.cc
     namespace critter::proto {
-        void clear_prototypes_for_mod(const std::string& mod_id);
+        void clear_prototypes_for_mod(const char* mod_id);
     }
     // map/ck_map_camera_borders.cc
     namespace map::borders {
@@ -155,10 +155,7 @@ void ck_clear_mod_resources(const char* mod_id) {
         return;
     }
 
-    // TODO: use const char*
-    std::string mod_id_str(mod_id_ptr);
-
-    ck::critter::proto::clear_prototypes_for_mod(mod_id_str);
+    ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
     ck::registry::clear_resources_for_mod(mod_id_ptr);
     ck::map::borders::clear_for_mod(mod_id_ptr);
     ck::rendering::clear_for_mod(mod_id_ptr);

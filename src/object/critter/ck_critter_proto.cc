@@ -27,13 +27,13 @@ namespace ck {
 
 namespace ck::critter::proto {
     static std::unordered_map<int, fallout::CritterProto*> g_custom_prototypes;
-    static std::unordered_map<std::string, std::vector<int>> g_mod_allocated_pids;
+    static std::unordered_map<const char*, std::vector<int>> g_mod_allocated_pids;
 
     void clear_prototypes() {
         g_custom_prototypes.clear();
     }
 
-    void clear_prototypes_for_mod(const std::string& mod_id) {
+    void clear_prototypes_for_mod(const char* mod_id) {
         auto it = g_mod_allocated_pids.find(mod_id);
         if (it != g_mod_allocated_pids.end()) {
             for (int pid : it->second) {
@@ -121,7 +121,7 @@ namespace ck::critter::proto {
         logger.info("Created unique prototype for '{}' PID: {}", base_pid, ck_proto.pid());
         g_custom_prototypes[ck_proto.pid()] = critter_proto;
 
-        std::string mod_id = common::current_mod_id();
+        const char* mod_id = common::current_mod_id();
         g_mod_allocated_pids[mod_id].push_back(ck_proto.pid());
 
         return ck_proto.pid();

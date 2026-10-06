@@ -70,7 +70,7 @@ namespace ck::critter {
         return -3;
     }
 
-    void reset_prototypes_for_mod(const std::string& mod_id) {
+    void reset_prototypes_for_mod(const char* mod_id) {
         ck::critter::proto::clear_prototypes_for_mod(mod_id);
         logger.debug("Reset prototypes for mod: {}", mod_id);
     }
