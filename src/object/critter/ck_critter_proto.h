@@ -22,12 +22,10 @@ namespace ck::critter::proto {
     void clear_prototypes();
     void clear_prototypes_for_mod(const char* mod_id);
     int proto_sid(int pid);
-    bool has_custom_prototype(int pid);
+    bool is_custom(int pid);
 
-    int get_source_pid(int pid);
-
+    int source_pid(int pid);
     int allocate(int base_pid, const CritterLuaProtoParams* params);
-    int get_gender(fallout::Object* critter);
 }
 
 CK_API int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);

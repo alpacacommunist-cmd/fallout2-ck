@@ -34,6 +34,8 @@ end
 -- Allocates critter prototype
 -- It lives in a context of a map and is erased by fallout2-ce on map transitions/game loads
 function critters.allocate_prototype(pid, config)
+  local mod_id = ck.tools.current_mod_id()
+
   local proto_name = not utils.is_blank(config.name) and config.name or nil
   local proto_description = not utils.is_blank(config.description) and config.description or nil
   local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
@@ -45,6 +47,13 @@ function critters.allocate_prototype(pid, config)
   })
 
   local allocated_pid = ffi.C.ck_critter_allocate_prototype(pid, proto_params)
+
+  if allocated_pid == -1 then
+    log.error("Failed to allocate prototype: [%d]", pid)
+
+    return nil
+  end
+
   local proto = CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
 
   if config.stats and not utils.table_is_empty(config.stats) then
@@ -56,7 +65,6 @@ function critters.allocate_prototype(pid, config)
   end
 
   -- store proto instance
-  local mod_id = ck.tools.current_mod_id()
   critters.prototypes[mod_id][allocated_pid] = proto
 
   return proto

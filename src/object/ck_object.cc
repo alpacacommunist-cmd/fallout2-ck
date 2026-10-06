@@ -12,7 +12,7 @@ static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
 }
 
 namespace ck::critter::proto {
-    extern bool has_custom_prototype(int pid);
+    extern bool is_custom(int pid);
 }
 
 namespace ck::common {
@@ -121,7 +121,7 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
 	if (fallout::objectCreateWithPid(&object, pid) == 0) {
         object->flags |= fallout::ObjectFlags::OBJECT_NO_SAVE;
 
-        if (ck::object::type(pid) == 1 && ck::critter::proto::has_custom_prototype(pid) > 0) {
+        if (ck::object::type(pid) == 1 && ck::critter::proto::is_custom(pid) > 0) {
             log.debug("Object created with custom prototype flag. PID: {}", pid);
         }
 	}

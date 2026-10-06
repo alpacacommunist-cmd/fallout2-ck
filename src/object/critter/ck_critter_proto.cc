@@ -50,7 +50,7 @@ namespace ck::critter::proto {
         logger.debug("Cleared prototypes tracker for mod: {}", mod_id);
     }
 
-    bool has_custom_prototype(int pid) {
+    bool is_custom(int pid) {
         return g_custom_prototypes.count(pid) > 0;
     }
 
@@ -66,14 +66,14 @@ namespace ck::critter::proto {
         return -1;
     }
 
-    fallout::CritterProto* get_proto_by_pid(int pid) {
+    fallout::CritterProto* get(int pid) {
         auto it = g_custom_prototypes.find(pid);
         if (it != g_custom_prototypes.end()) return it->second;
 
         return nullptr;
     }
 
-    int get_source_pid(int pid) {
+    int source_pid(int pid) {
         auto it = g_source_pid_mappings.find(pid);
         if (it != g_source_pid_mappings.end()) return it->second;
 
@@ -149,11 +149,11 @@ int ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* par
 bool ck_critter_has_custom_prototype(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
 
-    return ck::critter::proto::has_custom_prototype(critter->pid);
+    return ck::critter::proto::is_custom(critter->pid);
 }
 
 fallout::CritterProto* ck_critter_get_proto_by_pid(int pid) {
-    return ck::critter::proto::get_proto_by_pid(pid);
+    return ck::critter::proto::get(pid);
 }
 
 int ck_critter_proto_get_base_stat(fallout::CritterProto* proto, int stat_id) {

@@ -7,6 +7,7 @@ CritterProto.__index = CritterProto
 
 function CritterProto.new(pid, name, description, ai_packet)
   local self = setmetatable({}, CritterProto)
+
   self.pid   = pid
   self.name  = name
   self.description = description

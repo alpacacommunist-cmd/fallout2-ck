@@ -115,7 +115,7 @@ namespace ck::critter {
         // Locate source pid
         // It's being used when critter dies: source_pid is restored and
         // OBJECT_NO_SAVE is removed, body is handled by engine
-        int source_pid = proto::get_source_pid(pid);
+        int source_pid = proto::source_pid(pid);
 
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
@@ -154,7 +154,7 @@ namespace ck::critter {
         // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
 
-        if (ck::critter::proto::has_custom_prototype(registry_object->ptr->pid)) {
+        if (ck::critter::proto::is_custom(registry_object->ptr->pid)) {
             logger.debug("Killed critter {} identified as custom prototype", registry_object->ptr->pid);
             // store pid for proto messages
             registry_object->ptr->data.critter.radiation = registry_object->ptr->pid;
