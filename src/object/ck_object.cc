@@ -118,7 +118,7 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
 	if (ck_object_blocking(tile, elevation) && !search_free_tile) return nullptr;
 
 	fallout::Object* object = nullptr;
-	if (fallout::objectCreateWithPid(&object, pid) == 0) {
+	if (fallout::objectCreateWithProtoId(&object, fallout::ProtoId(pid)) == 0) {
         object->flags |= fallout::ObjectFlags::OBJECT_NO_SAVE;
 
         if (ck::object::type(pid) == 1 && ck::critter::proto::is_custom(pid) > 0) {

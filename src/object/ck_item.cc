@@ -15,16 +15,17 @@ namespace fallout {
 
     enum CritterFlags : int;
 
-    bool critterFlagCheck(int pid, CritterFlags flag);
+    bool critterFlagCheck(const ProtoId& protoId, CritterFlags flag);
 
     int itemAdd(Object* owner, Object* itemToAdd, int quantity);
     int itemDropAll(Object* critter, int tile);
 
 	int _obj_disconnect(Object* obj, Rect* rect);
 	int objectDestroy(Object* object, Rect* rect);
-    int objectCreateWithFrmIdPid(Object** objectPtr, const FrmId& frmId, int pid);
+    int objectCreateWithFrmIdProtoId(Object** objectPtr, const FrmId& frmId, const ProtoId& protoId);
 	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
-	int objectGetCarriedQuantityByPid(Object* obj, int pid);
+    // inventory.cc
+    int objectGetCarriedQuantityByProtoId(Object* obj, const ProtoId& protoId);
 }
 
 namespace ck {
@@ -56,7 +57,7 @@ namespace ck {
 		}
 
 		fallout::Object* new_item = nullptr;
-		if (fallout::objectCreateWithFrmIdPid(&new_item, fallout::FrmId(proto->fid), item_pid) == -1 || !new_item) {
+		if (fallout::objectCreateWithFrmIdProtoId(&new_item, fallout::FrmId(proto->fid), item_proto_id) == -1 || !new_item) {
 			return false;
 		}
 
@@ -69,7 +70,7 @@ namespace ck {
 
 		fallout::_obj_disconnect(new_item, nullptr);
 
-        if (fallout::critterFlagCheck(owner->pid, fallout::CritterFlags(fallout::CRITTER_NO_STEAL))) {
+        if (fallout::critterFlagCheck(fallout::ProtoId(owner->pid), fallout::CritterFlags(fallout::CRITTER_NO_STEAL))) {
             logger.info("DROPPING ITEMS ON THE GROUND");
             fallout::itemDropAll(owner, owner->tile);
         }
@@ -82,7 +83,7 @@ int ck_inventory_count(void* container_ptr, int item_pid) {
 	if (!container_ptr) return 0;
 	auto* owner = static_cast<fallout::Object*>(container_ptr);
 
-	return fallout::objectGetCarriedQuantityByPid(owner, item_pid);
+	return fallout::objectGetCarriedQuantityByProtoId(owner, fallout::ProtoId(item_pid));
 }
 
 bool ck_inventory_add(void* container_ptr, int item_pid, int count) {
