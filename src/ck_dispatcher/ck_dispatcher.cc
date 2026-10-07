@@ -2,10 +2,7 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
 #include "object/ck_object.h"
-
-#include <string>
-#include <vector>
-#include <unordered_set>
+#include "ck_mods.h"
 
 #include "ck_log.h"
 static const Logger log("ck_dispatcher.cc");
@@ -19,11 +16,6 @@ const char* g_current_mod_id = nullptr;
 // map update intervals
 static int g_last_update_ticks = 0;
 static const int MAP_UPDATE_INTERVAL_TICKS = 10;
-
-// mod_id strings pool
-static std::unordered_set<std::string> g_immutable_string_pool;
-// mod_id pointers
-static std::vector<const char*> g_active_mods;
 
 static void ck_set_mod_context(const char* mod_id) {
 	g_current_mod_id = mod_id;
@@ -47,20 +39,11 @@ namespace ck::dispatcher {
         return g_current_mod_id;
     }
 
-    const char* mod_id_ptr(const char* mod_id) {
-        auto it = g_immutable_string_pool.find(mod_id);
-        if (it == g_immutable_string_pool.end()) {
-            return nullptr;
-        }
-
-        return it->c_str();
-    }
-
     template<typename... Args>
     void emit(const char* event_name, Args... args) {
         if (!ck::proxy::is_ready() || !event_name) return;
 
-        for (const auto& mod_id : g_active_mods) {
+        for (const auto& mod_id : ck::mods::all()) {
             log.debug("Emit event {} for {}", event_name, mod_id);
 
             ModContextGuard guard(mod_id);
@@ -141,7 +124,7 @@ bool ck_set_current_mod_context(const char* mod_id) {
         return true;
     }
 
-    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    const char* mod_id_ptr = ck::mods::ptr(mod_id);
     if (mod_id_ptr != nullptr) {
         ck_set_mod_context(mod_id_ptr);
         return true;
@@ -150,36 +133,10 @@ bool ck_set_current_mod_context(const char* mod_id) {
     return false;
 }
 
-bool ck_dispatcher_add_mod(const char* mod_id) {
-    if (mod_id == nullptr) return false;
-
-    auto [it, inserted] = g_immutable_string_pool.insert(mod_id);
-    const char* permanent_ptr = it->c_str();
-
-    for (const char* active_mod_ptr : g_active_mods) {
-        if (active_mod_ptr == permanent_ptr) {
-            return false;
-        }
-    }
-
-    g_active_mods.push_back(permanent_ptr);
-    return true;
-}
-
-bool ck_dispatcher_remove_mod(const char* mod_id) {
-    if (mod_id == nullptr) return false;
-    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
-
-    bool removed = (std::erase(g_active_mods, mod_id_ptr) > 0);
-
-    removed ? log.debug("Removed mod_id: {}", mod_id) : log.error("Not found: {}", mod_id);
-    return removed;
-}
-
 void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
     if (!mod_id || !event_name) return;
 
-    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    const char* mod_id_ptr = ck::mods::ptr(mod_id);
     if (mod_id_ptr == nullptr) return;
 
     ModContextGuard guard(mod_id_ptr);
