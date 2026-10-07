@@ -11,33 +11,33 @@ namespace ck::common {
     int current_map_id();
 }
 
-const char* g_current_mod_id = nullptr;
+static const char* g_current_mod_id = nullptr;
 
 // map update intervals
 static int g_last_update_ticks = 0;
 static const int MAP_UPDATE_INTERVAL_TICKS = 10;
 
-static void ck_set_mod_context(const char* mod_id) {
-	g_current_mod_id = mod_id;
-}
-
-struct ModContextGuard {
-    const char* previous_context;
-
-    ModContextGuard(const char* mod_id) {
-        previous_context = g_current_mod_id;
-        ck_set_mod_context(mod_id);
-    }
-
-    ~ModContextGuard() {
-        ck_set_mod_context(previous_context);
-    }
-};
-
 namespace ck::dispatcher {
-    const char* current_mod_context() {
+    void set_context(const char* mod_id) {
+        g_current_mod_id = mod_id;
+    }
+
+    const char* current_context() {
         return g_current_mod_id;
     }
+
+    struct ModContextGuard {
+        const char* previous_context;
+
+        ModContextGuard(const char* mod_id) {
+            previous_context = g_current_mod_id;
+            set_context(mod_id);
+        }
+
+        ~ModContextGuard() {
+            set_context(previous_context);
+        }
+    };
 
     template<typename... Args>
     void emit(const char* event_name, Args... args) {
@@ -49,6 +49,16 @@ namespace ck::dispatcher {
             ModContextGuard guard(mod_id);
             ck::proxy::emit_for_mod(mod_id, event_name, args...);
         }
+    }
+
+    void emit_for_mod(const char* mod_id, const char* event_name) {
+        if (!mod_id || !event_name) return;
+
+        const char* mod_id_ptr = ck::mods::ptr(mod_id);
+        if (mod_id_ptr == nullptr) return;
+
+        ModContextGuard guard(mod_id_ptr);
+        ck::proxy::emit_for_mod(mod_id_ptr, event_name, ck::common::current_map_id());
     }
 
     void on_map_update(int ticks) {
@@ -116,30 +126,4 @@ namespace ck::dispatcher {
     }
 }
 
-// FFI
-
-bool ck_set_current_mod_context(const char* mod_id) {
-    if (mod_id == nullptr) {
-        ck_set_mod_context(nullptr);
-        return true;
-    }
-
-    const char* mod_id_ptr = ck::mods::ptr(mod_id);
-    if (mod_id_ptr != nullptr) {
-        ck_set_mod_context(mod_id_ptr);
-        return true;
-    }
-
-    return false;
-}
-
-void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name) {
-    if (!mod_id || !event_name) return;
-
-    const char* mod_id_ptr = ck::mods::ptr(mod_id);
-    if (mod_id_ptr == nullptr) return;
-
-    ModContextGuard guard(mod_id_ptr);
-    ck::proxy::emit_for_mod(mod_id_ptr, event_name, ck::common::current_map_id());
-}
 

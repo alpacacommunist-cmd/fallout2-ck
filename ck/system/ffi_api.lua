@@ -23,6 +23,7 @@ ffi.cdef[[
   // --- System & Bootstrap ---
   bool ck_system_add_mod(const char* mod_id);
   bool ck_system_drop_mod(const char* mod_id);
+  bool ck_system_set_mod_context(const char* mod_id);
   void ck_system_emit_for_mod(const char* mod_id, const char* event_name);
 
   // --- Common ---
@@ -34,7 +35,6 @@ ffi.cdef[[
 
   const char* ck_current_mod_id();
   void ck_mods_clear_resources_for_mod(const char* mod_id);
-  bool ck_set_current_mod_context(const char* mod_id);
 
   bool ck_is_sid_ck_custom(int sid);
 

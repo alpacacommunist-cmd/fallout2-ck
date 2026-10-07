@@ -1,8 +1,6 @@
 #ifndef CK_DISPATCHER_H
 #define CK_DISPATCHER_H
 
-#include "ck_api.h"
-
 struct CkObjectFFI;
 
 namespace fallout {
@@ -10,8 +8,10 @@ namespace fallout {
 }
 
 namespace ck::dispatcher {
-    const char* current_mod_context();
-    // const char* mod_id_ptr(const char* mod_id);
+    const char* current_context();
+    void set_context(const char* mod_id);
+
+    void emit_for_mod(const char* mod_id, const char* event_name);
 
     void on_game_start();
     void on_engine_ready();
@@ -27,10 +27,5 @@ namespace ck::dispatcher {
     bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
     void on_map_enter();
 }
-
-CK_API const char* ck_get_current_mod_id();
-CK_API bool ck_set_current_mod_context(const char* mod_id);
-
-CK_API void ck_dispatcher_emit_for_mod(const char* mod_id, const char* event_name);
 
 #endif
