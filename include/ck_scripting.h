@@ -13,11 +13,10 @@ namespace ck::common {
     bool currently_in_combat();
 
     int current_map_id();
+    const char* current_mod_id();
     int current_elevation();
 
     const char* system_mod_id();
-    const char* current_mod_id();
-    const char* mod_id_ptr(const char* mod_id);
 
     bool reloading_mods();
     bool game_is_loading();
@@ -65,7 +64,6 @@ CK_API bool ck_game_is_loading();
 CK_API int  ck_loading_map_id();
 CK_API int  ck_current_map_id();
 CK_API int ck_current_elevation();
-CK_API const char* ck_current_mod_id();
 CK_API const char* ck_mods_system_id();
 CK_API void ck_mods_clear_resources_for_mod(const char* mod_id);
 

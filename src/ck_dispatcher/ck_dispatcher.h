@@ -8,8 +8,8 @@ namespace fallout {
 }
 
 namespace ck::dispatcher {
+    bool set_context(const char* mod_id);
     const char* current_context();
-    void set_context(const char* mod_id);
 
     void emit_for_mod(const char* mod_id, const char* event_name);
 

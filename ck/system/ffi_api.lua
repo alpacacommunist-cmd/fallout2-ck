@@ -25,6 +25,7 @@ ffi.cdef[[
   bool ck_system_drop_mod(const char* mod_id);
   bool ck_system_set_mod_context(const char* mod_id);
   void ck_system_emit_for_mod(const char* mod_id, const char* event_name);
+  const char* ck_system_current_mod_id();
 
   // --- Common ---
   bool ck_mods_reload_in_progress();
@@ -33,7 +34,6 @@ ffi.cdef[[
   int  ck_current_map_id();
   int  ck_current_elevation();
 
-  const char* ck_current_mod_id();
   void ck_mods_clear_resources_for_mod(const char* mod_id);
 
   bool ck_is_sid_ck_custom(int sid);

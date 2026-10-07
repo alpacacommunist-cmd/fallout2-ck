@@ -9,7 +9,10 @@
 static const Logger proxy_log("CK State Lua Proxy");
 
 extern lua_State* gLuaState;
-extern const char* g_current_mod_id;
+
+namespace ck::common {
+    const char* current_mod_id();
+}
 
 namespace ck::proxy::detail {
     extern int get_state_data;
@@ -151,7 +154,8 @@ namespace ck::proxy {
             return object_state;
         };
 
-        return execute_proxy_call_custom_table<ObjectState>(detail::get_state_data, parser, g_current_mod_id, map_id, lua_tag);
+        const char* mod_id = ck::common::current_mod_id();
+        return execute_proxy_call_custom_table<ObjectState>(detail::get_state_data, parser, mod_id, map_id, lua_tag);
     }
 
     bool receive_proto_list(const ItemProtoLuaView* data, int size) {

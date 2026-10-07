@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "ck_scripting.h"
+#include "ck_mods.h"
 #include "ck_encoding.h"
 
 #include "ck_registry/ck_registry.h"
@@ -105,11 +106,7 @@ namespace ck::common {
     }
 
     const char* current_mod_id() {
-        return ck::dispatcher::current_mod_context();
-    }
-
-    const char* mod_id_ptr(const char* mod_id) {
-        return ck::dispatcher::mod_id_ptr(mod_id);
+        return ck::dispatcher::current_context();
     }
 
     bool reloading_mods() {
@@ -148,7 +145,7 @@ void ck_reload_mods() {
 
 // TODO: move to mods.cc
 void ck_clear_mod_resources(const char* mod_id) {
-    const char* mod_id_ptr = ck::dispatcher::mod_id_ptr(mod_id);
+    const char* mod_id_ptr = ck::mods::ptr(mod_id);
 
     ck::registry::clear_resources_for_mod(mod_id_ptr);
     ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
@@ -330,7 +327,7 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
     return false;
 }
 
-// ffi
+// FFI
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }

@@ -33,7 +33,7 @@ local log = ck.log.new('ck/init.lua')
 -- current_mod_id (nullptr or string)
 -- is set in dispatcher.cc
 function ck.tools.current_mod_id()
-  local mod_id = ffi.C.ck_current_mod_id()
+  local mod_id = ffi.C.ck_system_current_mod_id()
 
   if mod_id == nil then return nil end
 
@@ -42,7 +42,7 @@ end
 
 -- sets mod context and executes callbacks
 function ck.tools.exec_with_mod_context(mod_id, callbacks)
-  ffi.C.ck_set_current_mod_context(mod_id)
+  ffi.C.ck_system_set_mod_context(mod_id)
 
   if callbacks == nil then
     callbacks = {}
@@ -62,7 +62,7 @@ function ck.tools.exec_with_mod_context(mod_id, callbacks)
     end
   end
 
-  ffi.C.ck_set_current_mod_context(nil)
+  ffi.C.ck_system_set_mod_context(nil)
 
   return all_success
 end

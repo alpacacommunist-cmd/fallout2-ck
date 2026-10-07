@@ -7,13 +7,13 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
+#include "ck_mods.h"
 
 #include "ck_log.h"
 static const Logger logger("ck_rendering.cc");
 
 namespace ck::common {
     const char* current_mod_id();
-    const char* mod_id_ptr(const char* mod_id);
 }
 
 std::vector<CkSceneryInstance> gScenery;
@@ -253,7 +253,7 @@ static int ck_rendering_scenery(fallout::Rect* rect, const std::vector<CkScenery
 
 namespace ck::rendering {
     void clear_for_mod(const char* mod_id) {
-        const char* mod_id_ptr = ck::common::mod_id_ptr(mod_id);
+        const char* mod_id_ptr = ck::mods::ptr(mod_id);
         if (mod_id_ptr == nullptr) return;
 
         auto belongs_to_mod = [mod_id_ptr](const auto& instance) {

@@ -18,8 +18,22 @@ static int g_last_update_ticks = 0;
 static const int MAP_UPDATE_INTERVAL_TICKS = 10;
 
 namespace ck::dispatcher {
-    void set_context(const char* mod_id) {
-        g_current_mod_id = mod_id;
+    bool set_context(const char* mod_id) {
+        // Means no context
+        if (mod_id == nullptr) {
+            g_current_mod_id = nullptr;
+            return true;
+        }
+
+        // MOD context
+        const char* mod_id_ptr = ck::mods::ptr(mod_id);
+        if (mod_id_ptr != nullptr) {
+            g_current_mod_id = mod_id_ptr;
+            return true;
+        }
+
+        // Couldn't set context (context unknown)
+        return false;
     }
 
     const char* current_context() {
@@ -62,9 +76,12 @@ namespace ck::dispatcher {
     }
 
     void on_map_update(int ticks) {
-        if (ticks >= g_last_update_ticks && (ticks - g_last_update_ticks) < MAP_UPDATE_INTERVAL_TICKS) return;
-        g_last_update_ticks = ticks;
+        int delta = ticks - g_last_update_ticks;
+        if (ticks >= g_last_update_ticks && delta < MAP_UPDATE_INTERVAL_TICKS) {
+            return;
+        }
 
+        g_last_update_ticks = ticks;
         ck::proxy::on_map_update(ticks);
     }
 
@@ -125,5 +142,4 @@ namespace ck::dispatcher {
         emit("map_enter", ck::common::current_map_id());
     }
 }
-
 

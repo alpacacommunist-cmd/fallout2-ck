@@ -29,7 +29,7 @@ loader.handlers = {
     -- inits mod data tables
     ck.registries.init_mod(mod_id)
     -- register mod in backend (to allow setting mod context (current_mod_id))
-    ffi.C.ck_dispatcher_add_mod(mod_id)
+    ffi.C.ck_system_add_mod(mod_id)
 
     local function run_mod_init()
       return mod_env.require(mod_data.keys.init)
@@ -38,7 +38,7 @@ loader.handlers = {
 
     if not success then
       ck.registries.clear_mod(mod_id)
-      ffi.C.ck_dispatcher_remove_mod(mod_id)
+      ffi.C.ck_system_drop_mod(mod_id)
 
       return false
     end
@@ -115,7 +115,7 @@ function loader.reload_mods()
       ck.registries.clear_mod(mod_id)
 
       -- removes mod from g_active_mods (dispatcher.cc)
-      ffi.C.ck_dispatcher_remove_mod(mod_id)
+      ffi.C.ck_system_drop_mod(mod_id)
     end
 
     -- unloads mod packages (clears mod_env.packages)
@@ -146,8 +146,8 @@ function loader.reload_mods()
       if mod_type == 'gameplay' then
         table.insert(ck.active_mods_list, mod_id)
 
-        ffi.C.ck_dispatcher_emit_for_mod(mod_id, "map_enter")
-        ffi.C.ck_dispatcher_emit_for_mod(mod_id, "onModReload")
+        ffi.C.ck_system_emit_for_mod(mod_id, "map_enter")
+        ffi.C.ck_system_emit_for_mod(mod_id, "onModReload")
       end
     end
   end
