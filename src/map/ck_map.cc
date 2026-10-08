@@ -23,7 +23,7 @@ namespace ck {
     namespace script { void reset(); }
     namespace common {
         bool game_is_loading();
-        bool currently_in_combat();
+        bool in_combat();
         const char* current_mod_id();
         void lua_map_exit();
     }
@@ -39,7 +39,7 @@ namespace ck {
         ck::dispatcher::on_map_enter();
 
         ck::rendering::refresh();
-        if (ck::common::currently_in_combat()) fallout::_combat_reload_map();
+        if (ck::common::in_combat()) fallout::_combat_reload_map();
     }
 
     void on_before_map_load() {
