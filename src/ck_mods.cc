@@ -1,17 +1,47 @@
 #include <vector>
 #include <unordered_set>
 
+#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "ck_scripting.h"
+
 #include "ck_log.h"
 static const Logger log("ck_mods.cc");
+
+// LUA calls
+namespace ck::proxy::detail {
+    extern int reload_mods;
+}
 
 namespace ck::mods {
     // mod_id strings pool
     static std::unordered_set<std::string> g_immutable_string_pool;
     // mod_id pointers
     static std::vector<const char*> g_active_mods;
+    // mod reload in progress
+    static bool g_reloading_mods = false;
 
     const std::vector<const char*>& all() {
         return g_active_mods;
+    }
+
+    bool reload() {
+        if (common::in_combat()) {
+            common::print_monitor_message("Disabled in combat");
+
+            return false;
+        }
+
+        log.header("Reloading mods");
+
+        g_reloading_mods = true;
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
+        g_reloading_mods = false;
+
+        return true;
+    }
+
+    bool reloading() {
+        return g_reloading_mods;
     }
 
     const char* ptr(const char* mod_id) {

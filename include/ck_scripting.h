@@ -10,7 +10,7 @@ namespace fallout {
 
 namespace ck::common {
     unsigned int current_combat_state();
-    bool currently_in_combat();
+    bool in_combat();
 
     int current_map_id();
     const char* current_mod_id();
@@ -18,12 +18,13 @@ namespace ck::common {
 
     const char* system_mod_id();
 
-    bool reloading_mods();
     bool game_is_loading();
     int  loading_map_id();
 
     void clear_lua_registries();
     void lua_map_exit();
+
+    void print_monitor_message(const char* message);
 }
 
 void ck_reload_mods();

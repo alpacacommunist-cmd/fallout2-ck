@@ -24,7 +24,6 @@
 static const Logger logger("CK Scripting");
 
 static const char* SYSTEM_MOD_ID = "__ck_system__";
-static bool g_reloading_mods = false;
 static bool is_test_mode = false;
 static std::string g_test_suite_name = std::string();
 
@@ -81,7 +80,6 @@ namespace ck {
     }
     // ck_lua_proxy.cc
     namespace proxy::detail {
-        extern int reload_mods;
         extern int bootstrap;
         extern int set_language;
         extern int clear_registries;
@@ -90,8 +88,13 @@ namespace ck {
 }
 
 namespace ck::common {
-    unsigned int current_combat_state() { return fallout::gCombatState; }
-    bool currently_in_combat() { return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0; }
+    unsigned int current_combat_state() {
+        return fallout::gCombatState;
+    }
+
+    bool in_combat() {
+        return (current_combat_state() & fallout::COMBAT_STATE_IN_COMBAT) != 0;
+    }
 
     int current_map_id() {
         return static_cast<int>(fallout::mapGetCurrentMap());
@@ -109,10 +112,6 @@ namespace ck::common {
         return ck::dispatcher::current_context();
     }
 
-    bool reloading_mods() {
-        return g_reloading_mods;
-    }
-
     bool game_is_loading() {
         return fallout::_isLoadingGame();
     }
@@ -128,19 +127,11 @@ namespace ck::common {
     void lua_map_exit() {
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
     }
-}
 
-void ck_reload_mods() {
-    if (ck_in_combat()) {
-        fallout::displayMonitorAddMessage("Disabled in combat");
-        return;
+    void print_monitor_message(const char* message) {
+        std::string converted = utf8_to_cp1251(std::string_view(message));
+        fallout::displayMonitorAddMessage(converted.c_str());
     }
-
-	logger.header("Reloading mods");
-
-    g_reloading_mods = true;
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
-    g_reloading_mods = false;
 }
 
 // TODO: move to mods.cc
@@ -157,11 +148,6 @@ void ck_set_language() {
     logger.info("System language: {}", fallout::settings.system.language);
     ck::i18n::load_language(fallout::settings.system.language);
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
-}
-
-void ck_print_monitor_message(const char* message) {
-    std::string converted = utf8_to_cp1251(std::string_view(message));
-    fallout::displayMonitorAddMessage(converted.c_str());
 }
 
 namespace ck::events {
@@ -331,9 +317,9 @@ bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
 
 const char* ck_testing_get_current_suite() { return g_test_suite_name.c_str(); }
 void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::string(name); }
-void ck_monitor_print_message(const char* message) { ck_print_monitor_message(message); }
+void ck_monitor_print_message(const char* message) { ck::common::print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
-bool ck_in_combat() { return ck::common::currently_in_combat(); }
+bool ck_in_combat() { return ck::common::in_combat(); }
 bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
