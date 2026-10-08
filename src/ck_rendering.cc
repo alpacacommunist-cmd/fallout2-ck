@@ -7,7 +7,7 @@
 #include "tile.h"
 
 #include "ck_rendering.h"
-#include "ck_mods.h"
+#include "ck_mods/ck_mods.h"
 
 #include "ck_log.h"
 static const Logger logger("ck_rendering.cc");

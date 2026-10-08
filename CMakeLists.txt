@@ -39,8 +39,6 @@ add_library(fallout2-ck STATIC
     src/ck_ffi_manifest.cc
     src/ck_ffi_validator.cc
 
-    src/ck_mods.cc
-
     # FFI calls
     src/ffi/system.cc
 
@@ -49,9 +47,12 @@ add_library(fallout2-ck STATIC
     src/ck_ids.cc
     src/ck_scripting.cc
     src/ck_rendering.cc
+
+    src/ck_mods/ck_mods.cc
     src/ck_state/ck_state.cc
     src/ck_dispatcher/ck_dispatcher.cc
     src/ck_messages/ck_messages.cc
+
     src/ck_lua_proxy/ck_lua_proxy.cc
     src/ck_lua_proxy/ck_lua_proxy_dispatcher.cc
     src/ck_lua_proxy/ck_lua_proxy_state.cc

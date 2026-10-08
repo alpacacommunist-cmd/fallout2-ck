@@ -1,9 +1,10 @@
 #include "ck_messages/ck_messages.h"
-#include "ck_log.h"
-#include "ck_encoding.h"
+#include "ce_config/ck_encoding.h"
+
 #include <unordered_map>
 #include <algorithm>
 
+#include "ck_log.h"
 static const Logger logger("CK Messages");
 
 namespace ck {

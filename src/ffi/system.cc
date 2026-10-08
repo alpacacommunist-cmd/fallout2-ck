@@ -1,5 +1,5 @@
 #include "ffi/system.h"
-#include "ck_mods.h"
+#include "ck_mods/ck_mods.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
 bool ck_system_add_mod(const char* mod_id) {

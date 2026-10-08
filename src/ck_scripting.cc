@@ -1,8 +1,8 @@
 #include <cstring>
 
 #include "ck_scripting.h"
-#include "ck_mods.h"
-#include "ck_encoding.h"
+#include "ck_mods/ck_mods.h"
+#include "ce_config/ck_encoding.h"
 
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/cache/ck_proto_cache.h"

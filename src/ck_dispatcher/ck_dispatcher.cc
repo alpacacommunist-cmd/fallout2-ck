@@ -2,7 +2,7 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
 #include "object/ck_object.h"
-#include "ck_mods.h"
+#include "ck_mods/ck_mods.h"
 
 #include "ck_log.h"
 static const Logger log("ck_dispatcher.cc");
