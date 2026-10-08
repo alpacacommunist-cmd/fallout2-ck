@@ -21,3 +21,7 @@ void ck_system_emit_for_mod(const char* mod_id, const char* event_name) {
 const char* ck_system_current_mod_id() {
     return ck::dispatcher::current_context();
 }
+
+bool ck_system_reloading_mods() {
+    return ck::mods::reloading();
+}

@@ -24,6 +24,15 @@ namespace ck::mods {
         return g_active_mods;
     }
 
+    const char* ptr(const char* mod_id) {
+        auto it = g_immutable_string_pool.find(mod_id);
+        if (it == g_immutable_string_pool.end()) {
+            return nullptr;
+        }
+
+        return it->c_str();
+    }
+
     bool reload() {
         if (common::in_combat()) {
             common::print_monitor_message("Disabled in combat");
@@ -42,15 +51,6 @@ namespace ck::mods {
 
     bool reloading() {
         return g_reloading_mods;
-    }
-
-    const char* ptr(const char* mod_id) {
-        auto it = g_immutable_string_pool.find(mod_id);
-        if (it == g_immutable_string_pool.end()) {
-            return nullptr;
-        }
-
-        return it->c_str();
     }
 
     bool add(const char* mod_id) {

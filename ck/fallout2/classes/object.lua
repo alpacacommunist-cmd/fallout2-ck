@@ -99,7 +99,7 @@ local proc_handlers = {
   end,
 
   destroy = function(self, fixed_param)
-    if ffi.C.ck_mods_reload_in_progress() then return false end
+    if ffi.C.ck_system_reloading_mods() then return false end
 
     log.info('Object destroyed: ' .. tostring(self.lua_id))
 

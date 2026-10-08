@@ -320,7 +320,6 @@ void ck_testing_set_current_suite(const char* name) { g_test_suite_name = std::s
 void ck_monitor_print_message(const char* message) { ck::common::print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) fallout::soundPlayFile(name); }
 bool ck_in_combat() { return ck::common::in_combat(); }
-bool ck_mods_reload_in_progress() { return ck::common::reloading_mods(); }
 bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
 int ck_current_map_id() { return ck::common::current_map_id(); }
