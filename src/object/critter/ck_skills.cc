@@ -6,7 +6,7 @@
 #include "proto.h"
 
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Skills");
 
 static const char* g_skill_names[] = {

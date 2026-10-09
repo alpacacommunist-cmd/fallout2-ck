@@ -7,7 +7,7 @@
 
 #include "config.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Config Patch");
 
 namespace fallout {

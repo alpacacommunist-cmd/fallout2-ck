@@ -1,4 +1,4 @@
-#include "ck_log.h"
+#include "log.h"
 #include <iostream>
 
 void Logger::do_log_formatted(std::string_view level, std::string_view color,
@@ -66,7 +66,7 @@ void Logger::print_header_log(LogStyle style, std::string_view title) const {
         std::string mid_part = std::format("{} ▒▒▒ ", prefix_part);
         size_t used_len = 4 + clean_prefix_len + 5 + title.length() + 1;
 
-        size_t fill_chars = (total_width > used_len) ? (total_width - used_len) / 3 : 0; // '▒' takes 3 byte UTF-8
+        size_t fill_chars = (total_width > used_len) ? (total_width - used_len) / 3 : 0; // '▒' is 3 byte UTF-8
         std::string utf8_fill = "";
         for(size_t i = 0; i < fill_chars; ++i) utf8_fill += "▒";
 

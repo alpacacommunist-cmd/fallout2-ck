@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Camera Borders");
 
 extern "C" const char* ck_get_current_mod_id();

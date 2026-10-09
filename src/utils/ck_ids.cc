@@ -1,7 +1,7 @@
 #include "ck_ids.h"
 #include "proto_types.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK IDS");
 
 namespace fallout {

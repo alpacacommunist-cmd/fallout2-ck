@@ -4,7 +4,7 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_scripting.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("ck_mods.cc");
 
 // LUA calls

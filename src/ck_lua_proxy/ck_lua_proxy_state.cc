@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "picojson.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger proxy_log("CK State Lua Proxy");
 
 extern lua_State* gLuaState;

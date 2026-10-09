@@ -1,5 +1,5 @@
 #include "ck_ids.h"
-#include "ck_utils.h"
+#include "utils.h"
 
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 #include "object/ck_object.h"
@@ -12,7 +12,7 @@
 
 #include <cstring>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Critter");
 
 namespace ck {

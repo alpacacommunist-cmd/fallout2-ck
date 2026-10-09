@@ -7,7 +7,7 @@
 
 static picojson::value g_game_state;
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger state_log("CK State");
 
 void dump_json_to_log(const picojson::value& val, int indent = 0) {

@@ -1,4 +1,4 @@
-#include "ck_utils.h"
+#include "utils.h"
 #include "ck_ids.h"
 #include "ck_proto_registry.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
@@ -9,7 +9,7 @@
 
 #include "proto.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Proto Item");
 
 namespace fallout {

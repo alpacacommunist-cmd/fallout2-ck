@@ -1,6 +1,6 @@
 #include "ce_config/ck_config_patch.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Party");
 
 namespace ck {

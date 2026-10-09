@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Asset Registry");
 
 namespace ck::assets {

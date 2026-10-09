@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <unordered_set>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK City");
 
 namespace ck::config_city {

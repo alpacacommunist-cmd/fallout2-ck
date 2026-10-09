@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Messages");
 
 namespace ck {

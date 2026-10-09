@@ -1,7 +1,7 @@
 #include "perk_defs.h"
 #include "object/critter/ck_perks.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Perks");
 
 static const char* g_perk_names[] = {

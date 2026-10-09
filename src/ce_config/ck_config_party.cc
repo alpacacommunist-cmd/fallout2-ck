@@ -1,7 +1,7 @@
 #include "ce_config/ck_config_party.h"
 #include "ce_config/ck_config_patch.h"
 #include <format>
-#include "ck_log.h"
+#include "log.h"
 
 static const Logger log("CK Party Config");
 

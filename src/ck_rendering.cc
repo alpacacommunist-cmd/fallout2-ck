@@ -9,7 +9,7 @@
 #include "ck_rendering.h"
 #include "ck_mods/ck_mods.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("ck_rendering.cc");
 
 namespace ck::common {

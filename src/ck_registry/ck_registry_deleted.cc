@@ -1,7 +1,7 @@
 #include "ck_registry.h"
 #include "obj_types.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Registry [Deleted]");
 
 namespace ck::common {

@@ -2,7 +2,7 @@
 #include "ck_ids.h"
 #include "obj_types.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Registry [Modified]");
 
 namespace ck::common {

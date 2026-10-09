@@ -4,7 +4,7 @@
 #include "object/ck_object.h"
 #include "ck_mods/ck_mods.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("ck_dispatcher.cc");
 
 namespace ck::common {

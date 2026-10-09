@@ -1,7 +1,7 @@
-#include "ck_utils.h"
+#include "utils.h"
 #include "object/critter/ck_stats.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Stats");
 
 namespace fallout {

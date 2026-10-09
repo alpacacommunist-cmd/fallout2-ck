@@ -1,4 +1,4 @@
-#include "ck_utils.h"
+#include "utils.h"
 #include "ck_ids.h"
 #include "ce_config/ck_encoding.h"
 
@@ -11,7 +11,7 @@
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Script");
 
 namespace fallout {

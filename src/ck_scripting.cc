@@ -20,7 +20,7 @@
 #include "settings.h"
 #include "obj_types.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Scripting");
 
 static const char* SYSTEM_MOD_ID = "__ck_system__";

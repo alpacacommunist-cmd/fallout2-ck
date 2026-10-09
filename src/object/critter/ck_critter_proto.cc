@@ -1,5 +1,5 @@
 #include "ck_ids.h"
-#include "ck_utils.h"
+#include "utils.h"
 
 #include "object/critter/ck_critter_proto.h"
 #include "ck_messages/ck_messages.h"
@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Critter Proto");
 
 namespace fallout {

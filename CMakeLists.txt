@@ -36,15 +36,15 @@ add_library(fallout2-ck STATIC
     src/geometry/geometry.cc
     src/geometry/landscape.cc
 
-    src/ck_ffi_manifest.cc
-    src/ck_ffi_validator.cc
-
-    # FFI calls
+    # Utils
+    src/utils/utils.cc
+    src/utils/log.cc
+    src/utils/ck_ids.cc
+    # FFI
     src/ffi/system.cc
+    src/ffi/manifest.cc
+    src/ffi/validator.cc
 
-    src/ck_log.cc
-    src/ck_utils.cc
-    src/ck_ids.cc
     src/ck_scripting.cc
     src/ck_rendering.cc
 
@@ -101,7 +101,7 @@ add_library(fallout2-ck STATIC
     src/ck_debug_overlay/ck_debug_object_format.cc
 )
 
-target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/ck_log.h" "include/ck_utils.h")
+target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/log.h" "include/utils.h")
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
 target_include_directories(fallout2-ck PUBLIC 

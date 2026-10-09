@@ -3,7 +3,7 @@
 #include "proto_types.h"
 #include <format>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK DBG format");
 
 namespace ck::debug {

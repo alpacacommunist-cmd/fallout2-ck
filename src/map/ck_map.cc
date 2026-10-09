@@ -8,7 +8,7 @@
 
 #include "map_defs.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Map");
 
 namespace fallout {

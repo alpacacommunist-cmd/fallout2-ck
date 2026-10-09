@@ -1,4 +1,4 @@
-#include "ck_utils.h"
+#include "utils.h"
 
 #include "object/ck_item.h"
 
@@ -6,7 +6,7 @@
 #include "object.h"
 #include "proto.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Item");
 
 namespace fallout {

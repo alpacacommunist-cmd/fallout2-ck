@@ -4,7 +4,7 @@
 #include <array>
 #include <cstdint>
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger log("CK Lua Proxy");
 
 lua_State* gLuaState = nullptr;

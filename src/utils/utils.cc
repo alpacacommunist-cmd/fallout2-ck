@@ -1,11 +1,11 @@
-#include "ck_utils.h"
+#include "utils.h"
 #include <algorithm>
 #include <string>
 #include <cstring>
 #include <cctype>
 
-#include "ck_log.h"
-static const Logger logger("CK Utils");
+#include "log.h"
+static const Logger logger("utils.cc");
 
 namespace ck::utils {
     void fatal_nullptr_crash(const char* function_name) {

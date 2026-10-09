@@ -12,7 +12,7 @@
 
 #include "map.h"
 
-#include "ck_log.h"
+#include "log.h"
 static const Logger logger("CK Locations");
 
 namespace ck {
