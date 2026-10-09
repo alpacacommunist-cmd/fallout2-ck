@@ -104,7 +104,7 @@ namespace ck::object {
     }
 
     int type(int pid) {
-        return static_cast<int>(fallout::objectTypeFromPid(pid));
+        return static_cast<int>(fallout::ProtoId(pid).objectType());
     }
 }
 

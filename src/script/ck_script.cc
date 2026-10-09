@@ -4,7 +4,6 @@
 
 #include "scripts.h"
 #include "game_dialog.h"
-#include "obj_types.h"
 
 #include "script/ck_script.h"
 #include "object/ck_object.h"
@@ -141,7 +140,7 @@ namespace ck::script {
         fallout::Object* victim_ptr = script->owner;
         fallout::Object* killer_ptr = script->source;
 
-        if (victim_ptr == nullptr || fallout::objectTypeFromPid(victim_ptr->pid) != fallout::OBJ_TYPE_CRITTER) return;
+        if (victim_ptr == nullptr || fallout::ProtoId(victim_ptr->pid).objectType() != fallout::OBJ_TYPE_CRITTER) return;
 
         CkObjectFFI victim{}, killer{};
         if (victim_ptr) ck::object::to_ffi(victim, victim_ptr);

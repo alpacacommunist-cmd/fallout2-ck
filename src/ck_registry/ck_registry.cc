@@ -1,6 +1,6 @@
 #include "ck_registry.h"
 
-#include "obj_types.h"
+#include "proto_types.h"
 
 #include "ck_log.h"
 static const Logger log("CK Registry");
@@ -112,7 +112,8 @@ bool ck_registry_bind_to_object(int lua_id) {
     fallout::Object* object = ck::registry::created::get_object(lua_id);
     if (object == nullptr) return false;
 
-    fallout::ObjectType type = fallout::objectTypeFromPid(object->pid);
+    // int object_type = fallout::ProtoId(object->pid).objectType();
+    fallout::ObjectType type = fallout::ProtoId(object->pid).objectType();
     ck::script::remove_object_script(object);
 
     if (type == fallout::OBJ_TYPE_CRITTER) {

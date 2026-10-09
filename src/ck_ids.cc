@@ -1,5 +1,5 @@
 #include "ck_ids.h"
-#include "obj_types.h"
+#include "proto_types.h"
 
 #include "ck_log.h"
 static const Logger logger("CK IDS");
@@ -27,7 +27,7 @@ static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,  
 int script_type_for_object(fallout::Object* object) {
     if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
 
-    int object_type = fallout::objectTypeFromPid(object->pid);
+    int object_type = static_cast<int>(fallout::ProtoId(object->pid).objectType());
 
     switch (object_type) {
 		case fallout::OBJ_TYPE_CRITTER:

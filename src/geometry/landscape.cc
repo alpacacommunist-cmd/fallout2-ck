@@ -4,7 +4,6 @@
 #include "geometry/landscape.h"
 
 #include "proto_types.h"
-#include "obj_types.h"
 #include "ck_scripting.h"
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
@@ -14,7 +13,7 @@ void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
         while (obj != nullptr) {
             fallout::Object* nextObj = fallout::objectFindNextAtLocation();
 
-            if (fallout::objectTypeFromPid(obj->pid) != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
+            if (fallout::ProtoId(obj->pid).objectType() != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
                 if (visible) {
                     obj->flags &= ~fallout::OBJECT_HIDDEN;
 

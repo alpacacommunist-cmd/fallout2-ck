@@ -9,6 +9,7 @@
 #include "map/ck_map_camera_borders.h"
 
 #include "game_sound.h"
+#include "proto_types.h"
 // #include "svga.h"
 // #include "map.h"
 // #include "dbox.h"
@@ -107,7 +108,7 @@ static void mode_palette() {
 
 static bool ck_is_tile_blocking(int tile) {
     fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-    return blocker != nullptr && fallout::objectTypeFromPid(blocker->pid) != fallout::OBJ_TYPE_CRITTER;
+    return blocker != nullptr && fallout::ProtoId(blocker->pid).objectType() != fallout::OBJ_TYPE_CRITTER;
 }
 
 static HexState ck_hex_state_for_tile(int tile) {

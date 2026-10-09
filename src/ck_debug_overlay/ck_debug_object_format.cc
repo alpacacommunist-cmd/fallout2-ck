@@ -1,6 +1,6 @@
 #include "ck_debug_overlay/ck_debug_object_format.h"
 
-#include "obj_types.h"
+#include "proto_types.h"
 #include <format>
 
 #include "ck_log.h"
@@ -27,7 +27,7 @@ namespace ck::debug {
 			int objIndex = 0;
 
 			while (obj != nullptr) {
-				int objType = fallout::objectTypeFromPid(obj->pid);
+				int objType = static_cast<int>(fallout::ProtoId(obj->pid).objectType());
 
 				log.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
 						objIndex, fallout::objectGetName(obj), obj->id, objType, obj->pid, obj->fid, obj->sid,
