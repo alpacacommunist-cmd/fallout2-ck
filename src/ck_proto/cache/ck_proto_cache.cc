@@ -1,13 +1,12 @@
 #include "ck_proto_cache.h"
 #include "ck_proto_schema.h"
 #include "sqlite3.h"
-#include "proto.h"
 #include "message.h"
+
+#include "proto.h"
 
 #include <cstdio>
 #include <format>
-
-#include "proto_types.h"
 
 #include "log.h"
 static const Logger log("CK Scripting");

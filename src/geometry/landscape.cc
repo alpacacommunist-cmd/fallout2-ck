@@ -4,7 +4,10 @@
 #include "geometry/landscape.h"
 
 #include "proto_types.h"
-#include "ck_scripting.h"
+
+namespace ck::common {
+    const char* current_mod_id();
+}
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {

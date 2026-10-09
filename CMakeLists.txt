@@ -37,6 +37,8 @@ add_library(fallout2-ck STATIC
     src/geometry/landscape.cc
 
     # Utils
+    src/utils/fallout/types.cc
+
     src/utils/utils.cc
     src/utils/log.cc
     src/utils/ck_ids.cc

@@ -1,6 +1,8 @@
 #include "ck_debug_overlay/ck_debug_object_format.h"
+#include "utils/fallout/types.h"
 
-#include "proto_types.h"
+#include "obj_types.h"
+
 #include <format>
 
 #include "log.h"
@@ -23,20 +25,20 @@ namespace ck::debug {
 				log.warn("EXIT GRID ON TILE");
 			}
 
-			fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+			fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
 			int objIndex = 0;
 
-			while (obj != nullptr) {
-				int objType = static_cast<int>(fallout::ProtoId(obj->pid).objectType());
+			while (object != nullptr) {
+				int objType = static_cast<int>(fallout::object_type(object));
 
 				log.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
-						objIndex, fallout::objectGetName(obj), obj->id, objType, obj->pid, obj->fid, obj->sid,
-						static_cast<unsigned int>(obj->flags));
+						objIndex, fallout::objectGetName(object), object->id, objType, object->pid, object->fid, object->sid,
+						static_cast<unsigned int>(object->flags));
 
-				std::string data_debug = ck::debug::format_object_data(obj, objType);
+				std::string data_debug = ck::debug::format_object_data(object, objType);
 				log.raw("{}", data_debug);
 
-				obj = fallout::objectFindNextAtLocation();
+				object = fallout::objectFindNextAtLocation();
 			}
 		}
 	}

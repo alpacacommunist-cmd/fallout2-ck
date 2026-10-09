@@ -4,12 +4,12 @@
 #include <unordered_map>
 #include <cstring>
 
-#include "proto.h"
-
 #include "log.h"
 static const Logger logger("CK Proto Registry");
 
 namespace fallout {
+    int protoGetProto(const ProtoId& protoId, Proto** protoPtr);
+
     const size_t _proto_sizes[11] = {
         sizeof(ItemProto),    // 0x84
         sizeof(CritterProto), // 0x1A0
