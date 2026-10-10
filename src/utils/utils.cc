@@ -5,7 +5,7 @@
 #include <cctype>
 
 #include "log.h"
-static const Logger logger("utils.cc");
+static constexpr logging::Context logger{"src/utils/utils.cc"};
 
 namespace ck::utils {
     void fatal_nullptr_crash(const char* function_name) {

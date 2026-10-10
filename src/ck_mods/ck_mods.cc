@@ -5,7 +5,7 @@
 #include "ck_scripting.h"
 
 #include "log.h"
-static const Logger log("ck_mods.cc");
+static constexpr logging::Context logger{"src/ck_mods/ck_mods.cc"};
 
 // LUA calls
 namespace ck::proxy::detail {
@@ -40,7 +40,7 @@ namespace ck::mods {
             return false;
         }
 
-        log.header("Reloading mods");
+        logger.header(logging::levels::info, "Reloading mods");
 
         g_reloading_mods = true;
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);
@@ -75,7 +75,7 @@ namespace ck::mods {
 
         bool removed = (std::erase(g_active_mods, mod_id_ptr) > 0);
 
-        removed ? log.debug("Removed mod_id: {}", mod_id) : log.error("Not found: {}", mod_id);
+        removed ? logger.debug("Removed mod_id: {}", mod_id) : logger.error("Not found: {}", mod_id);
         return removed;
     }
 }

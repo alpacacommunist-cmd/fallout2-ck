@@ -4,7 +4,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static const Logger logger("CK IDS");
+static constexpr logging::Context logger{"src/utils/ck_ids.cc"};
 
 namespace fallout {
     typedef enum ScriptType {

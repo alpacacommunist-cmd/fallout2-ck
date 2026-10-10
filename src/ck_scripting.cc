@@ -21,7 +21,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static const Logger logger("CK Scripting");
+static constexpr logging::Context logger{"src/ck_scripting.cc"};
 
 static const char* SYSTEM_MOD_ID = "__ck_system__";
 static bool is_test_mode = false;

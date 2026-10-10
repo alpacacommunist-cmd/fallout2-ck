@@ -5,7 +5,7 @@
 #include "ck_mods/ck_mods.h"
 
 #include "log.h"
-static const Logger log("ck_dispatcher.cc");
+static constexpr logging::Context logger{"dispatcher.cc"};
 
 namespace ck::common {
     int current_map_id();
@@ -58,7 +58,7 @@ namespace ck::dispatcher {
         if (!ck::proxy::is_ready() || !event_name) return;
 
         for (const auto& mod_id : ck::mods::all()) {
-            log.debug("Emit event {} for {}", event_name, mod_id);
+            logger.debug("Emit event {} for {}", event_name, mod_id);
 
             ModContextGuard guard(mod_id);
             ck::proxy::emit_for_mod(mod_id, event_name, args...);
@@ -87,7 +87,7 @@ namespace ck::dispatcher {
 
     bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
         if (!object_mod_id) {
-            log.warn("ck_dispatcher_on_proc called with null object_mod_id");
+            logger.warning("ck_dispatcher_on_proc called with null object_mod_id");
         }
 
         ModContextGuard guard(object_mod_id);
@@ -98,7 +98,7 @@ namespace ck::dispatcher {
 
     bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
         if (!object_mod_id) {
-            log.warn("ck_dispatcher_on_proc called with null object_mod_id");
+            logger.warning("ck_dispatcher_on_proc called with null object_mod_id");
         }
 
         ModContextGuard guard(object_mod_id);
@@ -136,7 +136,7 @@ namespace ck::dispatcher {
     }
 
     void on_map_enter() {
-        log.debug("ck_dispatcher_on_map_enter");
+        logger.debug("ck_dispatcher_on_map_enter");
         g_last_update_ticks = 0;
 
         emit("map_enter", ck::common::current_map_id());

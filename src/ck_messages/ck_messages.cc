@@ -5,7 +5,8 @@
 #include <algorithm>
 
 #include "log.h"
-static const Logger logger("CK Messages");
+static constexpr logging::Context logger{"ck_messages.cc"};
+
 
 namespace ck {
 	static std::unordered_map<std::string, std::unordered_map<int, std::string>> g_strings;

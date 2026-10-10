@@ -5,7 +5,7 @@
 extern lua_State* gLuaState;
 
 #include "log.h"
-static const Logger log("ck_lua_proxy_dispatcher.cc");
+static constexpr logging::Context logger{"ck_lua_proxy_dispatcher.cc"};
 
 namespace ck::proxy::detail {
     extern int emit_for_mod;
@@ -36,7 +36,7 @@ namespace ck::proxy {
 
 		if (!internal_call_execute(total_args, 0)) {
 			std::string error_msg = lua_isstring(gLuaState, -1) ? lua_tostring(gLuaState, -1) : "Unknown error";
-			log.error("Error routing event '{}:{}': {}", mod_id, event_name, error_msg);
+			logger.error("Error routing event '{}:{}': {}", mod_id, event_name, error_msg);
 			lua_pop(gLuaState, 1);
 		}
 	}

@@ -8,7 +8,7 @@
 #include "config.h"
 
 #include "log.h"
-static const Logger log("CK Config Patch");
+static constexpr logging::Context logger{"ck_config_patch.cc"};
 
 namespace fallout {
     bool configSetString(Config*, const char*, const char*, const char*);
@@ -74,7 +74,7 @@ namespace ck {
                 for (const auto& [section, keys] : file_it->second) {
                     for (const auto& [key, value] : keys) {
                         fallout::configSetString(&maps_cfg, section.c_str(), key.c_str(), value.c_str());
-                        log.info("section: {}, key: {}, value: {}", section, key, value);
+                        logger.info("section: {}, key: {}, value: {}", section, key, value);
                         maps_applied++;
                     }
                 }
@@ -82,7 +82,7 @@ namespace ck {
         }
 
         if (maps_applied > 0) {
-            log.info("Compiling {} map patches into worldmap. Max index before: {}",
+            logger.info("Compiling {} map patches into worldmap. Max index before: {}",
                     maps_applied, ck::config_maps::next_index() - 1);
             fallout::wmParseMapsConfig(&maps_cfg, false);
         }
@@ -100,7 +100,7 @@ namespace ck {
                 for (const auto& [section, keys] : file_it->second) {
                     for (const auto& [key, value] : keys) {
                         fallout::configSetString(&city_cfg, section.c_str(), key.c_str(), value.c_str());
-                        log.info("section: {}, key: {}, value: {}", section, key, value);
+                        logger.info("section: {}, key: {}, value: {}", section, key, value);
                         city_applied++;
                     }
                 }
@@ -108,7 +108,7 @@ namespace ck {
         }
 
         if (city_applied > 0) {
-            log.info("Compiling {} area patches into worldmap. Max index before: {}",
+            logger.info("Compiling {} area patches into worldmap. Max index before: {}",
                     city_applied, ck::config_city::next_index() - 1);
             fallout::wmParseAreasConfig(&city_cfg, false);
         }
@@ -140,7 +140,7 @@ namespace ck {
 				for (const auto& [section, keys] : file_it->second) {
 					for (const auto& [key, value] : keys) {
 						fallout::configSetString(config, section.c_str(), key.c_str(), value.c_str());
-						log.info("applying: section -> {}, key -> {}, value -> {}", section, key, value);
+						logger.info("applying: section -> {}, key -> {}, value -> {}", section, key, value);
 						applied++;
 					}
 				}
@@ -148,13 +148,13 @@ namespace ck {
 		}
 
 		if (applied > 0) {
-			log.info("Applied {} unique patches to: {}", applied, file_path);
+			logger.info("Applied {} unique patches to: {}", applied, file_path);
 		}
 	}
 
 	void config_patch_clear() {
 		ck::g_config_patches.clear();
-		log.info("Cleared all patches.");
+		logger.info("Cleared all patches.");
 	}
 
 	void clear_config_patches_for_mod(const char* mod_id) {
@@ -164,7 +164,7 @@ namespace ck {
         auto it = g_config_patches.find(mod_str);
         if (it != g_config_patches.end()) {
             g_config_patches.erase(it);
-            log.info("Successfully cleared all configuration patches for mod: {}", mod_id);
+            logger.info("Successfully cleared all configuration patches for mod: {}", mod_id);
         }
     }
 

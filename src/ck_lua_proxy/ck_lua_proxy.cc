@@ -5,7 +5,8 @@
 #include <cstdint>
 
 #include "log.h"
-static const Logger log("CK Lua Proxy");
+static constexpr logging::Context logger{"ck_lua_proxy.cc"};
+
 
 lua_State* gLuaState = nullptr;
 
@@ -55,14 +56,14 @@ static int cache_module_function(const char* module_name, const char* function_n
 	lua_pushstring(gLuaState, module_name);
 
 	if (lua_pcall(gLuaState, 1, 1, 0) != LUA_OK) {
-		log.error("Failed to require module '{}': {}", module_name, lua_tostring(gLuaState, -1));
+		logger.error("Failed to require module '{}': {}", module_name, lua_tostring(gLuaState, -1));
 		lua_pop(gLuaState, 1);
 		return LUA_NOREF;
 	}
 
 	lua_getfield(gLuaState, -1, function_name);
 	if (!lua_isfunction(gLuaState, -1)) {
-		log.error("Function '{}' not found in module '{}'!", function_name, module_name);
+		logger.error("Function '{}' not found in module '{}'!", function_name, module_name);
 		lua_pop(gLuaState, 2);
 		return LUA_NOREF;
 	}
@@ -133,7 +134,7 @@ namespace ck::proxy {
 			std::string error_msg = "Unknown Lua error";
 			if (lua_isstring(gLuaState, -1)) error_msg = lua_tostring(gLuaState, -1);
 
-			log.error("Runtime error during Lua proxy execution:\n{}", error_msg);
+			logger.error("Runtime error during Lua proxy execution:\n{}", error_msg);
 
 			lua_pop(gLuaState, 1);
 			return false;
@@ -183,7 +184,7 @@ namespace ck::proxy {
     void init_lua_state(std::string_view package_path) {
         gLuaState = luaL_newstate();
         if (!gLuaState) {
-            log.error("Failed to initialize LuaJIT state!");
+            logger.error("Failed to initialize LuaJIT state!");
             return;
         }
 
@@ -195,10 +196,10 @@ namespace ck::proxy {
         for (const auto& hook : hooks) {
             *hook.target_ref = cache_module_function(hook.module_name.data(), hook.function_name.data());
 
-            if (*hook.target_ref == LUA_NOREF) log.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
+            if (*hook.target_ref == LUA_NOREF) logger.error("Can't cache ref: {}.{}", hook.module_name, hook.function_name);
         }
 
-        log.info("successfully initialized and cached Lua hooks.");
+        logger.info("successfully initialized and cached Lua hooks.");
     }
 
     void shutdown() {

@@ -1,65 +1,158 @@
 #pragma once
-#include <string_view>
+
 #include <format>
+#include <string_view>
 
-enum class LogStyle {
-    Minimal,   // ─── [Prefix] ─── TEXT ───────────────────
-    Cyberpunk, // ▒▒▒ [Prefix] ▒▒▒ TEXT ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
-    Modern     // ❯❯❯ [Prefix] ❯ TEXT
+namespace logging {
+
+// ─── Levels ───────────────────────────────────────────────
+
+enum class Level {
+    Info,
+    Success,
+    Debug,
+    Warning,
+    Error,
 };
 
-class Logger {
-private:
-    std::string m_prefix;
+namespace levels {
+    inline constexpr Level info    = Level::Info;
+    inline constexpr Level success = Level::Success;
+    inline constexpr Level debug   = Level::Debug;
+    inline constexpr Level warning = Level::Warning;
+    inline constexpr Level error   = Level::Error;
+}
 
-    void do_log_formatted(std::string_view level, std::string_view color,
-                          std::string_view fmt, std::format_args args) const;
-    void print_header_log(LogStyle style, std::string_view title) const;
-public:
-    void print_log(std::string_view tag, std::string_view tag_color, std::string_view message) const;
-    void print_error_log(std::string_view message) const;
-    void print_debug_log(std::string_view message) const;
-    void raw(std::string_view message) const;
+// ─── Appearance ───────────────────────────────────────────
 
-    explicit Logger(std::string_view prefix) : m_prefix(prefix) {}
+enum class HeaderStyle {
+    Rule,       // ─── [context] ─── Title ───────────────
+    Minimal,    // [context] Title
+    Banner,     // ═══ Title ═════════════════════════════
+};
 
-    inline static bool debug_enabled = true;
+// Helps distinguish Lua and C++ messages in the console.
+enum class Source {
+    Native,
+    Lua,
+};
 
-    template <typename... Args>
-    void header(LogStyle style, std::format_string<Args...> fmt_str, Args&&... args) const {
-        std::string title = std::vformat(fmt_str.get(), std::make_format_args(args...));
-        print_header_log(style, title);
+// ─── Internal implementation ──────────────────────────────
+
+namespace detail {
+
+void write(Level level, Source source,
+           std::string_view context,
+           std::string_view message);
+
+void write_header(Level level, Source source,
+                  std::string_view context,
+                  HeaderStyle style,
+                  std::string_view title);
+
+void write_raw(std::string_view message);
+
+template <typename... Args>
+std::string format(std::format_string<Args...> fmt,
+                   Args&&... args)
+{
+    return std::vformat(
+        fmt.get(),
+        std::make_format_args(args...)
+    );
+}
+
+} // namespace detail
+
+// ─── Context-free API ─────────────────────────────────────
+
+template <typename... Args>
+void info(std::format_string<Args...> fmt, Args&&... args)
+{
+    detail::write(Level::Info, Source::Native, {},
+                  detail::format(fmt, args...));
+}
+
+template <typename... Args>
+void success(std::format_string<Args...> fmt, Args&&... args)
+{
+    detail::write(Level::Success, Source::Native, {},
+                  detail::format(fmt, args...));
+}
+
+template <typename... Args>
+void debug(std::format_string<Args...> fmt, Args&&... args)
+{
+    detail::write(Level::Debug, Source::Native, {},
+                  detail::format(fmt, args...));
+}
+
+template <typename... Args>
+void warning(std::format_string<Args...> fmt, Args&&... args)
+{
+    detail::write(Level::Warning, Source::Native, {},
+                  detail::format(fmt, args...));
+}
+
+template <typename... Args>
+void error(std::format_string<Args...> fmt, Args&&... args)
+{
+    detail::write(Level::Error, Source::Native, {},
+                  detail::format(fmt, args...));
+}
+
+template <typename... Args>
+void header(Level level, std::format_string<Args...> fmt,
+            Args&&... args)
+{
+    detail::write_header(
+        level, Source::Native, {},
+        HeaderStyle::Rule,
+        detail::format(fmt, args...)
+    );
+}
+
+template <typename... Args>
+void header(Level level, HeaderStyle style, std::format_string<Args...> fmt, Args &&...args) {
+    detail::write_header(level, Source::Native, {}, style, detail::format(fmt, args...));
+}
+
+inline void raw(std::string_view message) { detail::write_raw(message); }
+
+// ─── Optional context wrapper ──────────────────────────────
+
+struct Context {
+    std::string_view name;
+    Source source = Source::Native;
+
+    template <typename... Args> void info(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write(Level::Info, source, name, detail::format(fmt, args...));
     }
 
-    // default
-    template <typename... Args>
-    void header(std::format_string<Args...> fmt_str, Args&&... args) const {
-        header(LogStyle::Modern, fmt_str, std::forward<Args>(args)...);
+    template <typename... Args> void success(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write(Level::Success, source, name, detail::format(fmt, args...));
+    }
+
+    template <typename... Args> void debug(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write(Level::Debug, source, name, detail::format(fmt, args...));
+    }
+
+    template <typename... Args> void warning(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write(Level::Warning, source, name, detail::format(fmt, args...));
+    }
+
+    template <typename... Args> void error(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write(Level::Error, source, name, detail::format(fmt, args...));
+    }
+
+    template <typename... Args> void header(Level level, std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write_header(level, source, name, HeaderStyle::Rule, detail::format(fmt, args...));
     }
 
     template <typename... Args>
-    void info(std::format_string<Args...> fmt_str, Args&&... args) const {
-        do_log_formatted("INFO", "\033[32m", fmt_str.get(), std::make_format_args(args...));
-    }
-
-    template <typename... Args>
-    void warn(std::format_string<Args...> fmt_str, Args&&... args) const {
-        do_log_formatted("WARN", "\033[33m", fmt_str.get(), std::make_format_args(args...));
-    }
-
-    template <typename... Args>
-    void error(std::format_string<Args...> fmt_str, Args&&... args) const {
-        do_log_formatted("ERROR", "\033[31m", fmt_str.get(), std::make_format_args(args...));
-    }
-
-    template <typename... Args>
-    void debug(std::format_string<Args...> fmt_str, Args&&... args) const {
-        if (!debug_enabled) return;
-        do_log_formatted("DEBUG", "\033[36m", fmt_str.get(), std::make_format_args(args...));
-    }
-
-    template <typename... Args>
-    void raw(std::format_string<Args...> fmt_str, Args&&... args) const {
-        do_log_formatted("RAW", "", fmt_str.get(), std::make_format_args(args...));
+    void header(Level level, HeaderStyle style, std::format_string<Args...> fmt, Args &&...args) const {
+        detail::write_header(level, source, name, style, detail::format(fmt, args...));
     }
 };
+
+} // namespace logging
