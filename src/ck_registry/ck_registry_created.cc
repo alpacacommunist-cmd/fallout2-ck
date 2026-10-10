@@ -2,7 +2,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static const Logger log("ck_registry_created.cc");
+static constexpr logging::Context log{"ck_registry_created.cc"};
 
 namespace fallout {
     // animation.cc

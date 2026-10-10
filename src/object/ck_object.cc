@@ -5,7 +5,8 @@
 #include "object.h"
 
 #include "log.h"
-static const Logger log("CK Object");
+static constexpr logging::Context logger{"ck_object.cc.cc"};
+
 
 static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
 	return fallout::_obj_blocking_at(nullptr, tile, elevation);
@@ -122,7 +123,7 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
         object->flags |= fallout::ObjectFlags::OBJECT_NO_SAVE;
 
         if (ck::object::type(pid) == 1 && ck::critter::proto::is_custom(pid) > 0) {
-            log.debug("Object created with custom prototype flag. PID: {}", pid);
+            logger.debug("Object created with custom prototype flag. PID: {}", pid);
         }
 	}
 

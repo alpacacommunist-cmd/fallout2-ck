@@ -2,7 +2,8 @@
 #include "object/critter/ck_perks.h"
 
 #include "log.h"
-static const Logger log("CK Perks");
+static constexpr logging::Context logger{"ck_perks.cc"};
+
 
 static const char* g_perk_names[] = {
     "awareness", "bonus_hth_attacks", "bonus_hth_damage", "bonus_move", "bonus_ranged_damage", "bonus_rate_of_fire",

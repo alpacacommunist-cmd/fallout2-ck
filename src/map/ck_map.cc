@@ -9,7 +9,7 @@
 #include "map_defs.h"
 
 #include "log.h"
-static const Logger log("CK Map");
+static constexpr logging::Context logger{"ck_config_maps.cc"};
 
 namespace fallout {
     struct TileData { int field_0[SQUARE_GRID_SIZE]; };
@@ -43,7 +43,7 @@ namespace ck {
     }
 
     void on_before_map_load() {
-        log.debug("on_before_map_load");
+        logger.debug("on_before_map_load");
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data

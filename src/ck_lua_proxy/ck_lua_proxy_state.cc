@@ -6,7 +6,7 @@
 #include "picojson.h"
 
 #include "log.h"
-static const Logger proxy_log("CK State Lua Proxy");
+static constexpr logging::Context logger{"ck_lua_proxy_state.cc"};
 
 extern lua_State* gLuaState;
 
@@ -184,7 +184,7 @@ namespace ck::proxy {
         if (lua_istable(gLuaState, -1)) {
             result = lua_to_picojson(gLuaState, -1);
         } else {
-            proxy_log.error("PicoJSON Save Proxy: Lua hook did not return a valid state table!");
+            logger.error("PicoJSON Save Proxy: Lua hook did not return a valid state table!");
         }
 
         lua_pop(gLuaState, 1);

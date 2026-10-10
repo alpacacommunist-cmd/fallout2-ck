@@ -3,7 +3,7 @@
 #include "proto_types.h"
 
 #include "log.h"
-static const Logger log("CK Registry");
+static constexpr logging::Context logger{"ck_registry.cc"};
 
 namespace ck {
     namespace critter {
@@ -84,7 +84,7 @@ namespace ck::registry {
         g_ptr_to_lua_id.clear();
 		reset_lua_id_counter();
 
-        log.info("Cleared object registry entirely.");
+        logger.info("Cleared object registry entirely.");
 	}
 }
 

@@ -7,7 +7,8 @@
 #include "proto.h"
 
 #include "log.h"
-static const Logger logger("CK Item");
+static constexpr logging::Context logger{"ck_item.cc"};
+
 
 namespace fallout {
 	struct Object;

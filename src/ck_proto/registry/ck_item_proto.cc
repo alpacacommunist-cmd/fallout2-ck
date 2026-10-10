@@ -10,7 +10,7 @@
 #include "proto.h"
 
 #include "log.h"
-static const Logger logger("CK Proto Item");
+static constexpr logging::Context logger{"ck_item_proto.cc"};
 
 namespace fallout {
     Object* objectFindFirstAtElevation(int elevation);

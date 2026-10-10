@@ -9,7 +9,8 @@
 #include <format>
 
 #include "log.h"
-static const Logger log("CK Scripting");
+static constexpr logging::Context logger{"ck_proto_cache.cc"};
+
 
 CkProtoCache gProtoCache;
 
@@ -37,11 +38,11 @@ bool CkProtoCache::initialize(const std::string& cachePath) {
         sqlite3_finalize(stmt);
 
         if (currentFileVoid == CK_PROTO_DB_VERSION) {
-            log.info("DB version matches ({}). Cache loaded successfully.", CK_PROTO_DB_VERSION);
+            logger.info("DB version matches ({}). Cache loaded successfully.", CK_PROTO_DB_VERSION);
             return true;
         }
 
-        log.warn("DB version mismatch (File: {}, Code: {}). Rebuilding...", currentFileVoid, CK_PROTO_DB_VERSION);
+        logger.warning("DB version mismatch (File: {}, Code: {}). Rebuilding...", currentFileVoid, CK_PROTO_DB_VERSION);
 
         sqlite3_close(db);
         db = nullptr;
@@ -54,7 +55,7 @@ bool CkProtoCache::initialize(const std::string& cachePath) {
     }
 
     if (sqlite3_open_v2(cachePath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr) != SQLITE_OK) {
-        log.error("Failed to create cache file at: {}", cachePath);
+        logger.error("Failed to create cache file at: {}", cachePath);
         if (db) {
             sqlite3_close(db);
             db = nullptr;
@@ -71,7 +72,7 @@ bool CkProtoCache::createTables() {
     char* errMsg = nullptr;
 
     if (sqlite3_exec(db, CK_PROTO_SCHEMA_SQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        log.error("Failed to create tables: {}", errMsg ? errMsg : "Unknown SQL error");
+        logger.error("Failed to create tables: {}", errMsg ? errMsg : "Unknown SQL error");
         if (errMsg) {
             sqlite3_free(errMsg);
         }
@@ -105,9 +106,9 @@ bool CkProtoCache::buildFromEngine() {
         std::string fullMsgPath = "game\\" + std::string(filename);
         if (fallout::messageListLoad(&msgLists[type], const_cast<char*>(fullMsgPath.c_str()))) {
             msgListLoaded[type] = true;
-            log.info("Successfully loaded text base: {} for type {}", filename, type);
+            logger.info("Successfully loaded text base: {} for type {}", filename, type);
         } else {
-            log.error("Failed to load msg file: {}", fullMsgPath);
+            logger.error("Failed to load msg file: {}", fullMsgPath);
         }
     };
 
@@ -124,7 +125,7 @@ bool CkProtoCache::buildFromEngine() {
     sqlite3_stmt* stmt = nullptr;
 
     if (sqlite3_prepare_v2(db, insertSql, -1, &stmt, nullptr) != SQLITE_OK) {
-        log.error("Failed to prepare insert statement");
+        logger.error("Failed to prepare insert statement");
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
         for (int i = 0; i < fallout::OBJ_TYPE_COUNT; i++) fallout::messageListFree(&msgLists[i]);
         return false;
@@ -199,7 +200,7 @@ bool CkProtoCache::buildFromEngine() {
         fallout::messageListFree(&msgLists[i]);
     }
 
-    log.info("Database cache successfully built");
+    logger.info("Database cache successfully built");
     return true;
 }
 

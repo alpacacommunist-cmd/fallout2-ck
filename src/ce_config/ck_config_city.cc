@@ -7,7 +7,8 @@
 #include <unordered_set>
 
 #include "log.h"
-static const Logger log("CK City");
+static constexpr logging::Context logger{"ck_config_city.cc"};
+
 
 namespace ck::config_city {
     static std::unordered_set<std::string> g_registered_area_names;
@@ -90,7 +91,7 @@ namespace ck::config_city {
 		std::string entrance_key = "entrance_" + std::to_string(target_entrance_id);
 		std::string entrance_value = std::format("On,{},{},{},-1,-1,0", x, y, map_lookup_name);
 
-		log.info("Mod '{}' registering: [{}] {} = {}", mod_id, area_section, entrance_key, entrance_value);
+		logger.info("Mod '{}' registering: [{}] {} = {}", mod_id, area_section, entrance_key, entrance_value);
 
 		ck::config_patch_add(mod_id, city_path, area_section, entrance_key, entrance_value);
 
@@ -105,7 +106,7 @@ namespace ck::config_city {
         int area_index = next_index();
 
         if (g_registered_area_names.find(area_lower) != g_registered_area_names.end()) {
-            log.error("Mod '{}' failed to register location! area_name '{}' is already in use!",
+            logger.error("Mod '{}' failed to register location! area_name '{}' is already in use!",
                     mod_id, name);
             return -1;
         }
@@ -115,7 +116,7 @@ namespace ck::config_city {
         std::string area_section = format_section(area_index);
         std::string world_pos = std::format("{},{}", world_x, world_y);
 
-        log.info("Registered worldmap area: {} (ID: {})", name, area_index);
+        logger.info("Registered worldmap area: {} (ID: {})", name, area_index);
 
         g_registered_area_names.insert(area_lower);
 

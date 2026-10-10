@@ -13,7 +13,7 @@
 #include <cstring>
 
 #include "log.h"
-static const Logger logger("CK Critter");
+static constexpr logging::Context logger{"ck_critter.cc"};
 
 namespace ck {
     namespace common {

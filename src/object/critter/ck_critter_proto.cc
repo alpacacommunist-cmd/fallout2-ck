@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "log.h"
-static const Logger logger("CK Critter Proto");
+static constexpr logging::Context logger{"ck_critter_proto.cc"};
 
 namespace fallout {
     int combat_ai_packet_num_by_name(const char* name);
@@ -122,7 +122,7 @@ namespace ck::critter::proto {
                     critter_proto->aiPacket = ai_id;
                     logger.debug("Assigned AI packet '{}' (ID: {}) to unique proto", params->ai_packet, ai_id);
                 } else {
-                    logger.warn("AI packet '{}' not found in game data! Using base proto AI.", params->ai_packet);
+                    logger.warning("AI packet '{}' not found in game data! Using base proto AI.", params->ai_packet);
                 }
             }
         } else {

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "log.h"
-static const Logger log("CK Asset Registry");
+static constexpr logging::Context logger{"ck_asset_registry.cc"};
 
 namespace ck::assets {
     // [frm_id] -> "/mods/my_mod/art/..."
@@ -20,7 +20,7 @@ namespace ck::assets {
         int assigned_id = g_next_free_frm_id++;
         g_custom_paths[assigned_id] = path;
 
-        log.debug("assigned asset path: {} to id: {}", path, assigned_id);
+        logger.debug("assigned asset path: {} to id: {}", path, assigned_id);
 
         return assigned_id;
     }
@@ -37,7 +37,7 @@ namespace ck::assets {
         g_custom_paths.clear();
         g_next_free_frm_id = ck::ids::CK_FRM_BASE;
 
-        log.debug("Registry cleared, next_frm_id: {}", g_next_free_frm_id);
+        logger.debug("Registry cleared, next_frm_id: {}", g_next_free_frm_id);
     }
 
     bool is_ck_frm(int fid) {

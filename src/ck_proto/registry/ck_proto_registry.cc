@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include "log.h"
-static const Logger logger("CK Proto Registry");
+static constexpr logging::Context logger{"ck_proto_registry.cc"};
 
 namespace fallout {
     int protoGetProto(const ProtoId& protoId, Proto** protoPtr);

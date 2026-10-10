@@ -6,7 +6,8 @@
 #include <format>
 
 #include "log.h"
-static const Logger log("CK DBG format");
+static constexpr logging::Context logger{"ck_debug_object_format.cc"};
+
 
 namespace ck::debug {
 	void export_full_dump(const std::vector<ckDebugHex*>& hexes) {
@@ -17,12 +18,12 @@ namespace ck::debug {
 			int tileX = grid_width - 1 - tile % grid_width;
 			int tileY = tile / grid_width;
 
-			log.raw("SELECTED tile={} ({}, {}), floor fid: {}, roof fid: {}", tile, tileX, tileY,
+			logger.raw("SELECTED tile={} ({}, {}), floor fid: {}, roof fid: {}", tile, tileX, tileY,
                     ck_map_get_floor_fid(tile, fallout::gElevation), ck_map_get_roof_fid(tile, fallout::gElevation)
                    );
 
 			if (fallout::isExitGridAt(tile, fallout::gElevation)) {
-				log.warn("EXIT GRID ON TILE");
+				logger.warning("EXIT GRID ON TILE");
 			}
 
 			fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -31,12 +32,12 @@ namespace ck::debug {
 			while (object != nullptr) {
 				int objType = static_cast<int>(fallout::object_type(object));
 
-				log.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
+				logger.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
 						objIndex, fallout::objectGetName(object), object->id, objType, object->pid, object->fid, object->sid,
 						static_cast<unsigned int>(object->flags));
 
 				std::string data_debug = ck::debug::format_object_data(object, objType);
-				log.raw("{}", data_debug);
+				logger.raw("{}", data_debug);
 
 				object = fallout::objectFindNextAtLocation();
 			}
@@ -44,13 +45,13 @@ namespace ck::debug {
 	}
 
     void export_lua_tiles(const std::vector<ckDebugHex*>& hexes) {
-        log.raw("tiles = {{");
+        logger.raw("tiles = {{");
         for (ckDebugHex* hex : hexes) {
             if (hex->state == HexState::SELECTED) {
-                log.raw("  {{ tile = {} }},", hex->tile);
+                logger.raw("  {{ tile = {} }},", hex->tile);
             }
         }
-        log.raw("}}");
+        logger.raw("}}");
     }
 
     std::string format_object_data(fallout::Object* obj, int obj_type) {

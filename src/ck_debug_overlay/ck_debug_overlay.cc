@@ -13,7 +13,8 @@
 #include "game_sound.h"
 
 #include "log.h"
-static const Logger logger("CK DBG");
+static constexpr logging::Context logger{"ck_debug_overlay.cc"};
+
 
 namespace ck::common {
     int current_map_id();

@@ -2,7 +2,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static const Logger log("CK Registry [Deleted]");
+static constexpr logging::Context logger{"ck_registry_deleted.cc"};
 
 namespace ck::common {
     const char* system_mod_id();
@@ -36,7 +36,7 @@ namespace ck::registry::deleted {
         });
 
         if (restored_count > 0) {
-            log.info("Hot Reload: Restored {} deleted/hidden objects for mod '{}'", restored_count, mod_id);
+            logger.info("Hot Reload: Restored {} deleted/hidden objects for mod '{}'", restored_count, mod_id);
         }
     }
 
@@ -45,13 +45,13 @@ namespace ck::registry::deleted {
 		for (const auto& entry : g_deleted_objects) {
 			if (entry.ptr != nullptr) {
 				entry.ptr->flags &= ~fallout::OBJECT_HIDDEN;
-				log.debug("restored hidden object for mod: {}", entry.mod_id);
+				logger.debug("restored hidden object for mod: {}", entry.mod_id);
 				restored_count++;
 			}
 		}
 
 		if (restored_count > 0) {
-			log.info("Restored {} hidden objects", restored_count);
+			logger.info("Restored {} hidden objects", restored_count);
 		}
     }
 
@@ -65,7 +65,7 @@ namespace ck::registry::deleted {
         }
 
 		if (hidden_count > 0) {
-			log.info("Hidden {} objects", hidden_count);
+			logger.info("Hidden {} objects", hidden_count);
 		}
     }
 }

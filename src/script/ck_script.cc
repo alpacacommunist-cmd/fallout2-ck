@@ -12,7 +12,7 @@
 #include "ck_dispatcher/ck_dispatcher.h"
 
 #include "log.h"
-static const Logger logger("CK Script");
+static constexpr logging::Context logger{"ck_script.cc"};
 
 namespace fallout {
     struct Object;
@@ -93,7 +93,7 @@ namespace ck::script {
 			return true;
 		}
 
-		logger.warn("[proto] unhandled proc: {} for sid: {}", proc, sid);
+		logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
 		return false;
     }
 
@@ -109,7 +109,7 @@ namespace ck::script {
         // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
 
 		if (!meta->mod_id) {
-			logger.warn("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
+			logger.warning("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
 			return false;
 		}
 
@@ -127,7 +127,7 @@ namespace ck::script {
 			return true;
 		}
 
-		logger.warn("unhandled proc: {} for id: {}", proc, lua_id);
+		logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
 		return false;
 	}
 

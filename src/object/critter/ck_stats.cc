@@ -2,7 +2,8 @@
 #include "object/critter/ck_stats.h"
 
 #include "log.h"
-static const Logger log("CK Stats");
+static constexpr logging::Context logger{"ck_stats.cc"};
+
 
 namespace fallout {
     // proto_types.h

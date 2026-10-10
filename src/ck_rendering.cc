@@ -10,7 +10,8 @@
 #include "ck_mods/ck_mods.h"
 
 #include "log.h"
-static const Logger logger("ck_rendering.cc");
+static constexpr logging::Context logger{"ck_rendering.cc"};
+
 
 namespace ck::common {
     const char* current_mod_id();

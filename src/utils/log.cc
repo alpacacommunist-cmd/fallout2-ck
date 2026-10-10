@@ -22,8 +22,7 @@ struct LevelStyle {
     std::string_view color;
 };
 
-LevelStyle style_for(Level level)
-{
+LevelStyle style_for(Level level) {
     switch (level) {
     case Level::Info:    return {"INFO",    cyan};
     case Level::Success: return {"OK",      green};
@@ -35,8 +34,7 @@ LevelStyle style_for(Level level)
     return {"INFO", cyan};
 }
 
-std::string_view source_label(Source source)
-{
+std::string_view source_label(Source source) {
     switch (source) {
     case Source::Native: return "C++";
     case Source::Lua:    return "LUA";
@@ -45,8 +43,7 @@ std::string_view source_label(Source source)
     return "?";
 }
 
-std::string_view source_color(Source source)
-{
+std::string_view source_color(Source source) {
     switch (source) {
     case Source::Native: return cyan;
     case Source::Lua:    return magenta;
@@ -55,8 +52,7 @@ std::string_view source_color(Source source)
     return white;
 }
 
-void write_context(Source source, std::string_view context)
-{
+void write_context(Source source, std::string_view context) {
     std::cout << dim << source_color(source)
               << '[' << source_label(source) << ']'
               << reset;
@@ -70,10 +66,7 @@ void write_context(Source source, std::string_view context)
 
 } // namespace
 
-void write(Level level, Source source,
-           std::string_view context,
-           std::string_view message)
-{
+void write(Level level, Source source, std::string_view context, std::string_view message) {
     const auto style = style_for(level);
 
     write_context(source, context);
@@ -86,11 +79,7 @@ void write(Level level, Source source,
               << '\n';
 }
 
-void write_header(Level level, Source source,
-                  std::string_view context,
-                  HeaderStyle header_style,
-                  std::string_view title)
-{
+void write_header(Level level, Source source, std::string_view context, HeaderStyle header_style, std::string_view title) {
     const auto style = style_for(level);
 
     switch (header_style) {
@@ -127,9 +116,20 @@ void write_header(Level level, Source source,
     }
 }
 
-void write_raw(std::string_view message)
-{
-    std::cout << message << '\n';
+void write_raw(std::string_view message) { std::cout << message << '\n'; }
+
+void log_impl(Level level, Source source, std::string_view context, std::string_view fmt, std::format_args args) {
+    std::string message = std::vformat(fmt, args);
+    
+    write(level, source, context, message);
+}
+
+void log_header_impl(Level level, Source source, std::string_view context, HeaderStyle style, std::string_view fmt, std::format_args args) {
+    write_header(level, source, context, style, std::vformat(fmt, args));
+}
+
+void log_raw_impl(std::string_view fmt, std::format_args args) {
+    write_raw(std::vformat(fmt, args));
 }
 
 } // namespace logging::detail

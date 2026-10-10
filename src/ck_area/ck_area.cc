@@ -13,7 +13,7 @@
 #include "map.h"
 
 #include "log.h"
-static const Logger logger("CK Locations");
+static constexpr logging::Context logger{"ck_area.cc"};
 
 namespace ck {
 	static int g_current_loading_map_id = -1;

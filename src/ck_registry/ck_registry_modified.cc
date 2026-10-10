@@ -3,7 +3,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static const Logger log("CK Registry [Modified]");
+static constexpr logging::Context logger{"ck_registry_modified.cc"};
 
 namespace ck::common {
     const char* system_mod_id();
@@ -41,7 +41,7 @@ namespace ck::registry::modified {
 		// assign sid
         obj->sid = ck::ids::make_sid_modified(obj, lua_id);
 
-        log.debug("Registered modified object. LuaID: {}, Vanilla SID: {}, New Packed SID: {}",
+        logger.debug("Registered modified object. LuaID: {}, Vanilla SID: {}, New Packed SID: {}",
                   lua_id, meta.source_sid, obj->sid);
 
         return lua_id;
@@ -66,7 +66,7 @@ namespace ck::registry::modified {
 
         g_ptr_to_lua_id.erase(ptr_it);
 
-        log.debug("Restored individual object by pointer [LuaID: {}]. Remaining modified size: {}",
+        logger.debug("Restored individual object by pointer [LuaID: {}]. Remaining modified size: {}",
                   lua_id, g_modified_objects.size());
 
         return source_sid;
@@ -90,7 +90,7 @@ namespace ck::registry::modified {
         }
 
         if (restored_sids_count > 0) {
-            log.info("Hot Reload: Restored {} modified SIDs for mod '{}'", restored_sids_count, mod_id);
+            logger.info("Hot Reload: Restored {} modified SIDs for mod '{}'", restored_sids_count, mod_id);
         }
 	}
 
@@ -103,7 +103,7 @@ namespace ck::registry::modified {
             }
         }
         if (restored_count > 0) {
-            log.info("Restored {} original SIDs before save/exit", restored_count);
+            logger.info("Restored {} original SIDs before save/exit", restored_count);
         }
     }
 
@@ -117,7 +117,7 @@ namespace ck::registry::modified {
             }
         }
         if (reapplied_count > 0) {
-            log.info("Reapplied {} Lua SIDs after save", reapplied_count);
+            logger.info("Reapplied {} Lua SIDs after save", reapplied_count);
         }
     }
 

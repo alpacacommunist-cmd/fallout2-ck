@@ -7,7 +7,7 @@
 
 
 #include "log.h"
-static const Logger log("CK Skills");
+static constexpr logging::Context logger{"ck_skills.cc"};
 
 static const char* g_skill_names[] = {
     "small_guns", "big_guns", "energy_weapons", "unarmed", "melee_weapons", "throwing",

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "log.h"
-static const Logger log("CK Camera Borders");
+static constexpr logging::Context logger{"ck_map_camera_borders.cc"};
 
 extern "C" const char* ck_get_current_mod_id();
 
@@ -27,7 +27,7 @@ namespace ck::map::borders {
 		g_camera_borders.clear();
 		g_mod_camera_borders.clear();
 
-        log.info("Camera borders registry cleared.");
+        logger.info("Camera borders registry cleared.");
     }
 
     void clear_for_mod(const char* mod_id) {
@@ -41,7 +41,7 @@ namespace ck::map::borders {
 			}
 
 			g_mod_camera_borders.erase(it);
-			log.info("Hot Reload: Cleared custom camera borders for mod '{}'", mod_str);
+			logger.info("Hot Reload: Cleared custom camera borders for mod '{}'", mod_str);
 		}
     }
 
@@ -83,7 +83,7 @@ void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders) {
 		map_list.push_back(map_id);
 	}
 
-	log.debug("Registered borders for map {} (Mod: {}): L:{}, R:{}, T:{}, B:{}",
+	logger.debug("Registered borders for map {} (Mod: {}): L:{}, R:{}, T:{}, B:{}",
 			map_id, mod_id,
 			borders->left, borders->right, borders->top, borders->bottom);
 }

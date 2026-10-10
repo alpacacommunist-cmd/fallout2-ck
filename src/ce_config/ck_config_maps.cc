@@ -6,7 +6,7 @@
 #include <unordered_set>
 
 #include "log.h"
-static const Logger log("CK Maps Config");
+static constexpr logging::Context logger{"ck_config_maps.cc"};
 
 namespace ck::config_maps {
     static std::unordered_set<std::string> g_registered_lookup_names;
@@ -71,7 +71,7 @@ namespace ck::config_maps {
         int map_index = next_index();
 
         if (g_registered_lookup_names.find(name_lower) != g_registered_lookup_names.end()) {
-            log.error("Mod '{}' failed to register map! lookup_name '{}' is already in use!", mod_id, name);
+            logger.error("Mod '{}' failed to register map! lookup_name '{}' is already in use!", mod_id, name);
 
             return -1;
         }
@@ -82,7 +82,7 @@ namespace ck::config_maps {
         std::string maps_txt_path = "data/maps.txt";
 
         std::string map_section = format_section(map_index);
-        log.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
+        logger.info("Mod '{}' registering map: {} (ID: {})", mod_id, map_file_upper, map_index);
 
         g_registered_lookup_names.insert(name_lower);
 
