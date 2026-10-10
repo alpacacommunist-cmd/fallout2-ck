@@ -27,12 +27,11 @@ bool ck_system_reloading_mods() {
 }
 
 void ck_system_log(int level, int source, int style, const char* context, const char* message) {
-    logging::detail::do_log(
+    logging::detail::render_log(
             static_cast<logging::Level>(level),
             static_cast<logging::Source>(source),
             static_cast<logging::Style>(style),
             context ? context : "",
-            message ? message : "",
-            std::make_format_args()
+            message ? message : ""
             );
 }

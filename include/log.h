@@ -10,6 +10,7 @@ enum class Style { Normal, Rule, Minimal, Banner, Raw };
 enum class Source { Native, Lua };
 
 namespace detail {
+    void render_log(Level level, Source source, Style style, std::string_view context, std::string_view message);
     void do_log(Level level, Source source, Style style, std::string_view context, std::string_view fmt, std::format_args args);
 }
 

@@ -58,38 +58,43 @@ void write_context(Source source, std::string_view context) {
 
 } // namespace
 
-void do_log(Level level, Source source, Style style, std::string_view context, std::string_view fmt, std::format_args args) {
-    std::string message = std::vformat(fmt, args);
+void render_log(Level level, Source source, Style style, std::string_view context, std::string_view message) {
     const auto lvl_style = style_for(level);
 
     switch (style) {
-    case Style::Raw:
-        std::cout << message << '\n';
-        break;
-    case Style::Normal:
-        write_context(source, context);
-        std::cout << ' ' << bold << lvl_style.color << '[' << lvl_style.label << ']' << reset
-                  << ' ' << lvl_style.color << message << reset << '\n';
-        break;
+        case Style::Raw:
+            std::cout << message << '\n';
+            break;
 
-    case Style::Rule:
-        write_context(source, context);
-        std::cout << ' ' << lvl_style.color << "─── " << bold << message << reset
-                  << ' ' << lvl_style.color << "────────────────────────────────" << reset << '\n';
-        break;
+        case Style::Normal:
+            write_context(source, context);
+            std::cout << ' ' << bold << lvl_style.color << '[' << lvl_style.label << ']' << reset
+                << ' ' << lvl_style.color << message << reset << '\n';
+            break;
 
-    case Style::Minimal:
-        write_context(source, context);
-        std::cout << ' ' << lvl_style.color << lvl_style.label << reset
-                  << ' ' << dim << message << reset << '\n';
-        break;
+        case Style::Rule:
+            write_context(source, context);
+            std::cout << ' ' << lvl_style.color << "─── " << bold << message << reset
+                << ' ' << lvl_style.color << "────────────────────────────────" << reset << '\n';
+            break;
 
-    case Style::Banner:
-        std::cout << lvl_style.color << "══════════════════════════════════════" << reset << '\n'
-                  << bold << lvl_style.color << "  " << message << reset << '\n'
-                  << lvl_style.color << "══════════════════════════════════════" << reset << '\n';
-        break;
+        case Style::Minimal:
+            write_context(source, context);
+            std::cout << ' ' << lvl_style.color << lvl_style.label << reset
+                << ' ' << dim << message << reset << '\n';
+            break;
+
+        case Style::Banner:
+            std::cout << lvl_style.color << "══════════════════════════════════════" << reset << '\n'
+                << bold << lvl_style.color << "  " << message << reset << '\n'
+                << lvl_style.color << "══════════════════════════════════════" << reset << '\n';
+            break;
     }
+}
+
+void do_log(Level level, Source source, Style style, std::string_view context, std::string_view fmt, std::format_args args) {
+    std::string message = std::vformat(fmt, args);
+    render_log(level, source, style, context, message);
 }
 
 } // namespace logging::detail
