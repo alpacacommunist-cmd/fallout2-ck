@@ -27,6 +27,8 @@ ffi.cdef[[
   const char* ck_system_current_mod_id();
   bool ck_system_reloading_mods();
   void ck_system_emit_for_mod(const char* mod_id, const char* event_name);
+  // -- logger
+  void ck_system_log(int level, int source, int style, const char* context, const char* message);
 
   // --- Common ---
   bool ck_game_is_loading();

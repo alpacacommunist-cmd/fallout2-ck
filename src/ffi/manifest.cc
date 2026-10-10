@@ -23,6 +23,7 @@ namespace ck {
             (void*)&ck_system_emit_for_mod,
             (void*)&ck_system_current_mod_id,
             (void*)&ck_system_reloading_mods,
+            (void*)&ck_system_log,
 
             // TODO:: move to headers
             (void*)&ck_item_proto_register,

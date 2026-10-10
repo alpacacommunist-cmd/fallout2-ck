@@ -50,7 +50,7 @@ end
 ----
 function bootstrap.set_language(language)
   ck.language = language
-  log.header("Language set to [%s]", ck.language)
+  log.info("Language set to [%s]", ck.language)
 end
 
 function bootstrap.bootstrap()
@@ -94,7 +94,7 @@ function bootstrap.bootstrap()
     local mods_by_type = ck.active_mods_by_type[mod_type]
 
     if mods_by_type and #mods_by_type > 0 then
-      log.header("Loading sequence #[%d]: %s", index, mod_type)
+      log.info:rule("Loading sequence #[%d]: %s", index, mod_type)
 
       for _, mod_data in ipairs(ck.active_mods_by_type[mod_type]) do
         log.info("Loading mod_id: [%s]", mod_data.id)

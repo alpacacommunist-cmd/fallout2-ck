@@ -141,9 +141,9 @@ events.on('map_enter', function(map_id)
   dialogs.register(alice.lua_id, alice_dialog)
 
   if (alice:has_inventory()) then
-    log.info("Alice inventory is managed through state")
+    -- log.info("Alice inventory is managed through state")
   else
-    log.info("Adding new items to Alice's inventory")
+    -- log.info("Adding new items to Alice's inventory")
 
     alice:give_item(items.PID_KNIFE, 1)
     alice:give_item(items.PID_STIMPAK, 5)
@@ -205,15 +205,15 @@ events.on('map_enter', function(map_id)
     :set_skills({ unarmed = 100, small_guns = 85 })
 
   local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8 })
-  log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
+  -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)
-    log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
+    -- log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
 
     if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
       quests.set("erlang_refactoring", quests.status.ACTIVE)
 
-      log.info("Accepted quest!")
+      -- log.info("Accepted quest!")
     end
   end)
 end)

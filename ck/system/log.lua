@@ -1,116 +1,75 @@
-local log_module = {}
+local ffi = require("ffi")
 
-log_module.debug_enabled = true
-log_module.use_colors    = true
+local Level = { Info = 0, Success = 1, Debug = 2, Warning = 3, Error = 4 }
+local Style = { Normal = 0, Rule = 1, Minimal = 2, Banner = 3, Raw = 4 }
+local Source = { Native = 0, Lua = 1 }
 
-local ANSI = {
-  RESET  = "\27[0m",
-  BOLD   = "\27[1m",
-  RED    = "\27[31m",
-  GREEN  = "\27[32m",
-  YELLOW = "\27[33m",
-  BLUE    = "\27[34m",
-  MAGENTA = "\27[35m",
-  CYAN   = "\27[36m",
-  WHITE  = "\27[37m",
-  GRAY   = "\27[90m",
-  BRIGHT_GREEN = "\27[92m"
+local Logger = {}
+Logger.__index = Logger
+
+function Logger.new(level, context, style)
+  local self = setmetatable({}, Logger)
+  self.level = level
+  self.context = context
+  self.style = style or Style.Normal
+  return self
+end
+
+function Logger:__call(fmt, ...)
+  local message
+
+  local args_count = select('#', ...)
+
+  if args_count > 0 then
+    message = string.format(tostring(fmt), ...)
+  else
+    message = tostring(fmt or "")
+  end
+
+  ffi.C.ck_system_log(self.level, Source.Lua, self.style, self.context, message)
+end
+
+function Logger:rule(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.Rule)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+function Logger:minimal(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.Minimal)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+function Logger:banner(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.Banner)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+local Context = {}
+Context.__index = Context
+
+function Context.new(name)
+  local self = setmetatable({}, Context)
+
+  self.info    = Logger.new(Level.Info, name)
+  self.success = Logger.new(Level.Success, name)
+  self.debug   = Logger.new(Level.Debug, name)
+  self.warning = Logger.new(Level.Warning, name)
+  self.error   = Logger.new(Level.Error, name)
+  return self
+end
+
+
+return {
+  new = function(name)
+    return Context.new(name)
+  end,
+
+  info    = Logger.new(Level.Info, ""),
+  success = Logger.new(Level.Success, ""),
+  debug   = Logger.new(Level.Debug, ""),
+  warning = Logger.new(Level.Warning, ""),
+  error   = Logger.new(Level.Error, ""),
 }
-
-log_module.Style = {
-  Minimal   = "minimal",
-  Cyberpunk = "cyberpunk",
-  Modern    = "modern"
-}
-
-local function colorize(color_code, text)
-  if log_module.use_colors then
-    return color_code .. text .. ANSI.RESET
-  end
-  return text
-end
-
-local function utf8_len(str)
-  if utf8 and utf8.len then
-    return utf8.len(str) or string.len(str)
-  end
-  return string.len(str)
-end
-
-function log_module.new(prefix)
-  local logger = {}
-
-  local formatted_prefix = colorize(ANSI.BOLD .. ANSI.WHITE, "[" .. prefix .. "]")
-  local clean_prefix_len = utf8_len(prefix) + 2
-
-  function logger.header(style, message, ...)
-    if type(style) ~= "string" or (style ~= "minimal" and style ~= "cyberpunk" and style ~= "modern") then
-      return logger.header(log_module.Style.Minimal, style, message, ...)
-    end
-
-    local formatted_title = (select('#', ...) > 0) and string.format(message, ...) or message
-    local total_width = 80
-
-    if style == log_module.Style.Minimal then
-      local used_len = 4 + clean_prefix_len + 5 + utf8_len(formatted_title) + 1
-      local fill_chars = (total_width > used_len) and (total_width - used_len) or 0
-
-      local line_decor = colorize(ANSI.BLUE, "───")
-      local mid_decor  = colorize(ANSI.BLUE, " ─── ")
-      local fill_line  = colorize(ANSI.BLUE, string.rep("─", fill_chars))
-      local title_part = colorize(ANSI.BOLD .. ANSI.WHITE, formatted_title)
-
-      print(string.format("%s %s%s %s %s", line_decor, formatted_prefix, mid_decor, title_part, fill_line))
-
-    elseif style == log_module.Style.Cyberpunk then
-      local used_len = 4 + clean_prefix_len + 5 + utf8_len(formatted_title) + 1
-      local fill_chars = (total_width > used_len) and (total_width - used_len) or 0
-
-      local block_decor = colorize(ANSI.BRIGHT_GREEN, "▒▒▒")
-      local mid_decor   = colorize(ANSI.BRIGHT_GREEN, " ▒▒▒ ")
-      local fill_line   = colorize(ANSI.BRIGHT_GREEN, string.rep("▒", fill_chars))
-      local title_part  = colorize(ANSI.BOLD .. ANSI.BRIGHT_GREEN, formatted_title)
-
-      print(string.format("%s %s%s %s %s", block_decor, formatted_prefix, mid_decor, title_part, fill_line))
-
-    elseif style == log_module.Style.Modern then
-      local arrow1 = colorize(ANSI.YELLOW, "❯❯❯")
-      local arrow2 = colorize(ANSI.YELLOW, "❯")
-      local title_part = colorize(ANSI.BOLD, formatted_title)
-
-      print(string.format("%s %s %s %s", arrow1, formatted_prefix, arrow2, title_part))
-    end
-  end
-
-  function logger.info(message, ...)
-    local formatted = (select('#', ...) > 0) and string.format(message, ...) or message
-    local tag = colorize(ANSI.GREEN, "[INFO]")
-    print(string.format("%s %s %s", formatted_prefix, tag, tostring(formatted)))
-  end
-
-  function logger.debug(message, ...)
-    if not log_module.debug_enabled then return end
-
-    local formatted = (select('#', ...) > 0) and string.format(message, ...) or message
-    local tag = colorize(ANSI.GRAY, "[DEBUG]")
-    local text = colorize(ANSI.GRAY, tostring(formatted))
-    print(string.format("%s %s %s", formatted_prefix, tag, text))
-  end
-
-  function logger.warn(message, ...)
-    local formatted = (select('#', ...) > 0) and string.format(message, ...) or message
-    local tag = colorize(ANSI.YELLOW, "[WARN]")
-    print(string.format("%s %s %s", formatted_prefix, tag, tostring(formatted)))
-  end
-
-  function logger.error(message, ...)
-    local formatted = (select('#', ...) > 0) and string.format(message, ...) or message
-    local tag = colorize(ANSI.BOLD .. ANSI.RED, "[ERROR]")
-    local text = colorize(ANSI.RED, tostring(formatted))
-    print(string.format("%s %s %s", formatted_prefix, tag, text))
-  end
-
-  return logger
-end
-
-return log_module
