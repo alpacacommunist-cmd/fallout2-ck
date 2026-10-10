@@ -89,6 +89,24 @@ void render_log(Level level, Source source, Style style, std::string_view contex
                 << bold << lvl_style.color << "  " << message << reset << '\n'
                 << lvl_style.color << "══════════════════════════════════════" << reset << '\n';
             break;
+
+        case Style::Box:
+            write_context(source, context);
+            std::cout << '\n'
+                      << lvl_style.color << "┌──────────────────────────────────────────┐" << reset << '\n'
+                      << lvl_style.color << "│ " << bold << white << message << reset << '\n'
+                      << lvl_style.color << "└──────────────────────────────────────────┘" << reset << '\n';
+            break;
+
+        case Style::List:
+            write_context(source, context);
+            std::cout << ' ' << lvl_style.color << "└──" << reset << ' ' << message << '\n';
+            break;
+
+        case Style::Highlight:
+            write_context(source, context);
+            std::cout << ' ' << "\033[7m" << lvl_style.color << " " << message << " " << reset << '\n';
+            break;
     }
 }
 

@@ -66,7 +66,7 @@ events.on('onGameLoaded', function()
 end)
 
 events.on('onModReload', function()
-  log.warn('reloaded!')
+  log.warning('reloaded!')
 end)
 
 events.on('skill_used', function(skill, success_count, skill_bonus)

@@ -53,8 +53,11 @@ function state.sync_save()
   if ck.map_id == -1 then return state.db end
 
   -- print current mods header
-  log.header("mods list:")
-  utils.print_table(ck.active_mods_list, log)
+  log.info:rule("mods list:")
+  for _, mod_id in ipairs(ck.active_mods_list) do
+    log.info:list(mod_id)
+  end
+  -- utils.print_table(ck.active_mods_list, log.info)
 
   -- current_map state db
   local current_map = state.db.maps[ck.map_id]
@@ -125,7 +128,7 @@ function state.sync_save()
     ::continue::
   end
 
-  log.header('state.db table:')
+  log.info:rule('state.db table:')
   utils.print_table(state.db, log)
 
   return state.db

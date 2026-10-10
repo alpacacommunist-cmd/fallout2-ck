@@ -6,7 +6,7 @@
 namespace logging {
 
 enum class Level { Info, Success, Debug, Warning, Error };
-enum class Style { Normal, Rule, Minimal, Banner, Raw };
+enum class Style { Normal, Raw, Minimal, Rule, Banner, Box, List, Highlight };
 enum class Source { Native, Lua };
 
 namespace detail {
@@ -38,6 +38,18 @@ struct Logger {
     template <typename... Args>
     void minimal(std::format_string<Args...> fmt, Args&&... args) const {
         detail::do_log(level, source, Style::Minimal, context, fmt.get(), std::make_format_args(args...));
+    }
+
+    template <typename... Args> void box(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::do_log(level, source, Style::Box, context, fmt.get(), std::make_format_args(args...));
+    }
+
+    template <typename... Args> void list(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::do_log(level, source, Style::List, context, fmt.get(), std::make_format_args(args...));
+    }
+
+    template <typename... Args> void highlight(std::format_string<Args...> fmt, Args &&...args) const {
+        detail::do_log(level, source, Style::Highlight, context, fmt.get(), std::make_format_args(args...));
     }
 };
 

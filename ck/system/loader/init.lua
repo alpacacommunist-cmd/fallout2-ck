@@ -95,7 +95,7 @@ function loader.reload_mods()
     local mod_env  = active_mod_envs[mod_data.keys.base]
     local mod_type = mod_data.manifest.type
 
-    log.header("Reloading mod: %s", mod_id)
+    log.info:rule("Reloading mod: %s", mod_id)
     log.info("Clearing out resources for: %s", mod_id)
 
     -- clears mod_id ref tables

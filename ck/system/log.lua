@@ -1,7 +1,7 @@
 local ffi = require("ffi")
 
 local Level = { Info = 0, Success = 1, Debug = 2, Warning = 3, Error = 4 }
-local Style = { Normal = 0, Rule = 1, Minimal = 2, Banner = 3, Raw = 4 }
+local Style = { Normal = 0, Raw = 1, Minimal = 2, Rule = 3, Banner = 4, Box = 5, List = 6, Highlight = 7 }
 local Source = { Native = 0, Lua = 1 }
 
 local Logger = {}
@@ -43,6 +43,24 @@ end
 
 function Logger:banner(fmt, ...)
     local spawned = Logger.new(self.level, self.context, Style.Banner)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+function Logger:box(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.Box)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+function Logger:list(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.List)
+    if fmt then spawned(fmt, ...) end
+    return spawned
+end
+
+function Logger:highlight(fmt, ...)
+    local spawned = Logger.new(self.level, self.context, Style.Highlight)
     if fmt then spawned(fmt, ...) end
     return spawned
 end
