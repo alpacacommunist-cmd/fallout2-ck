@@ -40,7 +40,7 @@ namespace ck::mods {
             return false;
         }
 
-        logger.header(logging::levels::info, "Reloading mods");
+        logger.info.banner("Reloading mods");
 
         g_reloading_mods = true;
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::reload_mods);

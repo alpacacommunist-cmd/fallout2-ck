@@ -21,7 +21,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-static constexpr logging::Context logger{"src/ck_scripting.cc"};
+logging::Context logger{"ck_scripting.cc", logging::Source::Native};
 
 static const char* SYSTEM_MOD_ID = "__ck_system__";
 static bool is_test_mode = false;
@@ -145,7 +145,7 @@ void ck_clear_mod_resources(const char* mod_id) {
 }
 
 void ck_set_language() {
-    logger.info("System language: {}", fallout::settings.system.language);
+    logger.warning.banner("System language: {}", fallout::settings.system.language);
     ck::i18n::load_language(fallout::settings.system.language);
     ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
 }
