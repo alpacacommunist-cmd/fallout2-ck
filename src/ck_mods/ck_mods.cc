@@ -13,12 +13,18 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::mods {
+    static const char* SYSTEM_MOD_ID = "__ck_system__";
+
     // mod_id strings pool
     static std::unordered_set<std::string> g_immutable_string_pool;
     // mod_id pointers
     static std::vector<const char*> g_active_mods;
     // mod reload in progress
     static bool g_reloading_mods = false;
+
+    const char* system_mod_id() {
+        return SYSTEM_MOD_ID;
+    }
 
     const std::vector<const char*>& all() {
         return g_active_mods;

@@ -26,6 +26,10 @@ bool ck_system_reloading_mods() {
     return ck::mods::reloading();
 }
 
+const char* ck_sytem_mod_id() {
+    return ck::mods::system_mod_id();
+}
+
 void ck_system_log(int level, int source, int style, const char* context, const char* message) {
     logging::detail::render_log(
             static_cast<logging::Level>(level),

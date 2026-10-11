@@ -23,7 +23,6 @@
 #include "log.h"
 logging::Context logger{"ck_scripting.cc", logging::Source::Native};
 
-static const char* SYSTEM_MOD_ID = "__ck_system__";
 static bool is_test_mode = false;
 static std::string g_test_suite_name = std::string();
 
@@ -102,10 +101,6 @@ namespace ck::common {
 
     int current_elevation() {
         return fallout::gElevation;
-    }
-
-    const char* system_mod_id() {
-        return SYSTEM_MOD_ID;
     }
 
     const char* current_mod_id() {
@@ -324,8 +319,6 @@ bool ck_game_is_loading() { return ck::common::game_is_loading(); }
 int ck_loading_map_id() { return ck::common::loading_map_id(); }
 int ck_current_map_id() { return ck::common::current_map_id(); }
 int ck_current_elevation() { return ck::common::current_elevation(); }
-const char* ck_current_mod_id() { return ck::common::current_mod_id(); }
-const char* ck_mods_system_id() { return ck::common::system_mod_id(); }
 
 // TODO: move to mods.cc
 void ck_mods_clear_resources_for_mod(const char* mod_id) {

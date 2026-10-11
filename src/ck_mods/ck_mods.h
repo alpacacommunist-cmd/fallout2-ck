@@ -1,6 +1,8 @@
 #pragma once
 
 namespace ck::mods {
+    const char* system_mod_id();
+
     const std::vector<const char*>& all();
     const char* ptr(const char* mod_id);
 

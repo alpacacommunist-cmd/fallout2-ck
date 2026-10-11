@@ -6,8 +6,11 @@
 static constexpr logging::Context logger{"ck_registry_modified.cc"};
 
 namespace ck::common {
-    const char* system_mod_id();
     const char* current_mod_id();
+}
+
+namespace ck::mods {
+    const char* system_mod_id();
 }
 
 namespace ck::registry::modified {
@@ -29,7 +32,7 @@ namespace ck::registry::modified {
         meta.source_pid = obj->pid;
         if (!meta.mod_id) {
             const char* current_mod_id = ck::common::current_mod_id();
-            const char* mod_id = current_mod_id != nullptr ? current_mod_id : ck::common::system_mod_id();
+            const char* mod_id = current_mod_id != nullptr ? current_mod_id : ck::mods::system_mod_id();
 
             meta.mod_id = mod_id;
         }

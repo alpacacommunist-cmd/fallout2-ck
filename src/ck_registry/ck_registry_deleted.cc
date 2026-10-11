@@ -5,8 +5,11 @@
 static constexpr logging::Context logger{"ck_registry_deleted.cc"};
 
 namespace ck::common {
-    const char* system_mod_id();
     const char* current_mod_id();
+}
+
+namespace ck::mods {
+    const char* system_mod_id();
 }
 
 namespace ck::registry::deleted {
@@ -14,7 +17,7 @@ namespace ck::registry::deleted {
         if (obj == nullptr) return;
 
 		const char* current_mod_id = ck::common::current_mod_id();
-		const char* mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::common::system_mod_id();
+		const char* mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::mods::system_mod_id();
 
 		obj->flags |= fallout::OBJECT_HIDDEN;
 

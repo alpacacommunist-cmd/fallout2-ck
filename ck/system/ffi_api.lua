@@ -29,6 +29,8 @@ ffi.cdef[[
   void ck_system_emit_for_mod(const char* mod_id, const char* event_name);
   // -- logger
   void ck_system_log(int level, int source, int style, const char* context, const char* message);
+  // -- default system mod_id
+  const char* ck_sytem_mod_id();
 
   // --- Common ---
   bool ck_game_is_loading();

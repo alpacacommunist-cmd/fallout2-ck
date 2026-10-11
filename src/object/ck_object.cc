@@ -17,8 +17,11 @@ namespace ck::critter::proto {
 }
 
 namespace ck::common {
-    const char* system_mod_id();
     const char* current_mod_id();
+}
+
+namespace ck::mods {
+    const char* system_mod_id();
 }
 
 namespace ck::object {
@@ -36,7 +39,7 @@ namespace ck::object {
 
 		destination.name      = fallout::objectGetName(source);
 		destination.lua_id    = ck::registry::find_by_ptr(source);
-        destination.mod_id    = ck::common::system_mod_id();
+        destination.mod_id    = ck::mods::system_mod_id();
 
         const char* current_mod_id = ck::common::current_mod_id();
         if (current_mod_id != nullptr) destination.mod_id = current_mod_id;
