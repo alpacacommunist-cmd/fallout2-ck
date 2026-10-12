@@ -27,9 +27,9 @@ namespace fallout {
 	extern int  gMapLocalVarsLength;
 }
 
-namespace ck {
+namespace ck::map {
 	void on_map_enter();
-	void on_before_map_enter();
+	void on_before_map_load();
 
 	int current_map_id();
 	bool map_has_camera_borders(int map_index);

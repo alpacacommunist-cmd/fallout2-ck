@@ -4,7 +4,7 @@
 #include "ck_api.h"
 #include <string>
 
-namespace ck::config_maps {
+namespace ck::config::maps {
     std::string format_section(int map_id);
 
     int next_index();

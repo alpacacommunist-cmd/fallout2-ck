@@ -42,7 +42,7 @@ namespace {
     }
 }
 
-namespace ck {
+namespace ck::config {
 	// : [mod_id][file][section][key] = value
 	ConfigPatchMap g_config_patches;
 
@@ -83,7 +83,7 @@ namespace ck {
 
         if (maps_applied > 0) {
             logger.info("Compiling {} map patches into worldmap. Max index before: {}",
-                    maps_applied, ck::config_maps::next_index() - 1);
+                    maps_applied, ck::config::maps::next_index() - 1);
             fallout::wmParseMapsConfig(&maps_cfg, false);
         }
 
@@ -109,7 +109,7 @@ namespace ck {
 
         if (city_applied > 0) {
             logger.info("Compiling {} area patches into worldmap. Max index before: {}",
-                    city_applied, ck::config_city::next_index() - 1);
+                    city_applied, ck::config::city::next_index() - 1);
             fallout::wmParseAreasConfig(&city_cfg, false);
         }
 
@@ -118,7 +118,7 @@ namespace ck {
         return true;
     }
 
-	void config_patch_add(std::string_view mod_id, std::string_view file_path,
+	void add(std::string_view mod_id, std::string_view file_path,
 				std::string_view section, std::string_view key, std::string_view value) {
 
         std::string path_norm = normalize_config_path(file_path);
@@ -126,7 +126,7 @@ namespace ck {
         g_config_patches[std::string(mod_id)][path_norm][std::string(section)][std::string(key)] = std::string(value);
     }
 
-	void config_patch_apply(fallout::Config* config, const char* file_path) {
+	void apply(fallout::Config* config, const char* file_path) {
 		if (config == nullptr || file_path == nullptr) return;
 
 		std::string path_norm = normalize_config_path(file_path);
@@ -152,12 +152,12 @@ namespace ck {
 		}
 	}
 
-	void config_patch_clear() {
-		ck::g_config_patches.clear();
+	void clear() {
+		ck::config::g_config_patches.clear();
 		logger.info("Cleared all patches.");
 	}
 
-	void clear_config_patches_for_mod(const char* mod_id) {
+	void clear_for_mod(const char* mod_id) {
         if (mod_id == nullptr) return;
         std::string mod_str(mod_id);
 
@@ -171,6 +171,6 @@ namespace ck {
 }
 
 void ck_config_clear_mod_patches(const char* mod_id) {
-	ck::clear_config_patches_for_mod(mod_id);
+	ck::config::clear_for_mod(mod_id);
 }
 

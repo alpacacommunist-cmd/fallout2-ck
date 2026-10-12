@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace ck::config_city {
+namespace ck::config::city {
     int next_index();
     bool preprocess_areas();
     int expand_location(const std::string& mod_id, int area_id,

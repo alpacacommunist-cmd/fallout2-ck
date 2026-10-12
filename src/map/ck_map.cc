@@ -29,7 +29,7 @@ namespace ck {
     }
 }
 
-namespace ck {
+namespace ck::map {
     void on_map_enter() {
         // Restore proto items PID (stored in `id`)
         ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);

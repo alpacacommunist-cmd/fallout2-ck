@@ -1,4 +1,3 @@
-#include "ce_config/ck_config_city.h"
 #include "ce_config/ck_config_patch.h"
 #include "config.h"
 
@@ -9,8 +8,7 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_config_city.cc"};
 
-
-namespace ck::config_city {
+namespace ck::config::city {
     static std::unordered_set<std::string> g_registered_area_names;
     static std::unordered_map<std::string, int> g_area_entrances_cache;
     static int current_areas_num = 0;
@@ -93,7 +91,7 @@ namespace ck::config_city {
 
 		logger.info("Mod '{}' registering: [{}] {} = {}", mod_id, area_section, entrance_key, entrance_value);
 
-		ck::config_patch_add(mod_id, city_path, area_section, entrance_key, entrance_value);
+		ck::config::config_patch_add(mod_id, city_path, area_section, entrance_key, entrance_value);
 
         g_area_entrances_cache[to_lower(area_section)] = target_entrance_id + 1;
 		return target_entrance_id;
@@ -120,12 +118,12 @@ namespace ck::config_city {
 
         g_registered_area_names.insert(area_lower);
 
-        ck::config_patch_add(mod_id, city_path, area_section, "area_name",             name);
-        ck::config_patch_add(mod_id, city_path, area_section, "world_pos",             world_pos);
-        ck::config_patch_add(mod_id, city_path, area_section, "start_state",           "On");
-        ck::config_patch_add(mod_id, city_path, area_section, "size",                  size);
-        ck::config_patch_add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
-        ck::config_patch_add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
+        ck::config::config_patch_add(mod_id, city_path, area_section, "area_name",             name);
+        ck::config::config_patch_add(mod_id, city_path, area_section, "world_pos",             world_pos);
+        ck::config::config_patch_add(mod_id, city_path, area_section, "start_state",           "On");
+        ck::config::config_patch_add(mod_id, city_path, area_section, "size",                  size);
+        ck::config::config_patch_add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
+        ck::config::config_patch_add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
 
         current_areas_num++;
         return area_index;
