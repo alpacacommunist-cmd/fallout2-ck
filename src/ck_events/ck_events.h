@@ -1,4 +1,7 @@
-#pragma once
+#ifndef CK_EVENTS_H
+#define CK_EVENTS_H
+
+#include <string>
 
 namespace fallout {
     struct Object;
@@ -27,3 +30,4 @@ namespace ck::events {
     void set_test_suite(const char* name);
 }
 
+#endif

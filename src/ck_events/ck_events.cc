@@ -1,5 +1,3 @@
-#include "log.h"
-
 #include "ck_scripting.h"
 #include "map/ck_map.h"
 
@@ -19,7 +17,8 @@
 
 #include "settings.h"
 
-logging::Context logger{"ck_events.cc", logging::Source::Native};
+#include "log.h"
+static logging::Context logger{"ck_events.cc", logging::Source::Native};
 
 static bool is_test_mode = false;
 static std::string g_test_suite_name = std::string();

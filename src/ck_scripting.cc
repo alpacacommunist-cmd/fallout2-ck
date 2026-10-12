@@ -14,7 +14,7 @@
 #include "obj_types.h"
 
 #include "log.h"
-logging::Context logger{"ck_scripting.cc", logging::Source::Native};
+static logging::Context logger{"ck_scripting.cc", logging::Source::Native};
 
 namespace fallout {
     enum Color : unsigned char;

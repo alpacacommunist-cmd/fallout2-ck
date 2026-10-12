@@ -12,6 +12,7 @@ extern "C" {
     void ck_get_perks_metadata(...);
 	void ck_get_skills_metadata(...);
     void ck_map_batch_tiles(...);
+    void ck_load_game_slot(...);
 }
 
 namespace ck {
@@ -27,8 +28,8 @@ namespace ck {
             (void*)&ck_system_log,
 
             // tests.h
-            (void*)ck_testing_get_current_suite,
-            (void*)ck_testing_set_current_suite,
+            (void*)&ck_testing_get_current_suite,
+            (void*)&ck_testing_set_current_suite,
 
             // TODO:: move to headers
             (void*)&ck_item_proto_register,
@@ -39,7 +40,8 @@ namespace ck {
             (void*)&ck_object_float_msg,
             (void*)&ck_get_perks_metadata,
             (void*)&ck_get_skills_metadata,
-            (void*)&ck_map_batch_tiles
+            (void*)&ck_map_batch_tiles,
+            (void*)&ck_load_game_slot
         };
         (void)force_linker;
     }

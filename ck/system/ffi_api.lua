@@ -32,6 +32,11 @@ ffi.cdef[[
   // -- default system mod_id
   const char* ck_sytem_mod_id();
 
+  // --- Tests ---
+  const char* ck_testing_get_current_suite();
+  void ck_testing_set_current_suite(const char* name);
+  void ck_load_game_slot(int slot);
+
   // --- Common ---
   bool ck_game_is_loading();
   int  ck_loading_map_id();
@@ -45,15 +50,10 @@ ffi.cdef[[
   // --- Encoding ---
   size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size); size_t strlen(const char* s);
 
-  void ck_load_game_slot(int slot);
-
   // --- Misc ---
   void ck_monitor_print_message(const char* message);
   void ck_sound_play_sfx(const char* name);
 
-  // --- Tests ---
-  const char* ck_testing_get_current_suite();
-  void ck_testing_set_current_suite(const char* name);
 
   // --- Proto ---
   typedef struct {

@@ -1,5 +1,6 @@
 #pragma once
 
-bool ck_testing_get_current_suite();
-void ck_testing_set_current_suite(const char* mod_id);
+#include "ck_api.h"
 
+CK_API const char* ck_testing_get_current_suite();
+CK_API void        ck_testing_set_current_suite(const char* name);

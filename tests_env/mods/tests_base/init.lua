@@ -1,6 +1,7 @@
-local ffi     = require 'ffi'
 local monitor = require('ck.fallout2.monitor')
 local map     = require('ck.fallout2.map')
+local events  = require('ck.system.events')
+local tests  = require('ck.system.tests')
 
 local function assert_ok(condition, message)
   if not condition then
@@ -14,7 +15,7 @@ local function wait_and_run(seconds, callback)
   if type(callback) ~= "function" then return end
 
   _timer.callback = callback
-  _timer.target_time = os.clock() + (seconds or 1.0)
+  _timer.target_time = tests.clock() + (seconds or 1.0)
   _timer.active = true
 
   log.info(string.format("Automation: Scheduled task in %.1f seconds...", seconds))
@@ -22,7 +23,7 @@ end
 
 -- runs every 2 seconds though
 events.on('map_update', function()
-  if _timer.active and os.clock() >= _timer.target_time then
+  if _timer.active and tests.clock() >= _timer.target_time then
     _timer.active = false
 
     local callback = _timer.callback
@@ -33,7 +34,7 @@ events.on('map_update', function()
 end)
 
 events.on('map_enter', function(map_id)
-  local current_suite = ffi.string(ffi.C.ck_testing_get_current_suite())
+  local current_suite = tests.current_suite()
 
   log.info("Entering map under test suite: " .. current_suite)
 
@@ -60,8 +61,9 @@ events.on('map_enter', function(map_id)
 
     wait_and_run(2.0, function()
       log.info("Automation: Delay finished, switching to 'combat' suite...")
-      ffi.C.ck_testing_set_current_suite('combat')
-      ffi.C.ck_scripting_load_game_slot(1)
+
+      tests.set_suite('combat')
+      tests.load_game_slot(1)
     end)
   end
 
@@ -69,7 +71,7 @@ events.on('map_enter', function(map_id)
     monitor.print("Running COMBAT integration test...")
     wait_and_run(1.0, function()
       log.info("Automation: All tests completed. Exiting.")
-      os.exit(0)
+      tests.exit(0)
     end)
   end
 end)
