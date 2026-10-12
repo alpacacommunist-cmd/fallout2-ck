@@ -3,14 +3,10 @@
 #include "map/ck_map_batch.h"
 #include "ck_rendering.h"
 #include "object/ck_object.h"
-
-namespace ck::common {
-    const char* current_mod_id();
-    const char* mod_id_ptr(const char* mod_id);
-}
+#include "ck_mods/ck_mods.h"
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
-    const char* mod_id_ptr = ck::common::current_mod_id();
+    const char* mod_id_ptr = ck::mods::current_mod_id();
     if (count <= 0 || mod_id_ptr == nullptr) return;
 
     for (int i = 0; i < count; ++i) {
@@ -20,7 +16,7 @@ void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
 }
 
 void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
-    const char* mod_id_ptr = ck::common::current_mod_id();
+    const char* mod_id_ptr = ck::mods::current_mod_id();
     if (count <= 0 || mod_id_ptr == nullptr) return;
 
     gRoofTiles.reserve(gRoofTiles.size() + count);
@@ -44,7 +40,7 @@ void ck_map_batch_roof_tiles(const CkFFITile *tiles, int count) {
 }
 
 void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
-    const char* mod_id_ptr = ck::common::current_mod_id();
+    const char* mod_id_ptr = ck::mods::current_mod_id();
     if (count <= 0 || mod_id_ptr == nullptr) return;
 
     gScenery.reserve(gScenery.size() + count);
@@ -66,7 +62,7 @@ void ck_map_batch_scenery(const CkFFIScenery* sceneries, int count) {
 }
 
 void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
-    const char* mod_id_ptr = ck::common::current_mod_id();
+    const char* mod_id_ptr = ck::mods::current_mod_id();
     if (count <= 0 || mod_id_ptr == nullptr) return;
 
     for (int index = 0; index < count; ++index) {
@@ -76,7 +72,7 @@ void ck_map_batch_blockers(const CkFFIBlocker* blockers, int count) {
 }
 
 void ck_map_batch_clear(const CkFFIClear* tiles, int count) {
-    const char* mod_id_ptr = ck::common::current_mod_id();
+    const char* mod_id_ptr = ck::mods::current_mod_id();
     if (count <= 0 || mod_id_ptr == nullptr) return;
 
     for (int index = 0; index < count; ++index) {

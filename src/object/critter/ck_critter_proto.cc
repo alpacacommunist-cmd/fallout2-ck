@@ -3,6 +3,7 @@
 
 #include "object/critter/ck_critter_proto.h"
 #include "ck_messages/ck_messages.h"
+#include "ck_mods/ck_mods.h"
 
 #include "obj_types.h"
 #include "proto.h"
@@ -17,12 +18,6 @@ namespace fallout {
     int combat_ai_packet_num_by_name(const char* name);
 
     int critterGetStat(Object* critter, Stat stat);
-}
-
-namespace ck {
-    namespace common {
-        const char* current_mod_id();
-    }
 }
 
 namespace ck::critter::proto {
@@ -133,7 +128,7 @@ namespace ck::critter::proto {
         g_custom_prototypes[ck_proto.pid()] = critter_proto;
         g_source_pid_mappings[ck_proto.pid()] = source_pid;
 
-        const char* mod_id = common::current_mod_id();
+        const char* mod_id = mods::current_mod_id();
         g_mod_allocated_pids[mod_id].push_back(ck_proto.pid());
 
         logger.info("Created unique prototype for '{}' PID: {}", source_pid, ck_proto.pid());

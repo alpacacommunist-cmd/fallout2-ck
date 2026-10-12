@@ -7,6 +7,7 @@
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_critter_proto.h"
 #include "script/ck_script.h"
+#include "ck_mods/ck_mods.h"
 
 #include "animation.h"
 
@@ -18,7 +19,6 @@ static constexpr logging::Context logger{"ck_critter.cc"};
 namespace ck {
     namespace common {
         bool currently_in_combat();
-        const char* current_mod_id();
         int current_map_id();
     }
 
@@ -110,7 +110,7 @@ namespace ck::critter {
         std::string lua_tag = spawn_params->tag;
 
         int map_id = common::current_map_id();
-        const char* mod_id = common::current_mod_id();
+        const char* mod_id = mods::current_mod_id();
 
         // Locate source pid
         // It's being used when critter dies: source_pid is restored and

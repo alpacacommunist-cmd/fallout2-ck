@@ -103,10 +103,6 @@ namespace ck::common {
         return fallout::gElevation;
     }
 
-    const char* current_mod_id() {
-        return ck::dispatcher::current_context();
-    }
-
     bool game_is_loading() {
         return fallout::_isLoadingGame();
     }

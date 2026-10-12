@@ -1,22 +1,16 @@
 #include "ck_registry.h"
+#include "ck_mods/ck_mods.h"
+
 #include "obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_deleted.cc"};
 
-namespace ck::common {
-    const char* current_mod_id();
-}
-
-namespace ck::mods {
-    const char* system_mod_id();
-}
-
 namespace ck::registry::deleted {
     void add(fallout::Object* obj) {
         if (obj == nullptr) return;
 
-		const char* current_mod_id = ck::common::current_mod_id();
+		const char* current_mod_id = ck::mods::current_mod_id();
 		const char* mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::mods::system_mod_id();
 
 		obj->flags |= fallout::OBJECT_HIDDEN;

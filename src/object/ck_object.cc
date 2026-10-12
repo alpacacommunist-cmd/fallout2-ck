@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
+#include "ck_mods/ck_mods.h"
 
 #include "object.h"
 
@@ -14,14 +15,6 @@ static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
 
 namespace ck::critter::proto {
     extern bool is_custom(int pid);
-}
-
-namespace ck::common {
-    const char* current_mod_id();
-}
-
-namespace ck::mods {
-    const char* system_mod_id();
 }
 
 namespace ck::object {
@@ -41,7 +34,7 @@ namespace ck::object {
 		destination.lua_id    = ck::registry::find_by_ptr(source);
         destination.mod_id    = ck::mods::system_mod_id();
 
-        const char* current_mod_id = ck::common::current_mod_id();
+        const char* current_mod_id = ck::mods::current_mod_id();
         if (current_mod_id != nullptr) destination.mod_id = current_mod_id;
 
         if (destination.lua_id != -1) {

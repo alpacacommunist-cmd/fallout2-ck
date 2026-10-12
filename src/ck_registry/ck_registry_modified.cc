@@ -1,17 +1,11 @@
 #include "ck_registry/ck_registry.h"
+#include "ck_mods/ck_mods.h"
 #include "ck_ids.h"
+
 #include "obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_modified.cc"};
-
-namespace ck::common {
-    const char* current_mod_id();
-}
-
-namespace ck::mods {
-    const char* system_mod_id();
-}
 
 namespace ck::registry::modified {
     int add(fallout::Object* obj, LuaMeta meta) {
@@ -31,7 +25,7 @@ namespace ck::registry::modified {
         meta.source_sid = obj->sid;
         meta.source_pid = obj->pid;
         if (!meta.mod_id) {
-            const char* current_mod_id = ck::common::current_mod_id();
+            const char* current_mod_id = ck::mods::current_mod_id();
             const char* mod_id = current_mod_id != nullptr ? current_mod_id : ck::mods::system_mod_id();
 
             meta.mod_id = mod_id;

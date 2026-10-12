@@ -2,6 +2,7 @@
 #include <unordered_set>
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_scripting.h"
 
 #include "log.h"
@@ -13,6 +14,7 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::mods {
+    // Used for global proc/events
     static const char* SYSTEM_MOD_ID = "__ck_system__";
 
     // mod_id strings pool
@@ -24,6 +26,10 @@ namespace ck::mods {
 
     const char* system_mod_id() {
         return SYSTEM_MOD_ID;
+    }
+
+    const char* current_mod_id() {
+        return ck::dispatcher::current_context();
     }
 
     const std::vector<const char*>& all() {
@@ -40,8 +46,8 @@ namespace ck::mods {
     }
 
     bool reload() {
-        if (common::in_combat()) {
-            common::print_monitor_message("Disabled in combat");
+        if (ck::common::in_combat()) {
+            ck::common::print_monitor_message("Disabled in combat");
 
             return false;
         }

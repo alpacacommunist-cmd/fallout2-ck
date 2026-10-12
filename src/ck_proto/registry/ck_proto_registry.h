@@ -8,11 +8,6 @@
 
 #include "proto_types.h"
 
-namespace ck::common {
-    const char* system_mod_id();
-    const char* current_mod_id();
-}
-
 struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
 using  UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;
 struct ProtoNode { int pid; UniqueProtoPtr memory; };

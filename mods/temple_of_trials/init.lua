@@ -93,9 +93,9 @@ events.on('map_enter', function(map_id)
 
   local klint_obj = map.find_at_tile(21101):first_by_pid(16777219)
 
-  log.warn(klint_obj.pid)
-  log.warn(klint_obj:is_critter())
-  log.warn("lua id: " .. tostring(klint_obj.lua_id))
+  log.warning(klint_obj.pid)
+  log.warning(klint_obj:is_critter())
+  log.warning("lua id: " .. tostring(klint_obj.lua_id))
 
   local klint = klint_obj:bind()
   log.info(klint.modified)

@@ -1,4 +1,5 @@
 #include "map/ck_map_camera_borders.h"
+#include "ck_mods/ck_mods.h"
 
 #include <unordered_map>
 #include <vector>
@@ -7,11 +8,8 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_map_camera_borders.cc"};
 
-extern "C" const char* ck_get_current_mod_id();
-
 namespace ck::common {
     int current_map_id();
-    const char* current_mod_id();
 }
 
 namespace {
@@ -76,7 +74,7 @@ void ck_map_set_camera_borders(int map_id, const CkCameraBorders* borders) {
 
 	g_camera_borders[map_id] = *borders;
 
-	std::string mod_id(ck::common::current_mod_id());
+	std::string mod_id(ck::mods::current_mod_id());
 
 	auto& map_list = g_mod_camera_borders[mod_id];
 	if (std::find(map_list.begin(), map_list.end(), map_id) == map_list.end()) {

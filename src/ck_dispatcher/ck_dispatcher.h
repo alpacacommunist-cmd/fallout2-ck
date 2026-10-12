@@ -3,10 +3,6 @@
 
 struct CkObjectFFI;
 
-namespace fallout {
-    struct Object;
-}
-
 namespace ck::dispatcher {
     bool set_context(const char* mod_id);
     const char* current_context();

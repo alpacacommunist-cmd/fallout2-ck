@@ -13,7 +13,6 @@ namespace ck::common {
     bool in_combat();
 
     int current_map_id();
-    const char* current_mod_id();
     int current_elevation();
 
     const char* system_mod_id();

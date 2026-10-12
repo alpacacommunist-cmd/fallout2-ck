@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "ck_ids.h"
+#include "ck_mods/ck_mods.h"
 #include "ck_proto_registry.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 #include "ck_messages/ck_messages.h"
@@ -113,7 +114,7 @@ namespace ck::proto::item {
         proto.usable      = ffi_data.usable;
 
         proto.lua_tag     = tag;
-        proto.mod_id      = std::string(ck::common::current_mod_id());
+        proto.mod_id      = std::string(ck::mods::current_mod_id());
 
         registry_item_protos.push_back(proto);
 

@@ -1,5 +1,6 @@
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "ck_mods/ck_mods.h"
 
 #include <lua.hpp>
 #include <algorithm>
@@ -9,10 +10,6 @@
 static constexpr logging::Context logger{"ck_lua_proxy_state.cc"};
 
 extern lua_State* gLuaState;
-
-namespace ck::common {
-    const char* current_mod_id();
-}
 
 namespace ck::proxy::detail {
     extern int get_state_data;
@@ -154,7 +151,7 @@ namespace ck::proxy {
             return object_state;
         };
 
-        const char* mod_id = ck::common::current_mod_id();
+        const char* mod_id = ck::mods::current_mod_id();
         return execute_proxy_call_custom_table<ObjectState>(detail::get_state_data, parser, mod_id, map_id, lua_tag);
     }
 

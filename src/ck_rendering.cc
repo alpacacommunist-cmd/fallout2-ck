@@ -12,11 +12,6 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_rendering.cc"};
 
-
-namespace ck::common {
-    const char* current_mod_id();
-}
-
 std::vector<CkSceneryInstance> gScenery;
 std::vector<CkSceneryInstance> gRoofScenery;
 
@@ -100,7 +95,7 @@ void ck_rendering_add_scenery(int fid, int tile, CkRenderLayer layer, int offset
     instance.tile = tile;
     instance.offset_y = offset_y;
     instance.fid  = fid;
-    instance.mod_id = ck::common::current_mod_id();
+    instance.mod_id = ck::mods::current_mod_id();
 
     auto& target_vector = (layer == CkRenderLayer::Roof) ? gRoofScenery : gScenery;
 
@@ -116,7 +111,7 @@ void ck_rendering_add_tile(int fid, int tile) {
     CkTileInstance instance;
     instance.tile = tile;
     instance.fid = fid;
-    instance.mod_id = ck::common::current_mod_id();
+    instance.mod_id = ck::mods::current_mod_id();
 
     gTiles.push_back(instance);
 }
@@ -126,7 +121,7 @@ void ck_rendering_add_tile_roof(int fid, int tile, int roof_block_id) {
     instance.tile = tile;
     instance.fid = fid;
     instance.roof_block_id = roof_block_id;
-    instance.mod_id = ck::common::current_mod_id();
+    instance.mod_id = ck::mods::current_mod_id();
 
     auto it = std::upper_bound(gRoofTiles.begin(), gRoofTiles.end(), instance,
         [](const CkTileInstance& a, const CkTileInstance& b) {
