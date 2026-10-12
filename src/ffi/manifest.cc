@@ -1,4 +1,5 @@
 #include "ffi/system.h"
+#include "ffi/tests.h"
 
 // TODO:: move to headers
 extern "C" {
@@ -24,6 +25,10 @@ namespace ck {
             (void*)&ck_system_current_mod_id,
             (void*)&ck_system_reloading_mods,
             (void*)&ck_system_log,
+
+            // tests.h
+            (void*)ck_testing_get_current_suite,
+            (void*)ck_testing_set_current_suite,
 
             // TODO:: move to headers
             (void*)&ck_item_proto_register,

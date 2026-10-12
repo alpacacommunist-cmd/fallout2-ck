@@ -86,11 +86,11 @@ namespace ck::config::maps {
 
         g_registered_lookup_names.insert(name_lower);
 
-        ck::config::config_patch_add(mod_id, maps_txt_path, map_section, "lookup_name", name);
-        ck::config::config_patch_add(mod_id, maps_txt_path, map_section, "map_name",    map_file_upper);
-        ck::config::config_patch_add(mod_id, maps_txt_path, map_section, "music",       music);
-        ck::config::config_patch_add(mod_id, maps_txt_path, map_section, "ambient_sfx", sfx);
-        ck::config::config_patch_add(mod_id, maps_txt_path, map_section, "saved",       "Yes");
+        ck::config::add(mod_id, maps_txt_path, map_section, "lookup_name", name);
+        ck::config::add(mod_id, maps_txt_path, map_section, "map_name",    map_file_upper);
+        ck::config::add(mod_id, maps_txt_path, map_section, "music",       music);
+        ck::config::add(mod_id, maps_txt_path, map_section, "ambient_sfx", sfx);
+        ck::config::add(mod_id, maps_txt_path, map_section, "saved",       "Yes");
 
         current_maps_count++;
         return map_index;

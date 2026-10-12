@@ -44,8 +44,12 @@ add_library(fallout2-ck STATIC
     src/utils/ck_ids.cc
     # FFI
     src/ffi/system.cc
+    src/ffi/tests.cc
     src/ffi/manifest.cc
     src/ffi/validator.cc
+
+    # Events
+    src/ck_events/ck_events.cc
 
     src/ck_scripting.cc
     src/ck_rendering.cc

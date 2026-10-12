@@ -91,7 +91,7 @@ namespace ck::config::city {
 
 		logger.info("Mod '{}' registering: [{}] {} = {}", mod_id, area_section, entrance_key, entrance_value);
 
-		ck::config::config_patch_add(mod_id, city_path, area_section, entrance_key, entrance_value);
+		ck::config::add(mod_id, city_path, area_section, entrance_key, entrance_value);
 
         g_area_entrances_cache[to_lower(area_section)] = target_entrance_id + 1;
 		return target_entrance_id;
@@ -118,12 +118,12 @@ namespace ck::config::city {
 
         g_registered_area_names.insert(area_lower);
 
-        ck::config::config_patch_add(mod_id, city_path, area_section, "area_name",             name);
-        ck::config::config_patch_add(mod_id, city_path, area_section, "world_pos",             world_pos);
-        ck::config::config_patch_add(mod_id, city_path, area_section, "start_state",           "On");
-        ck::config::config_patch_add(mod_id, city_path, area_section, "size",                  size);
-        ck::config::config_patch_add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
-        ck::config::config_patch_add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
+        ck::config::add(mod_id, city_path, area_section, "area_name",             name);
+        ck::config::add(mod_id, city_path, area_section, "world_pos",             world_pos);
+        ck::config::add(mod_id, city_path, area_section, "start_state",           "On");
+        ck::config::add(mod_id, city_path, area_section, "size",                  size);
+        ck::config::add(mod_id, city_path, area_section, "townmap_art_idx",       "-1");
+        ck::config::add(mod_id, city_path, area_section, "townmap_label_art_idx", "-1");
 
         current_areas_num++;
         return area_index;

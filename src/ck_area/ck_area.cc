@@ -116,7 +116,7 @@ namespace ck {
         std::string music         = data.music;
         std::string sfx           = data.sfx;
 
-        int map_index = ck::config_maps::register_map(current_mod, map_file_name, name, music, sfx);
+        int map_index = ck::config::maps::register_map(current_mod, map_file_name, name, music, sfx);
         if (map_index == -1) return -1;
 
         std::string map_file_path = std::format("../mods/{}/maps/{}.MAP", current_mod, map_file_upper);
@@ -145,7 +145,7 @@ namespace ck {
 	//    }
 
 	int area_register_location(const std::string& name, int world_x, int world_y, const std::string& size) {
-		int location_index = ck::config_city::register_location(ck::mods::current_mod_id(), name, world_x, world_y, size);
+		int location_index = ck::config::city::register_location(ck::mods::current_mod_id(), name, world_x, world_y, size);
         if (location_index == -1) return -1;
 
         ck::messages_add_string("map.msg", 1500 + location_index, name);
@@ -153,7 +153,7 @@ namespace ck {
 	}
 
 	int expand_location(int area_id, const std::string& map_lookup_name, int x, int y) {
-		int target_entrance_id = ck::config_city::expand_location(ck::mods::current_mod_id(), area_id, map_lookup_name, x, y);
+		int target_entrance_id = ck::config::city::expand_location(ck::mods::current_mod_id(), area_id, map_lookup_name, x, y);
 
         int townmap_msg_id = 200 + (area_id * 10) + target_entrance_id;
         ck::messages_add_string("worldmap.msg", townmap_msg_id, map_lookup_name);

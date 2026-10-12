@@ -4,7 +4,6 @@
 #include "ck_api.h"
 
 namespace fallout {
-    struct Object;
     struct Rect;
 }
 
@@ -30,25 +29,6 @@ void ck_reload_mods();
 void ck_clear_mod_resources(const char* mod_id);
 void ck_set_language();
 void ck_print_monitor_message(const char* message);
-
-// namespace ck::events {
-//     void init(int argc, char** argv);
-//
-//     void game_start();
-//     void engine_ready();
-//     void scripts_reset();
-//
-//     void before_game_save();
-//     void game_saved(const char* path);
-//
-//     void before_game_load(const char* path);
-//     void game_loaded();
-//
-//     void worldmap_open();
-//
-//     void object_destroyed(fallout::Object* object);
-//     void exit();
-// }
 
 CK_API void ck_load_game_slot(int slot);
 
