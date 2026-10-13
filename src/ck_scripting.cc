@@ -50,11 +50,6 @@ namespace fallout {
 }
 
 namespace ck {
-    // map/ck_map.cc
-	void on_map_enter();
-	void on_before_map_load();
-    // ce_config/ck_config_patch.cc
-    bool apply_worldmap_patches();
     // ck_critter.cc
     namespace critter::proto {
         void clear_prototypes_for_mod(const char* mod_id);
