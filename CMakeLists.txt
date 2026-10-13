@@ -42,6 +42,8 @@ add_library(fallout2-ck STATIC
     src/utils/utils.cc
     src/utils/log.cc
     src/utils/ck_ids.cc
+
+    src/ck_gameplay_common.cc
     # FFI
     src/ffi/system.cc
     src/ffi/tests.cc
