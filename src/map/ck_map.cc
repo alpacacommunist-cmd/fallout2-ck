@@ -6,25 +6,16 @@
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_mods/ck_mods.h"
+#include "ck_gameplay_common.h"
 
-#include "map_defs.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_config_maps.cc"};
-
-namespace fallout {
-    struct TileData { int field_0[SQUARE_GRID_SIZE]; };
-    extern TileData* _square[ELEVATION_COUNT];
-
-    bool _isLoadingGame();
-}
 
 namespace ck {
     namespace critter { void reset_prototypes(); }
     namespace script { void reset(); }
     namespace common {
-        bool game_is_loading();
-        bool in_combat();
         void lua_map_exit();
     }
 }
@@ -77,15 +68,12 @@ namespace ck::map {
 }
 
 static int square_tile_data_for_tile(int tile, int elevation) {
-    if (!fallout::hexGridTileIsValid(tile) || elevation < 0 || elevation > 2) return -1;
+    if (!ck::common::hex_grid_tile_is_valid(tile) || elevation < 0 || elevation > 2) return -1;
 
     int square_tile = fallout::squareTileFromTile(tile);
+    if (!ck::common::square_grid_tile_is_valid(square_tile)) return -1;
 
-    if (!fallout::squareGridTileIsValid(square_tile)) return -1;
-    if (fallout::_square[elevation] == nullptr) return -1;
-
-    int square_data = fallout::_square[elevation]->field_0[square_tile];
-    return square_data;
+    return ck::common::square(elevation, square_tile);
 }
 
 // ref: [static void op_get_tile_fid(Program* program)]

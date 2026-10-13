@@ -69,8 +69,11 @@ void ck_load_game_slot(int slot) {
 	fallout::ck_load_game_slot(slot);
 }
 
-
 // FFI
+
+bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
+    return ck::common::object_float_msg(ptr, text, msg_type);
+}
 
 void ck_monitor_print_message(const char* message) { ck::common::print_monitor_message(message); }
 void ck_sound_play_sfx(const char* name) { if (name != nullptr) ck::common::play_sfx(name); }

@@ -7,7 +7,9 @@
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_critter_proto.h"
 #include "script/ck_script.h"
+
 #include "ck_mods/ck_mods.h"
+#include "ck_gameplay_common.h"
 
 #include "animation.h"
 
@@ -17,11 +19,6 @@
 static constexpr logging::Context logger{"ck_critter.cc"};
 
 namespace ck {
-    namespace common {
-        bool currently_in_combat();
-        int current_map_id();
-    }
-
     // ck_stats.cc
 	int critter_adjust_hp(fallout::Object* critter, int target_hp);
 }
@@ -41,8 +38,6 @@ namespace fallout {
     Object* objectFindNextAtLocation();
 
     WeaponAnimation weaponGetAnimationCode(Object* weapon);
-
-    int scriptAdd(int* sidPtr, int scriptType);
 }
 
 namespace ck::critter {

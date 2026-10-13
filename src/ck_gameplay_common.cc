@@ -4,6 +4,7 @@
 
 #include "obj_types.h"
 #include "geometry.h"
+#include "map_defs.h"
 
 namespace fallout {
     // loadsave.cc
@@ -27,6 +28,8 @@ namespace fallout {
     extern int gElevation;
     // map.cc
     Map mapGetCurrentMap();
+    struct TileData { int field_0[SQUARE_GRID_SIZE]; };
+    extern TileData* _square[ELEVATION_COUNT];
     // text_object.cc
     int textObjectAdd(Object* object, char* string, int font, ColorWithFlags color, ColorWithFlags outlineColor, Rect* rect);
 
@@ -59,6 +62,20 @@ namespace ck::common {
 
     int loading_map_id() {
         return fallout::mapIdBeingLoaded();
+    }
+
+    int square(int elevation, int square_tile) {
+        if (fallout::_square[elevation] == nullptr) return -1;
+
+        return fallout::_square[elevation]->field_0[square_tile];
+    }
+
+    bool hex_grid_tile_is_valid(int tile) {
+        return tile >= 0 && tile < HEX_GRID_SIZE;
+    }
+
+    bool square_grid_tile_is_valid(int tile) {
+        return tile >= 0 && tile < SQUARE_GRID_SIZE;
     }
 
     void play_sfx(const char *name) {
