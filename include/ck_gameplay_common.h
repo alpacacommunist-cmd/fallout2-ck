@@ -8,12 +8,12 @@ namespace ck::common {
     int current_elevation();
     int current_map_id();
 
-    bool game_is_loading();
-    int loading_map_id();
-
     int square(int elevation, int square_tile);
     bool hex_grid_tile_is_valid(int tile);
     bool square_grid_tile_is_valid(int tile);
+
+    bool game_is_loading();
+    int loading_map_id();
 
     void play_sfx(const char *name);
     void print_monitor_message(const char* message);

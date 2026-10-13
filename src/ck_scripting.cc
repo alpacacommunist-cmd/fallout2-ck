@@ -31,7 +31,6 @@ namespace ck {
     }
     // ck_lua_proxy.cc
     namespace proxy::detail {
-        extern int bootstrap;
         extern int set_language;
         extern int clear_registries;
         extern int map_exit;
