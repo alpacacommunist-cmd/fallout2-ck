@@ -129,6 +129,7 @@ function events.on_map_update(ticks)
     end
   end
 
+  -- handle explicit subscriptions
   events.emit('map_update', ticks)
 end
 

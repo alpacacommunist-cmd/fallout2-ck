@@ -12,7 +12,6 @@ namespace ck::proxy::detail {
     extern int on_map_update;
     extern int on_proc;
     extern int on_proto_proc;
-
     extern int critter_killed;
 }
 
