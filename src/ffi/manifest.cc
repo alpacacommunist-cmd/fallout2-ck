@@ -15,21 +15,17 @@ extern "C" {
     void ck_load_game_slot(...);
 }
 
-namespace ck {
+namespace ck::ffi {
+    // Just one function from a file is needed for compiler
     void init_ffi_manifest() {
         static void* const volatile force_linker[] = {
             // system.h
             (void*)&ck_system_add_mod,
-            (void*)&ck_system_drop_mod,
-            (void*)&ck_system_set_mod_context,
-            (void*)&ck_system_emit_for_mod,
-            (void*)&ck_system_current_mod_id,
-            (void*)&ck_system_reloading_mods,
-            (void*)&ck_system_log,
+            // ...
 
             // tests.h
             (void*)&ck_testing_get_current_suite,
-            (void*)&ck_testing_set_current_suite,
+            // ...
 
             // TODO:: move to headers
             (void*)&ck_item_proto_register,

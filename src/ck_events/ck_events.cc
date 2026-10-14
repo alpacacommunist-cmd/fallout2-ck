@@ -22,6 +22,11 @@
 #include "log.h"
 static logging::Context logger{"ck_events.cc", logging::Source::Native};
 
+// FFI API
+namespace ck::ffi {
+    void init_ffi_manifest();
+}
+
 // LUA calls
 namespace ck::proxy::detail {
     extern int bootstrap;
@@ -57,6 +62,9 @@ namespace ck::events::system {
     static char** g_game_argv = nullptr;
     void init(int argc, char** argv) {
         logger.info("Initializing LuaJIT backend...");
+
+        // FFI calls aren't used directly in cpp code so compiler needs to know it's not a dead code
+        ck::ffi::init_ffi_manifest();
 
         g_game_argc = argc; g_game_argv = argv;
 
