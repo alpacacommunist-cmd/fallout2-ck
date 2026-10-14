@@ -57,7 +57,7 @@ namespace ck::script {
             script.actionBeingUsed = -1;
 
             script.index = -1;
-            script.flags |= (SCRIPT_FLAG_LOADED | SCRIPT_FLAG_EXECUTED);
+            script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
 
             for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
         }
@@ -167,7 +167,7 @@ namespace ck::script {
         fallout::Script* script;
         fallout::scriptGetScript(sid, &script);
 
-        if (script != nullptr) script->flags |= SCRIPT_FLAG_NO_SAVE;
+        if (script != nullptr) script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
     }
 
     void kick_off_map_updates_for_sid(int sid) {
@@ -205,7 +205,7 @@ namespace ck::script {
     void assign_script_index_to_object(int script_index, fallout::Object* object) {
         if (object->sid != -1) fallout::scriptRemove(object->sid);
 
-        fallout::scriptAdd(&object->sid, ck::ids::script_type_for_object(object));
+        fallout::scriptAdd(&object->sid, static_cast<fallout::ScriptType>(ck::ids::script_type_for_object(object)));
 
         fallout::Script* script;
         fallout::scriptGetScript(object->sid, &script);
@@ -216,7 +216,7 @@ namespace ck::script {
             script->owner   = object;
 
             script->index = script_index;
-            script->flags |= SCRIPT_FLAG_NO_SAVE;
+            script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
         }
     }
 
