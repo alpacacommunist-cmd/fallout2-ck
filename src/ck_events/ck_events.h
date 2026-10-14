@@ -1,12 +1,6 @@
 #ifndef CK_EVENTS_H
 #define CK_EVENTS_H
 
-#include <string>
-
-namespace fallout {
-    struct Object;
-}
-
 namespace ck::events::system {
     void init(int argc, char** argv);
 
@@ -22,12 +16,7 @@ namespace ck::events::system {
 
     void worldmap_open();
 
-    void object_destroyed(fallout::Object* object);
     void exit();
-
-    // Tests helpers
-    std::string& current_test_suite_name();
-    void set_test_suite(const char* name);
 }
 
 #endif

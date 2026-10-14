@@ -32,6 +32,17 @@ namespace ck::proxy::detail {
 
 // Helper functions
 namespace ck::events {
+    static bool is_test_mode = false;
+    static std::string g_test_suite_name = std::string();
+
+    std::string& current_test_suite_name() {
+        return g_test_suite_name;
+    }
+
+    void set_test_suite(const char* name) {
+        g_test_suite_name = std::string(name);
+    }
+
     static void ck_set_language() {
         logger.warning.banner("System language: {}", fallout::settings.system.language);
         ck::i18n::load_language(fallout::settings.system.language);
@@ -42,9 +53,6 @@ namespace ck::events {
 // System events
 namespace ck::events::system {
     // Init
-    static bool is_test_mode = false;
-    static std::string g_test_suite_name = std::string();
-
     static int    g_game_argc = 0;
     static char** g_game_argv = nullptr;
     void init(int argc, char** argv) {
@@ -155,14 +163,6 @@ namespace ck::events::system {
 
         logger.info("ck_scripting_exit");
         logger.info("Shutting down LuaJIT backend...");
-    }
-
-    std::string& current_test_suite_name() {
-        return g_test_suite_name;
-    }
-
-    void set_test_suite(const char* name) {
-        g_test_suite_name = std::string(name);
     }
 }
 

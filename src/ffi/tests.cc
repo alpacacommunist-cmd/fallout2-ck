@@ -1,5 +1,10 @@
 #include "ffi/tests.h"
-#include "ck_events/ck_events.h"
+
+namespace ck::events::system {
+    // Tests helpers
+    std::string& current_test_suite_name();
+    void set_test_suite(const char* name);
+}
 
 const char* ck_testing_get_current_suite() {
     return ck::events::system::current_test_suite_name().data();
