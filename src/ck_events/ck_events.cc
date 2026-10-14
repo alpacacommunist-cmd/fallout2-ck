@@ -11,6 +11,8 @@
 #include "ce_config/ck_config_city.h"
 #include "ce_config/ck_config_patch.h"
 
+#include "ck_i18n/ck_i18n.h"
+
 #include "ck_registry/ck_registry.h"
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
@@ -20,9 +22,6 @@
 #include "log.h"
 static logging::Context logger{"ck_events.cc", logging::Source::Native};
 
-static bool is_test_mode = false;
-static std::string g_test_suite_name = std::string();
-
 // LUA calls
 namespace ck::proxy::detail {
     extern int bootstrap;
@@ -31,8 +30,21 @@ namespace ck::proxy::detail {
     extern int map_exit;
 }
 
+// Helper functions
 namespace ck::events {
+    static void ck_set_language() {
+        logger.warning.banner("System language: {}", fallout::settings.system.language);
+        ck::i18n::load_language(fallout::settings.system.language);
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
+    }
+}
+
+// System events
+namespace ck::events::system {
     // Init
+    static bool is_test_mode = false;
+    static std::string g_test_suite_name = std::string();
+
     static int    g_game_argc = 0;
     static char** g_game_argv = nullptr;
     void init(int argc, char** argv) {
@@ -152,5 +164,9 @@ namespace ck::events {
     void set_test_suite(const char* name) {
         g_test_suite_name = std::string(name);
     }
+}
+
+// Gameplay events
+namespace ck::events::gameplay {
 }
 

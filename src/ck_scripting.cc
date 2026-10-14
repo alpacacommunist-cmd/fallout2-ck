@@ -3,10 +3,7 @@
 #include "ck_gameplay_common.h"
 
 #include "ck_registry/ck_registry.h"
-#include "ck_i18n/ck_i18n.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
-
-#include "settings.h"
 
 #include "log.h"
 static logging::Context logger{"ck_scripting.cc", logging::Source::Native};
@@ -31,7 +28,6 @@ namespace ck {
     }
     // ck_lua_proxy.cc
     namespace proxy::detail {
-        extern int set_language;
         extern int clear_registries;
         extern int map_exit;
     }
@@ -57,11 +53,6 @@ void ck_clear_mod_resources(const char* mod_id) {
     ck::rendering::clear_for_mod(mod_id_ptr);
 }
 
-void ck_set_language() {
-    logger.warning.banner("System language: {}", fallout::settings.system.language);
-    ck::i18n::load_language(fallout::settings.system.language);
-    ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
-}
 
 // FFI
 void ck_load_game_slot(int slot) {

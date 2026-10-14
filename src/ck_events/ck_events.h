@@ -7,7 +7,7 @@ namespace fallout {
     struct Object;
 }
 
-namespace ck::events {
+namespace ck::events::system {
     void init(int argc, char** argv);
 
     void game_start();
