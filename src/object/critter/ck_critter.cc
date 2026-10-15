@@ -79,10 +79,6 @@ namespace ck::critter {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
             ck::script::assign_script_index_to_object(script_index, critter);
-            ck::script::kick_off_map_updates_for_sid(critter->sid);
-            logger.debug("PID {} uses native fallout2-ce script slot {}", critter->pid, critter->scriptIndex);
-
-            return;
         }
 
         // Critter has PROTOTYPE script
