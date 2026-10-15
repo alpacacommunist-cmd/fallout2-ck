@@ -35,7 +35,7 @@ namespace ck::proxy::detail {
     extern int map_exit;
 }
 
-// Helper functions
+// Helper functions + init
 namespace ck::events {
     static bool is_test_mode = false;
     static std::string g_test_suite_name = std::string();
@@ -53,14 +53,11 @@ namespace ck::events {
         ck::i18n::load_language(fallout::settings.system.language);
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::set_language, fallout::settings.system.language);
     }
-}
 
-// System events
-namespace ck::events::system {
     // Init
     static int    g_game_argc = 0;
     static char** g_game_argv = nullptr;
-    void init(int argc, char** argv) {
+    static void init(int argc, char** argv) {
         logger.info("Initializing LuaJIT backend...");
 
         // FFI calls aren't used directly in cpp code so compiler needs to know it's not a dead code
@@ -91,6 +88,13 @@ namespace ck::events::system {
         ck::proxy::init_lua_state("../?.lua;../?/init.lua");
         ck::proxy::cache_functions();
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::bootstrap);
+    }
+}
+
+// System events
+namespace ck::events::system {
+    void init(int argc, char** argv) {
+        ck::events::init(argc, argv);
     }
 
     void game_start() {
