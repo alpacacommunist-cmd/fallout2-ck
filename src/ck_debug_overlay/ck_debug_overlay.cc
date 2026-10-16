@@ -107,7 +107,7 @@ static void mode_palette() {
 
 static bool ck_is_tile_blocking(int tile) {
     fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
-    return blocker != nullptr && fallout::object_type(blocker) != fallout::OBJ_TYPE_CRITTER;
+    return blocker != nullptr && ck::utils::types::object_type(blocker) != fallout::OBJ_TYPE_CRITTER;
 }
 
 static HexState ck_hex_state_for_tile(int tile) {

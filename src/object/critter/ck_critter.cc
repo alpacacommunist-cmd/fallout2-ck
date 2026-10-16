@@ -1,5 +1,6 @@
 #include "ck_ids.h"
 #include "utils.h"
+#include "utils/fallout/types.h"
 
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 #include "object/ck_object.h"
@@ -178,7 +179,7 @@ int ck_anim_take_out_weapon(fallout::Object* critter, int delay) {
 int ck_anim_move_to(void* ptr, int tile, int elevation) {
 	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
 
-	return fallout::animationRegisterMoveToTile(object, tile, elevation, -1, 0);
+	return fallout::animationRegisterMoveToTile(object, tile, ck::utils::types::map_elevation(elevation), -1, 0);
 }
 
 int ck_anim_play(void* ptr, int anim_id) {

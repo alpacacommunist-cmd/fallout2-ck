@@ -29,7 +29,7 @@ static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,  
 int script_type_for_object(fallout::Object* object) {
     if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
 
-    int object_type = static_cast<int>(fallout::object_type(object));
+    int object_type = static_cast<int>(ck::utils::types::object_type(object));
 
     switch (object_type) {
 		case fallout::OBJ_TYPE_CRITTER:

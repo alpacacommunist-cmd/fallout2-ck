@@ -30,7 +30,7 @@ namespace ck::debug {
 			int objIndex = 0;
 
 			while (object != nullptr) {
-				int objType = static_cast<int>(fallout::object_type(object));
+				int objType = static_cast<int>(ck::utils::types::object_type(object));
 
 				logger.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
 						objIndex, fallout::objectGetName(object), object->id, objType, object->pid, object->fid, object->sid,
@@ -100,7 +100,7 @@ namespace ck::debug {
                     "  [Misc Data] Map: {}, Tile: {}, Elev: {}, Rot: {}, Flags: {:#x}",
                     static_cast<int>(d.misc.map),
                     d.misc.tile,
-                    d.misc.elevation,
+                    static_cast<int>(d.misc.elevation),
                     static_cast<int>(d.misc.rotation),
                     d.flags
                 );

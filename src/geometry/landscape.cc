@@ -6,6 +6,20 @@
 
 #include "proto_types.h"
 
+namespace fallout {
+    struct Object;
+    extern Object* gEgg;
+    extern Object* gDude;
+
+	extern int gElevation;
+
+	int tileGetRotationTo(int tile1, int tile2);
+	int tileGetTileInDirection(int tile, int rotation, int distance);
+
+	Object* objectFindFirstAtLocation(fallout::MapElevation elevation, int tile);
+	Object* objectFindNextAtLocation();
+}
+
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
         fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
@@ -76,7 +90,7 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 		if (obj != nullptr) {
 			obj->data.misc.map       = fallout::Map(data.target_map);
 			obj->data.misc.tile      = data.target_tile;
-			obj->data.misc.elevation = data.target_elevation;
+			obj->data.misc.elevation = fallout::MapElevation(data.target_elevation);
 			obj->data.misc.rotation  = static_cast<fallout::Rotation>(data.target_rotation);
 		}
 	});
@@ -92,7 +106,7 @@ void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridDa
     if (obj != nullptr) {
         obj->data.misc.map       = fallout::Map(data->target_map);
         obj->data.misc.tile      = data->target_tile;
-        obj->data.misc.elevation = data->target_elevation;
+        obj->data.misc.elevation = fallout::MapElevation(data->target_elevation);
         obj->data.misc.rotation  = static_cast<fallout::Rotation>(data->target_rotation);
     }
 }

@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "utils/fallout/types.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_mods/ck_mods.h"
@@ -10,7 +11,7 @@ static constexpr logging::Context logger{"ck_object.cc.cc"};
 
 
 static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
-	return fallout::_obj_blocking_at(nullptr, tile, elevation);
+	return fallout::_obj_blocking_at(nullptr, tile, ck::utils::types::map_elevation(elevation));
 }
 
 namespace ck::critter::proto {
@@ -46,7 +47,7 @@ namespace ck::object {
 
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
-		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+		fallout::Object* object = fallout::objectFindFirstAtLocation(utils::types::map_elevation(fallout::gElevation), tile);
 
 		if (object == nullptr) return;
 
@@ -59,7 +60,8 @@ namespace ck::object {
 	}
 
 	int find_at(int tile, CkObjectFFI* buffer, int max_count) {
-		int count = 0, elevation = fallout::gElevation;
+		int count = 0;
+        fallout::MapElevation elevation = ck::utils::types::map_elevation(fallout::gElevation);
 
         fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
         while (object != nullptr && count < max_count) {
@@ -73,7 +75,8 @@ namespace ck::object {
 	}
 
 	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
-		int count = 0, elevation = fallout::gElevation;
+		int count = 0;
+        fallout::MapElevation elevation = ck::utils::types::map_elevation(fallout::gElevation);
 
 		fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
 		while (object != nullptr && count < max_count) {
@@ -89,7 +92,7 @@ namespace ck::object {
 	}
 
     fallout::Object* find_id_at(int tile, int elevation, int id) {
-        fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
+        fallout::Object* object = fallout::objectFindFirstAtLocation(utils::types::map_elevation(elevation), tile);
 
         while (object != nullptr) {
             if (object->id == id) return object;
@@ -139,7 +142,7 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
     }
 
     if (object) {
-        fallout::objectSetLocation(object, tile, elevation, nullptr);
+        fallout::objectSetLocation(object, tile, ck::utils::types::map_elevation(elevation), nullptr);
         return object;
     }
 
