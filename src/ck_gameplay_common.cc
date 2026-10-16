@@ -1,11 +1,13 @@
 #include <cstring>
 
 #include "ce_config/ck_encoding.h"
+#include "utils/fallout/types.h"
 
 #include "obj_types.h"
 #include "geometry.h"
 #include "map_defs.h"
 
+namespace f_types = ck::utils::types;
 namespace fallout {
     // loadsave.cc
     bool _isLoadingGame();
@@ -15,7 +17,7 @@ namespace fallout {
     // game_sound.cc
     int soundPlayFile(const char* name);
     // tile.cc
-	void tileWindowRefreshRect(Rect* rect, int elevation);
+    void tileWindowRefreshRect(Rect* rect, MapElevation elevation);
 
     enum Color : unsigned char;
     enum CombatState : unsigned int {
@@ -122,7 +124,7 @@ namespace ck::common {
 
         if (fallout::textObjectAdd(object, safe_text_ptr, font,
                     static_cast<fallout::Color>(color), static_cast<fallout::Color>(background_color), &rect) != -1) {
-            fallout::tileWindowRefreshRect(&rect, object->elevation);
+            fallout::tileWindowRefreshRect(&rect, f_types::map_elevation(object->elevation));
 
             return true;
         }

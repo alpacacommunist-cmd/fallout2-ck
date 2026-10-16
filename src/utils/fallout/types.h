@@ -11,3 +11,5 @@ namespace ck::utils::types {
     fallout::ObjectType object_type(fallout::Object* object);
     fallout::MapElevation map_elevation(int elevation);
 }
+
+namespace f_types = ck::utils::types; // NOLINT

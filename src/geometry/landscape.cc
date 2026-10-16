@@ -1,3 +1,5 @@
+#include "utils/fallout/types.h"
+
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 #include "geometry/geometry.h"
@@ -6,6 +8,7 @@
 
 #include "proto_types.h"
 
+namespace f_types = ck::utils::types;
 namespace fallout {
     struct Object;
     extern Object* gEgg;
@@ -22,7 +25,7 @@ namespace fallout {
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
-        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+        fallout::Object* obj = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
 
         while (obj != nullptr) {
             fallout::Object* nextObj = fallout::objectFindNextAtLocation();
@@ -63,7 +66,7 @@ void ck_landscape_destroy_exit_grid_in_rect(int left, int right, int top, int bo
     if (!rect.is_valid()) return;
 
     rect.for_each_tile([](int tile) {
-        fallout::Object* obj = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+        fallout::Object* obj = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
         while (obj != nullptr) {
             fallout::Object* next_obj = fallout::objectFindNextAtLocation();
 

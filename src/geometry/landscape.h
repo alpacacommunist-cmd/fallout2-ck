@@ -4,20 +4,6 @@
 #include "ck_api.h"
 #include <functional>
 
-namespace fallout {
-    struct Object;
-    extern Object* gEgg;
-    extern Object* gDude;
-
-	extern int gElevation;
-
-	int tileGetRotationTo(int tile1, int tile2);
-	int tileGetTileInDirection(int tile, int rotation, int distance);
-
-	Object* objectFindFirstAtLocation(int elevation, int tile);
-	Object* objectFindNextAtLocation();
-}
-
 struct CKExitGridData {
     int target_map;
     int target_tile;

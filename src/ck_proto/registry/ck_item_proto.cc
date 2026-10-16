@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "utils/fallout/types.h"
+
 #include "ck_ids.h"
 #include "ck_mods/ck_mods.h"
 #include "ck_proto_registry.h"
@@ -13,8 +15,9 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_item_proto.cc"};
 
+namespace f_types = ck::utils::types;
 namespace fallout {
-    Object* objectFindFirstAtElevation(int elevation);
+    Object* objectFindFirstAtElevation(MapElevation elevation);
     Object* objectFindNextAtElevation();
 }
 
@@ -172,7 +175,7 @@ namespace ck::proto::item {
         }
 
         for (int elevation = 0; elevation < 3; elevation++) {
-            fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
+            fallout::Object* object = fallout::objectFindFirstAtElevation(f_types::map_elevation(elevation));
 
             while (object != nullptr) {
                 if (mode == SyncMode::Prepare) {

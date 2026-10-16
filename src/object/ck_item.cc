@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "utils/fallout/types.h"
 
 #include "object/ck_item.h"
 
@@ -24,7 +25,7 @@ namespace fallout {
 	int _obj_disconnect(Object* obj, Rect* rect);
 	int objectDestroy(Object* object, Rect* rect);
     int objectCreateWithFrmIdProtoId(Object** objectPtr, const FrmId& frmId, const ProtoId& protoId);
-	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
+	int objectSetLocation(Object* obj, int tile, MapElevation elevation, Rect* rect);
     // inventory.cc
     int objectGetCarriedQuantityByProtoId(Object* obj, const ProtoId& protoId);
 }
@@ -62,7 +63,7 @@ namespace ck {
 			return false;
 		}
 
-		fallout::objectSetLocation(new_item, 0, 0, nullptr);
+		fallout::objectSetLocation(new_item, 0, f_types::map_elevation(fallout::gElevation), nullptr);
 
 		if (fallout::itemAdd(owner, new_item, count) != 0) {
 			fallout::objectDestroy(new_item, nullptr);

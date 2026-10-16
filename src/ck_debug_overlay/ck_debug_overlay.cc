@@ -15,7 +15,6 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_debug_overlay.cc"};
 
-
 namespace ck::common {
     int current_map_id();
 }
@@ -38,8 +37,8 @@ namespace fallout {
 
 	bool isExitGridAt(int tile, int elevation);
 	char* objectGetName(Object* obj);
-	Object* _obj_blocking_at(Object* excludeObj, int tile_num, int elev);
-	int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect);
+	Object* _obj_blocking_at(Object* excludeObj, int tile_num, MapElevation elev);
+	int objectSetLocation(Object* obj, int tile, MapElevation elevation, Rect* rect);
 
     // svga.cc
     int screenGetWidth();
@@ -106,7 +105,7 @@ static void mode_palette() {
 // }
 
 static bool ck_is_tile_blocking(int tile) {
-    fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, fallout::gElevation);
+    fallout::Object* blocker = fallout::_obj_blocking_at(nullptr, tile, f_types::map_elevation(fallout::gElevation));
     return blocker != nullptr && ck::utils::types::object_type(blocker) != fallout::OBJ_TYPE_CRITTER;
 }
 
@@ -154,7 +153,7 @@ static void ck_teleport_to_tile() {
 	fallout::mouseGetPosition(&mouseX, &mouseY);
 	int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
 
-	objectSetLocation(fallout::gDude, currentMouseTile, fallout::gDude->elevation, nullptr);
+	objectSetLocation(fallout::gDude, currentMouseTile, f_types::map_elevation(fallout::gDude->elevation), nullptr);
 	gNeedsRefresh = true;
 }
 

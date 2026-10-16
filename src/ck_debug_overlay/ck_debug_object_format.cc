@@ -8,6 +8,18 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_debug_object_format.cc"};
 
+namespace fallout {
+    struct Object;
+	extern int gElevation;
+	int critterGetStat(Object* critter, int stat);
+
+	bool isExitGridAt(int tile, MapElevation elevation);
+	int tileGetHexGridWidth();
+
+	Object* objectFindFirstAtLocation(MapElevation elevation, int tile);
+	char* objectGetName(Object* obj);
+	Object* objectFindNextAtLocation();
+}
 
 namespace ck::debug {
 	void export_full_dump(const std::vector<ckDebugHex*>& hexes) {
@@ -19,14 +31,14 @@ namespace ck::debug {
 			int tileY = tile / grid_width;
 
 			logger.raw("SELECTED tile={} ({}, {}), floor fid: {}, roof fid: {}", tile, tileX, tileY,
-                    ck_map_get_floor_fid(tile, fallout::gElevation), ck_map_get_roof_fid(tile, fallout::gElevation)
+                    ck_map_get_floor_fid(tile, f_types::map_elevation(fallout::gElevation)), ck_map_get_roof_fid(tile, fallout::gElevation)
                    );
 
-			if (fallout::isExitGridAt(tile, fallout::gElevation)) {
+			if (fallout::isExitGridAt(tile, f_types::map_elevation(fallout::gElevation))) {
 				logger.warning("EXIT GRID ON TILE");
 			}
 
-			fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::gElevation, tile);
+			fallout::Object* object = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
 			int objIndex = 0;
 
 			while (object != nullptr) {
