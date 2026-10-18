@@ -54,10 +54,11 @@ add_library(fallout2-ck STATIC
 
     src/ck_gameplay_common.cc
     # FFI
-    src/ffi/system.cc
-    src/ffi/tests.cc
-    src/ffi/manifest.cc
     src/ffi/validator.cc
+    src/ffi/tests.cc
+    src/ffi/system.cc
+    src/ffi/gameplay.cc
+    src/ffi/manifest.cc
 
     src/ck_scripting.cc
 

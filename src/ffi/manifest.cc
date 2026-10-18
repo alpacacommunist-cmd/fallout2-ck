@@ -1,5 +1,6 @@
 #include "ffi/system.h"
 #include "ffi/tests.h"
+#include "ffi/gameplay.h"
 
 // TODO:: move to headers
 extern "C" {
@@ -8,11 +9,9 @@ extern "C" {
     bool ck_proto_get_by_pid(...);
 	int ck_inventory_count(...);
     int player_stat(...);
-    void ck_object_float_msg(...);
     void ck_get_perks_metadata(...);
 	void ck_get_skills_metadata(...);
     void ck_map_batch_tiles(...);
-    void ck_load_game_slot(...);
 }
 
 namespace ck::ffi {
@@ -26,6 +25,10 @@ namespace ck::ffi {
             (void*)&ck_testing_get_current_suite,
             // ...
 
+            // gameplay.h
+            (void*)&ck_monitor_print_message,
+            // ...
+
             // TODO:: move to headers
             (void*)&ck_item_proto_register,
             (void*)&ck_assets_register_path,
@@ -36,7 +39,6 @@ namespace ck::ffi {
             (void*)&ck_get_perks_metadata,
             (void*)&ck_get_skills_metadata,
             (void*)&ck_map_batch_tiles,
-            (void*)&ck_load_game_slot
         };
         (void)force_linker;
     }

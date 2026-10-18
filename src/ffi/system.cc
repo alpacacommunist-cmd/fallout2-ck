@@ -2,6 +2,11 @@
 #include "ck_mods/ck_mods.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
+namespace fallout {
+    // loadsave.cc
+	int ck_load_game_slot(int slot);
+}
+
 bool ck_system_add_mod(const char* mod_id) {
     return ck::mods::add(mod_id);
 }
@@ -28,6 +33,10 @@ bool ck_system_reloading_mods() {
 
 const char* ck_sytem_mod_id() {
     return ck::mods::system_mod_id();
+}
+
+void ck_load_game_slot(int slot) {
+	fallout::ck_load_game_slot(slot);
 }
 
 void ck_system_log(int level, int source, int style, const char* context, const char* message) {

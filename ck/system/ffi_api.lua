@@ -30,7 +30,7 @@ ffi.cdef[[
   // -- logger
   void ck_system_log(int level, int source, int style, const char* context, const char* message);
   // -- default system mod_id
-  const char* ck_sytem_mod_id();
+  const char* ck_system_mod_id();
 
   // --- Tests ---
   const char* ck_testing_get_current_suite();

@@ -1,17 +1,11 @@
 #include "ck_scripting.h"
 #include "ck_mods/ck_mods.h"
-#include "ck_gameplay_common.h"
 
 #include "ck_registry/ck_registry.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "log.h"
 static logging::Context logger{"ck_scripting.cc", logging::Source::Native};
-
-namespace fallout {
-    // loadsave.cc
-	int ck_load_game_slot(int slot);
-}
 
 namespace ck {
     // ck_critter.cc
@@ -55,23 +49,6 @@ void ck_clear_mod_resources(const char* mod_id) {
 
 
 // FFI
-void ck_load_game_slot(int slot) {
-	fallout::ck_load_game_slot(slot);
-}
-
-// FFI
-
-bool ck_object_float_msg(void* ptr, const char* text, int msg_type) {
-    return ck::common::object_float_msg(ptr, text, msg_type);
-}
-
-void ck_monitor_print_message(const char* message) { ck::common::print_monitor_message(message); }
-void ck_sound_play_sfx(const char* name) { if (name != nullptr) ck::common::play_sfx(name); }
-bool ck_in_combat() { return ck::common::in_combat(); }
-bool ck_game_is_loading() { return ck::common::game_is_loading(); }
-int ck_loading_map_id() { return ck::common::loading_map_id(); }
-int ck_current_map_id() { return ck::common::current_map_id(); }
-int ck_current_elevation() { return ck::common::current_elevation(); }
 
 // TODO: move to mods.cc
 void ck_mods_clear_resources_for_mod(const char* mod_id) {
