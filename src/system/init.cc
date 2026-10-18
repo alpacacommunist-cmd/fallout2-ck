@@ -39,7 +39,7 @@ namespace ck::init {
     }
 }
 
-namespace ck::events::system {
+namespace ck::hooks::system {
     // Init
     static int    g_game_argc = 0;
     static char** g_game_argv = nullptr;

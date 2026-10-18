@@ -27,7 +27,7 @@ namespace ck::proxy::detail {
 }
 
 // System events
-namespace ck::events::system {
+namespace ck::hooks::system {
     void game_start() {
         ck::dispatcher::on_game_start();
     }
@@ -111,6 +111,6 @@ namespace ck::events::system {
 }
 
 // Gameplay events
-namespace ck::events::gameplay {
+namespace ck::hooks::gameplay {
 }
 

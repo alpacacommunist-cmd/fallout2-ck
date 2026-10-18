@@ -1,7 +1,7 @@
-#ifndef CK_EVENTS_H
-#define CK_EVENTS_H
+#ifndef CK_HOOKS_H
+#define CK_HOOKS_H
 
-namespace ck::events::system {
+namespace ck::hooks::system {
     void init(int argc, char** argv);
 
     void game_start();
