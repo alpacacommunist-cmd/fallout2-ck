@@ -1,4 +1,4 @@
-#include "ck_debug_overlay/ck_debug_overlay_hexes.h"
+#include "debug/ck_debug_overlay_hexes.h"
 
 static std::map<int, ckDebugHex> gPersistentHexes;
 

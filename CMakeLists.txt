@@ -37,6 +37,11 @@ add_library(fallout2-ck STATIC
     src/system/hooks.cc
     src/system/rendering.cc
 
+    src/debug/ck_debug_overlay.cc
+    src/debug/ck_debug_overlay_hexes.cc
+    src/debug/ck_debug_overlay_render.cc
+    src/debug/ck_debug_object_format.cc
+
     src/geometry/geometry.cc
     src/geometry/landscape.cc
 
@@ -102,11 +107,6 @@ add_library(fallout2-ck STATIC
     src/object/critter/ck_skills.cc
     src/object/critter/ck_perks.cc
     src/object/ck_item.cc
-
-    src/ck_debug_overlay/ck_debug_overlay.cc
-    src/ck_debug_overlay/ck_debug_overlay_hexes.cc
-    src/ck_debug_overlay/ck_debug_overlay_render.cc
-    src/ck_debug_overlay/ck_debug_object_format.cc
 )
 
 target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/log.h" "include/utils.h")

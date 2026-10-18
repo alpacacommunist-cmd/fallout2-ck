@@ -1,8 +1,6 @@
 #ifndef CK_DEBUG_OVERLAY_RENDER_H
 #define CK_DEBUG_OVERLAY_RENDER_H
 
-#include <vector>
-
 namespace fallout {
     struct Rect;
 }

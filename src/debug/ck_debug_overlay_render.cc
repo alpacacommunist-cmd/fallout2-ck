@@ -1,6 +1,6 @@
 #include "ck_assets/ck_frm.h"
-#include "ck_debug_overlay/ck_debug_overlay_render.h"
-#include "ck_debug_overlay/ck_debug_overlay_hexes.h"
+#include "debug/ck_debug_overlay_render.h"
+#include "debug/ck_debug_overlay_hexes.h"
 
 #include <unordered_map>
 #include <vector>
@@ -9,7 +9,6 @@
 #include <object.h>
 #include <tile.h>
 #include <art.h>
-
 
 struct HexBuffer {
     std::vector<unsigned char> data;

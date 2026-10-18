@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <map>
-#include "ck_debug_overlay/ck_debug_overlay_render.h"
 
 struct DebugHexColor {
     unsigned char edge;
@@ -41,8 +40,6 @@ struct ckDebugHex {
 		customColor = color;
 	}
 };
-
-constexpr int CK_DEBUG_HEX_ART_ID = 999;
 
 void ck_debug_overlay_add_hex(int tile, HexState state);
 void ck_debug_overlay_add_custom_hex(int tile, DebugHexColor color);

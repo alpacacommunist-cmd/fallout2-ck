@@ -1,7 +1,7 @@
 #ifndef CK_DEBUG_OBJECT_FORMAT_H
 #define CK_DEBUG_OBJECT_FORMAT_H
 
-#include "ck_debug_overlay/ck_debug_overlay_hexes.h"
+#include "debug/ck_debug_overlay_hexes.h"
 
 extern "C" { int ck_critter_get_max_hp(void* ptr); }
 

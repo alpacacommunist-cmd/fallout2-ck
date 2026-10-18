@@ -1,4 +1,4 @@
-#include "ck_debug_overlay/ck_debug_object_format.h"
+#include "debug/ck_debug_object_format.h"
 #include "utils/fallout/types.h"
 
 #include "obj_types.h"
