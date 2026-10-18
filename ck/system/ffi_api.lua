@@ -13,7 +13,7 @@ local ffi = require("ffi")
 -- );
 
 -- fallout2-ce types
-local header = io.open("../include/ffi/types.h", "r"):read("*a")
+local header = io.open("../src/ffi/types.h", "r"):read("*a")
 ffi.cdef(header)
 
 ffi.cdef[[

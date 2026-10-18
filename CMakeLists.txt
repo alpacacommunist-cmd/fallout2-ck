@@ -37,10 +37,10 @@ add_library(fallout2-ck STATIC
     src/system/hooks.cc
     src/system/rendering.cc
 
-    src/debug/debug_overlay.cc
-    src/debug/ck_debug_overlay_hexes.cc
-    src/debug/ck_debug_overlay_render.cc
-    src/debug/ck_debug_object_format.cc
+    src/debug/overlay.cc
+    src/debug/hexes.cc
+    src/debug/render.cc
+    src/debug/object_format.cc
 
     src/geometry/geometry.cc
     src/geometry/landscape.cc

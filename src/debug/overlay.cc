@@ -1,7 +1,8 @@
-#include "debug/ck_debug_overlay.h"
-#include "debug/ck_debug_overlay_hexes.h"
-#include "debug/ck_debug_overlay_render.h"
-#include "debug/ck_debug_object_format.h"
+#include "debug/overlay.h"
+#include "debug/hexes.h"
+#include "debug/render.h"
+#include "debug/object_format.h"
+
 #include "ck_input/ck_input.h"
 
 #include "utils/fallout/types.h"

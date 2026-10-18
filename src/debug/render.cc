@@ -1,6 +1,6 @@
 #include "ck_assets/ck_frm.h"
-#include "debug/ck_debug_overlay_render.h"
-#include "debug/ck_debug_overlay_hexes.h"
+#include "debug/render.h"
+#include "debug/hexes.h"
 
 #include <unordered_map>
 #include <vector>

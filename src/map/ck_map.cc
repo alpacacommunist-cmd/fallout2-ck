@@ -1,5 +1,5 @@
 #include "system/rendering.h"
-#include "debug/ck_debug_overlay.h"
+#include "debug/overlay.h"
 
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"

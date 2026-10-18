@@ -1,14 +1,14 @@
-#include "debug/ck_debug_overlay_hexes.h"
+#include "debug/hexes.h"
 
 static std::map<int, ckDebugHex> gPersistentHexes;
 
 DebugHexColor ck_debug_get_color_for_state(HexState state) {
     switch (state) {
-        case HexState::BLOCKER:    return ckdbgRED;
-        case HexState::WALKABLE:   return ckdbgBLUE;
-        case HexState::TRANSITION: return ckdbgYELLOW;
-        case HexState::SELECTED:   return ckdbgGREEN;
-        case HexState::CAMERA:     return ckdbgWHITE;
+    case HexState::BLOCKER:    return ckdbgRED;
+    case HexState::WALKABLE:   return ckdbgBLUE;
+    case HexState::TRANSITION: return ckdbgYELLOW;
+    case HexState::SELECTED:   return ckdbgGREEN;
+    case HexState::CAMERA:     return ckdbgWHITE;
     }
     return ckdbgBLUE;
 }

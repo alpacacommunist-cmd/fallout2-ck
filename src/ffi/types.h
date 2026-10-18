@@ -1,3 +1,5 @@
+// LUA HEADER
+
 typedef struct fallout_Object fallout_Object;
 typedef struct fallout_CritterProto fallout_CritterProto;
 
