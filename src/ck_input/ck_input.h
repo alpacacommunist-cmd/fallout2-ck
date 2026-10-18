@@ -23,17 +23,21 @@ enum CkKey {
     CK_KEY_COUNT
 };
 
-void ck_input_update();
+namespace ck::input {
+    void update();
 
-bool ck_input_pressed(CkKey key);
-bool ck_input_just_pressed(CkKey key);
+    bool pressed(CkKey key);
+    bool just_pressed(CkKey key);
 
-CkKey ck_input_get_just_pressed_key();
-void ck_input_reset();
+    CkKey just_pressed_key();
 
-bool ck_input_shift();
-bool ck_input_ctrl();
-bool ck_input_alt();
+    void reset();
 
+    bool shift();
+    bool ctrl();
+    bool alt();
+
+    bool holding_left_mouse_button();
+}
 
 #endif

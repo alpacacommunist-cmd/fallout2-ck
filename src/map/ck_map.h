@@ -4,11 +4,6 @@
 
 #include "ck_api.h"
 
-namespace ck::debug_overlay {
-    bool enabled();
-    void toggle();
-}
-
 namespace fallout {
     struct Object;
 	extern Object* gDude;

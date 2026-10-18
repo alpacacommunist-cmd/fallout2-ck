@@ -22,11 +22,12 @@ namespace ck::common {
 
 namespace fallout {
     enum Rotation : int;
+
 	struct Object;
+	struct Rect;
 
 	extern Object* gDude;
 
-	int  mouseGetEvent();
 	void mouseGetPosition(int* out_x, int* out_y);
 
     int tileGetTileInDirection(int tile, Rotation rotation, int distance);
@@ -57,26 +58,25 @@ static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
 static bool gAreaVisibilitySwitch = true;
-static ExportMode gCurrentExportMode = ExportMode::FULL_DUMP;
 
-// different modes, work in progress
+// different modes, WIP
 
 static void mode_palette() {
-	if (!ck::debug_overlay::enabled()) return;
-	if ((fallout::mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) return;
+	if (!ck::debug::enabled()) return;
+    if (!ck::input::holding_left_mouse_button()) return;
 
-	static int lastTile = -1;
-	static unsigned char currentColor = 0;
+	static int last_tile = -1;
+	static unsigned char current_color = 0;
 
 	int mouseX, mouseY;
 	fallout::mouseGetPosition(&mouseX, &mouseY);
 	int currentMouseTile = fallout::tileFromScreenXY(mouseX, mouseY, fallout::gElevation);
 
-	if (currentMouseTile == lastTile) return;
-	lastTile = currentMouseTile;
+	if (currentMouseTile == last_tile) return;
+	last_tile = currentMouseTile;
 
 	ckDebugHex* hex = ck_debug_overlay_find_hex(currentMouseTile);
-	const bool isShift = ck_input_shift();
+	const bool holding_shift = ck::input::shift();
 
 	if (hex != nullptr) {
 		DebugHexColor color = (hex->state == HexState::CUSTOM)
@@ -86,10 +86,10 @@ static void mode_palette() {
 		logger.debug("tile={}, state={}, color= edge: {}, inner: {}", currentMouseTile, (int)hex->state,
 				(int)color.edge, (int)color.inner);
 	} else {
-		if (!isShift) return;
+		if (!holding_shift) return;
 
-		ck_debug_overlay_add_custom_hex(currentMouseTile, { currentColor, currentColor });
-		currentColor++;
+		ck_debug_overlay_add_custom_hex(currentMouseTile, { current_color, current_color });
+		current_color++;
 	}
 }
 
@@ -158,14 +158,6 @@ static void ck_teleport_to_tile() {
 	gNeedsRefresh = true;
 }
 
-static void change_export_mode() {
-    gCurrentExportMode = static_cast<ExportMode>((static_cast<int>(gCurrentExportMode) + 1) % static_cast<int>(ExportMode::COUNT));
-
-    if (gCurrentExportMode == ExportMode::FULL_DUMP)
-        fallout::displayMonitorAddMessage("Overlay Export Mode: FULL DUMP");
-    else if (gCurrentExportMode == ExportMode::LUA_TILES)
-        fallout::displayMonitorAddMessage("Overlay Export Mode: LUA_TILES");
-}
 
 static void mode_main_dude_scan() {
 	static int sLastDudeTile = -1;
@@ -191,8 +183,8 @@ static void mode_main_dude_scan() {
 }
 
 static void mode_main_paint() {
-    const bool isSelectPressed = ck_input_shift() && ck_input_pressed(CK_KEY_W);
-    const bool isClearPressed  = ck_input_shift() && ck_input_pressed(CK_KEY_X);
+    const bool isSelectPressed = ck::input::shift() && ck::input::pressed(CK_KEY_W);
+    const bool isClearPressed  = ck::input::shift() && ck::input::pressed(CK_KEY_X);
 
     if (!isSelectPressed && !isClearPressed) return;
 
@@ -229,25 +221,6 @@ static void mode_main_paint() {
     }
 }
 
-static void mode_main_export() {
-	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
-
-    if (selectedHexes.empty()) {
-        logger.info("no hexes selected!");
-        return;
-    }
-
-    using ExportFunc = void(*)(const std::vector<ckDebugHex*>&);
-
-    static const ExportFunc export_handlers[] = {
-		ck::debug::export_full_dump,
-        ck::debug::export_lua_tiles
-    };
-
-    int mode_index = static_cast<int>(gCurrentExportMode);
-
-    export_handlers[mode_index](selectedHexes);
-}
 
 static void mode_main_clear_all() {
 	ck_debug_overlay_clear_hexes();
@@ -302,72 +275,113 @@ static void mode_main_teleport_to_map() {
 
     fallout::isoEnable();
 
-    ck_input_reset();
+    ck::input::reset();
+}
+
+namespace ck::debug {
+
+enum class ExportMode {
+    FULL_DUMP,
+    LUA_TILES,
+    COUNT = 2 
+};
+static ExportMode gCurrentExportMode = ExportMode::FULL_DUMP;
+
+static void change_export_mode() {
+    gCurrentExportMode =
+        static_cast<ExportMode>((static_cast<int>(gCurrentExportMode) + 1) % static_cast<int>(ExportMode::COUNT));
+
+    if (gCurrentExportMode == ExportMode::FULL_DUMP)
+        fallout::displayMonitorAddMessage("Overlay Export Mode: FULL DUMP");
+    else if (gCurrentExportMode == ExportMode::LUA_TILES)
+        fallout::displayMonitorAddMessage("Overlay Export Mode: LUA_TILES");
+}
+
+static void mode_main_export() {
+	std::vector<ckDebugHex*> selectedHexes = ck_debug_overlay_selected_hexes();
+
+    if (selectedHexes.empty()) {
+        logger.info("no hexes selected!");
+        return;
+    }
+
+    using ExportFunc = void(*)(const std::vector<ckDebugHex*>&);
+
+    static const ExportFunc export_handlers[] = {
+		ck::debug::export_full_dump,
+        ck::debug::export_lua_tiles
+    };
+
+    int mode_index = static_cast<int>(gCurrentExportMode);
+
+    export_handlers[mode_index](selectedHexes);
 }
 
 static void mode_main() {
-	mode_main_dude_scan();
-	mode_main_paint(); // uses shift+w (select) shift+x(clear)
+    mode_main_dude_scan();
+    mode_main_paint(); // uses shift+w (select) shift+x(clear)
 
-	int pressedKey = ck_input_get_just_pressed_key();
-	switch (pressedKey) {
-		case CK_KEY_E: 	   {
-							   if (ck_input_shift()) mode_main_export();
-							   else if (ck_input_alt()) change_export_mode();
-							   break;
-						   }
-		case CK_KEY_U:     {
-							   if (ck_input_shift()) mode_main_clear_all();
-							   break;
-						   }
-		case CK_KEY_V:     {
-							   if (ck_input_shift()) mode_main_toggle_hidden_in_rect();
-							   break;
-						   }
-
-		case CK_KEY_C:     {
-							   if (ck_input_alt()) ck_toggle_camera_square();
-							   break;
-						   }
-
-		case CK_KEY_T:     {
-							   if (ck_input_alt()) ck_teleport_to_tile();
-                               if (ck_input_ctrl()) mode_main_teleport_to_map();
-							   break;
-						   }
-	}
-
-	ck_input_update(); // key just pressed
-}
-
-namespace ck::debug_overlay {
-    bool enabled() { return gDebugOverlayEnabled; }
-
-    void toggle() {
-        gDebugOverlayEnabled = !gDebugOverlayEnabled;
-
-        if (gDebugOverlayEnabled) {
-            fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
-
-            fallout::tileWindowRefresh();
-        } else {
-            fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
-
-            ck_debug_overlay_render_clear();
-        }
+    int pressed_key = ck::input::just_pressed_key();
+    switch (pressed_key) {
+    case CK_KEY_E: {
+        if (ck::input::shift()) mode_main_export();
+        if (ck::input::alt()) change_export_mode();
+        break;
+    }
+    case CK_KEY_U: {
+        if (ck::input::shift()) mode_main_clear_all();
+        break;
+    }
+    case CK_KEY_V: {
+        if (ck::input::shift()) mode_main_toggle_hidden_in_rect();
+        break;
     }
 
-    void render(fallout::Rect* rect) {
-        if (!gDebugOverlayEnabled) return;
+    case CK_KEY_C: {
+        if (ck::input::alt()) ck_toggle_camera_square();
+        break;
+    }
 
-        ck_debug_overlay_persistent_hexes(rect);
-        mode_main();
+    case CK_KEY_T: {
+        if (ck::input::alt()) ck_teleport_to_tile();
+        if (ck::input::ctrl()) mode_main_teleport_to_map();
+        break;
+    }
+    }
 
-        if (gNeedsRefresh) {
-            gNeedsRefresh = false;
-            fallout::tileWindowRefresh();
-        }
-        // mode_palette();
+    ck::input::update(); // key just pressed
+}
+
+bool enabled() {
+    return gDebugOverlayEnabled;
+}
+
+void toggle() {
+    gDebugOverlayEnabled = !gDebugOverlayEnabled;
+
+    if (gDebugOverlayEnabled) {
+        fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
+
+        fallout::tileWindowRefresh();
+    } else {
+        fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
+
+        ck_debug_overlay_render_clear();
     }
 }
 
+void render(fallout::Rect *rect) {
+    if (!gDebugOverlayEnabled)
+        return;
+
+    ck_debug_overlay_persistent_hexes(rect);
+    mode_main();
+
+    if (gNeedsRefresh) {
+        gNeedsRefresh = false;
+        fallout::tileWindowRefresh();
+    }
+    // mode_palette();
+}
+
+} // namespace ck::debug

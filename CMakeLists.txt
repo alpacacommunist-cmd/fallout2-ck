@@ -37,7 +37,7 @@ add_library(fallout2-ck STATIC
     src/system/hooks.cc
     src/system/rendering.cc
 
-    src/debug/ck_debug_overlay.cc
+    src/debug/debug_overlay.cc
     src/debug/ck_debug_overlay_hexes.cc
     src/debug/ck_debug_overlay_render.cc
     src/debug/ck_debug_object_format.cc

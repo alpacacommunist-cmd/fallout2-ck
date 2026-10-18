@@ -1,4 +1,6 @@
 #include "system/rendering.h"
+#include "debug/ck_debug_overlay.h"
+
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
@@ -55,7 +57,7 @@ namespace ck::map {
         fallout::mapEdgeFree();
         ck::rendering::clear();
 
-        if (ck::debug_overlay::enabled()) ck::debug_overlay::toggle();
+        if (ck::debug::enabled()) ck::debug::toggle();
     }
 
     bool map_has_camera_borders(int map_index) {
