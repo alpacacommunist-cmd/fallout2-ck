@@ -60,8 +60,6 @@ add_library(fallout2-ck STATIC
     src/ffi/gameplay.cc
     src/ffi/manifest.cc
 
-    src/ck_scripting.cc
-
     src/ck_mods/ck_mods.cc
     src/ck_state/ck_state.cc
     src/ck_dispatcher/ck_dispatcher.cc

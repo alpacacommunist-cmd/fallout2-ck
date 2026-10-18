@@ -1,5 +1,6 @@
 #include "system/rendering.h"
 #include "debug/overlay.h"
+#include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
@@ -17,8 +18,9 @@ static constexpr logging::Context logger{"ck_config_maps.cc"};
 namespace ck {
     namespace critter { void reset_prototypes(); }
     namespace script { void reset(); }
-    namespace common {
-        void lua_map_exit();
+
+    namespace proxy::detail {
+        extern int map_exit;
     }
 }
 
@@ -45,7 +47,7 @@ namespace ck::map {
         }
 
         // Resets lua registries, updates state when leaving a map
-        ck::common::lua_map_exit();
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
         // Resets custom critter prototypes queue
         ck::critter::reset_prototypes();
         // Resets custom object scripts

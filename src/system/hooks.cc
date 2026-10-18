@@ -1,6 +1,5 @@
 #include "system/init.h"
 
-#include "ck_scripting.h"
 #include "map/ck_map.h"
 
 #include "ck_proto/cache/ck_proto_cache.h"
@@ -55,7 +54,7 @@ namespace ck::hooks::system {
         logger.info("ck_on_scripts_reset");
 
         ck::registry::clear();
-        ck::common::clear_lua_registries();
+        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
     }
 
     // loadsave.cc
