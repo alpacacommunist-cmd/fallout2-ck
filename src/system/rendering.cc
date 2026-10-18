@@ -6,7 +6,7 @@
 #include "light.h"
 #include "tile.h"
 
-#include "ck_rendering.h"
+#include "system/rendering.h"
 #include "ck_mods/ck_mods.h"
 
 #include "log.h"

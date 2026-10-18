@@ -35,6 +35,7 @@ add_subdirectory(fallout2-ce)
 add_library(fallout2-ck STATIC
     src/system/init.cc
     src/system/hooks.cc
+    src/system/rendering.cc
 
     src/geometry/geometry.cc
     src/geometry/landscape.cc
@@ -54,7 +55,6 @@ add_library(fallout2-ck STATIC
     src/ffi/validator.cc
 
     src/ck_scripting.cc
-    src/ck_rendering.cc
 
     src/ck_mods/ck_mods.cc
     src/ck_state/ck_state.cc

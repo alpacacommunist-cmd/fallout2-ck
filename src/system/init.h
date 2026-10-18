@@ -1,5 +1,5 @@
-#ifndef INIT_H
-#define INIT_H
+#ifndef CK_INIT_H
+#define CK_INIT_H
 
 namespace ck::init {
     bool test_mode_enabled();

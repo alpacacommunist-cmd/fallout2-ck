@@ -1,4 +1,4 @@
-#include "ck_rendering.h"
+#include "system/rendering.h"
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"

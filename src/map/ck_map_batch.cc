@@ -1,9 +1,11 @@
-#include <algorithm>
+#include "system/rendering.h"
+
 #include "map/ck_map.h"
 #include "map/ck_map_batch.h"
-#include "ck_rendering.h"
 #include "object/ck_object.h"
 #include "ck_mods/ck_mods.h"
+
+#include <algorithm>
 
 void ck_map_batch_tiles(const CkFFITile* tiles, int count) {
     const char* mod_id_ptr = ck::mods::current_mod_id();
