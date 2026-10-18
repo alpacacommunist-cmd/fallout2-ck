@@ -16,7 +16,6 @@ extern "C" {
 }
 
 namespace ck::ffi {
-    // Just one function from a file is needed for compiler
     void init_ffi_manifest() {
         static void* const volatile force_linker[] = {
             // system.h

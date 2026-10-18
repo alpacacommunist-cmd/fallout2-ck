@@ -33,6 +33,8 @@ endif()
 add_subdirectory(fallout2-ce)
 
 add_library(fallout2-ck STATIC
+    src/system/init.cc
+
     src/geometry/geometry.cc
     src/geometry/landscape.cc
 
