@@ -12,4 +12,6 @@ namespace ck::mods {
 
     bool add(const char* mod_id);
     bool drop(const char* mod_id);
+
+    void clear_resources(const char *mod_id);
 }

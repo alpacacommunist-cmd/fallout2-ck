@@ -31,6 +31,10 @@ bool ck_system_reloading_mods() {
     return ck::mods::reloading();
 }
 
+void ck_system_clear_resources_for_mod(const char* mod_id) {
+    return ck::mods::clear_resources(mod_id);
+}
+
 const char* ck_sytem_mod_id() {
     return ck::mods::system_mod_id();
 }

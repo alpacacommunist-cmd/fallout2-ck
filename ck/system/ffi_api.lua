@@ -26,6 +26,7 @@ ffi.cdef[[
   bool ck_system_set_mod_context(const char* mod_id);
   const char* ck_system_current_mod_id();
   bool ck_system_reloading_mods();
+  void ck_system_clear_resources_for_mod(const char* mod_id);
   void ck_system_emit_for_mod(const char* mod_id, const char* event_name);
   // -- logger
   void ck_system_log(int level, int source, int style, const char* context, const char* message);
@@ -43,7 +44,6 @@ ffi.cdef[[
   int  ck_current_map_id();
   int  ck_current_elevation();
 
-  void ck_mods_clear_resources_for_mod(const char* mod_id);
 
   bool ck_is_sid_ck_custom(int sid);
 

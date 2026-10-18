@@ -109,7 +109,7 @@ function loader.reload_mods()
       -- object registry pointers
       -- camera borders
       -- renering queues
-      ffi.C.ck_mods_clear_resources_for_mod(mod_id)
+      ffi.C.ck_system_clear_resources_for_mod(mod_id)
 
       -- clears lua registries
       ck.registries.clear_mod(mod_id)

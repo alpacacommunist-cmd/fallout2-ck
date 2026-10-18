@@ -5,6 +5,8 @@
 static constexpr logging::Context log{"ck_registry_created.cc"};
 
 namespace fallout {
+    // scripts.cc
+    int scriptRemove(int index);
     // animation.cc
     void animationStop();
 }
@@ -31,6 +33,9 @@ namespace ck::registry::created {
         // stops active animations
         fallout::animationStop();
         for (fallout::Object* object : to_destroy) {
+            // Removes script + active engine timers
+            fallout::scriptRemove(object->sid);
+
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
             fallout::objectDestroy(object, nullptr);
         }

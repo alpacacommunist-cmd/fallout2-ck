@@ -3,7 +3,7 @@
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_scripting.h"
+#include "ck_gameplay_common.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"src/ck_mods/ck_mods.cc"};
@@ -11,6 +11,26 @@ static constexpr logging::Context logger{"src/ck_mods/ck_mods.cc"};
 // LUA calls
 namespace ck::proxy::detail {
     extern int reload_mods;
+}
+
+// Forward declaration for resource purge
+namespace ck {
+    // objects registry
+    namespace registry {
+        void clear_resources_for_mod(const char* target_mod_id);
+    }
+    // critter prototypes
+    namespace critter::proto {
+        void clear_prototypes_for_mod(const char* mod_id);
+    }
+    // map/ck_map_camera_borders.cc
+    namespace map::borders {
+        void clear_for_mod(const char* mod_id);
+    }
+    // ck_rendering.cc
+    namespace rendering {
+        void clear_for_mod(const char* mod_id);
+    }
 }
 
 namespace ck::mods {
@@ -89,5 +109,14 @@ namespace ck::mods {
 
         removed ? logger.debug("Removed mod_id: {}", mod_id) : logger.error("Not found: {}", mod_id);
         return removed;
+    }
+
+    void clear_resources(const char *mod_id) {
+        const char *mod_id_ptr = ck::mods::ptr(mod_id);
+
+        ck::registry::clear_resources_for_mod(mod_id_ptr);
+        ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
+        ck::map::borders::clear_for_mod(mod_id_ptr);
+        ck::rendering::clear_for_mod(mod_id_ptr);
     }
 }
