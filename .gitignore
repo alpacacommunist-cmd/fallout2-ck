@@ -31,6 +31,7 @@ tests_env/SAVEGAME/**
 /src/vendor/sqlite3/**
 /src/vendor/picojson/**
 !/src/vendor/luajit/README
+!/src/vendor/luajit/CMakeLists.txt
 !/src/vendor/sqlite3/README
 !/src/vendor/picojson/README
 
