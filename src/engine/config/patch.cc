@@ -1,6 +1,6 @@
 #include "engine/config/patch.h"
-#include "engine/config/maps.h"
 #include "engine/config/city.h"
+#include "engine/config/maps.h"
 
 #include <algorithm>
 #include <charconv>

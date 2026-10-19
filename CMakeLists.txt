@@ -3,179 +3,22 @@ project(fallout2-ck C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# ==============================================================================
-# alias interface for includes (e.g. fallout2-ce/map.h)
-# ==============================================================================
-add_library(fallout2-ce-alias INTERFACE)
+# includes alias
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FalloutCeAlias)
+setup_fallout2_ce_alias()
 
-target_include_directories(fallout2-ce-alias INTERFACE
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>"
-)
-
-if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes")
-    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes")
-    file(CREATE_LINK
-        "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src"
-        "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes/fallout2-ce"
-        SYMBOLIC
-    )
-endif()
-
-target_include_directories(fallout2-ce-alias INTERFACE
-    "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes"
-)
-
-# ==============================================================================
-# engine submodule
-# ==============================================================================
+# submodule
 set(FALLOUT_VENDORED ON CACHE BOOL "" FORCE)
-
 add_subdirectory(fallout2-ce)
 
-# ==============================================================================
-# Vendor
-# ==============================================================================
-# Luajit
-include(ExternalProject)
+# vendor
+add_subdirectory(src/vendor)
 
-set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
+# fallout2-ck
+add_subdirectory(src)
 
-ExternalProject_Add(luajit_project
-    SOURCE_DIR "${LUAJIT_SRC_DIR}"
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND make -C "${LUAJIT_SRC_DIR}/src" -j${nproc}
-    INSTALL_COMMAND ""
-    BUILD_BYPRODUCTS "${LUAJIT_SRC_DIR}/src/libluajit.a"
-)
-
-add_library(libluajit INTERFACE)
-
-target_include_directories(libluajit INTERFACE "${LUAJIT_SRC_DIR}/src")
-target_link_libraries(libluajit INTERFACE "${LUAJIT_SRC_DIR}/src/libluajit.a")
-
-add_dependencies(libluajit luajit_project)
-
-# Sqlite
-add_library(sqlite3_vendor STATIC src/vendor/sqlite3/sqlite3.c)
-target_include_directories(sqlite3_vendor PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3")
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(sqlite3_vendor PRIVATE "-w")
-elseif(MSVC)
-    target_compile_options(sqlite3_vendor PRIVATE "/W0")
-endif()
-
-# ==============================================================================
-# CK STATIC
-# ==============================================================================
-add_library(fallout2-ck STATIC
-    src/system/init.cc
-    src/system/hooks.cc
-    src/system/rendering.cc
-    src/system/i18n.cc
-    src/system/encoding.cc
-    src/system/input/input.cc
-
-    src/debug/overlay.cc
-    src/debug/hexes.cc
-    src/debug/render.cc
-    src/debug/object_format.cc
-
-    src/engine/config/patch.cc
-    src/engine/config/maps.cc
-    src/engine/config/city.cc
-
-    src/geometry/geometry.cc
-    src/geometry/landscape.cc
-
-    # Utils
-    src/utils/fallout/types.cc
-
-    src/utils/utils.cc
-    src/utils/log.cc
-    src/utils/ck_ids.cc
-
-    src/ck_gameplay_common.cc
-    # FFI
-    src/ffi/validator.cc
-    src/ffi/tests.cc
-    src/ffi/system.cc
-    src/ffi/gameplay.cc
-    src/ffi/manifest.cc
-
-    src/ck_mods/ck_mods.cc
-    src/ck_state/ck_state.cc
-    src/ck_dispatcher/ck_dispatcher.cc
-    src/ck_messages/ck_messages.cc
-
-    src/ck_lua_proxy/ck_lua_proxy.cc
-    src/ck_lua_proxy/ck_lua_proxy_dispatcher.cc
-    src/ck_lua_proxy/ck_lua_proxy_state.cc
-
-    src/ck_registry/ck_registry.cc
-    src/ck_registry/ck_registry_created.cc
-    src/ck_registry/ck_registry_deleted.cc
-    src/ck_registry/ck_registry_modified.cc
-
-    src/ck_proto/cache/ck_proto_cache.cc
-    src/ck_proto/cache/ck_proto_ffi.cc
-
-    src/ck_proto/registry/ck_proto_registry.cc
-    src/ck_proto/registry/ck_item_proto.cc
-
-    src/ck_assets/ck_frm.cc
-    src/ck_assets/ck_asset_registry.cc
-
-    src/ck_knowledge/ck_knowledge.cc
-
-    src/ck_area/ck_area.cc
-    src/game_time/ck_game_time.cc
-    src/map/ck_map.cc
-    src/map/ck_map_batch.cc
-    src/map/ck_map_camera_borders.cc
-    src/script/ck_script.cc
-    src/object/ck_object.cc
-    src/object/critter/ck_critter.cc
-    src/object/critter/ck_critter_proto.cc
-    src/object/critter/ck_stats.cc
-    src/object/critter/ck_skills.cc
-    src/object/critter/ck_perks.cc
-    src/object/ck_item.cc
-)
-
-target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/log.h" "include/utils.h")
-target_compile_features(fallout2-ck PRIVATE cxx_std_20)
-add_dependencies(fallout2-ck libluajit)
-
-target_include_directories(fallout2-ck PUBLIC 
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
-    $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
-)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
-endif()
-
-target_link_libraries(fallout2-ck PUBLIC 
-    sqlite3_vendor
-    libluajit
-    pthread
-    dl
-    SDL2-static
-)
-
-target_link_libraries(fallout2-ck PRIVATE fallout2-ce-alias)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(fallout2-ck PUBLIC $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
-endif()
-
-# ==============================================================================
 # fallout2-ce
-# ==============================================================================
 foreach(TARGET fallout2-ce mapper-ce)
     if(TARGET ${TARGET})
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
