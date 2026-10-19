@@ -1,8 +1,8 @@
 #include "system/_init.h"
+#include "system/i18n.h"
 
 #include "engine/config/maps.h"
 #include "engine/config/city.h"
-#include "ck_i18n/ck_i18n.h"
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 

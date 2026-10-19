@@ -67,6 +67,7 @@ add_library(fallout2-ck STATIC
     src/system/init.cc
     src/system/hooks.cc
     src/system/rendering.cc
+    src/system/i18n.cc
     src/system/input/input.cc
 
     src/debug/overlay.cc
@@ -119,8 +120,6 @@ add_library(fallout2-ck STATIC
 
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
-
-    src/ck_i18n/ck_i18n.cc
 
     src/ck_knowledge/ck_knowledge.cc
 
