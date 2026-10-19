@@ -35,20 +35,25 @@ add_subdirectory(fallout2-ce)
 # ==============================================================================
 # Vendor
 # ==============================================================================
+# Luajit
 include(ExternalProject)
 
 set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
-set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")
-set(LUAJIT_LIB "${LUAJIT_SRC_DIR}/src/libluajit.a")
 
-# Luajit
 ExternalProject_Add(luajit_project
     SOURCE_DIR "${LUAJIT_SRC_DIR}"
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND make -C "${LUAJIT_SRC_DIR}/src"
+    BUILD_COMMAND make -C "${LUAJIT_SRC_DIR}/src" -j${nproc}
     INSTALL_COMMAND ""
-    BUILD_BYPRODUCTS "${LUAJIT_LIB}"
+    BUILD_BYPRODUCTS "${LUAJIT_SRC_DIR}/src/libluajit.a"
 )
+
+add_library(libluajit INTERFACE)
+
+target_include_directories(libluajit INTERFACE "${LUAJIT_SRC_DIR}/src")
+target_link_libraries(libluajit INTERFACE "${LUAJIT_SRC_DIR}/src/libluajit.a")
+
+add_dependencies(libluajit luajit_project)
 
 # Sqlite
 add_library(sqlite3_vendor STATIC src/vendor/sqlite3/sqlite3.c)
@@ -140,14 +145,13 @@ add_library(fallout2-ck STATIC
 
 target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/log.h" "include/utils.h")
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
-add_dependencies(fallout2-ck luajit_project)
+add_dependencies(fallout2-ck libluajit)
 
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
-    "${LUAJIT_INCLUDE}"
     $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
@@ -157,7 +161,7 @@ endif()
 
 target_link_libraries(fallout2-ck PUBLIC 
     sqlite3_vendor
-    ${LUAJIT_LIB}
+    libluajit
     pthread
     dl
     SDL2-static
