@@ -5,8 +5,8 @@
 #include "ck_messages/ck_messages.h"
 #include "ck_mods/ck_mods.h"
 
-#include "obj_types.h"
-#include "proto.h"
+#include "fallout2-ce/obj_types.h"
+#include "fallout2-ce/proto.h"
 
 #include <unordered_map>
 #include <vector>

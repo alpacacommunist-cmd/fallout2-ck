@@ -11,7 +11,7 @@
 #include "object/ck_object.h"
 #include "map/ck_map_camera_borders.h"
 
-#include "game_sound.h"
+#include "fallout2-ce/game_sound.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_debug_overlay.cc"};

@@ -1,6 +1,6 @@
 #include "ck_registry.h"
 
-#include "proto_types.h"
+#include "fallout2-ce/proto_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry.cc"};

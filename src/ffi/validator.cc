@@ -1,5 +1,5 @@
 #include <cstddef>
-#include "obj_types.h"
+#include "fallout2-ce/obj_types.h"
 
 void validate_object_structure() {
     static_assert(sizeof(fallout::Object) == 160, "🚨 fallout::Object size changed, refresh lua header!");

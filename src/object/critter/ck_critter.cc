@@ -1,18 +1,18 @@
+#include "utils/fallout/types.h"
 #include "ck_ids.h"
 #include "utils.h"
-#include "utils/fallout/types.h"
 
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
-#include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
+#include "object/ck_object.h"
 #include "object/critter/ck_critter.h"
 #include "object/critter/ck_critter_proto.h"
 #include "script/ck_script.h"
 
-#include "ck_mods/ck_mods.h"
 #include "ck_gameplay_common.h"
+#include "ck_mods/ck_mods.h"
 
-#include "animation.h"
+#include "fallout2-ce/animation.h"
 
 #include <cstring>
 

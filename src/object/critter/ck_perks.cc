@@ -1,4 +1,4 @@
-#include "perk_defs.h"
+#include "fallout2-ce/perk_defs.h"
 #include "object/critter/ck_perks.h"
 
 #include "log.h"

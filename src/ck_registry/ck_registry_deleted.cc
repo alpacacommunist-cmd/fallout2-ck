@@ -1,7 +1,7 @@
 #include "ck_registry.h"
 #include "ck_mods/ck_mods.h"
 
-#include "obj_types.h"
+#include "fallout2-ce/obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_deleted.cc"};

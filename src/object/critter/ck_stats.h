@@ -2,7 +2,7 @@
 #define CK_STATS_H
 
 #include "ck_api.h"
-#include "stat_defs.h"
+#include "fallout2-ce/stat_defs.h"
 
 namespace fallout {
 	struct Object;

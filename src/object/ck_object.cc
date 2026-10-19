@@ -4,7 +4,7 @@
 #include "ck_registry/ck_registry.h"
 #include "ck_mods/ck_mods.h"
 
-#include "object.h"
+#include "fallout2-ce/object.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_object.cc.cc"};

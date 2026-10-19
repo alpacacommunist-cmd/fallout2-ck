@@ -1,7 +1,7 @@
 #include "ck_ids.h"
 #include "utils/fallout/types.h"
 
-#include "obj_types.h"
+#include "fallout2-ce/obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"src/utils/ck_ids.cc"};

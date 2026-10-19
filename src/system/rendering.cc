@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <chrono>
 
-#include "art.h"
-#include "light.h"
-#include "tile.h"
+#include "fallout2-ce/art.h"
+#include "fallout2-ce/light.h"
+#include "fallout2-ce/tile.h"
 
 #include "system/rendering.h"
 #include "ck_mods/ck_mods.h"

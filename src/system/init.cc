@@ -6,7 +6,7 @@
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
-#include "settings.h"
+#include "fallout2-ce/settings.h"
 
 #include "log.h"
 static logging::Context logger{"ck_init.cc", logging::Source::Native};

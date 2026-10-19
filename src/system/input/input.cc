@@ -1,5 +1,5 @@
 #include "system/input/input.h"
-#include "kb.h"
+#include "fallout2-ce/kb.h"
 
 namespace fallout {
 	int  mouseGetEvent();

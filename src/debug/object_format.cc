@@ -1,9 +1,7 @@
 #include "debug/object_format.h"
 #include "utils/fallout/types.h"
 
-#include "obj_types.h"
-
-#include <format>
+#include "fallout2-ce/obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_debug_object_format.cc"};

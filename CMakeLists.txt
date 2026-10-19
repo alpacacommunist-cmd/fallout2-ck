@@ -1,11 +1,41 @@
-# fallout2-ck/CMakeLists.txt
 cmake_minimum_required(VERSION 3.17)
 project(fallout2-ck C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# ==============================================================================
+# alias interface for includes (e.g. fallout2-ce/map.h)
+# ==============================================================================
+add_library(fallout2-ce-alias INTERFACE)
+
+target_include_directories(fallout2-ce-alias INTERFACE
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>"
+)
+
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes")
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes")
+    file(CREATE_LINK
+        "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src"
+        "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes/fallout2-ce"
+        SYMBOLIC
+    )
+endif()
+
+target_include_directories(fallout2-ce-alias INTERFACE
+    "${CMAKE_CURRENT_BINARY_DIR}/fallout2-ce-includes"
+)
+
+# ==============================================================================
+# engine submodule
+# ==============================================================================
+set(FALLOUT_VENDORED ON CACHE BOOL "" FORCE)
+
+add_subdirectory(fallout2-ce)
+
+# ==============================================================================
+# Vendor
+# ==============================================================================
 include(ExternalProject)
-find_package(SDL2 REQUIRED)
 
 set(LUAJIT_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/luajit")
 set(LUAJIT_INCLUDE "${LUAJIT_SRC_DIR}/src")
@@ -30,8 +60,9 @@ elseif(MSVC)
     target_compile_options(sqlite3_vendor PRIVATE "/W0")
 endif()
 
-add_subdirectory(fallout2-ce)
-
+# ==============================================================================
+# CK STATIC
+# ==============================================================================
 add_library(fallout2-ck STATIC
     src/system/init.cc
     src/system/hooks.cc
@@ -75,7 +106,6 @@ add_library(fallout2-ck STATIC
     src/ck_lua_proxy/ck_lua_proxy_dispatcher.cc
     src/ck_lua_proxy/ck_lua_proxy_state.cc
 
-
     src/ck_registry/ck_registry.cc
     src/ck_registry/ck_registry_created.cc
     src/ck_registry/ck_registry_deleted.cc
@@ -112,21 +142,18 @@ add_library(fallout2-ck STATIC
 target_precompile_headers(fallout2-ck PRIVATE <vector> <string> <format> <unordered_map> "include/log.h" "include/utils.h")
 target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 add_dependencies(fallout2-ck luajit_project)
+
 target_include_directories(fallout2-ck PUBLIC 
     "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/"
-    # "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vendor/picojson/"
     "${LUAJIT_INCLUDE}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/fallout2-ce/src/"
-     ${SDL2_INCLUDE_DIRS}
+    $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "-w")
-elseif(MSVC)
-    set_source_files_properties(src/vendor/sqlite3/sqlite3.c PROPERTIES COMPILE_FLAGS "/W0")
 endif()
 
 target_link_libraries(fallout2-ck PUBLIC 
@@ -134,28 +161,27 @@ target_link_libraries(fallout2-ck PUBLIC
     ${LUAJIT_LIB}
     pthread
     dl
+    SDL2-static
 )
 
-# set(CE_BRIDGE_SOURCES
-#     "${CMAKE_CURRENT_SOURCE_DIR}/src/ce_bridge/ck_input.cc"
-# )
-
-foreach(TARGET fallout2-ce mapper-ce)
-    if(TARGET ${TARGET})
-	# target_sources(${TARGET} PRIVATE ${CE_BRIDGE_SOURCES})
-        target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-        target_link_libraries(${TARGET} fallout2-ck)
-        set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE)
-    endif()
-endforeach()
+target_link_libraries(fallout2-ck PRIVATE fallout2-ce-alias)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(fallout2-ck PUBLIC $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
+endif()
 
-    foreach(TARGET fallout2-ce mapper-ce)
-        if(TARGET ${TARGET})
+# ==============================================================================
+# fallout2-ce
+# ==============================================================================
+foreach(TARGET fallout2-ce mapper-ce)
+    if(TARGET ${TARGET})
+        target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        target_link_libraries(${TARGET} fallout2-ck)
+        set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE)
+
+        if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
             target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
             target_link_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address>)
         endif()
-    endforeach()
-endif()
+    endif()
+endforeach()

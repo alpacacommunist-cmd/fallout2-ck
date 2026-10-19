@@ -1,9 +1,9 @@
 #include "ck_proto_cache.h"
 #include "ck_proto_schema.h"
 #include "sqlite3.h"
-#include "message.h"
 
-#include "proto.h"
+#include "fallout2-ce/message.h"
+#include "fallout2-ce/proto.h"
 
 #include <cstdio>
 #include <format>

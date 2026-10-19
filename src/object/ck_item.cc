@@ -3,13 +3,12 @@
 
 #include "object/ck_item.h"
 
-#include "item.h"
-#include "object.h"
-#include "proto.h"
+#include "fallout2-ce/item.h"
+#include "fallout2-ce/object.h"
+#include "fallout2-ce/proto.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_item.cc"};
-
 
 namespace fallout {
 	struct Object;

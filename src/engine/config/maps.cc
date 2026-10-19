@@ -4,7 +4,7 @@
 #include "engine/config/patch.h"
 #include "engine/config/maps.h"
 
-#include "config.h"
+#include "fallout2-ce/config.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_config_maps.cc"};

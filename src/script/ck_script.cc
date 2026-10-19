@@ -2,8 +2,8 @@
 #include "ck_ids.h"
 #include "engine/config/encoding.h"
 
-#include "scripts.h"
-#include "game_dialog.h"
+#include "fallout2-ce/scripts.h"
+#include "fallout2-ce/game_dialog.h"
 
 #include "script/ck_script.h"
 #include "object/ck_object.h"

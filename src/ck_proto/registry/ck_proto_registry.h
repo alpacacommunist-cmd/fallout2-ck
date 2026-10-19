@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-#include "proto_types.h"
+#include "fallout2-ce/proto_types.h"
 
 struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
 using  UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;

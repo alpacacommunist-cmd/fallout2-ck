@@ -1,10 +1,9 @@
 #include "object/critter/ck_skills.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
-#include "skill_defs.h"
-#include "random.h"
-#include "proto.h"
-
+#include "fallout2-ce/skill_defs.h"
+#include "fallout2-ce/random.h"
+#include "fallout2-ce/proto.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_skills.cc"};

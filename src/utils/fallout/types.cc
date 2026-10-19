@@ -1,4 +1,4 @@
-#include "proto_types.h"
+#include "fallout2-ce/proto_types.h"
 
 namespace ck::utils::types {
     using namespace fallout;

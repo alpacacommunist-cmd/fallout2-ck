@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <charconv>
 
-#include "config.h"
+#include "fallout2-ce/config.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_config_patch.cc"};

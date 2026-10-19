@@ -6,7 +6,7 @@
 #include "geometry/landscape.h"
 #include "ck_mods/ck_mods.h"
 
-#include "proto_types.h"
+#include "fallout2-ce/proto_types.h"
 
 namespace f_types = ck::utils::types;
 namespace fallout {

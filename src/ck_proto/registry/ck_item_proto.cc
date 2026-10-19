@@ -10,7 +10,7 @@
 #include <vector>
 #include <unordered_map>
 
-#include "proto.h"
+#include "fallout2-ce/proto.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_item_proto.cc"};

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include "map.h"
+#include "fallout2-ce/map.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_area.cc"};

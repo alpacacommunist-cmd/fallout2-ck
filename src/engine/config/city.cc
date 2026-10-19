@@ -1,5 +1,5 @@
 #include "engine/config/patch.h"
-#include "config.h"
+#include "fallout2-ce/config.h"
 
 #include <algorithm>
 #include <unordered_set>

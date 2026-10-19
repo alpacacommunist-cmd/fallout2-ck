@@ -6,9 +6,9 @@
 #include <vector>
 #include <cstring>
 
-#include <object.h>
-#include <tile.h>
-#include <art.h>
+#include <fallout2-ce/object.h>
+#include <fallout2-ce/tile.h>
+#include <fallout2-ce/art.h>
 
 struct HexBuffer {
     std::vector<unsigned char> data;

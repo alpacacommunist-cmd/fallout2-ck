@@ -1,7 +1,7 @@
+#include <cstring>
 #include "ck_knowledge.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
-#include "memory.h"
-#include <cstring>
+#include "fallout2-ce/memory.h"
 
 namespace ck::proxy::detail {
     extern int knowledge_sync;
