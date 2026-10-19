@@ -28,6 +28,8 @@ foreach(TARGET fallout2-ce mapper-ce)
         if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
             target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>)
             target_link_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address>)
+
+            target_link_options(${TARGET} PRIVATE $<$<CONFIG:Release,MinSizeRel>:-s>)
         endif()
     endif()
 endforeach()

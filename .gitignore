@@ -33,6 +33,7 @@ tests_env/SAVEGAME/**
 !/src/vendor/luajit/README
 !/src/vendor/luajit/CMakeLists.txt
 !/src/vendor/sqlite3/README
+!/src/vendor/sqlite3/CMakeLists.txt
 !/src/vendor/picojson/README
 
 /.clang-format

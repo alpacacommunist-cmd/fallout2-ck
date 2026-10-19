@@ -97,7 +97,6 @@ target_link_libraries(fallout2-ck PUBLIC
     libluajit
     pthread
     dl
-    SDL2-static
 )
 
 target_link_libraries(fallout2-ck PRIVATE fallout2-ce-alias)
