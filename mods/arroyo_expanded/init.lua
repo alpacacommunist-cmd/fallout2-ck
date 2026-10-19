@@ -64,6 +64,12 @@ events.on('onGameLoaded', function()
   log.info('bonus_hth_damage (before): %s', tostring(player.perks.bonus_hth_damage))
   player.perks.bonus_hth_damage:add_rank()
   log.info('bonus_hth_damage (after): %s', tostring(player.perks.bonus_hth_damage))
+
+  log.info('small_guns base: %s', tostring(player.skills.small_guns_base))
+  log.info('small_guns total: %s', tostring(player.skills.small_guns))
+
+  player.skills.small_guns = player.skills.small_guns_base + 35
+  log.info('small_guns total (after): %s', tostring(player.skills.small_guns))
 end)
 
 events.on('onModReload', function()
@@ -205,7 +211,7 @@ events.on('map_enter', function(map_id)
     :set_stats({ strength = 10, agility = 9, luck = 8})
     :set_skills({ unarmed = 100, small_guns = 85 })
 
-  local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8 })
+  local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8, team = 0 })
   -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)

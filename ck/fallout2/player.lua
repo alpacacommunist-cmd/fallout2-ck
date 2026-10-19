@@ -8,7 +8,11 @@ local perks  = require('ck.fallout2.objects.critters.perks')
 local stats_proxy  = stats.create_proxy(ffi.C.player_stat, ffi.C.player_set_base_stat)
 local pc_stats_proxy = stats.create_pc_proxy(ffi.C.player_pc_stat)
 -- skills
-local skills_proxy = skills.create_proxy(ffi.C.player_skill, ffi.C.player_set_skill)
+local skills_proxy = skills.create_proxy(
+    ffi.C.player_skill,           -- read_total
+    ffi.C.player_set_skill,       -- write_total
+    ffi.C.player_get_skill_base   -- read_base
+)
 -- perks
 local perks_proxy  = perks.create_proxy(ffi.C.player_perk, ffi.C.player_perk_add_rank)
 

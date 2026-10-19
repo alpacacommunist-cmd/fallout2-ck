@@ -16,34 +16,53 @@ callback:free()
 
 local skills = { MAP = SKILLS_MAP, ID_MAP = SKILLS_ID_MAP }
 
-function skills.create_proxy(read_skill_fn, write_skill_fn)
+function skills.create_proxy(read_total_fn, write_total_fn, read_base_fn)
   local proxy = {}
 
-  local mt = {}
+  local actual_read_base = read_base_fn or read_total_fn
+  local actual_write_base = write_total_fn
 
-  if read_skill_fn then
-    mt.__index = function(_, key)
-      local c_skill = SKILLS_MAP[key]
-      if c_skill then return read_skill_fn(c_skill) end
-      return nil
-    end
-  end
+  setmetatable(proxy, {
+    __index = function(_, key)
+      local is_base_request = key:match("(.+)_base$")
 
-  if write_skill_fn then
-    mt.__newindex = function(_, key, value)
-      local c_skill = SKILLS_MAP[key]
-      if c_skill then
-        if type(value) ~= "number" then
-          log.error("Skill '%s' must be a number, got %s", key, type(value))
+      if is_base_request then
+        local c_skill_id = skills.MAP[is_base_request]
+
+        if c_skill_id and actual_read_base then
+          return actual_read_base(c_skill_id)
         end
-        write_skill_fn(c_skill, value)
+      else
+        local c_skill_id = skills.MAP[key]
+
+        if c_skill_id and read_total_fn then
+          return read_total_fn(c_skill_id)
+        end
+      end
+
+      return nil
+    end,
+
+    __newindex = function(_, key, value)
+      local clean_key = key:match("(.+)_base$") or key
+      local c_skill_id = skills.MAP[clean_key]
+
+      if c_skill_id then
+        if type(value) ~= "number" then
+          log.error("Skill '%s' must be a number", clean_key)
+          return
+        end
+
+        if actual_write_base then
+          actual_write_base(c_skill_id, value)
+        else
+          log.error("Skill '%s' is read-only for this object", clean_key)
+        end
       else
         log.error("Unknown skill name: '%s'", tostring(key))
       end
     end
-  end
-
-  setmetatable(proxy, mt)
+  })
 
   return proxy
 end
