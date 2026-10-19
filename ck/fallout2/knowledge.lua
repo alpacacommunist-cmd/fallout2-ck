@@ -14,8 +14,7 @@ function knowledge.sync()
     if static_info then
       local full_desc = static_info.ranks[state.rank].desc .. "\n\n[ Progress: " .. state.progress .. "/50 ]"
 
-      fid    = assets.resolve(static_info.art)
-      art_id = ffi.C.ck_ids_art_id_from_fid(fid)
+      local art_id = ffi.C.ck_ids_art_id_from_fid(static_info.fid)
 
       local ffi_data = ffi.new("CkKnowledgeFFI")
       ffi_data.id = id
@@ -33,11 +32,11 @@ function knowledge.register(config)
   assert(config.name, "Knowledge name is required!")
 
   knowledge.registry[config.id] = {
-    name        = config.name,
-    art         = config.art,
-    max_rank    = config.max_rank or 1,
-    ranks       = config.ranks or {},
-    next_level  = config.next_level or function(rank) return 50 end
+    name       = config.name,
+    fid        = assets.resolve(config.art, 7),
+    max_rank   = config.max_rank or 1,
+    ranks      = config.ranks or {},
+    next_level = config.next_level or function(rank) return 50 end
   }
 
   return config.id

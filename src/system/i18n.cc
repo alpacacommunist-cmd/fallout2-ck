@@ -8,7 +8,7 @@
 #include "picojson.h"
 
 namespace ck::i18n {
-    constexpr std::string_view LANG_DIR      = "../src/ck_i18n/languages/";
+    constexpr std::string_view LANG_DIR      = "../src/system/languages/";
     constexpr std::string_view LANG_EXT      = ".json";
     constexpr std::string_view FALLBACK_LANG = "english";
 
