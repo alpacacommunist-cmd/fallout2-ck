@@ -1,8 +1,7 @@
 #ifndef CK_CONFIG_PATCH_H
 #define CK_CONFIG_PATCH_H
 
-#include "ck_api.h"
-#include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace fallout {
@@ -29,6 +28,6 @@ namespace ck::config {
 	void clear_for_mod(const char* mod_id);
 }
 
-CK_API void ck_config_clear_mod_patches(const char* mod_id);
+// CK_API void ck_config_clear_mod_patches(const char* mod_id);
 
 #endif

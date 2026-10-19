@@ -1,6 +1,6 @@
-#include "ce_config/ck_config_patch.h"
-#include "ce_config/ck_config_maps.h"
-#include "ce_config/ck_config_city.h"
+#include "engine/config/patch.h"
+#include "engine/config/maps.h"
+#include "engine/config/city.h"
 
 #include <algorithm>
 #include <charconv>
@@ -170,7 +170,7 @@ namespace ck::config {
 
 }
 
-void ck_config_clear_mod_patches(const char* mod_id) {
-	ck::config::clear_for_mod(mod_id);
-}
+// void ck_config_clear_mod_patches(const char* mod_id) {
+// 	ck::config::clear_for_mod(mod_id);
+// }
 

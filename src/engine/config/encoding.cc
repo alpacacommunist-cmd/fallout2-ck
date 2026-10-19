@@ -1,7 +1,9 @@
-#include "ce_config/ck_encoding.h"
+#include "engine/config/encoding.h"
 #include "settings.h"
 
-std::string system_language() { return fallout::settings.system.language; }
+std::string system_language() {
+    return fallout::settings.system.language;
+}
 
 std::string utf8_to_cp1251(std::string_view utf8) {
     if (system_language() == "english") return std::string(utf8);
@@ -96,15 +98,12 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
     size_t out_idx = 0;
     size_t in_idx = 0;
 
-    // Оставляем 1 байт под финальный '\0', то есть max_size - 1
-    // Для кириллицы нужно максимум 2 байта, поэтому проверяем out_idx + 1 < max_size - 1
     while (in_cp1251[in_idx] != '\0' && out_idx + 1 < max_size - 1) {
         unsigned char c = in_cp1251[in_idx];
 
         if (c < 0x80) {
             out_utf8[out_idx++] = c;
         } else if (c >= 0xC0 && c <= 0xEF) {
-            // Объединяем А..Я и а..п, так как у них одинаковое смещение -0x30 и первый байт 0xD0
             out_utf8[out_idx++] = (char)0xD0;
             out_utf8[out_idx++] = (char)(c - 0x30);
         } else if (c >= 0xF0 && c <= 0xFF) {
@@ -118,8 +117,6 @@ size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size)
             out_utf8[out_idx++] = (char)0xD1;
             out_utf8[out_idx++] = (char)0x91;
         } else {
-            // Псевдографика, кавычки-елочки (0xAB, 0xBB) и тире из CP1251
-            // Если они не входят в ASCII (<0x80), в чистом UTF-8 они должны быть 3-байтовыми.
             out_utf8[out_idx++] = c;
         }
         in_idx++;

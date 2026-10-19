@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "ce_config/ck_encoding.h"
+#include "engine/config/encoding.h"
 #include "utils/fallout/types.h"
 
 #include "obj_types.h"

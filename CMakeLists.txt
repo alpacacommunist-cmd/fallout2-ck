@@ -36,13 +36,17 @@ add_library(fallout2-ck STATIC
     src/system/init.cc
     src/system/hooks.cc
     src/system/rendering.cc
+    src/system/input/input.cc
 
     src/debug/overlay.cc
     src/debug/hexes.cc
     src/debug/render.cc
     src/debug/object_format.cc
 
-    src/engine/input/input.cc
+    src/engine/config/patch.cc
+    src/engine/config/maps.cc
+    src/engine/config/city.cc
+    src/engine/config/encoding.cc
 
     src/geometry/geometry.cc
     src/geometry/landscape.cc
@@ -71,10 +75,6 @@ add_library(fallout2-ck STATIC
     src/ck_lua_proxy/ck_lua_proxy_dispatcher.cc
     src/ck_lua_proxy/ck_lua_proxy_state.cc
 
-    src/ce_config/ck_config_patch.cc
-    src/ce_config/ck_config_maps.cc
-    src/ce_config/ck_config_city.cc
-    src/ce_config/ck_encoding.cc
 
     src/ck_registry/ck_registry.cc
     src/ck_registry/ck_registry_created.cc

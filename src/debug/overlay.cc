@@ -3,8 +3,7 @@
 #include "debug/render.h"
 #include "debug/object_format.h"
 
-#include "engine/input/input.h"
-
+#include "system/input/input.h"
 #include "utils/fallout/types.h"
 
 #include "geometry/geometry.h"

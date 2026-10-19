@@ -1,6 +1,6 @@
 #include "utils.h"
 #include "ck_ids.h"
-#include "ce_config/ck_encoding.h"
+#include "engine/config/encoding.h"
 
 #include "scripts.h"
 #include "game_dialog.h"
