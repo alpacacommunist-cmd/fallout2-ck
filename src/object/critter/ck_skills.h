@@ -5,17 +5,6 @@
 
 namespace fallout {
     struct Object;
-	struct Attack;
-	enum Skill : int;
-    enum DudeState : int;
-
-	extern Object* gDude;
-
-	int skillGetValue(Object* critter, Skill skill);
-	int critterGetStat(Object* critter, int stat);
-	bool dudeIsSneaking();
-    bool dudeHasState(DudeState state);
-	bool skillIsTagged(int skill);
 }
 
 namespace ck {
@@ -37,9 +26,11 @@ CK_API void ck_get_skills_metadata(void (*callback)(const char* lua_name, int va
 CK_API void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value));
 
 CK_API int player_skill(int skill);
+CK_API int player_get_skill_base(int skill);
 CK_API int player_add_skill(int skill, int value);
 CK_API int player_set_skill(int skill, int value);
 CK_API int ck_critter_get_skill(fallout::Object* critter, int skill);
+CK_API int ck_critter_get_skill_base(fallout::Object* critter, int skill);
 CK_API int ck_critter_set_skill(fallout::Object* critter, int skill, int value);
 
 #endif

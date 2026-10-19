@@ -191,11 +191,13 @@ ffi.cdef[[
   void ck_get_skills_metadata(void (*callback)(const char* name, int value));
 
   int ck_critter_get_skill(fallout_Object* critter, int skill);
+  int ck_critter_get_skill_base(fallout_Object* critter, int skill);
   int ck_critter_set_skill(fallout_Object* critter, int skill, int value);
 
-  int  player_skill(int skill);
-  int  player_add_skill(int skill, int value);
-  int  player_set_skill(int skill, int value);
+  int player_skill(int skill);
+  int player_get_skill_base(int skill);
+  int player_add_skill(int skill, int value);
+  int player_set_skill(int skill, int value);
 
   // --- Perks ---
   void ck_get_perks_metadata(void (*callback)(const char* name, int value));

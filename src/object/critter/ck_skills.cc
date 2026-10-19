@@ -24,6 +24,20 @@ static_assert(sizeof(g_skill_names) / sizeof(g_skill_names[0]) == fallout::SKILL
 static_assert(sizeof(g_roll_names) / sizeof(g_roll_names[0]) == 4,
               "roll names / random.h mismatch!");
 
+namespace fallout {
+	struct Attack;
+	enum Skill : int;
+    enum DudeState : int;
+
+	extern Object* gDude;
+
+	int skillGetValue(Object* critter, Skill skill);
+	int critterGetStat(Object* critter, int stat);
+	bool dudeIsSneaking();
+    bool dudeHasState(DudeState state);
+	bool skillIsTagged(int skill);
+}
+
 namespace ck {
 	bool critter_skill_is_valid(int skill) { return skill >= 0 && skill < fallout::SKILL_COUNT; }
 
@@ -41,6 +55,16 @@ namespace ck {
 
 		return 0;
 	}
+
+    int critter_get_skill_base(fallout::Object *critter, int skill) {
+        if (critter == nullptr) return -5;
+        if (!critter_skill_is_valid(skill)) return -5;
+
+        fallout::Proto *proto;
+        if (fallout::protoGetProto(fallout::ProtoId(critter->pid), &proto) != 0 || proto == nullptr) return -5;
+
+        return proto->critter.data.skills[skill];
+    }
 
 	int critter_add_skill(fallout::Object* critter, int skill, int value) {
 		fallout::Proto* proto;
@@ -66,6 +90,10 @@ namespace ck {
 	int player_add_skill(int skill, int value) {
 		return critter_add_skill(fallout::gDude, static_cast<fallout::Skill>(skill), value);
 	}
+
+    int player_get_skill_base(int skill) {
+        return critter_get_skill_base(fallout::gDude, skill);
+    }
 }
 
 namespace ck::skills {
@@ -116,11 +144,16 @@ void ck_get_rolls_metadata(void (*callback)(const char* lua_name, int value)) {
 }
 
 int player_skill(int skill) { return ck::player_skill(skill); }
+int player_get_skill_base(int skill) { return ck::player_get_skill_base(skill); }
 int player_add_skill(int skill, int value) { return ck::player_add_skill(skill, value); }
 int player_set_skill(int skill, int value) { return ck::player_set_skill(skill, value); }
 
 int ck_critter_get_skill(fallout::Object* critter, int skill) {
     return ck::critter_get_skill(critter, skill);
+}
+
+int ck_critter_get_skill_base(fallout::Object* critter, int skill) {
+    return ck::critter_get_skill_base(critter, skill);
 }
 
 int ck_critter_set_skill(fallout::Object* critter, int skill, int value) {
