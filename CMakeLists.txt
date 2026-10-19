@@ -42,6 +42,8 @@ add_library(fallout2-ck STATIC
     src/debug/render.cc
     src/debug/object_format.cc
 
+    src/engine/input/input.cc
+
     src/geometry/geometry.cc
     src/geometry/landscape.cc
 
@@ -88,7 +90,6 @@ add_library(fallout2-ck STATIC
     src/ck_assets/ck_frm.cc
     src/ck_assets/ck_asset_registry.cc
 
-    src/ck_input/ck_input.cc
     src/ck_i18n/ck_i18n.cc
 
     src/ck_knowledge/ck_knowledge.cc

@@ -3,7 +3,7 @@
 #include "debug/render.h"
 #include "debug/object_format.h"
 
-#include "ck_input/ck_input.h"
+#include "engine/input/input.h"
 
 #include "utils/fallout/types.h"
 

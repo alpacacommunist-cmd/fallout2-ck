@@ -1,4 +1,4 @@
-#include "ck_input.h"
+#include "engine/input/input.h"
 #include "kb.h"
 
 namespace fallout {

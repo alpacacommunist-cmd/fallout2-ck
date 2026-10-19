@@ -141,9 +141,9 @@ events.on('map_enter', function(map_id)
   dialogs.register(alice.lua_id, alice_dialog)
 
   if (alice:has_inventory()) then
-    -- log.info("Alice inventory is managed through state")
+    log.info("Alice inventory is managed through state")
   else
-    -- log.info("Adding new items to Alice's inventory")
+    log.info("Adding new items to Alice's inventory")
 
     alice:give_item(items.PID_KNIFE, 1)
     alice:give_item(items.PID_STIMPAK, 5)
