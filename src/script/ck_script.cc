@@ -1,15 +1,15 @@
-#include "utils.h"
 #include "ck_ids.h"
-#include "engine/config/encoding.h"
+#include "system/encoding.h"
+#include "utils.h"
 
-#include "fallout2-ce/scripts.h"
 #include "fallout2-ce/game_dialog.h"
+#include "fallout2-ce/scripts.h"
 
-#include "script/ck_script.h"
-#include "object/ck_object.h"
-#include "ck_registry/ck_registry.h"
-#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+#include "ck_proto/registry/ck_proto_registry.h"
+#include "ck_registry/ck_registry.h"
+#include "object/ck_object.h"
+#include "script/ck_script.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_script.cc"};

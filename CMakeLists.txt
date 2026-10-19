@@ -68,6 +68,7 @@ add_library(fallout2-ck STATIC
     src/system/hooks.cc
     src/system/rendering.cc
     src/system/i18n.cc
+    src/system/encoding.cc
     src/system/input/input.cc
 
     src/debug/overlay.cc
@@ -78,7 +79,6 @@ add_library(fallout2-ck STATIC
     src/engine/config/patch.cc
     src/engine/config/maps.cc
     src/engine/config/city.cc
-    src/engine/config/encoding.cc
 
     src/geometry/geometry.cc
     src/geometry/landscape.cc

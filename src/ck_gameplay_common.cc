@@ -1,11 +1,11 @@
 #include <cstring>
 
-#include "engine/config/encoding.h"
 #include "utils/fallout/types.h"
+#include "system/encoding.h"
 
-#include "fallout2-ce/obj_types.h"
 #include "fallout2-ce/geometry.h"
 #include "fallout2-ce/map_defs.h"
+#include "fallout2-ce/obj_types.h"
 
 namespace f_types = ck::utils::types;
 namespace fallout {

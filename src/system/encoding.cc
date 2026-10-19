@@ -1,4 +1,4 @@
-#include "engine/config/encoding.h"
+#include "system/encoding.h"
 #include "fallout2-ce/settings.h"
 
 std::string system_language() {

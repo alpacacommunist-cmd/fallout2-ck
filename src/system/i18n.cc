@@ -1,5 +1,5 @@
 #include "system/i18n.h"
-#include "engine/config/encoding.h"
+#include "system/encoding.h"
 
 #include <unordered_map>
 #include <fstream>
