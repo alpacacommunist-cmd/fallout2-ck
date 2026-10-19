@@ -1,19 +1,16 @@
 local ffi = require("ffi")
-local utils = require('ck.system.utils')
 
 local stats  = require("ck.fallout2.objects.critters.stats")
 local skills = require('ck.fallout2.objects.critters.skills')
 local perks  = require('ck.fallout2.objects.critters.perks')
 
 -- stats
-local stats_proxy    = stats.create_proxy(ffi.C.player_stat)
+local stats_proxy  = stats.create_proxy(ffi.C.player_stat, ffi.C.player_set_base_stat)
 local pc_stats_proxy = stats.create_pc_proxy(ffi.C.player_pc_stat)
-
 -- skills
-local skills_proxy = skills.create_proxy(ffi.C.player_skill)
-
+local skills_proxy = skills.create_proxy(ffi.C.player_skill, ffi.C.player_set_skill)
 -- perks
-local perks_proxy = perks.create_proxy(ffi.C.player_perk)
+local perks_proxy  = perks.create_proxy(ffi.C.player_perk, ffi.C.player_perk_add_rank)
 
 local player = {
   id = nil,
@@ -42,26 +39,6 @@ setmetatable(player, {
     return nil
   end
 })
-
-function player.add_skill(skill, value)
-  if not skills.ID_MAP[skill] then return end
-  ffi.C.player_add_skill(skill, value)
-end
-
-function player.set_skill(skill, value)
-  if not skills.MAP[skill] then return end
-  ffi.C.player_set_skill(skills.MAP[skill], value)
-end
-
-function player.set_base_stat(stat, value)
-  if not stats.MAP[stat] then return end
-  ffi.C.player_set_base_stat(stats.MAP[stat], value)
-end
-
-function player.add_perk_rank(perk)
-  if not perks.MAP[perk] then return end
-  ffi.C.player_perk_add_rank(perks.MAP[perk])
-end
 
 function player.add_experience(xp)
   return ffi.C.player_give_experience(xp);

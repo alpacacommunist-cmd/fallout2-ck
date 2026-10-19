@@ -57,12 +57,13 @@ events.on('onGameLoaded', function()
   log.info(player.gender)
   log.info(player.level)
 
-  -- player.set_skill('melee_weapons', 10)
-  player.add_perk_rank('toughness')
-  player.add_perk_rank('toughness')
-  player.add_perk_rank('rad_resistance')
-  log.info('small_guns: ' .. tostring(player.skills.small_guns))
-  log.info('tougness: ' .. tostring(player.perks.toughness.rank))
+  -- player.stats.intelligence = 10
+  player.skills.small_guns = 0
+
+  log.info('small_guns: %s', tostring(player.skills.small_guns))
+  log.info('bonus_hth_damage (before): %s', tostring(player.perks.bonus_hth_damage))
+  player.perks.bonus_hth_damage:add_rank()
+  log.info('bonus_hth_damage (after): %s', tostring(player.perks.bonus_hth_damage))
 end)
 
 events.on('onModReload', function()
@@ -80,7 +81,7 @@ end)
 local KN_SCORPION_HARVEST = knowledge.register({
   id       = 1,
   name     = "Scorpion Harvesting",
-  art      = "arroyo_expanded:skilldex/scorpperk.frm",
+  art      = "skilldex/scorpperk.frm",
   max_rank = 3,
   next_level = function(rank)
     return rank * 25

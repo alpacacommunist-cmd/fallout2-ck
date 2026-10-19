@@ -15,16 +15,28 @@ callback:free()
 
 local perks = { MAP = PERKS_MAP, ID_MAP = PERKS_ID_MAP }
 
-function perks.create_proxy(read_perk_fn)
+function perks.create_proxy(read_perk_fn, add_rank_fn)
   local proxy = {}
+
+  local perk_methods = {
+    add_rank = function(self)
+      if add_rank_fn then add_rank_fn(self.id) end
+    end
+  }
+
   setmetatable(proxy, {
     __index = function(_, key)
-      local c_perk = PERKS_MAP[key]
-      if    c_perk then
-        return { rank = read_perk_fn(c_perk), id = c_perk }
-      end
+      local c_perk_id = perks.MAP[key]
+      if not c_perk_id then return nil end
 
-      return nil
+      return setmetatable({
+        id = c_perk_id,
+        name = key,
+        rank = read_perk_fn(c_perk_id)
+      }, {
+        __index = perk_methods,
+        __tostring = function(self) return tostring(self.rank) end
+      })
     end
   })
 
