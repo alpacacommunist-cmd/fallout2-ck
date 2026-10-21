@@ -3,15 +3,6 @@
 
 #include "ck_api.h"
 
-#include <string>
-#include <memory>
-
-#include "fallout2-ce/proto_types.h"
-
-struct MallocDeleter { void operator()(void* ptr) const { std::free(ptr); } };
-using  UniqueProtoPtr = std::unique_ptr<fallout::Proto, MallocDeleter>;
-struct ProtoNode { int pid; UniqueProtoPtr memory; };
-
 // stored internally
 struct ItemProto {
     int pid;
@@ -54,7 +45,7 @@ namespace ck::proto {
     };
 
     namespace item {
-        int get_proto(int pid, fallout::Proto** protoPtr);
+        // int get_proto(int pid, fallout::Proto** protoPtr);
         bool has_pid(int pid);
 
         const ItemProto* find_by_pid(int pid);
@@ -76,7 +67,7 @@ namespace ck::proto {
     void link_sid_to_pid(int sid, int pid);
     void unlink_sid(int sid);
 
-    fallout::Proto* build_generic_prototype(int source_pid, int assigned_pid, int object_type);
+    // fallout::Proto* build_generic_prototype(int source_pid, int assigned_pid, int object_type);
 
     void counters_reset();
     void registry_clear();

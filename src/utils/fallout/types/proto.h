@@ -5,12 +5,14 @@ namespace ck::utils::fallout::types {
     struct Proto {
         void *fallout_proto_ptr = nullptr;
 
-        int source_pid = 0;
-        int pid = 0; // pid
-        int object_type = 0;
+        int source_pid = -1;
+        int source_fid = -1;
+        int pid = -1;
+        int object_type = -1;
 
         void set_fid(int fid);
         void set_sid(int sid);
+        int get_sid() const;
 
         void set_item_cost(int cost);
         void set_item_weight(int weight);
@@ -23,7 +25,7 @@ namespace ck::utils::fallout::types {
 
     namespace proto {
         Proto get(int pid);
-        Proto allocate(int source_pid, int assigned_pid, int object_type);
+        Proto allocate(int source_pid, int assigned_pid);
         void free(Proto &proto);
     } // namespace proto
 }

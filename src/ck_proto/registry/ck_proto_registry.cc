@@ -1,5 +1,6 @@
 #include "ck_ids.h"
 #include "ck_proto_registry.h"
+#include "utils/fallout/types/proto.h"
 
 #include <unordered_map>
 #include <cstring>
@@ -7,30 +8,22 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_proto_registry.cc"};
 
-namespace fallout {
-    int protoGetProto(const ProtoId& protoId, Proto** protoPtr);
-
-    const size_t _proto_sizes[11] = {
-        sizeof(ItemProto),    // 0x84
-        sizeof(CritterProto), // 0x1A0
-        sizeof(SceneryProto), // 0x38
-        sizeof(WallProto),    // 0x24
-        sizeof(TileProto),    // 0x1C
-        sizeof(MiscProto),    // 0x1C
-        0, 0, 0, 0, 0,
-    };
-}
-
 namespace ck::proto {
+    using namespace ck::utils::fallout::types;
+
     namespace {
         int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
         int g_next_proto_pid = ck::ids::CK_PID_START;
+
+        std::vector<Proto> g_registry_protos; // fallout proto ptr + meta
+        std::vector<ItemProto> g_registry_item_protos; // attributes from lua
 
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
 
         bool pid_occupied(int pid) {
             // cache locality?
             if (ck::proto::item::has_pid(pid)) return true;
+            // if (ck::proto::critter::has_pid(pid)) return true;
             return false;
         }
 
@@ -39,10 +32,23 @@ namespace ck::proto {
         }
     }
 
-    bool is_supported_proto_type(int type) {
-        auto object_type = static_cast<ck::ids::ObjectType>(type);
+    void clear_for_mod(const std::string &mod_id) {
+        for (auto &proto : g_registry_protos) {
+            auto reg_it = std::ranges::find_if(
+                g_registry_item_protos.begin(), g_registry_item_protos.end(),
+                [&](const ItemProto &item) { return item.pid == proto.pid && item.mod_id == mod_id; }
+            );
 
-        return object_type == ck::ids::ObjectType::ITEM || object_type == ck::ids::ObjectType::CRITTER;
+            if (reg_it != g_registry_item_protos.end()) {
+                ck::proto::unlink_sid(proto.get_sid());
+
+                ck::utils::fallout::types::proto::free(proto);
+            }
+        }
+
+        // Чистим сами векторы от элементов этого мода
+        std::erase_if(g_registry_protos, [](const auto &p) { return p.fallout_proto_ptr == nullptr; });
+        std::erase_if(g_registry_item_protos, [&](const ItemProto &item) { return item.mod_id == mod_id; });
     }
 
     int next_proto_pid() {
@@ -66,29 +72,10 @@ namespace ck::proto {
     void link_sid_to_pid(int sid, int pid) { g_proto_sid_to_pid[sid] = pid; }
     void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
 
-    fallout::Proto* build_generic_prototype(int source_pid, int assigned_pid, int object_type) {
-        fallout::Proto*  source_proto = nullptr;
-        fallout::ProtoId ck_prototype {source_pid};
+    int build_generic_prototype(int source_pid, int assigned_pid) {
+        Proto ck_prototype = ck_proto::allocate(source_pid, assigned_pid);
 
-        if (fallout::protoGetProto(ck_prototype, &source_proto) != 0 || source_proto == nullptr) {
-            logger.error("Failed to get source prototype for PID: {}", source_pid);
-            return nullptr;
-        }
-
-        size_t proto_size = fallout::_proto_sizes[object_type];
-        void* allocated_mem = std::malloc(proto_size);
-        if (!allocated_mem) {
-            logger.error("Out of memory when allocating custom prototype!");
-            return nullptr;
-        }
-
-        std::memcpy(allocated_mem, source_proto, proto_size);
-        fallout::Proto* custom_proto = static_cast<fallout::Proto*>(allocated_mem);
-
-        custom_proto->pid = assigned_pid;
-        custom_proto->messageId = assigned_pid * 100;
-
-        return custom_proto;
+        return ck_prototype.pid;
     }
 
     void counters_reset() {

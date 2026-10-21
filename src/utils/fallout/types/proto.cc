@@ -30,40 +30,46 @@ namespace fallout {
 } // namespace fallout
 
 namespace ck::utils::fallout::types {
-    [[nodiscard]] static inline ::fallout::ItemProto *as_item(void *ptr) {
-        return reinterpret_cast<::fallout::ItemProto *>(ptr);
-    }
+    namespace proto {
+        [[nodiscard]] static inline ::fallout::ItemProto *as_item(void *ptr) {
+            return reinterpret_cast<::fallout::ItemProto *>(ptr);
+        }
 
-    [[nodiscard]] static inline ::fallout::CritterProto *as_critter(void *ptr) {
-        return reinterpret_cast<::fallout::CritterProto *>(ptr);
-    }
+        [[nodiscard]] static inline ::fallout::CritterProto *as_critter(void *ptr) {
+            return reinterpret_cast<::fallout::CritterProto *>(ptr);
+        }
 
-    [[nodiscard]] static inline ::fallout::Proto *as_generic(void *ptr) {
-        return static_cast<::fallout::Proto *>(ptr);
+        [[nodiscard]] static inline ::fallout::Proto *as_generic(void *ptr) {
+            return static_cast<::fallout::Proto *>(ptr);
+        }
     }
 
     void Proto::set_fid(int fid) {
-        as_generic(fallout_proto_ptr)->fid = fid;
+        proto::as_generic(fallout_proto_ptr)->fid = fid;
     }
 
     void Proto::set_sid(int sid) {
-        as_generic(fallout_proto_ptr)->sid = sid;
+        proto::as_generic(fallout_proto_ptr)->sid = sid;
+    }
+
+    int Proto::get_sid() const {
+        return proto::as_generic(fallout_proto_ptr)->sid;
     }
 
     void Proto::set_item_cost(int cost) {
-        as_item(fallout_proto_ptr)->cost = cost;
+        proto::as_item(fallout_proto_ptr)->cost = cost;
     }
 
     void Proto::set_item_weight(int weight) {
-        as_item(fallout_proto_ptr)->weight = weight;
+        proto::as_item(fallout_proto_ptr)->weight = weight;
     }
 
     void Proto::set_item_inventory_fid(int fid) {
-        as_item(fallout_proto_ptr)->inventoryFid = fid;
+        proto::as_item(fallout_proto_ptr)->inventoryFid = fid;
     }
 
     void Proto::set_item_can_use(bool can_use) {
-        auto* item = as_item(fallout_proto_ptr);
+        auto* item = proto::as_item(fallout_proto_ptr);
         if (can_use) {
             item->extendedFlags |= ::fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
         } else {
@@ -73,14 +79,22 @@ namespace ck::utils::fallout::types {
     }
 
     void Proto::set_critter_team(int team_num) {
-        as_critter(fallout_proto_ptr)->team = team_num;
+        proto::as_critter(fallout_proto_ptr)->team = team_num;
     }
 
     void Proto::set_critter_ai(int ai_packet) {
-        as_critter(fallout_proto_ptr)->aiPacket = ai_packet;
+        proto::as_critter(fallout_proto_ptr)->aiPacket = ai_packet;
     }
 
     namespace proto {
+        struct MallocDeleter {
+            void operator()(void *ptr) const {
+                std::free(ptr);
+            }
+        };
+
+        using UniqueProtoPtr = std::unique_ptr<Proto, MallocDeleter>;
+
         Proto get(int pid) {
             ::fallout::ProtoId proto_id{pid};
             ::fallout::Proto *generic_proto = nullptr;
@@ -107,9 +121,9 @@ namespace ck::utils::fallout::types {
 
             std::memcpy(mem, source_proto, size);
 
-            auto *f_proto = as_generic(mem);
-            f_proto->pid = assigned_pid;
-            f_proto->messageId = assigned_pid * 100;
+            auto *fallout_proto = as_generic(mem);
+            fallout_proto->pid = assigned_pid;
+            fallout_proto->messageId = assigned_pid * 100;
 
             return Proto{mem, source_pid, assigned_pid, object_type};
         }
