@@ -3,7 +3,6 @@
 #include "ck_mods/ck_mods.h"
 
 #include <algorithm>
-#include <functional>
 #include <unordered_map>
 #include <cstring>
 
@@ -115,20 +114,18 @@ namespace ck::proto::registry {
         logger.info("registry cleared");
     }
 
-    // int get_custom_proto(int pid, fallout::Proto** protoPtr) {
-    //     if (protoPtr == nullptr) return -1;
-    //
-    //     if (ck::proto::item::get_proto(pid, protoPtr) == 0) {
-    //         return 0;
-    //     }
-    //
-    //     // if (ck::proto::critter::get_critter_proto(pid, protoPtr) == 0) {
-    //     //     return 0;
-    //     // }
-    //
-    //     *protoPtr = nullptr;
-    //     return -1;
-    // }
+    int get_custom_proto(int pid, void** protoPtr) {
+        if (protoPtr == nullptr) return -1;
+
+        types::Proto* proto = get(pid);
+        if (proto) {
+            *protoPtr = proto->fallout_proto_ptr;
+            return 0;
+        }
+
+        *protoPtr = nullptr;
+        return -1;
+    }
 
     int bind_prototype_script(int pid) {
         for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
@@ -154,12 +151,11 @@ namespace ck::proto::registry {
         return proto_sid;
     }
 
-    // int get_pid_by_tag(const std::string& lua_tag) {
-    //     int pid = ck::proto::item::get_pid_by_tag(lua_tag);
-    //     if (pid != -1) return pid;
-    //
-    //     return -1;
-    // }
+    int get_pid_by_tag(const std::string& lua_tag) {
+        auto it = std::ranges::find_if(g_registry_protos, [lua_tag](const auto &proto) { return proto.lua_tag == lua_tag; });
+
+        return -1;
+    }
 
     int get_pid_by_sid(int sid) {
         int clean_sid = ck::ids::clean_sid(sid);
@@ -187,7 +183,7 @@ namespace ck::proto::registry {
 
 int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
-    return ck::proto::get_pid_by_tag(std::string(lua_tag));
+    return ck::proto::registry::get_pid_by_tag(std::string(lua_tag));
 }
 
 int ck_proto_bind(int pid) {

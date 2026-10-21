@@ -40,6 +40,8 @@ namespace ck::proto::registry {
         void clear_for_mod(const std::string& mod_id);
     }
 
+    int get_custom_proto(int pid, void** protoPtr);
+
     int build_generic_prototype(int source_pid, const char* lua_tag);
     utils::fallout::types::Proto* get(int pid);
 

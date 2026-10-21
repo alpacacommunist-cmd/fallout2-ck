@@ -63,7 +63,7 @@ namespace ck::hooks::system {
 
         ck::registry::deleted::unhide();
         ck::registry::modified::restore_sids();
-        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+        ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Prepare);
     }
 
     void game_saved(const char* path) {
@@ -73,7 +73,7 @@ namespace ck::hooks::system {
 
         ck::registry::deleted::hide();
         ck::registry::modified::reapply_sids();
-        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Restore);
     }
 
     void before_game_load(const char* path) {

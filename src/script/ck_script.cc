@@ -81,7 +81,7 @@ namespace ck::script {
 	}
 
     bool proto_handle(int sid, int proc) {
-        int pid = ck::proto::get_pid_by_sid(sid);
+        int pid = ck::proto::registry::get_pid_by_sid(sid);
 
 		fallout::Script* script = get_dummy(sid);
 

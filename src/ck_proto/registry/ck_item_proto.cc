@@ -29,7 +29,7 @@ namespace ck::proto::registry::item {
 
     static void prepare_object_for_save(fallout::Object* object) {
         types::Proto* proto = ck::proto::registry::get(object->pid);
-        if (proto->pid == -1) return;
+        if (!proto) return;
 
         object->id  = object->pid;
         object->pid = proto->source_pid;
@@ -39,8 +39,8 @@ namespace ck::proto::registry::item {
     }
 
     static void restore_object_after_save(fallout::Object* object) {
-        types::Proto* proto = ck::proto::registry::get(object->pid);
-        if (proto->pid == -1) return;
+        types::Proto* proto = ck::proto::registry::get(object->id);
+        if (!proto) return;
 
         auto it = id_translation_table.find(object->id);
         if (it != id_translation_table.end()) {

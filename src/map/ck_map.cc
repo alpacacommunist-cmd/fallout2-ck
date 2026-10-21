@@ -27,7 +27,7 @@ namespace ck {
 namespace ck::map {
     void on_map_enter() {
         // Restore proto items PID (stored in `id`)
-        ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Restore);
+        ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Restore);
 
         // Dispatch event
         // some events like map_enter have additional logic defined in events.lua
@@ -43,7 +43,7 @@ namespace ck::map {
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds relevant data
         if (!ck::common::game_is_loading()) {
-            ck::proto::item::sync_custom_items_on_map(ck::proto::SyncMode::Prepare);
+            ck::proto::registry::item::sync_custom_items_on_map(proto::registry::SyncMode::Prepare);
         }
 
         // Resets lua registries, updates state when leaving a map
