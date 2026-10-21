@@ -44,20 +44,24 @@ namespace ck::utils::fallout::types {
         }
     }
 
-    void Proto::set_fid(int fid) {
-        proto::as_generic(fallout_proto_ptr)->fid = fid;
+    int Proto::get_sid() const {
+        return proto::as_generic(fallout_proto_ptr)->sid;
+    }
+
+    int Proto::get_fid() const {
+        return proto::as_generic(fallout_proto_ptr)->fid;
     }
 
     void Proto::set_sid(int sid) {
         proto::as_generic(fallout_proto_ptr)->sid = sid;
     }
 
-    int Proto::get_sid() const {
-        return proto::as_generic(fallout_proto_ptr)->sid;
+    void Proto::set_fid(int fid) {
+        proto::as_generic(fallout_proto_ptr)->fid = fid;
     }
 
-    void Proto::set_item_cost(int cost) {
-        proto::as_item(fallout_proto_ptr)->cost = cost;
+    void Proto::set_item_price(int price) {
+        proto::as_item(fallout_proto_ptr)->cost = price;
     }
 
     void Proto::set_item_weight(int weight) {
@@ -106,7 +110,7 @@ namespace ck::utils::fallout::types {
             return Proto{};
         }
 
-        Proto allocate(int source_pid, int assigned_pid) {
+        Proto allocate(int source_pid, int assigned_pid, const char* mod_id) {
             ::fallout::ProtoId proto_id { source_pid };
             ::fallout::Proto *source_proto = nullptr;
 
@@ -116,16 +120,16 @@ namespace ck::utils::fallout::types {
             int object_type = proto_id.objectType();
 
             size_t size = ::fallout::_proto_sizes[object_type];
-            void *mem = std::malloc(size);
-            if (!mem) return Proto{};
+            void *memory = std::malloc(size);
+            if (!memory) return Proto{};
 
-            std::memcpy(mem, source_proto, size);
+            std::memcpy(memory, source_proto, size);
 
-            auto *fallout_proto = as_generic(mem);
+            ::fallout::Proto* fallout_proto = as_generic(memory);
             fallout_proto->pid = assigned_pid;
             fallout_proto->messageId = assigned_pid * 100;
 
-            return Proto{mem, source_pid, assigned_pid, object_type};
+            return Proto{memory, source_proto->pid, source_proto->fid, fallout_proto->pid, object_type, mod_id};
         }
 
         void free(Proto &proto) {

@@ -8,13 +8,18 @@ namespace ck::utils::fallout::types {
         int source_pid = -1;
         int source_fid = -1;
         int pid = -1;
+
         int object_type = -1;
+
+        const char* mod_id;
+        std::string lua_tag;
 
         void set_fid(int fid);
         void set_sid(int sid);
         int get_sid() const;
+        int get_fid() const;
 
-        void set_item_cost(int cost);
+        void set_item_price(int cost);
         void set_item_weight(int weight);
         void set_item_inventory_fid(int fid);
         void set_item_can_use(bool can_use);
@@ -25,7 +30,7 @@ namespace ck::utils::fallout::types {
 
     namespace proto {
         Proto get(int pid);
-        Proto allocate(int source_pid, int assigned_pid);
+        Proto allocate(int source_pid, int assigned_pid, const char* mod_id);
         void free(Proto &proto);
     } // namespace proto
 }

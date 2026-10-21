@@ -2,43 +2,23 @@
 #define CK_PROTO_REGISTRY_H
 
 #include "ck_api.h"
-
-// stored internally
-struct ItemProto {
-    int pid;
-    int source_pid;
-    int source_fid;
-
-    int weight;
-    int price;
-
-    std::string name;
-    std::string description;
-
-    int inv_fid;
-    int ground_fid;
-
-    bool usable;
-
-    std::string lua_tag;
-    std::string mod_id;
-};
+#include "utils/fallout/types/proto.h"
 
 // passed FROM lua
 struct ItemProtoFFI {
-    int weight;
-    int price;
+    int weight = -1;
+    int price = -1;
 
-    int inv_fid;
-    int ground_fid;
+    int inv_fid = -1;
+    int ground_fid = -1;
 
-    bool usable;
+    bool usable = false;
 
     const char *name;
     const char *description;
 };
 
-namespace ck::proto {
+namespace ck::proto::registry {
     enum class SyncMode {
         Prepare,
         Restore
@@ -48,7 +28,6 @@ namespace ck::proto {
         // int get_proto(int pid, fallout::Proto** protoPtr);
         bool has_pid(int pid);
 
-        const ItemProto* find_by_pid(int pid);
         int get_pid_by_tag(const std::string& lua_tag);
 
         int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
@@ -59,15 +38,8 @@ namespace ck::proto {
         void clear_for_mod(const std::string& mod_id);
     }
 
-    bool is_supported_proto_type(int type);
-
-    int next_proto_pid();
-    int next_proto_sid();
-
-    void link_sid_to_pid(int sid, int pid);
-    void unlink_sid(int sid);
-
-    // fallout::Proto* build_generic_prototype(int source_pid, int assigned_pid, int object_type);
+    int build_generic_prototype(int source_pid, const char* lua_tag);
+    utils::fallout::types::Proto* get(int pid);
 
     void counters_reset();
     void registry_clear();
