@@ -1,13 +1,12 @@
-#include "fallout2-ce/proto_types.h"
+#include "utils/fallout/types/proto.h"
+#include "fallout2-ce/obj_types.h"
 
 namespace ck::utils::types {
-    using namespace fallout;
-
-    ObjectType object_type(Object* object) {
-        return ProtoId(object).objectType();
+    int object_type(::fallout::Object* object) {
+        return ck::utils::fallout::types::proto::type(object->pid);
     }
 
-    MapElevation map_elevation(int elevation) {
-        return static_cast<MapElevation>(elevation);
+    ::fallout::MapElevation map_elevation(int elevation) {
+        return static_cast<::fallout::MapElevation>(elevation);
     }
 }

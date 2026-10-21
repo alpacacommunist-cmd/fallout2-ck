@@ -8,7 +8,7 @@ namespace fallout {
 }
 
 namespace ck::utils::types {
-    fallout::ObjectType object_type(fallout::Object* object);
+    int object_type(fallout::Object* object);
     fallout::MapElevation map_elevation(int elevation);
 }
 

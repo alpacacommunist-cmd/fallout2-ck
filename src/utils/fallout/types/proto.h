@@ -31,6 +31,7 @@ namespace ck::utils::fallout::types {
     };
 
     namespace proto {
+        int type(int pid);
         Proto get(int pid);
         Proto allocate(int source_pid, int assigned_pid, const char* mod_id);
         void free(Proto &proto);

@@ -43,6 +43,7 @@ namespace ck::utils::fallout::types {
             return static_cast<::fallout::Proto *>(ptr);
         }
     }
+
     int Proto::get_msg_id() const {
         return proto::as_generic(fallout_proto_ptr)->messageId;
     }
@@ -102,12 +103,18 @@ namespace ck::utils::fallout::types {
 
         using UniqueProtoPtr = std::unique_ptr<Proto, MallocDeleter>;
 
+        int type(int pid) {
+            ::fallout::ProtoId proto_id{pid};
+
+            return static_cast<int>(proto_id.objectType());
+        }
+
         Proto get(int pid) {
             ::fallout::ProtoId proto_id{pid};
             ::fallout::Proto *generic_proto = nullptr;
 
             if (::fallout::protoGetProto(proto_id, &generic_proto) == 0 && generic_proto) {
-                return Proto{generic_proto, pid, pid, proto_id.objectType()};
+                return Proto{generic_proto, pid, generic_proto->fid, pid, proto_id.objectType()};
             }
 
             return Proto{};

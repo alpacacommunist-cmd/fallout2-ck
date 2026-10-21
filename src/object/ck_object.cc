@@ -47,7 +47,7 @@ namespace ck::object {
 
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
-		fallout::Object* object = fallout::objectFindFirstAtLocation(utils::types::map_elevation(fallout::gElevation), tile);
+		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::MapElevation(fallout::gElevation), tile);
 
 		if (object == nullptr) return;
 

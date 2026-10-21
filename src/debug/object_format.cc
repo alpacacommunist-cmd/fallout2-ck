@@ -1,6 +1,5 @@
 #include "debug/object_format.h"
-#include "utils/fallout/types.h"
-
+#include "utils/fallout/types/proto.h"
 #include "fallout2-ce/obj_types.h"
 
 #include "log.h"
@@ -29,24 +28,24 @@ namespace ck::debug {
 			int tileY = tile / grid_width;
 
 			logger.raw("SELECTED tile={} ({}, {}), floor fid: {}, roof fid: {}", tile, tileX, tileY,
-                    ck_map_get_floor_fid(tile, f_types::map_elevation(fallout::gElevation)), ck_map_get_roof_fid(tile, fallout::gElevation)
+                    ck_map_get_floor_fid(tile, fallout::gElevation), ck_map_get_roof_fid(tile, fallout::gElevation)
                    );
 
-			if (fallout::isExitGridAt(tile, f_types::map_elevation(fallout::gElevation))) {
+			if (fallout::isExitGridAt(tile, fallout::MapElevation(fallout::gElevation))) {
 				logger.warning("EXIT GRID ON TILE");
 			}
 
-			fallout::Object* object = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
+			fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::MapElevation(fallout::gElevation), tile);
 			int objIndex = 0;
 
 			while (object != nullptr) {
-				int objType = static_cast<int>(ck::utils::types::object_type(object));
+				int object_type = ck::utils::fallout::types::proto::type(object->pid);
 
 				logger.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
-						objIndex, fallout::objectGetName(object), object->id, objType, object->pid, object->fid, object->sid,
+						objIndex, fallout::objectGetName(object), object->id, object_type, object->pid, object->fid, object->sid,
 						static_cast<unsigned int>(object->flags));
 
-				std::string data_debug = ck::debug::format_object_data(object, objType);
+				std::string data_debug = ck::debug::format_object_data(object, object_type);
 				logger.raw("{}", data_debug);
 
 				object = fallout::objectFindNextAtLocation();
