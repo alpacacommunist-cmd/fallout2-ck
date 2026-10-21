@@ -43,6 +43,9 @@ namespace ck::utils::fallout::types {
             return static_cast<::fallout::Proto *>(ptr);
         }
     }
+    int Proto::get_msg_id() const {
+        return proto::as_generic(fallout_proto_ptr)->messageId;
+    }
 
     int Proto::get_sid() const {
         return proto::as_generic(fallout_proto_ptr)->sid;

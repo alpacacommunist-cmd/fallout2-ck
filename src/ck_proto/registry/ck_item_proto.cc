@@ -1,13 +1,14 @@
 #include "utils.h"
 
 #include "ck_ids.h"
-#include "ck_proto_registry.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "ck_messages/ck_messages.h"
+#include "ck_proto_registry.h"
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "fallout2-ce/proto.h"
+#include "fallout2-ce/obj_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_item_proto.cc"};
@@ -17,17 +18,7 @@ namespace fallout {
     Object* objectFindNextAtElevation();
 }
 
-static fallout::ItemProto* get_fallout_item_proto(int pid) {
-    fallout::Proto*  source_proto = nullptr;
-    fallout::ProtoId item_proto_id(pid);
-    if (fallout::protoGetProto(item_proto_id, &source_proto) == 0 && source_proto) {
-        return reinterpret_cast<fallout::ItemProto*>(source_proto);
-    }
-
-    return nullptr;
-}
-
-namespace ck::proto::item {
+namespace ck::proto::registry::item {
     using namespace ck::utils::fallout;
 
     namespace {
@@ -35,61 +26,6 @@ namespace ck::proto::item {
         // field and is recovered back to pid on game load
         std::unordered_map<int, int> id_translation_table;
     } 
-
-    // int get_proto(int pid, fallout::Proto** protoPtr) {
-    //     for (const auto& node : g_item_protos) {
-    //         if (node.pid == pid) {
-    //             *protoPtr = node.memory.get();
-    //             return 0;
-    //         }
-    //     }
-    //
-    //     return -1;
-    // }
-
-
-    // static const ItemProto* store_prototype_patch(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
-    //     // std::string tag(lua_tag);
-    //     // int pid = ck::proto::next_proto_pid();
-    //     //
-    //     // for (auto& proto : registry_item_protos) {
-    //     //     if (proto.lua_tag == tag) return &proto;
-    //     // }
-    //     //
-    //     // if (pid >= ck::ids::CK_PID_LIMIT) {
-    //     //     logger.error("Cannot register prototype '{}': Custom item PIDs limit reached!", tag);
-    //     //     return nullptr;
-    //     // }
-    //     //
-    //     // auto* fallout_item_proto = get_fallout_item_proto(source_pid);
-    //     // if (!fallout_item_proto) {
-    //     //     logger.error("Couldn't find item proto (source_pid: {}), (tag: {})", source_pid, tag);
-    //     //     return nullptr;
-    //     // }
-    //     //
-    //     // ItemProto proto;
-    //     // proto.pid         = pid;
-    //     // proto.source_pid  = source_pid;
-    //     // proto.source_fid  = fallout_item_proto->fid;
-    //     //
-    //     // proto.weight      = ffi_data.weight;
-    //     // proto.price       = ffi_data.price;
-    //     //
-    //     // proto.name        = std::string(ffi_data.name);
-    //     // proto.description = std::string(ffi_data.description);
-    //     //
-    //     // if (ffi_data.inv_fid && ck::ids::is_ck_frm(ffi_data.inv_fid)) proto.inv_fid = ffi_data.inv_fid;
-    //     // if (ffi_data.ground_fid && ck::ids::is_ck_frm(ffi_data.ground_fid)) proto.ground_fid = ffi_data.ground_fid;
-    //     //
-    //     // proto.usable      = ffi_data.usable;
-    //     //
-    //     // proto.lua_tag     = tag;
-    //     // proto.mod_id      = std::string(ck::mods::current_mod_id());
-    //     //
-    //     // registry_item_protos.push_back(proto);
-    //     //
-    //     // return find_by_pid(proto.pid);
-    // }
 
     static void prepare_object_for_save(fallout::Object* object) {
         types::Proto* proto = ck::proto::registry::get(object->pid);
@@ -120,16 +56,24 @@ namespace ck::proto::item {
     void sync_custom_items_on_map(registry::SyncMode mode) {
         if (mode == registry::SyncMode::Prepare) { // (on game save)
             std::vector<ck::proxy::ItemProtoLuaView> state_vector;
-            for (auto& item_proto : registry_item_protos)
-                state_vector.push_back({item_proto.pid, item_proto.lua_tag.c_str()});
 
+            auto callback = [](const types::Proto& item_proto, void* user_data) {
+                auto* vector = static_cast<std::vector<ck::proxy::ItemProtoLuaView>*>(user_data);
+                vector->push_back({item_proto.pid, item_proto.lua_tag.c_str()});
+            };
+
+            registry::for_each_item(callback, &state_vector);
             proxy::receive_proto_list(state_vector.data(), static_cast<int>(state_vector.size()));
         } else { // SyncMode::Restore (on game load)
             std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
 
             // (quick ref map)
             std::unordered_map<std::string, int> tag_to_current_pid;
-            for (const auto& p : registry_item_protos) tag_to_current_pid[p.lua_tag] = p.pid;
+            auto callback = [](const types::Proto& item_proto, void* user_data) {
+                auto* map = static_cast<std::unordered_map<std::string, int>*>(user_data);
+                (*map)[item_proto.lua_tag] = item_proto.pid;
+            };
+            registry::for_each_item(callback, &tag_to_current_pid);
 
             for (const auto& proto_state : state_protos) {
                 auto it = tag_to_current_pid.find(proto_state.tag);
@@ -196,48 +140,17 @@ namespace ck::proto::item {
         }
 
         proto->set_item_can_use(ffi_data.usable);
-        //
-        // proto.lua_tag     = tag;
-        // proto.mod_id      = std::string(ck::mods::current_mod_id());
 
-        // const ItemProto* proto = store_prototype_patch(source_pid, lua_tag, ffi_data);
-        // if (!proto) {
-        //     logger.error("Failed to save prototype input data {}", lua_tag);
-        //     return -1;
-        // }
-        //
-        // fallout::Proto* generic_proto = ck::proto::build_generic_prototype(source_pid, proto->pid, fallout_object_type);
-        //
-        // if (generic_proto == nullptr) {
-        //     logger.error("Failed to allocate memory for ITEM prototype");
-        //     return -1;
-        // }
-        //
-        // auto* fallout_item_proto = reinterpret_cast<fallout::ItemProto*>(generic_proto);
-        //
-        // fallout_item_proto->pid = proto->pid;
-        // fallout_item_proto->cost   = proto->price;
-        // fallout_item_proto->weight = proto->weight;
-        //
-        // if (proto->usable) {
-        //     fallout_item_proto->extendedFlags |= fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
-        // }
-        //
-        // if (proto->inv_fid) fallout_item_proto->inventoryFid = ffi_data.inv_fid;
-        // if (proto->ground_fid) fallout_item_proto->fid = ffi_data.ground_fid;
-        //
-        // int msg_name_id = proto->pid * 100;
-        //
-        // if (!utils::is_blank(ffi_data.name)) {
-        //     ck::messages_add_string("pro_item.msg", msg_name_id, ffi_data.name);
-        // }
-        //
-        // if (!utils::is_blank(ffi_data.description)) {
-        //     ck::messages_add_string("pro_item.msg", msg_name_id + 1, ffi_data.description);
-        // }
-        //
-        // g_item_protos.push_back({ proto->pid, UniqueProtoPtr(generic_proto) });
-        // return proto->pid;
+        int msg_name_id = proto->get_msg_id();
+        if (!utils::is_blank(ffi_data.name)) {
+            ck::messages_add_string("pro_item.msg", msg_name_id, ffi_data.name);
+        }
+
+        if (!utils::is_blank(ffi_data.description)) {
+            ck::messages_add_string("pro_item.msg", msg_name_id + 1, ffi_data.description);
+        }
+
+        return proto->pid;
     }
 }
 
@@ -245,6 +158,6 @@ namespace ck::proto::item {
 int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data) {
     if (!lua_tag || !ffi_data) return -1;
 
-    return ck::proto::item::register_item_prototype(source_pid, lua_tag, *ffi_data);
+    return ck::proto::registry::item::register_item_prototype(source_pid, lua_tag, *ffi_data);
 }
 

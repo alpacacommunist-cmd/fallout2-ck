@@ -19,6 +19,8 @@ namespace ck::utils::fallout::types {
         int get_sid() const;
         int get_fid() const;
 
+        int get_msg_id() const;
+
         void set_item_price(int cost);
         void set_item_weight(int weight);
         void set_item_inventory_fid(int fid);

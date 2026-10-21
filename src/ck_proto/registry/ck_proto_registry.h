@@ -24,6 +24,8 @@ namespace ck::proto::registry {
         Restore
     };
 
+    using ItemCallback = void(*)(const utils::fallout::types::Proto& proto, void* user_data);
+
     namespace item {
         // int get_proto(int pid, fallout::Proto** protoPtr);
         bool has_pid(int pid);
@@ -41,10 +43,12 @@ namespace ck::proto::registry {
     int build_generic_prototype(int source_pid, const char* lua_tag);
     utils::fallout::types::Proto* get(int pid);
 
+    void for_each_item(ItemCallback callback, void* user_data);
+
     void counters_reset();
     void registry_clear();
 
-    int  bind_prototype_script(int pid);
+    int bind_prototype_script(int pid);
 
     int get_pid_by_tag(const std::string& lua_tag);
     int get_pid_by_sid(int sid);

@@ -3,6 +3,7 @@
 #include "ck_mods/ck_mods.h"
 
 #include <algorithm>
+#include <functional>
 #include <unordered_map>
 #include <cstring>
 
@@ -63,6 +64,14 @@ namespace ck::proto::registry {
         return nullptr;
     }
 
+    void for_each_item(ItemCallback callback, void* user_data) {
+        for (const auto &proto : g_registry_protos) {
+            if (proto.object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {
+                callback(proto, user_data);
+            }
+        }
+    }
+
     void clear_for_mod(const std::string &mod_id) {
         for (auto &proto : g_registry_protos) {
             if (proto.mod_id == mod_id) {
@@ -74,15 +83,16 @@ namespace ck::proto::registry {
         std::erase_if(g_registry_protos, [](const auto &p) { return p.fallout_proto_ptr == nullptr; });
     }
 
-
     int build_generic_prototype(int source_pid, const char* lua_tag) {
-        int pid = next_proto_pid();
-        if (pid == -1) return -1;
+        int assigned_pid = next_proto_pid();
+        if (assigned_pid == -1) return -1;
 
-        types::Proto proto = types::proto::allocate(source_pid, pid, ck::mods::current_mod_id());
+        types::Proto proto = types::proto::allocate(source_pid, assigned_pid, ck::mods::current_mod_id());
         proto.lua_tag = std::string(lua_tag);
 
-        return proto.pid;
+        g_registry_protos.push_back(std::move(proto));
+
+        return assigned_pid;
     }
 
     void counters_reset() {
