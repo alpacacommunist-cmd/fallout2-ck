@@ -27,28 +27,20 @@ namespace ck::proto::registry {
     using ItemCallback = void(*)(const utils::fallout::types::Proto& proto, void* user_data);
 
     namespace item {
-        // int get_proto(int pid, fallout::Proto** protoPtr);
-        bool has_pid(int pid);
-
-        int get_pid_by_tag(const std::string& lua_tag);
-
         int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
-
         void sync_custom_items_on_map(SyncMode mode);
-
-        void clear();
-        void clear_for_mod(const std::string& mod_id);
     }
+    void for_each_item(ItemCallback callback, void* user_data);
 
     int get_custom_proto(int pid, void** protoPtr);
 
     int build_generic_prototype(int source_pid, const char* lua_tag);
     utils::fallout::types::Proto* get(int pid);
 
-    void for_each_item(ItemCallback callback, void* user_data);
-
     void counters_reset();
     void registry_clear();
+
+    void clear_for_mod(const char* mod_id);
 
     int bind_prototype_script(int pid);
 

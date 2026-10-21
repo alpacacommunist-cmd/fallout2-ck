@@ -71,7 +71,7 @@ namespace ck::proto::registry {
         }
     }
 
-    void clear_for_mod(const std::string &mod_id) {
+    void clear_for_mod(const char* mod_id) {
         for (auto &proto : g_registry_protos) {
             if (proto.mod_id == mod_id) {
                 unlink_sid(proto.get_sid());
@@ -80,6 +80,7 @@ namespace ck::proto::registry {
         }
 
         std::erase_if(g_registry_protos, [](const auto &p) { return p.fallout_proto_ptr == nullptr; });
+        logger.info("Cleared registry for mod: {}", mod_id);
     }
 
     int build_generic_prototype(int source_pid, const char* lua_tag) {
@@ -114,6 +115,8 @@ namespace ck::proto::registry {
         logger.info("registry cleared");
     }
 
+    // ENGINE HOOK
+    // int protoGetProto(const ProtoId& protoId, Proto** protoPtr)
     int get_custom_proto(int pid, void** protoPtr) {
         if (protoPtr == nullptr) return -1;
 
@@ -174,11 +177,11 @@ namespace ck::proto::registry {
         return -1;
     }
 
-    // bool has_pid(int pid) {
-    //     if (ck::proto::item::find_by_pid(pid)) return true;
-    //
-    //     return false;
-    // }
+    bool has_pid(int pid) {
+        types::Proto* proto = get(pid);
+
+        return proto != nullptr;
+    }
 }
 
 int ck_proto_get_pid_by_tag(const char* lua_tag) {

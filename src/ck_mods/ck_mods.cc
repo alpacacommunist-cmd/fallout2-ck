@@ -3,6 +3,7 @@
 
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_gameplay_common.h"
 
 #include "log.h"
@@ -116,6 +117,7 @@ namespace ck::mods {
 
         ck::registry::clear_resources_for_mod(mod_id_ptr);
         ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
+        ck::proto::registry::clear_for_mod(mod_id_ptr);
         ck::map::borders::clear_for_mod(mod_id_ptr);
         ck::rendering::clear_for_mod(mod_id_ptr);
     }
