@@ -18,20 +18,35 @@ struct ItemProtoFFI {
     const char *description;
 };
 
+// passed FROM lua
+struct CritterProtoFFI {
+    const char* name;
+    const char* description;
+    const char* ai_packet;
+
+    int team;
+};
+
 namespace ck::proto::registry {
     enum class SyncMode {
         Prepare,
         Restore
     };
 
-    using ItemCallback = void(*)(const utils::fallout::types::Proto& proto, void* user_data);
+    using TypesCallback = void(*)(const utils::fallout::types::Proto& proto, void* user_data);
+    void for_each_item(TypesCallback callback, void* user_data);
+    void for_each_critter(TypesCallback callback, void* user_data);
 
     namespace item {
         int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
         void sync_custom_items_on_map(SyncMode mode);
     }
-    void for_each_item(ItemCallback callback, void* user_data);
 
+    namespace critter {
+        int register_critter_prototype(int source_pid, const CritterProtoFFI& ffi_data);
+    }
+
+    // Engine hook
     int get_custom_proto(int pid, void** protoPtr);
 
     int build_generic_prototype(int source_pid, const char* lua_tag);
@@ -39,7 +54,6 @@ namespace ck::proto::registry {
 
     void counters_reset();
     void registry_clear();
-
     void clear_for_mod(const char* mod_id);
 
     int bind_prototype_script(int pid);

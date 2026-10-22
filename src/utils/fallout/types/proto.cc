@@ -44,6 +44,7 @@ namespace ck::utils::fallout::types {
         }
     }
 
+    // Generic
     int Proto::get_msg_id() const {
         return proto::as_generic(fallout_proto_ptr)->messageId;
     }
@@ -64,6 +65,7 @@ namespace ck::utils::fallout::types {
         proto::as_generic(fallout_proto_ptr)->fid = fid;
     }
 
+    // Item
     void Proto::set_item_price(int price) {
         proto::as_item(fallout_proto_ptr)->cost = price;
     }
@@ -86,12 +88,29 @@ namespace ck::utils::fallout::types {
         }
     }
 
+    // Critter
     void Proto::set_critter_team(int team_num) {
         proto::as_critter(fallout_proto_ptr)->team = team_num;
     }
 
     void Proto::set_critter_ai(int ai_packet) {
         proto::as_critter(fallout_proto_ptr)->aiPacket = ai_packet;
+    }
+
+    int Proto::get_critter_skill(int skill_id) {
+        return proto::as_critter(fallout_proto_ptr)->data.skills[skill_id];
+    }
+
+    int Proto::set_critter_skill(int skill_id, int value) {
+        return proto::as_critter(fallout_proto_ptr)->data.skills[skill_id] = value;
+    }
+
+    int Proto::get_critter_base_stat(int stat_id) {
+        return proto::as_critter(fallout_proto_ptr)->data.baseStats[stat_id];
+    }
+
+    int Proto::set_critter_base_stat(int stat_id, int value) {
+        return proto::as_critter(fallout_proto_ptr)->data.baseStats[stat_id] = value;
     }
 
     namespace proto {

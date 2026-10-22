@@ -63,9 +63,17 @@ namespace ck::proto::registry {
         return nullptr;
     }
 
-    void for_each_item(ItemCallback callback, void* user_data) {
+    void for_each_item(TypesCallback callback, void* user_data) {
         for (const auto &proto : g_registry_protos) {
             if (proto.object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {
+                callback(proto, user_data);
+            }
+        }
+    }
+
+    void for_each_critter(TypesCallback callback, void* user_data) {
+        for (const auto &proto : g_registry_protos) {
+            if (proto.object_type == static_cast<int>(ck::ids::ObjectType::CRITTER)) {
                 callback(proto, user_data);
             }
         }
@@ -88,7 +96,7 @@ namespace ck::proto::registry {
         if (assigned_pid == -1) return -1;
 
         types::Proto proto = types::proto::allocate(source_pid, assigned_pid, ck::mods::current_mod_id());
-        proto.lua_tag = std::string(lua_tag);
+        if (lua_tag) proto.lua_tag = std::string(lua_tag);
 
         g_registry_protos.push_back(std::move(proto));
 
