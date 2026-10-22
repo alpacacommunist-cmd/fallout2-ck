@@ -4,9 +4,7 @@
 
 #include <algorithm>
 #include <memory>
-#include <cstring>
 #include <unordered_map>
-#include <cstring>
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_proto_registry.cc"};
@@ -81,7 +79,10 @@ namespace ck::proto::registry {
             }
         }
 
-        std::erase_if(g_registry_protos, [mod_id](const auto &p) { return p->mod_id == mod_id; });
+        // std::erase_if(g_registry_protos,
+        //               [mod_id](const auto &p) { return p->mod_id == mod_id && p->object_type == 1; });
+
+        std::erase_if(g_registry_protos, [mod_id](const auto &proto) { return proto->mod_id == mod_id; });
         logger.info("Cleared registry for mod: {}", mod_id);
     }
 
@@ -90,10 +91,10 @@ namespace ck::proto::registry {
         if (assigned_pid == -1) return -1;
 
         auto proto = std::make_unique<types::Proto>();
-        if (lua_tag) proto->lua_tag = std::string(lua_tag);
+        if (types::proto::allocate(source_pid, assigned_pid, *proto) != 0) return -1;
 
-        int status = types::proto::allocate(source_pid, assigned_pid, ck::mods::current_mod_id(), *proto);
-        if (status == -1) return -1;
+        if (lua_tag) proto->lua_tag = std::string(lua_tag);
+        proto->mod_id = ck::mods::current_mod_id();
 
         g_registry_protos.push_back(std::move(proto));
 

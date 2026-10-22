@@ -28,8 +28,6 @@ namespace fallout {
     // proto_ptr
     // 0x4A2108 proto_ptr
     int protoGetProto(const ProtoId &protoId, Proto **protoPtr);
-    // int proto_copy_proto(const ProtoId& srcProtoId, const ProtoId& dstProtoId);
-    int proto_critter_init(Proto* proto, const ProtoId& protoId);
 } // namespace fallout
 
 namespace ck::utils::fallout::types {
@@ -130,7 +128,6 @@ namespace ck::utils::fallout::types {
     namespace proto {
         int type(int pid) {
             ::fallout::ProtoId proto_id{pid};
-
             return static_cast<int>(proto_id.objectType());
         }
 
@@ -138,7 +135,7 @@ namespace ck::utils::fallout::types {
             return (object_type << 24) | (pid);
         }
 
-        int allocate(int source_pid, int assigned_pid, const char* mod_id, Proto& proto) {
+        int allocate(int source_pid, int assigned_pid, Proto& proto) {
             ::fallout::ProtoId proto_id { source_pid };
             ::fallout::Proto *source_proto = nullptr;
 
@@ -163,7 +160,6 @@ namespace ck::utils::fallout::types {
             proto.source_sid = source_proto->sid;
             proto.pid = assigned_pid;
             proto.object_type = proto_id.objectType();
-            proto.mod_id = mod_id;
 
             return 0;
         }

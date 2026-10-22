@@ -44,7 +44,7 @@ namespace ck::utils::fallout::types {
     namespace proto {
         int type(int pid);
         int packed_pid(int pid);
-        int allocate(int source_pid, int assigned_pid, const char* mod_id, Proto& proto);
+        int allocate(int source_pid, int assigned_pid, Proto& proto);
     } // namespace proto
 }
 
