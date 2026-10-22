@@ -34,6 +34,9 @@ constexpr int CK_FRM_BASE              = 2000;
 constexpr int CK_FRM_LIMIT             = 4095; // 0xFFF
 constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
 
+bool is_item(fallout::Object* object);
+bool is_critter(fallout::Object* object);
+
 int script_type_for_object(fallout::Object* object);
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);

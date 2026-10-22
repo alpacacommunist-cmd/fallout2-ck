@@ -2,6 +2,7 @@
 #include "utils/fallout/types.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_mods/ck_mods.h"
 
 #include "fallout2-ce/object.h"
@@ -12,10 +13,6 @@ static constexpr logging::Context logger{"ck_object.cc.cc"};
 
 static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
 	return fallout::_obj_blocking_at(nullptr, tile, ck::utils::types::map_elevation(elevation));
-}
-
-namespace ck::critter::proto {
-    extern bool is_custom(int pid);
 }
 
 namespace ck::object {
@@ -121,7 +118,7 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
 	if (fallout::objectCreateWithProtoId(&object, fallout::ProtoId(pid)) == 0) {
         object->flags |= fallout::ObjectFlags::OBJECT_NO_SAVE;
 
-        if (ck::object::type(pid) == 1 && ck::critter::proto::is_custom(pid) > 0) {
+        if (ck::object::type(pid) == 1 && ck::proto::registry::has_pid(pid) > 0) {
             logger.debug("Object created with custom prototype flag. PID: {}", pid);
         }
 	}

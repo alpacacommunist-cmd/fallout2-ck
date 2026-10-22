@@ -50,10 +50,10 @@ namespace ck {
 		if (!container_ptr || count < 1) return false;
 		auto* owner = static_cast<fallout::Object*>(container_ptr);
 
-		fallout::Proto*  proto = nullptr;
+        fallout::Proto *proto = nullptr;
         fallout::ProtoId item_proto_id(item_pid);
 
-		if (fallout::protoGetProto(item_proto_id, &proto) == -1 || !proto) {
+        if (fallout::protoGetProto(item_proto_id, &proto) == -1 || !proto) {
 			return false;
 		}
 

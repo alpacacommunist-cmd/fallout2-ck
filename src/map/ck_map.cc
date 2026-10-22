@@ -41,15 +41,13 @@ namespace ck::map {
         logger.debug("on_before_map_load");
 
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
-        // so that map save file holds relevant data
+        // so that map save file holds vanilla data
         if (!ck::common::game_is_loading()) {
             ck::proto::registry::item::sync_custom_items_on_map(proto::registry::SyncMode::Prepare);
         }
 
         // Resets lua registries, updates state when leaving a map
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
-        // Resets custom critter prototypes queue
-        // ck::critter::reset_prototypes();
         // Resets custom object scripts
         ck::script::reset();
         // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers

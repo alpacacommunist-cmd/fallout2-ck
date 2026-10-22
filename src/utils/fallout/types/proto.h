@@ -7,8 +7,9 @@ namespace ck::utils::fallout::types {
 
         int source_pid = -1;
         int source_fid = -1;
-        int pid = -1;
+        int source_sid = -1;
 
+        int pid = -1;
         int object_type = -1;
 
         const char* mod_id;

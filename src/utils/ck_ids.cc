@@ -1,5 +1,6 @@
 #include "ck_ids.h"
 #include "utils/fallout/types.h"
+#include "utils/fallout/types/proto.h"
 
 #include "fallout2-ce/obj_types.h"
 
@@ -26,6 +27,14 @@ static_assert(static_cast<int>(ObjectType::WALL)    == fallout::OBJ_TYPE_WALL,  
 static_assert(static_cast<int>(ObjectType::TILE)    == fallout::OBJ_TYPE_TILE,    "TILE mismatch!");
 static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,    "MISC mismatch!");
 
+bool is_item(fallout::Object* object) {
+    return ck::utils::fallout::types::proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
+}
+
+bool is_critter(fallout::Object* object) {
+    return ck::utils::fallout::types::proto::type(object->pid) == static_cast<int>(ObjectType::CRITTER);
+}
+
 int script_type_for_object(fallout::Object* object) {
     if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
 
@@ -49,7 +58,7 @@ int script_type_for_object(fallout::Object* object) {
 bool is_ck_frm(int fid) {
     if (fid == -1) return false;
 
-    int frm_id      = fid & 0xFFF;
+    int frm_id = fid & 0xFFF;
     return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
 }
 

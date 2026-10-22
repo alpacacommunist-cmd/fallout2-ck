@@ -27,20 +27,20 @@ namespace ck::proto::registry::item {
         std::unordered_map<int, int> id_translation_table;
     } 
 
-    static void prepare_object_for_save(fallout::Object* object) {
+    static void prepare_item_for_save(fallout::Object* object) {
         types::Proto* proto = ck::proto::registry::get(object->pid);
-        if (!proto) return;
+        if (!proto || !ck::ids::is_item(object)) return;
 
         object->id  = object->pid;
         object->pid = proto->source_pid;
-        object->sid = proto->get_sid();
+        object->sid = proto->source_sid;
 
         if (proto->source_fid != proto->get_fid()) object->fid = proto->source_fid;
     }
 
     static void restore_object_after_save(fallout::Object* object) {
         types::Proto* proto = ck::proto::registry::get(object->id);
-        if (!proto) return;
+        if (!proto || !ck::ids::is_item(object)) return;
 
         auto it = id_translation_table.find(object->id);
         if (it != id_translation_table.end()) {
@@ -91,7 +91,7 @@ namespace ck::proto::registry::item {
             while (object != nullptr) {
                 if (mode == registry::SyncMode::Prepare) {
                     if (ck::ids::is_ck_pid(object->pid)) {
-                        prepare_object_for_save(object);
+                        prepare_item_for_save(object);
                     }
                 } else { // SyncMode::Restore
                     if (ck::ids::is_ck_pid(object->id)) {
@@ -107,7 +107,7 @@ namespace ck::proto::registry::item {
 
                         if (mode == registry::SyncMode::Prepare) {
                             if (ck::ids::is_ck_pid(item->pid)) {
-                                prepare_object_for_save(item);
+                                prepare_item_for_save(item);
                             }
                         } else { // SyncMode::Restore
                             if (ck::ids::is_ck_pid(item->id)) {

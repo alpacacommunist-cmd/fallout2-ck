@@ -20,10 +20,6 @@ namespace ck {
     namespace registry {
         void clear_resources_for_mod(const char* target_mod_id);
     }
-    // critter prototypes
-    namespace critter::proto {
-        void clear_prototypes_for_mod(const char* mod_id);
-    }
     // map/ck_map_camera_borders.cc
     namespace map::borders {
         void clear_for_mod(const char* mod_id);
@@ -116,7 +112,6 @@ namespace ck::mods {
         const char *mod_id_ptr = ck::mods::ptr(mod_id);
 
         ck::registry::clear_resources_for_mod(mod_id_ptr);
-        ck::critter::proto::clear_prototypes_for_mod(mod_id_ptr);
         ck::proto::registry::clear_for_mod(mod_id_ptr);
         ck::map::borders::clear_for_mod(mod_id_ptr);
         ck::rendering::clear_for_mod(mod_id_ptr);

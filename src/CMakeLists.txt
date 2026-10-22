@@ -68,7 +68,6 @@ add_library(fallout2-ck STATIC
     script/ck_script.cc
     object/ck_object.cc
     object/critter/ck_critter.cc
-    object/critter/ck_critter_proto.cc
     object/critter/ck_stats.cc
     object/critter/ck_skills.cc
     object/critter/ck_perks.cc

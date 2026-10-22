@@ -171,7 +171,8 @@ namespace ck::utils::fallout::types {
             fallout_proto->pid = types::proto::packed_pid(assigned_pid, object_type);
             fallout_proto->messageId = assigned_pid * 100;
 
-            return Proto{fallout_proto, source_proto->pid, source_proto->fid, assigned_pid, object_type, mod_id};
+            return Proto{fallout_proto, source_proto->pid, source_proto->fid, source_proto->sid,
+                assigned_pid, object_type, mod_id};
         }
 
         void free(Proto &proto) {
