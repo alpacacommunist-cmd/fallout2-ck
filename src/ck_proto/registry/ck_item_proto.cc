@@ -2,7 +2,7 @@
 
 #include "ck_ids.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
-#include "ck_messages/ck_messages.h"
+#include "engine/messages.h"
 #include "ck_proto_registry.h"
 
 #include <unordered_map>

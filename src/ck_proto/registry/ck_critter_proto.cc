@@ -1,9 +1,10 @@
 #include "utils.h"
 #include "ck_ids.h"
 
-#include "ck_messages/ck_messages.h"
+#include "engine/messages.h"
 #include "ck_proto_registry.h"
 
+// TODO: utils/types wrapper
 #include "fallout2-ce/obj_types.h"
 
 #include "log.h"

@@ -14,6 +14,7 @@ add_library(fallout2-ck STATIC
     engine/config/patch.cc
     engine/config/maps.cc
     engine/config/city.cc
+    engine/messages.cc
 
     geometry/geometry.cc
     geometry/landscape.cc
@@ -37,7 +38,6 @@ add_library(fallout2-ck STATIC
     ck_mods/ck_mods.cc
     ck_state/ck_state.cc
     ck_dispatcher/ck_dispatcher.cc
-    ck_messages/ck_messages.cc
 
     ck_lua_proxy/ck_lua_proxy.cc
     ck_lua_proxy/ck_lua_proxy_dispatcher.cc

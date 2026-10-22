@@ -2,7 +2,7 @@
 
 #include "engine/config/maps.h"
 #include "engine/config/city.h"
-#include "ck_messages/ck_messages.h"
+#include "engine/messages.h"
 #include "ck_mods/ck_mods.h"
 
 #include <unordered_map>
