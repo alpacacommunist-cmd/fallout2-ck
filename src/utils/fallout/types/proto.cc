@@ -1,7 +1,5 @@
 #include "utils/fallout/types/proto.h"
 #include "fallout2-ce/proto_types.h"
-
-#include <memory>
 #include <cstring>
 
 #include "log.h"
@@ -46,6 +44,13 @@ namespace ck::utils::fallout::types {
 
         [[nodiscard]] static inline ::fallout::Proto *as_generic(void *ptr) {
             return static_cast<::fallout::Proto *>(ptr);
+        }
+    }
+
+    Proto::~Proto() {
+        if (fallout_proto_ptr) {
+            std::free(fallout_proto_ptr);
+            fallout_proto_ptr = nullptr;
         }
     }
 
@@ -123,14 +128,6 @@ namespace ck::utils::fallout::types {
     }
 
     namespace proto {
-        struct MallocDeleter {
-            void operator()(void *ptr) const {
-                std::free(ptr);
-            }
-        };
-
-        using UniqueProtoPtr = std::unique_ptr<Proto, MallocDeleter>;
-
         int type(int pid) {
             ::fallout::ProtoId proto_id{pid};
 
@@ -141,29 +138,18 @@ namespace ck::utils::fallout::types {
             return (object_type << 24) | (pid);
         }
 
-        Proto get(int pid) {
-            ::fallout::ProtoId proto_id{pid};
-            ::fallout::Proto *generic_proto = nullptr;
-
-            if (::fallout::protoGetProto(proto_id, &generic_proto) == 0 && generic_proto) {
-                return Proto{generic_proto, pid, generic_proto->fid, pid, proto_id.objectType()};
-            }
-
-            return Proto{};
-        }
-
-        Proto allocate(int source_pid, int assigned_pid, const char* mod_id) {
+        int allocate(int source_pid, int assigned_pid, const char* mod_id, Proto& proto) {
             ::fallout::ProtoId proto_id { source_pid };
             ::fallout::Proto *source_proto = nullptr;
 
             ::fallout::protoGetProto(proto_id, &source_proto);
-            if (!source_proto) return Proto{};
+            if (!source_proto) return -1;
 
             int object_type = proto_id.objectType();
 
             size_t size = ::fallout::_proto_sizes[object_type];
             void *memory = std::malloc(size);
-            if (!memory) return Proto{};
+            if (!memory) return -1;
 
             std::memcpy(memory, source_proto, size);
 
@@ -171,15 +157,15 @@ namespace ck::utils::fallout::types {
             fallout_proto->pid = types::proto::packed_pid(assigned_pid, object_type);
             fallout_proto->messageId = assigned_pid * 100;
 
-            return Proto{fallout_proto, source_proto->pid, source_proto->fid, source_proto->sid,
-                assigned_pid, object_type, mod_id};
-        }
+            proto.fallout_proto_ptr = fallout_proto;
+            proto.source_pid = source_proto->pid;
+            proto.source_fid = source_proto->fid;
+            proto.source_sid = source_proto->sid;
+            proto.pid = assigned_pid;
+            proto.object_type = proto_id.objectType();
+            proto.mod_id = mod_id;
 
-        void free(Proto &proto) {
-            if (proto.fallout_proto_ptr) {
-                std::free(proto.fallout_proto_ptr);
-                proto.fallout_proto_ptr = nullptr;
-            }
+            return 0;
         }
     } // namespace proto
 } // namespace ck::utils::fallout::types

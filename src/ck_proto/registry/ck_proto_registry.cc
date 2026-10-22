@@ -3,6 +3,8 @@
 #include "ck_mods/ck_mods.h"
 
 #include <algorithm>
+#include <memory>
+#include <cstring>
 #include <unordered_map>
 #include <cstring>
 
@@ -15,12 +17,12 @@ namespace ck::proto::registry {
     namespace {
         int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
 
-        std::vector<types::Proto> g_registry_protos; // fallout proto ptr + meta
+        std::vector<std::unique_ptr<types::Proto>> g_registry_protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
 
         bool pid_occupied(int pid) {
             // cache locality?
-            return std::ranges::any_of(g_registry_protos, [pid](const auto &proto) { return proto.pid == pid; });
+            return std::ranges::any_of(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
         }
 
         bool sid_occupied(int sid) {
@@ -51,40 +53,35 @@ namespace ck::proto::registry {
     }
 
     types::Proto* get(int pid) {
-        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto.pid == pid; });
+        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
 
-        if (it != g_registry_protos.end()) {
-            return &(*it);
-        }
-
-        return nullptr;
+        return it != g_registry_protos.end() ? it->get() : nullptr;
     }
 
     void for_each_item(TypesCallback callback, void* user_data) {
         for (const auto &proto : g_registry_protos) {
-            if (proto.object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {
-                callback(proto, user_data);
+            if (proto->object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {
+                callback(*proto, user_data);
             }
         }
     }
 
     void for_each_critter(TypesCallback callback, void* user_data) {
         for (const auto &proto : g_registry_protos) {
-            if (proto.object_type == static_cast<int>(ck::ids::ObjectType::CRITTER)) {
-                callback(proto, user_data);
+            if (proto->object_type == static_cast<int>(ck::ids::ObjectType::CRITTER)) {
+                callback(*proto, user_data);
             }
         }
     }
 
-    void clear_for_mod(const char* mod_id) {
+    void clear_for_mod(const char *mod_id) {
         for (auto &proto : g_registry_protos) {
-            if (proto.mod_id == mod_id) {
-                unlink_sid(proto.get_sid());
-                ck::utils::fallout::types::proto::free(proto);
+            if (proto && proto->mod_id == mod_id) {
+                unlink_sid(proto->get_sid());
             }
         }
 
-        std::erase_if(g_registry_protos, [](const auto &p) { return p.fallout_proto_ptr == nullptr; });
+        std::erase_if(g_registry_protos, [mod_id](const auto &p) { return p->mod_id == mod_id; });
         logger.info("Cleared registry for mod: {}", mod_id);
     }
 
@@ -92,8 +89,11 @@ namespace ck::proto::registry {
         int assigned_pid = next_proto_pid();
         if (assigned_pid == -1) return -1;
 
-        types::Proto proto = types::proto::allocate(source_pid, assigned_pid, ck::mods::current_mod_id());
-        if (lua_tag) proto.lua_tag = std::string(lua_tag);
+        auto proto = std::make_unique<types::Proto>();
+        if (lua_tag) proto->lua_tag = std::string(lua_tag);
+
+        int status = types::proto::allocate(source_pid, assigned_pid, ck::mods::current_mod_id(), *proto);
+        if (status == -1) return -1;
 
         g_registry_protos.push_back(std::move(proto));
 
@@ -108,14 +108,9 @@ namespace ck::proto::registry {
     }
 
     void clear() {
-        for (auto &proto : g_registry_protos) {
-            unlink_sid(proto.get_sid());
-            ck::utils::fallout::types::proto::free(proto);
-        }
-
-        g_registry_protos.clear();
-
+        g_registry_protos.clear(); 
         counters_reset();
+
         logger.info("registry cleared");
     }
 
@@ -150,9 +145,9 @@ namespace ck::proto::registry {
 
         g_proto_sid_to_pid[assigned_sid] = pid;
 
-        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto.pid == pid; });
+        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
         if (it != g_registry_protos.end()) {
-            it->set_sid(proto_sid);
+            it->get()->set_sid(proto_sid);
         }
 
         logger.debug("Bound custom prototype PID {} to SID {} ({})", pid, assigned_sid, proto_sid);
@@ -160,7 +155,7 @@ namespace ck::proto::registry {
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
-        auto it = std::ranges::find_if(g_registry_protos, [lua_tag](const auto &proto) { return proto.lua_tag == lua_tag; });
+        auto it = std::ranges::find_if(g_registry_protos, [lua_tag](const auto &proto) { return proto->lua_tag == lua_tag; });
 
         return -1;
     }

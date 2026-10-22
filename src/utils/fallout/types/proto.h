@@ -15,6 +15,9 @@ namespace ck::utils::fallout::types {
         const char* mod_id;
         std::string lua_tag;
 
+        Proto() = default;
+        ~Proto();
+
         // Generic
         void set_fid(int fid);
         void set_sid(int sid);
@@ -41,9 +44,7 @@ namespace ck::utils::fallout::types {
     namespace proto {
         int type(int pid);
         int packed_pid(int pid);
-        Proto get(int pid);
-        Proto allocate(int source_pid, int assigned_pid, const char* mod_id);
-        void free(Proto &proto);
+        int allocate(int source_pid, int assigned_pid, const char* mod_id, Proto& proto);
     } // namespace proto
 }
 
