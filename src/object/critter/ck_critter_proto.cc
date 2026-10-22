@@ -16,8 +16,6 @@ static constexpr logging::Context logger{"ck_critter_proto.cc"};
 
 namespace fallout {
     int combat_ai_packet_num_by_name(const char* name);
-
-    int critterGetStat(Object* critter, Stat stat);
 }
 
 namespace ck::critter::proto {
