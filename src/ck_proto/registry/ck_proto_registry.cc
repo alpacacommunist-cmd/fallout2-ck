@@ -14,16 +14,13 @@ namespace ck::proto::registry {
 
     namespace {
         int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
-        int g_next_proto_pid = ck::ids::CK_PID_START;
 
         std::vector<types::Proto> g_registry_protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
 
         bool pid_occupied(int pid) {
             // cache locality?
-            std::ranges::any_of(g_registry_protos, [pid](const auto &proto) { return proto.pid == pid; });
-
-            return false;
+            return std::ranges::any_of(g_registry_protos, [pid](const auto &proto) { return proto.pid == pid; });
         }
 
         bool sid_occupied(int sid) {
@@ -104,14 +101,13 @@ namespace ck::proto::registry {
     }
 
     void counters_reset() {
-        g_next_proto_pid = ck::ids::CK_PID_START;
         g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
         g_proto_sid_to_pid.clear();
 
         logger.debug("counters reset");
     }
 
-    void registry_clear() {
+    void clear() {
         for (auto &proto : g_registry_protos) {
             unlink_sid(proto.get_sid());
             ck::utils::fallout::types::proto::free(proto);
@@ -128,12 +124,13 @@ namespace ck::proto::registry {
     int get_custom_proto(int pid, void** protoPtr) {
         if (protoPtr == nullptr) return -1;
 
-        types::Proto* proto = get(pid);
+        types::Proto* proto = get(ck::ids::clean_pid(pid));
         if (proto) {
             *protoPtr = proto->fallout_proto_ptr;
             return 0;
         }
 
+        logger.error("Proto not found: {}", pid);
         *protoPtr = nullptr;
         return -1;
     }
@@ -186,12 +183,17 @@ namespace ck::proto::registry {
     }
 
     bool has_pid(int pid) {
-        types::Proto* proto = get(pid);
-
+        types::Proto* proto = get(ck::ids::clean_pid(pid));
         return proto != nullptr;
+    }
+
+    int source_pid(int pid) {
+        types::Proto* proto = get(ck::ids::clean_pid(pid));
+        return proto ? proto->source_pid : -1;
     }
 }
 
+// FFI
 int ck_proto_get_pid_by_tag(const char* lua_tag) {
     if (!lua_tag) return -1;
     return ck::proto::registry::get_pid_by_tag(std::string(lua_tag));

@@ -122,7 +122,7 @@ namespace ck::proto::registry::item {
         }
     }
 
-    int register_item_prototype(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
+    int allocate(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
         int assigned_pid = registry::build_generic_prototype(source_pid, lua_tag);
         if (assigned_pid == -1) return -1;
 
@@ -150,14 +150,14 @@ namespace ck::proto::registry::item {
             ck::messages_add_string("pro_item.msg", msg_name_id + 1, ffi_data.description);
         }
 
-        return proto->pid;
+        return proto->packed_pid();
     }
 }
 
-// ffi
+// FFI
 int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data) {
     if (!lua_tag || !ffi_data) return -1;
 
-    return ck::proto::registry::item::register_item_prototype(source_pid, lua_tag, *ffi_data);
+    return ck::proto::registry::item::allocate(source_pid, lua_tag, *ffi_data);
 }
 

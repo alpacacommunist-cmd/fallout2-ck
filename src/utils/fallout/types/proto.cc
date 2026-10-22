@@ -4,6 +4,9 @@
 #include <memory>
 #include <cstring>
 
+#include "log.h"
+static constexpr logging::Context logger{"types/proto.cc"};
+
 namespace fallout {
     // proto.cc:
     // 0x51C340 proto_sizes
@@ -27,6 +30,8 @@ namespace fallout {
     // proto_ptr
     // 0x4A2108 proto_ptr
     int protoGetProto(const ProtoId &protoId, Proto **protoPtr);
+    // int proto_copy_proto(const ProtoId& srcProtoId, const ProtoId& dstProtoId);
+    int proto_critter_init(Proto* proto, const ProtoId& protoId);
 } // namespace fallout
 
 namespace ck::utils::fallout::types {
@@ -63,6 +68,10 @@ namespace ck::utils::fallout::types {
 
     void Proto::set_fid(int fid) {
         proto::as_generic(fallout_proto_ptr)->fid = fid;
+    }
+
+    int Proto::packed_pid() const {
+        return (object_type << 24) | (pid);
     }
 
     // Item
@@ -128,6 +137,10 @@ namespace ck::utils::fallout::types {
             return static_cast<int>(proto_id.objectType());
         }
 
+        int packed_pid(int pid, int object_type) {
+            return (object_type << 24) | (pid);
+        }
+
         Proto get(int pid) {
             ::fallout::ProtoId proto_id{pid};
             ::fallout::Proto *generic_proto = nullptr;
@@ -155,10 +168,10 @@ namespace ck::utils::fallout::types {
             std::memcpy(memory, source_proto, size);
 
             ::fallout::Proto* fallout_proto = as_generic(memory);
-            fallout_proto->pid = assigned_pid;
+            fallout_proto->pid = types::proto::packed_pid(assigned_pid, object_type);
             fallout_proto->messageId = assigned_pid * 100;
 
-            return Proto{memory, source_proto->pid, source_proto->fid, fallout_proto->pid, object_type, mod_id};
+            return Proto{fallout_proto, source_proto->pid, source_proto->fid, assigned_pid, object_type, mod_id};
         }
 
         void free(Proto &proto) {
@@ -169,3 +182,4 @@ namespace ck::utils::fallout::types {
         }
     } // namespace proto
 } // namespace ck::utils::fallout::types
+

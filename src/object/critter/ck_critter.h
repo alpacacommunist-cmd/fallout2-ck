@@ -3,7 +3,6 @@
 #define CK_CRITTER_H
 
 #include "ck_api.h"
-#include "ck_critter_proto.h"
 
 namespace fallout {
     struct Object;

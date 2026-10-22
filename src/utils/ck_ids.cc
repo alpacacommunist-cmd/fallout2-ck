@@ -53,10 +53,6 @@ bool is_ck_frm(int fid) {
     return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
 }
 
-bool is_ck_pid(int pid) {
-    return pid >= CK_PID_START && pid < CK_PID_LIMIT;
-}
-
 int art_id_from_fid(int fid) {
     return fid & 0xFFF;
 }
@@ -66,11 +62,18 @@ int make_ck_fid(int custom_frm_id, int art_type) {
 }
 
 int clean_sid(int full_sid) {
+    if ((full_sid) == -1) return -1;
     return full_sid & 0x00FFFFFF;
 }
 
 int clean_pid(int full_pid) {
+    if ((full_pid) == -1) return -1;
     return full_pid & 0x00FFFFFF;
+}
+
+bool is_ck_pid(int pid) {
+    int unpacked_pid = clean_pid(pid);
+    return unpacked_pid >= CK_PID_START && unpacked_pid < CK_PID_LIMIT;
 }
 
 bool is_ck_sid(int sid) {

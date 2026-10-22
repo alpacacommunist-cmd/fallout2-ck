@@ -19,8 +19,8 @@ namespace ck::utils::fallout::types {
         void set_sid(int sid);
         int get_sid() const;
         int get_fid() const;
-
         int get_msg_id() const;
+        int packed_pid() const;
 
         // Item
         void set_item_price(int cost);
@@ -39,6 +39,7 @@ namespace ck::utils::fallout::types {
 
     namespace proto {
         int type(int pid);
+        int packed_pid(int pid);
         Proto get(int pid);
         Proto allocate(int source_pid, int assigned_pid, const char* mod_id);
         void free(Proto &proto);

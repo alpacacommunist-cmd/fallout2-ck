@@ -1,10 +1,10 @@
 #include "ffi/system.h"
 #include "ffi/tests.h"
 #include "ffi/gameplay.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 
 // TODO:: move to headers
 extern "C" {
-    int ck_item_proto_register(...);
     int ck_assets_register_path(...);
     bool ck_proto_get_by_pid(...);
 	int ck_inventory_count(...);
@@ -29,8 +29,11 @@ namespace ck::ffi {
             (void*)&ck_monitor_print_message,
             // ...
 
-            // TODO:: move to headers
+            // ck_proto_registry.h
             (void*)&ck_item_proto_register,
+            (void*)&ck_critter_allocate_prototype,
+            // ...
+            // TODO:: move to headers
             (void*)&ck_assets_register_path,
             (void*)&ck_proto_get_by_pid,
             (void*)&ck_inventory_count,

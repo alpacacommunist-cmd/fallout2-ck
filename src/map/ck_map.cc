@@ -16,7 +16,7 @@
 static constexpr logging::Context logger{"ck_config_maps.cc"};
 
 namespace ck {
-    namespace critter { void reset_prototypes(); }
+    // namespace critter { void reset_prototypes(); }
     namespace script { void reset(); }
 
     namespace proxy::detail {
@@ -49,7 +49,7 @@ namespace ck::map {
         // Resets lua registries, updates state when leaving a map
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
         // Resets custom critter prototypes queue
-        ck::critter::reset_prototypes();
+        // ck::critter::reset_prototypes();
         // Resets custom object scripts
         ck::script::reset();
         // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers

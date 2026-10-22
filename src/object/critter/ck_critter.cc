@@ -6,7 +6,7 @@
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
 #include "object/critter/ck_critter.h"
-#include "object/critter/ck_critter_proto.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 #include "script/ck_script.h"
 
 #include "ck_gameplay_common.h"
@@ -66,16 +66,6 @@ namespace ck::critter {
         return -3;
     }
 
-    void reset_prototypes_for_mod(const char* mod_id) {
-        ck::critter::proto::clear_prototypes_for_mod(mod_id);
-        logger.debug("Reset prototypes for mod: {}", mod_id);
-    }
-
-    void reset_prototypes() {
-        ck::critter::proto::clear_prototypes();
-        logger.debug("Cleared map context critter prototypes");
-    }
-
     void assign_script(fallout::Object* critter, int script_index, int lua_id) {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
@@ -96,7 +86,6 @@ namespace ck::critter {
         logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
     }
 
-    // TODO: fix source_pid
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
         int lua_id = -1;
         std::string lua_tag = spawn_params->tag;
@@ -107,7 +96,7 @@ namespace ck::critter {
         // Locate source pid
         // It's being used when critter dies: source_pid is restored and
         // OBJECT_NO_SAVE is removed, body is handled by engine
-        int source_pid = proto::source_pid(pid);
+        int source_pid = proto::registry::source_pid(pid);
 
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
@@ -122,7 +111,10 @@ namespace ck::critter {
         }
 
         fallout::Object* critter = create(pid, tile, spawn_params->elevation);
-        if (critter == nullptr) return -1;
+        if (critter == nullptr) {
+            logger.error("source pid: {}, pid: {}", source_pid, pid);
+            return -1;
+        }
 
         if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
@@ -146,7 +138,7 @@ namespace ck::critter {
         // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
 
-        if (ck::critter::proto::is_custom(registry_object->ptr->pid)) {
+        if (proto::registry::has_pid(registry_object->ptr->pid)) {
             logger.debug("Killed critter {} identified as custom prototype", registry_object->ptr->pid);
             // store pid for proto messages
             registry_object->ptr->data.critter.radiation = registry_object->ptr->pid;

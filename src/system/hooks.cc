@@ -103,6 +103,7 @@ namespace ck::hooks::system {
     // Exit
     void exit() {
         ck::proxy::shutdown();
+        ck::proto::registry::clear();
 
         logger.info("ck_scripting_exit");
         logger.info("Shutting down LuaJIT backend...");

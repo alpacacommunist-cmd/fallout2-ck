@@ -40,7 +40,7 @@ function critters.allocate_prototype(pid, config)
   local proto_description = not utils.is_blank(config.description) and config.description or nil
   local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
 
-  local proto_params = ffi.new("CritterLuaProtoParams", {
+  local proto_params = ffi.new("CritterProtoFFI", {
     name = proto_name,
     description = proto_description,
     ai_packet = ai_packet
@@ -113,7 +113,7 @@ function critters.register(tag, pid, tile, config)
   local lua_id = ck_critter_spawn_traced(pid, tile, spawn_params)
 
   if lua_id == -1 then
-    log.warn("Failed to register critter (FFI) (tag: %s)", spawn_params.tag)
+    log.warning("Failed to register critter (FFI) (tag: %s)", spawn_params.tag)
     return nil
   end
 

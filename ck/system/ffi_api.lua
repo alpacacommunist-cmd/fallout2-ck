@@ -18,7 +18,8 @@ ffi.cdef(header)
 
 ffi.cdef[[
   // pseudo types
-  typedef struct fallout_CritterProto fallout_CritterProto;
+  // proto.cc (utils/fallout/types/proto)
+  typedef struct ck_CritterProto ck_CritterProto;
 
   // --- System & Bootstrap ---
   bool ck_system_add_mod(const char* mod_id);
@@ -135,18 +136,18 @@ ffi.cdef[[
     const char* description;
     const char* ai_packet;
     int team;
-  } CritterLuaProtoParams;
+  } CritterProtoFFI;
 
   int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
 
-  int  ck_critter_allocate_prototype(int base_pid, const CritterLuaProtoParams* params);
+  int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* params);
   bool ck_critter_has_custom_prototype(fallout_Object* critter);
-  fallout_CritterProto* ck_critter_get_proto_by_pid(int pid);
+  ck_CritterProto* ck_critter_get_proto_by_pid(int pid);
 
-  int  ck_critter_proto_get_base_stat(fallout_CritterProto* proto, int stat_id);
-  void ck_critter_proto_set_base_stat(fallout_CritterProto* proto, int stat_id, int value);
-  int  ck_critter_proto_get_skill(fallout_CritterProto* proto, int skill_id);
-  void ck_critter_proto_set_skill(fallout_CritterProto* proto, int skill_id, int value);
+  int  ck_critter_proto_get_base_stat(ck_CritterProto* proto, int stat_id);
+  void ck_critter_proto_set_base_stat(ck_CritterProto* proto, int stat_id, int value);
+  int  ck_critter_proto_get_skill(ck_CritterProto* proto, int skill_id);
+  void ck_critter_proto_set_skill(ck_CritterProto* proto, int skill_id, int value);
 
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
@@ -332,13 +333,13 @@ ffi.cdef[[
   void ck_knowledge_push_cache(const CkKnowledgeFFI* data);
 ]]
 
-ffi.metatype("CritterLuaProtoParams", {
+ffi.metatype("CritterProtoFFI", {
   __tostring = function(p)
     local name = p.name ~= nil and string.format("'%s'", ffi.string(p.name)) or "NULL"
     local desc = p.description ~= nil and string.format("'%s'", ffi.string(p.description)) or "NULL"
     local ai   = p.ai_packet ~= nil and string.format("'%s'", ffi.string(p.ai_packet)) or "NULL"
 
-    return string.format("CritterLuaProtoParams{ name: %s, description: %s, ai_packet: %s, team: %d }", name, desc, ai, p.team)
+    return string.format("CritterProtoFFI{ name: %s, description: %s, ai_packet: %s, team: %d }", name, desc, ai, p.team)
   end
 })
 
