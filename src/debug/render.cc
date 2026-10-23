@@ -5,7 +5,6 @@
 #include <vector>
 #include <cstring>
 
-#include <fallout2-ce/object.h>
 #include <fallout2-ce/tile.h>
 #include <fallout2-ce/art.h>
 
@@ -17,7 +16,6 @@ struct HexBuffer {
     bool empty() const { return data.empty(); }
 };
 
-static const std::string CK_HEX_FRM_PATH = "../src/ck_assets/frm/msef000.frm";
 static std::unordered_map<int, HexBuffer> gPrecoloredCache;
 
 static const HexBuffer& get_or_create_colored_hex(unsigned char edgeColor, unsigned char innerColor) {
@@ -30,39 +28,40 @@ static const HexBuffer& get_or_create_colored_hex(unsigned char edgeColor, unsig
     }
 
     // new buffer if nothing found in cache
-    HexBuffer newHex;
-    fallout::Art* art = fallout::artLoad(CK_HEX_FRM_PATH.c_str());
+    HexBuffer new_hex;
+    fallout::FrmId cursor_frm = fallout::InterfaceFrameId::HexMouseCursor;
+    fallout::Art* art = fallout::artLoad(cursor_frm.filePath());
 
     if (art != nullptr) {
         int frameNum = 0;
         int direction = 0;
 
-        newHex.width = fallout::artGetWidth(art, frameNum, fallout::Rotation(direction));
-        newHex.height = fallout::artGetHeight(art, frameNum, fallout::Rotation(direction));
+        new_hex.width = fallout::artGetWidth(art, frameNum, fallout::Rotation(direction));
+        new_hex.height = fallout::artGetHeight(art, frameNum, fallout::Rotation(direction));
 
-        int size = newHex.width * newHex.height;
-        newHex.data.resize(size);
+        int size = new_hex.width * new_hex.height;
+        new_hex.data.resize(size);
 
         unsigned char *pixels = fallout::artGetFrameData(art, frameNum, fallout::Rotation(direction));
 
         if (pixels != nullptr) {
             for (int i = 0; i < size; i++) {
                 unsigned char pixel = pixels[i];
-                if (pixel == 0) newHex.data[i] = 0;
-                else if (pixel > 150) newHex.data[i] = edgeColor;
-                else newHex.data[i] = innerColor;
+                if (pixel == 0) new_hex.data[i] = 0;
+                else if (pixel > 150) new_hex.data[i] = edgeColor;
+                else new_hex.data[i] = innerColor;
             }
         }
 
         fallout::internal_free(art);
     }
 
-    if (newHex.empty()) {
+    if (new_hex.empty()) {
         static const HexBuffer emptyBuffer;
         return emptyBuffer;
     }
 
-    return gPrecoloredCache.emplace(colorKey, std::move(newHex)).first->second;
+    return gPrecoloredCache.emplace(colorKey, std::move(new_hex)).first->second;
 }
 
 void blit_debug_hex_colored(const unsigned char* src, int width, int height, int srcPitch,
