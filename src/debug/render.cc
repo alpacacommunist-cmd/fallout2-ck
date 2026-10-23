@@ -1,4 +1,3 @@
-#include "ck_assets/ck_frm.h"
 #include "debug/render.h"
 #include "debug/hexes.h"
 
@@ -19,11 +18,6 @@ struct HexBuffer {
 };
 
 static const std::string CK_HEX_FRM_PATH = "../src/ck_assets/frm/msef000.frm";
-static const CkFrm& get_base_hex_frm() {
-    static CkFrm frm = ck_frm_load(CK_HEX_FRM_PATH);
-    return frm;
-}
-
 static std::unordered_map<int, HexBuffer> gPrecoloredCache;
 
 static const HexBuffer& get_or_create_colored_hex(unsigned char edgeColor, unsigned char innerColor) {
@@ -37,24 +31,30 @@ static const HexBuffer& get_or_create_colored_hex(unsigned char edgeColor, unsig
 
     // new buffer if nothing found in cache
     HexBuffer newHex;
-	const CkFrm& frm = get_base_hex_frm();
+    fallout::Art* art = fallout::artLoad(CK_HEX_FRM_PATH.c_str());
 
-    if (frm.valid && !frm.frames[0].empty()) {
-		const CkFrmFrame& frame = frm.frames[0][0];
+    if (art != nullptr) {
+        int frameNum = 0;
+        int direction = 0;
 
-		newHex.width  = frame.width;
-		newHex.height = frame.height;
+        newHex.width = fallout::artGetWidth(art, frameNum, fallout::Rotation(direction));
+        newHex.height = fallout::artGetHeight(art, frameNum, fallout::Rotation(direction));
 
-		int size = newHex.width * newHex.height;
+        int size = newHex.width * newHex.height;
+        newHex.data.resize(size);
 
-		newHex.data.resize(size);
+        unsigned char *pixels = fallout::artGetFrameData(art, frameNum, fallout::Rotation(direction));
 
-		for (int i = 0; i < size; i++) {
-			unsigned char pixel = frame.pixels[i];
-			if (pixel == 0) newHex.data[i] = 0;
-			else if (pixel > 150) newHex.data[i] = edgeColor;
-			else newHex.data[i] = innerColor;
-		}
+        if (pixels != nullptr) {
+            for (int i = 0; i < size; i++) {
+                unsigned char pixel = pixels[i];
+                if (pixel == 0) newHex.data[i] = 0;
+                else if (pixel > 150) newHex.data[i] = edgeColor;
+                else newHex.data[i] = innerColor;
+            }
+        }
+
+        fallout::internal_free(art);
     }
 
     if (newHex.empty()) {
@@ -73,11 +73,10 @@ void blit_debug_hex_colored(const unsigned char* src, int width, int height, int
 
         for (int x = 0; x < width; x++) {
             unsigned char pixel = srcRow[x];
-            
-            // branch prediction chill
-            if (pixel == 0) continue; 
+            unsigned char mask = (pixel != 0) ? 0xFF : 0x00;
 
-            destRow[x] = pixel;
+            // (CMOV)?
+            destRow[x] = (pixel & mask) | (destRow[x] & ~mask);
         }
     }
 }
