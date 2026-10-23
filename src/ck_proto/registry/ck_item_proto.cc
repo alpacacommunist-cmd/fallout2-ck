@@ -28,7 +28,7 @@ namespace ck::proto::registry::item {
     } 
 
     static void prepare_item_for_save(fallout::Object* object) {
-        types::Proto* proto = ck::proto::registry::get(object->pid);
+        Proto* proto = ck::proto::registry::get(object->pid);
         if (!proto || !ck::ids::is_item(object)) return;
 
         object->id  = object->pid;
@@ -39,7 +39,7 @@ namespace ck::proto::registry::item {
     }
 
     static void restore_object_after_save(fallout::Object* object) {
-        types::Proto* proto = ck::proto::registry::get(object->id);
+        Proto* proto = ck::proto::registry::get(object->id);
         if (!proto || !ck::ids::is_item(object)) return;
 
         auto it = id_translation_table.find(object->id);
@@ -57,7 +57,7 @@ namespace ck::proto::registry::item {
         if (mode == registry::SyncMode::Prepare) { // (on game save)
             std::vector<ck::proxy::ItemProtoLuaView> state_vector;
 
-            auto callback = [](const types::Proto& item_proto, void* user_data) {
+            auto callback = [](const Proto& item_proto, void* user_data) {
                 auto* vector = static_cast<std::vector<ck::proxy::ItemProtoLuaView>*>(user_data);
                 vector->push_back({item_proto.pid, item_proto.lua_tag.c_str()});
             };
@@ -123,7 +123,7 @@ namespace ck::proto::registry::item {
     }
 
     int allocate(int source_pid, const char *lua_tag, const ItemProtoFFI &ffi_data) {
-        types::Proto *proto = registry::build_generic_prototype(source_pid, lua_tag);
+        Proto *proto = registry::build_generic_prototype(source_pid, lua_tag);
         if (!proto) return -1;
 
         auto item = proto->as_item();

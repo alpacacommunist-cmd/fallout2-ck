@@ -4,6 +4,8 @@
 #include "ck_api.h"
 #include "utils/fallout/types/proto.h"
 
+using Proto = ck::utils::fallout::types::Proto;
+
 namespace fallout {
     struct Object;
 }
@@ -53,8 +55,8 @@ namespace ck::proto::registry {
     // Engine hook
     int get_custom_proto(int pid, void** protoPtr);
 
-    utils::fallout::types::Proto* build_generic_prototype(int source_pid, const char* lua_tag);
-    utils::fallout::types::Proto* get(int pid);
+    Proto* build_generic_prototype(int source_pid, const char* lua_tag);
+    Proto* get(int pid);
 
     void clear();
     void clear_for_mod(const char* mod_id);
@@ -72,10 +74,9 @@ namespace ck::proto::registry {
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
 CK_API int ck_proto_bind(int pid);
 CK_API int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data);
-CK_API int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* params);
+CK_API int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* ffi_data);
 CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
 
-using Proto = ck::utils::fallout::types::Proto;
 CK_API Proto* ck_critter_get_proto_by_pid(int pid);
 CK_API int ck_critter_proto_get_base_stat(Proto* proto, int stat_id);
 CK_API int ck_critter_proto_get_skill(Proto* proto, int skill_id);

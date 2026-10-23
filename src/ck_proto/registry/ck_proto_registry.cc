@@ -15,7 +15,7 @@ namespace ck::proto::registry {
     namespace {
         int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
 
-        std::vector<std::unique_ptr<types::Proto>> g_registry_protos; // fallout proto ptr + meta
+        std::vector<std::unique_ptr<Proto>> g_registry_protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
 
         bool pid_occupied(int pid) {
@@ -49,7 +49,7 @@ namespace ck::proto::registry {
         void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
     }
 
-    types::Proto* get(int pid) {
+    Proto* get(int pid) {
         auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
         return it != g_registry_protos.end() ? it->get() : nullptr;
     }
@@ -84,17 +84,17 @@ namespace ck::proto::registry {
         logger.info("Cleared registry for mod: {}", mod_id);
     }
 
-    types::Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
+    Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
         int assigned_pid = next_proto_pid();
         if (assigned_pid == -1) return nullptr;
 
-        auto proto = std::make_unique<types::Proto>();
+        auto proto = std::make_unique<Proto>();
         if (types::proto::allocate(source_pid, assigned_pid, *proto) != 0) return nullptr;
 
         if (lua_tag) proto->lua_tag = std::string(lua_tag);
         proto->mod_id = ck::mods::current_mod_id();
 
-        types::Proto* proto_ptr = proto.get();
+        Proto* proto_ptr = proto.get();
         g_registry_protos.push_back(std::move(proto));
 
         return proto_ptr;
@@ -119,7 +119,7 @@ namespace ck::proto::registry {
     int get_custom_proto(int pid, void** protoPtr) {
         if (protoPtr == nullptr) return -1;
 
-        types::Proto* proto = get(ck::ids::clean_pid(pid));
+        Proto* proto = get(ck::ids::clean_pid(pid));
         if (proto) {
             *protoPtr = proto->fallout_proto_ptr;
             return 0;
@@ -178,12 +178,12 @@ namespace ck::proto::registry {
     }
 
     bool has_pid(int pid) {
-        types::Proto* proto = get(ck::ids::clean_pid(pid));
+        Proto* proto = get(ck::ids::clean_pid(pid));
         return proto != nullptr;
     }
 
     int source_pid(int pid) {
-        types::Proto* proto = get(ck::ids::clean_pid(pid));
+        Proto* proto = get(ck::ids::clean_pid(pid));
         return proto ? proto->source_pid : -1;
     }
 }
