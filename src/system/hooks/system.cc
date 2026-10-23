@@ -1,23 +1,18 @@
 #include "system/init.h"
-
-#include "map/ck_map.h"
-
-#include "ck_proto/cache/ck_proto_cache.h"
-#include "ck_proto/registry/ck_proto_registry.h"
-
-#include "ck_state/ck_state.h"
-#include "ck_dispatcher/ck_dispatcher.h"
-
 #include "engine/config/patch.h"
 
+#include "map/ck_map.h"
+#include "ck_proto/cache/ck_proto_cache.h"
+#include "ck_proto/registry/ck_proto_registry.h"
+#include "ck_state/ck_state.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_registry/ck_registry.h"
-
 #include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "fallout2-ce/settings.h"
 
 #include "log.h"
-static logging::Context logger{"ck_events.cc", logging::Source::Native};
+static logging::Context logger{"system/hooks/system.cc", logging::Source::Native};
 
 // LUA calls
 namespace ck::proxy::detail {
@@ -25,7 +20,7 @@ namespace ck::proxy::detail {
     extern int map_exit;
 }
 
-// System events
+// System hooks
 namespace ck::hooks::system {
     void game_start() {
         ck::dispatcher::on_game_start();
@@ -77,7 +72,7 @@ namespace ck::hooks::system {
     }
 
     void before_game_load(const char* path) {
-        logger.debug("ck_scripting_on_before_game_load");
+        logger.debug("on_before_game_load");
 
         // aka on_map_exit
         ck::map::on_before_map_load();
@@ -105,12 +100,8 @@ namespace ck::hooks::system {
         ck::proxy::shutdown();
         ck::proto::registry::clear();
 
-        logger.info("ck_scripting_exit");
+        logger.info("exit");
         logger.info("Shutting down LuaJIT backend...");
     }
-}
-
-// Gameplay events
-namespace ck::hooks::gameplay {
 }
 

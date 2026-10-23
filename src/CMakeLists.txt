@@ -1,6 +1,7 @@
 add_library(fallout2-ck STATIC
     system/init.cc
-    system/hooks.cc
+    system/hooks/system.cc
+    system/hooks/gameplay.cc
     system/rendering.cc
     system/i18n.cc
     system/encoding.cc

@@ -5,6 +5,7 @@ namespace ck::init {
     bool test_mode_enabled();
     std::string& current_test_suite_name();
     void set_test_suite(const char* name);
+
     void set_language();
 }
 
