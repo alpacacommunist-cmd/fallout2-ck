@@ -45,14 +45,12 @@ namespace ck::proto::registry {
             return -1;
         }
 
-
         void link_sid_to_pid(int sid, int pid) { g_proto_sid_to_pid[sid] = pid; }
         void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
     }
 
     types::Proto* get(int pid) {
         auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
-
         return it != g_registry_protos.end() ? it->get() : nullptr;
     }
 
@@ -86,19 +84,20 @@ namespace ck::proto::registry {
         logger.info("Cleared registry for mod: {}", mod_id);
     }
 
-    int build_generic_prototype(int source_pid, const char* lua_tag) {
+    types::Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
         int assigned_pid = next_proto_pid();
-        if (assigned_pid == -1) return -1;
+        if (assigned_pid == -1) return nullptr;
 
         auto proto = std::make_unique<types::Proto>();
-        if (types::proto::allocate(source_pid, assigned_pid, *proto) != 0) return -1;
+        if (types::proto::allocate(source_pid, assigned_pid, *proto) != 0) return nullptr;
 
         if (lua_tag) proto->lua_tag = std::string(lua_tag);
         proto->mod_id = ck::mods::current_mod_id();
 
+        types::Proto* proto_ptr = proto.get();
         g_registry_protos.push_back(std::move(proto));
 
-        return assigned_pid;
+        return proto_ptr;
     }
 
     void counters_reset() {

@@ -122,24 +122,24 @@ namespace ck::proto::registry::item {
         }
     }
 
-    int allocate(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data) {
-        int assigned_pid = registry::build_generic_prototype(source_pid, lua_tag);
-        if (assigned_pid == -1) return -1;
+    int allocate(int source_pid, const char *lua_tag, const ItemProtoFFI &ffi_data) {
+        types::Proto *proto = registry::build_generic_prototype(source_pid, lua_tag);
+        if (!proto) return -1;
 
-        types::Proto* proto = ck::proto::registry::get(assigned_pid);
+        auto item = proto->as_item();
 
-        if (ffi_data.weight != -1) proto->set_item_weight(ffi_data.weight);
-        if (ffi_data.price != -1) proto->set_item_price(ffi_data.price);
+        if (ffi_data.weight != -1) item.set_weight(ffi_data.weight);
+        if (ffi_data.price != -1) item.set_price(ffi_data.price);
 
         if (ffi_data.inv_fid && ck::ids::is_ck_frm(ffi_data.inv_fid)) {
-            proto->set_item_inventory_fid(ffi_data.inv_fid);
+            item.set_inventory_fid(ffi_data.inv_fid);
         }
 
         if (ffi_data.ground_fid && ck::ids::is_ck_frm(ffi_data.ground_fid)) {
             proto->set_fid(ffi_data.ground_fid);
         }
 
-        proto->set_item_can_use(ffi_data.usable);
+        item.set_can_use(ffi_data.usable);
 
         int msg_name_id = proto->get_msg_id();
         if (!utils::is_blank(ffi_data.name)) {

@@ -2,7 +2,13 @@
 #define CK_PROTO_H
 
 namespace ck::utils::fallout::types {
+    struct ItemView;
+    struct CritterView;
+
     struct Proto {
+        ItemView as_item();
+        CritterView as_critter();
+
         void *fallout_proto_ptr = nullptr;
 
         int source_pid = -1;
@@ -25,20 +31,26 @@ namespace ck::utils::fallout::types {
         int get_fid() const;
         int get_msg_id() const;
         int packed_pid() const;
+    };
 
-        // Item
-        void set_item_price(int cost);
-        void set_item_weight(int weight);
-        void set_item_inventory_fid(int fid);
-        void set_item_can_use(bool can_use);
+    struct ItemView {
+        Proto &proto;
 
-        // Critter
-        void set_critter_team(int team_num);
-        void set_critter_ai(int ai_packet);
-        int get_critter_skill(int skill_id);
-        int set_critter_skill(int skill_id, int value);
-        int get_critter_base_stat(int stat_id);
-        int set_critter_base_stat(int stat_id, int value);
+        void set_price(int cost);
+        void set_weight(int weight);
+        void set_inventory_fid(int fid);
+        void set_can_use(bool can_use);
+    };
+
+    struct CritterView {
+        Proto &proto;
+
+        void set_team(int team_num);
+        void set_ai(int ai_packet);
+        int get_skill(int skill_id);
+        int set_skill(int skill_id, int value);
+        int get_base_stat(int stat_id);
+        int set_base_stat(int stat_id, int value);
     };
 
     namespace proto {

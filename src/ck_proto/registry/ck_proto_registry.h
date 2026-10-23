@@ -53,10 +53,9 @@ namespace ck::proto::registry {
     // Engine hook
     int get_custom_proto(int pid, void** protoPtr);
 
-    int build_generic_prototype(int source_pid, const char* lua_tag);
+    utils::fallout::types::Proto* build_generic_prototype(int source_pid, const char* lua_tag);
     utils::fallout::types::Proto* get(int pid);
 
-    void counters_reset();
     void clear();
     void clear_for_mod(const char* mod_id);
 

@@ -9,7 +9,6 @@ namespace fallout {
     // proto.cc:
     // 0x51C340 proto_sizes
     // static const size_t _proto_sizes[OBJ_TYPE_COUNT] = { ...
-
     const size_t _proto_sizes[11] = {
         sizeof(ItemProto),    // 0x84
         sizeof(CritterProto), // 0x1A0
@@ -17,11 +16,7 @@ namespace fallout {
         sizeof(WallProto),    // 0x24
         sizeof(TileProto),    // 0x1C
         sizeof(MiscProto),    // 0x1C
-        0,
-        0,
-        0,
-        0,
-        0,
+        0, 0, 0, 0, 0,
     };
 
     // proto.cc::
@@ -44,6 +39,9 @@ namespace ck::utils::fallout::types {
             return static_cast<::fallout::Proto *>(ptr);
         }
     }
+
+    ItemView Proto::as_item() { return ItemView{*this}; }
+    CritterView Proto::as_critter() { return CritterView{*this}; }
 
     Proto::~Proto() {
         if (fallout_proto_ptr) {
@@ -78,20 +76,20 @@ namespace ck::utils::fallout::types {
     }
 
     // Item
-    void Proto::set_item_price(int price) {
-        proto::as_item(fallout_proto_ptr)->cost = price;
+    void ItemView::set_price(int price) {
+        proto::as_item(proto.fallout_proto_ptr)->cost = price;
     }
 
-    void Proto::set_item_weight(int weight) {
-        proto::as_item(fallout_proto_ptr)->weight = weight;
+    void ItemView::set_weight(int weight) {
+        proto::as_item(proto.fallout_proto_ptr)->weight = weight;
     }
 
-    void Proto::set_item_inventory_fid(int fid) {
-        proto::as_item(fallout_proto_ptr)->inventoryFid = fid;
+    void ItemView::set_inventory_fid(int fid) {
+        proto::as_item(proto.fallout_proto_ptr)->inventoryFid = fid;
     }
 
-    void Proto::set_item_can_use(bool can_use) {
-        auto* item = proto::as_item(fallout_proto_ptr);
+    void ItemView::set_can_use(bool can_use) {
+        auto* item = proto::as_item(proto.fallout_proto_ptr);
         if (can_use) {
             item->extendedFlags |= ::fallout::ProtoExtendedFlags::PROTO_EXT_FLAG_CAN_USE;
         } else {
@@ -101,28 +99,28 @@ namespace ck::utils::fallout::types {
     }
 
     // Critter
-    void Proto::set_critter_team(int team_num) {
-        proto::as_critter(fallout_proto_ptr)->team = team_num;
+    void CritterView::set_team(int team_num) {
+        proto::as_critter(proto.fallout_proto_ptr)->team = team_num;
     }
 
-    void Proto::set_critter_ai(int ai_packet) {
-        proto::as_critter(fallout_proto_ptr)->aiPacket = ai_packet;
+    void CritterView::set_ai(int ai_packet) {
+        proto::as_critter(proto.fallout_proto_ptr)->aiPacket = ai_packet;
     }
 
-    int Proto::get_critter_skill(int skill_id) {
-        return proto::as_critter(fallout_proto_ptr)->data.skills[skill_id];
+    int CritterView::get_skill(int skill_id) {
+        return proto::as_critter(proto.fallout_proto_ptr)->data.skills[skill_id];
     }
 
-    int Proto::set_critter_skill(int skill_id, int value) {
-        return proto::as_critter(fallout_proto_ptr)->data.skills[skill_id] = value;
+    int CritterView::set_skill(int skill_id, int value) {
+        return proto::as_critter(proto.fallout_proto_ptr)->data.skills[skill_id] = value;
     }
 
-    int Proto::get_critter_base_stat(int stat_id) {
-        return proto::as_critter(fallout_proto_ptr)->data.baseStats[stat_id];
+    int CritterView::get_base_stat(int stat_id) {
+        return proto::as_critter(proto.fallout_proto_ptr)->data.baseStats[stat_id];
     }
 
-    int Proto::set_critter_base_stat(int stat_id, int value) {
-        return proto::as_critter(fallout_proto_ptr)->data.baseStats[stat_id] = value;
+    int CritterView::set_base_stat(int stat_id, int value) {
+        return proto::as_critter(proto.fallout_proto_ptr)->data.baseStats[stat_id] = value;
     }
 
     namespace proto {
