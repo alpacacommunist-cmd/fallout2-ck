@@ -1,65 +1,23 @@
 #include "system/rendering.h"
-#include "debug/overlay.h"
-#include "ck_lua_proxy/ck_lua_proxy.h"
 
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
-#include "ck_proto/registry/ck_proto_registry.h"
-#include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_mods/ck_mods.h"
 #include "ck_gameplay_common.h"
 
+namespace fallout {
+	int squareTileFromTile(int tile);
+
+	extern int* gMapLocalVars;
+	extern int  gMapLocalVarsLength;
+}
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_config_maps.cc"};
 
-namespace ck {
-    // namespace critter { void reset_prototypes(); }
-    namespace script { void reset(); }
-
-    namespace proxy::detail {
-        extern int map_exit;
-    }
-}
-
 namespace ck::map {
-    void on_map_enter() {
-        // Restore proto items PID (stored in `id`)
-        ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Restore);
-
-        // Dispatch event
-        // some events like map_enter have additional logic defined in events.lua
-        ck::dispatcher::on_map_enter();
-
-        ck::rendering::refresh();
-        if (ck::common::in_combat()) fallout::_combat_reload_map();
-    }
-
-    void on_before_map_load() {
-        logger.debug("on_before_map_load");
-
-        // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
-        // so that map save file holds vanilla data
-        if (!ck::common::game_is_loading()) {
-            ck::proto::registry::item::sync_custom_items_on_map(proto::registry::SyncMode::Prepare);
-        }
-
-        // Resets lua registries, updates state when leaving a map
-        ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
-        // Resets custom object scripts
-        ck::script::reset();
-        // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers
-        ck::registry::on_map_exit();
-
-        // Resets rendering
-        fallout::mapEdgeFree();
-        ck::rendering::clear();
-
-        if (ck::debug::enabled()) ck::debug::toggle();
-    }
-
     bool map_has_camera_borders(int map_index) {
         return ck::map::borders::has_borders_for_map(map_index);
     }

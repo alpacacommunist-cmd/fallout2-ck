@@ -4,29 +4,9 @@
 
 #include "ck_api.h"
 
-namespace fallout {
-    struct Object;
-	extern Object* gDude;
-
-    enum Map : int;
-
-	Map  mapGetCurrentMap();
-	bool _combat_reload_map();
-
-	// tile.h
-	int squareTileFromTile(int tile);
-
-    void mapEdgeFree();
-
-	extern int* gMapLocalVars;
-	extern int  gMapLocalVarsLength;
-}
-
 namespace ck::map {
-	void on_map_enter();
-	void on_before_map_load();
-
 	int current_map_id();
+
 	bool map_has_camera_borders(int map_index);
 	bool map_is_camera_position_allowed(int tile);
 }
