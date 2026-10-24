@@ -57,7 +57,7 @@ namespace ck::registry {
     void clear();
     void clear_resources_for_mod(const char* target_mod_id);
 
-	void on_map_exit();
+	void clear_context();
 
     namespace created {
         int  add(fallout::Object* obj, LuaMeta meta = {});

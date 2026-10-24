@@ -1,16 +1,10 @@
+#include "system/_hooks.h"
 #include "system/init.h"
 #include "system/rendering.h"
 #include "debug/overlay.h"
-#include "ck_dispatcher/ck_dispatcher.h"
-#include "script/ck_script.h"
-#include "engine/config/patch.h"
+
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
-#include "ck_registry/ck_registry.h"
-#include "ck_proto/registry/ck_proto_registry.h"
-#include "ck_state/ck_state.h"
-#include "ck_lua_proxy/ck_lua_proxy.h"
-#include "ck_gameplay_common.h"
 
 #include "fallout2-ce/settings.h"
 
@@ -42,7 +36,7 @@ namespace ck::hooks {
         // Resets custom object scripts
         ck::script::reset();
         // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers
-        ck::registry::on_map_exit();
+        ck::registry::clear_context();
 
         // Resets rendering
         fallout::mapEdgeFree();

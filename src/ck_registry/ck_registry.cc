@@ -68,7 +68,8 @@ namespace ck::registry {
 		created::clear_for_mod(mod_id);
     }
 
-	void on_map_exit() {
+	void clear_context() {
+        // Restores original object data
 		deleted::unhide();
 		modified::restore_sids();
 
