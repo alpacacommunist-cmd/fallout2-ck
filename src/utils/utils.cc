@@ -4,6 +4,8 @@
 #include <cstring>
 #include <cctype>
 
+#include <fallout2-ce/platform_compat.h>
+
 #include "log.h"
 static constexpr logging::Context logger{"src/utils/utils.cc"};
 
@@ -42,5 +44,11 @@ namespace ck::utils {
     bool is_blank(const char* str) {
         if (str == nullptr || str[0] == '\0') return true;
         return is_blank(std::string_view(str));
+    }
+
+    void normalize_path(std::string& path) {
+        char* normalized_path = path.data();
+        fallout::compat_windows_path_to_native(normalized_path);
+        fallout::compat_resolve_path(normalized_path);
     }
 }

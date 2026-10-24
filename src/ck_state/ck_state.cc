@@ -1,17 +1,16 @@
+#include "utils.h"
 #include "picojson.h"
 #include "ck_state/ck_state.h"
 #include "ck_lua_proxy/ck_lua_proxy_state.h"
 
 #include <fstream>
-#include <string>
 
 static picojson::value g_game_state;
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_state.cc"};
 
-
-void dump_json_to_log(const picojson::value& val, int indent = 0) {
+static void dump_json_to_log(const picojson::value& val, int indent = 0) {
 	std::string spaces(indent * 2, ' ');
 
 	if (val.is<picojson::object>()) {
@@ -30,42 +29,53 @@ void dump_json_to_log(const picojson::value& val, int indent = 0) {
 	}
 }
 
-bool ck_state_load(const char* path) {
-	if (path == nullptr || !ck::proxy::is_ready()) return false;
+namespace ck::state {
+    bool load(const char* path) {
+        if (path == nullptr || !ck::proxy::is_ready()) return false;
 
-	std::string clean_path(path);
-	for (char& c : clean_path) if (c == '\\') c = '/';
+        std::string clean_path(path);
+        utils::normalize_path(clean_path);
 
-	std::ifstream file(clean_path);
-	if (!file.is_open()) {
-		logger.warning("PicoJSON: No file found at: {}. Initializing empty state", clean_path);
-		g_game_state = picojson::value(picojson::object());
+        std::ifstream file(clean_path);
+        if (!file.is_open()) {
+            logger.warning("PicoJSON: No file found at: {}. Initializing empty state", clean_path);
+            g_game_state = picojson::value(picojson::object());
+
+            return ck::proxy::sync_state_load(g_game_state);
+        }
+
+        std::string json_str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        file.close();
+
+        std::string err;
+        picojson::parse(g_game_state, json_str.begin(), json_str.end(), &err);
+        if (!err.empty()) return false;
 
         return ck::proxy::sync_state_load(g_game_state);
-	}
+    }
 
-	std::string json_str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	file.close();
+    void save(const char* path) {
+        if (path == nullptr || !ck::proxy::is_ready()) return;
 
-	std::string err;
-	picojson::parse(g_game_state, json_str.begin(), json_str.end(), &err);
-	if (!err.empty()) return false;
+        std::string clean_path(path);
+        utils::normalize_path(clean_path);
 
-    return ck::proxy::sync_state_load(g_game_state);
+        picojson::value save_data = ck::proxy::sync_state_save();
+
+        std::ofstream file(clean_path);
+        if (file.is_open()) {
+            file << save_data.serialize(true);
+            file.close();
+            logger.info("Game state successfully saved to: {}", clean_path);
+        }
+    }
+}
+
+// FFI
+bool ck_state_load(const char* path) {
+    return ck::state::load(path);
 }
 
 void ck_state_save(const char* path) {
-	if (path == nullptr || !ck::proxy::is_ready()) return;
-
-	std::string clean_path(path);
-	for (char& c : clean_path) if (c == '\\') c = '/';
-
-	picojson::value save_data = ck::proxy::sync_state_save();
-
-	std::ofstream file(clean_path);
-	if (file.is_open()) {
-		file << save_data.serialize(true);
-		file.close();
-		logger.info("Game state successfully saved to: {}", clean_path);
-	}
+    ck::state::save(path);
 }

@@ -8,6 +8,8 @@ namespace ck::utils {
     bool is_blank(const std::string& str);
     bool is_blank(const char* str);
 
+    void normalize_path(std::string& path);
+
     [[noreturn]] void fatal_nullptr_crash(const char* function_name);
 }
 

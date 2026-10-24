@@ -103,7 +103,7 @@ namespace ck::hooks::system {
     void game_saved(const char* path) {
         logger.debug("game_saved");
 
-        ck_state_save(path);
+        ck::state::save(path);
 
         ck::registry::deleted::hide();
         ck::registry::modified::reapply_sids();
@@ -114,7 +114,7 @@ namespace ck::hooks::system {
         logger.debug("before_game_load");
 
         ck::hooks::clear_runtime_context();
-        ck_state_load(path);
+        ck::state::load(path);
     }
 
     void game_loaded() {
