@@ -2,31 +2,17 @@
 #include "utils/fallout/types.h"
 
 #include "object/ck_item.h"
+#include "ck_proto/registry/ck_proto_registry.h"
 
 #include "fallout2-ce/item.h"
 #include "fallout2-ce/object.h"
-#include "fallout2-ce/proto.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_item.cc"};
 
 namespace fallout {
-	struct Object;
-	struct Rect;
-
-    enum CritterFlags : int;
-
     bool critterFlagCheck(const ProtoId& protoId, CritterFlags flag);
-
-    int itemAdd(Object* owner, Object* itemToAdd, int quantity);
-    int itemDropAll(Object* critter, int tile);
-
-	int _obj_disconnect(Object* obj, Rect* rect);
-	int objectDestroy(Object* object, Rect* rect);
-    int objectCreateWithFrmIdProtoId(Object** objectPtr, const FrmId& frmId, const ProtoId& protoId);
-	int objectSetLocation(Object* obj, int tile, MapElevation elevation, Rect* rect);
-    // inventory.cc
-    int objectGetCarriedQuantityByProtoId(Object* obj, const ProtoId& protoId);
+    int protoGetProto(const ProtoId &protoId, Proto **protoPtr);
 }
 
 namespace ck {
@@ -58,7 +44,7 @@ namespace ck {
 		}
 
 		fallout::Object* new_item = nullptr;
-		if (fallout::objectCreateWithFrmIdProtoId(&new_item, fallout::FrmId(proto->fid), item_proto_id) == -1 || !new_item) {
+		if (fallout::objectCreateWithProtoId(&new_item, item_proto_id) == -1 || !new_item) {
 			return false;
 		}
 
@@ -68,6 +54,11 @@ namespace ck {
 			fallout::objectDestroy(new_item, nullptr);
 			return false;
 		}
+
+        Proto* custom_proto = ck::proto::registry::get(item_pid);
+        if (custom_proto) {
+            new_item->sid = custom_proto->get_sid();
+        }
 
 		fallout::_obj_disconnect(new_item, nullptr);
 

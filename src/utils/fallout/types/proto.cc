@@ -150,6 +150,7 @@ namespace ck::utils::fallout::types {
 
             ::fallout::Proto* fallout_proto = as_generic(memory);
             fallout_proto->pid = types::proto::packed_pid(assigned_pid, object_type);
+            fallout_proto->sid = -1;
             fallout_proto->messageId = assigned_pid * 100;
 
             proto.fallout_proto_ptr = fallout_proto;

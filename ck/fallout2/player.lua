@@ -52,4 +52,8 @@ function player.pid()
   return ffi.C.player_get_pid()
 end
 
+function player.ptr()
+  return ffi.C.player_get_ptr()
+end
+
 return player

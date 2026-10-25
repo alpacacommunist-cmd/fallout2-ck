@@ -25,7 +25,7 @@ namespace ck::proto::registry::item {
         // item's mod-defined custom pid is temporarily stored in object's `id`
         // field and is recovered back to pid on game load
         std::unordered_map<int, int> id_translation_table;
-    } 
+    }
 
     static void prepare_item_for_save(fallout::Object* object) {
         Proto* proto = ck::proto::registry::get(object->pid);
@@ -39,18 +39,17 @@ namespace ck::proto::registry::item {
     }
 
     static void restore_object_after_save(fallout::Object* object) {
-        Proto* proto = ck::proto::registry::get(object->id);
-        if (!proto || !ck::ids::is_item(object)) return;
-
         auto it = id_translation_table.find(object->id);
         if (it != id_translation_table.end()) {
-            object->pid = it->second;
+            Proto* proto = ck::proto::registry::get(it->second);
+            if (!proto || !ck::ids::is_item(object)) return;
+
+            object->pid = proto->pid;
             object->sid = proto->get_sid();
+            object->id = 0;
 
             if (proto->source_fid != proto->get_fid()) object->fid = proto->get_fid();
         }
-
-        object->id = 0;
     }
 
     void sync_custom_items_on_map(registry::SyncMode mode) {
@@ -79,6 +78,7 @@ namespace ck::proto::registry::item {
                 auto it = tag_to_current_pid.find(proto_state.tag);
                 if (it != tag_to_current_pid.end()) {
                     id_translation_table[proto_state.id] = it->second;
+                    logger.info("{} -> {}", proto_state.id, it->second);
                 }
 
                 logger.info("proto_tag: {}, proto_id: {}", proto_state.tag, proto_state.id);

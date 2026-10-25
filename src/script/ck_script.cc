@@ -67,7 +67,6 @@ namespace ck::script {
 
     bool proto_handle(int sid, int proc) {
         int pid = ck::proto::registry::get_pid_by_sid(sid);
-
 		fallout::Script* script = get_dummy(sid);
 
 		int fixed_param = script->fixedParam;
@@ -79,9 +78,10 @@ namespace ck::script {
 		if (handled_in_lua) {
 			script->scriptOverrides = 1;
 			return true;
-		}
+		} else {
+            logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
+        }
 
-		logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
 		return false;
     }
 

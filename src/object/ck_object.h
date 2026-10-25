@@ -74,4 +74,7 @@ CK_API int ck_object_get_type(void* ptr);
 CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
 CK_API int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
 
+CK_API int player_get_pid();
+CK_API fallout::Object* player_get_ptr();
+
 #endif

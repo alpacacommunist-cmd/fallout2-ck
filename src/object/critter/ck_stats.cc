@@ -4,7 +4,6 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_stats.cc"};
 
-
 namespace fallout {
     // proto_types.h
     enum Gender : int { GENDER_MALE, GENDER_FEMALE, GENDER_COUNT };

@@ -27,6 +27,20 @@ local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("skilldex/scorpg.frm", 7)
 local ground_fid = assets.resolve("scorpg_ground.frm", 0)
 
+local flare_test = proto.register_prototype(79, "flare", {
+  object_type = proto.types.item,
+
+  name = "flare-flare",
+  description = "test flare",
+  price = 500,
+
+  usable = true
+})
+flare_test:bind()
+:on('use', function()
+  log.info("hello world [from flare_test PID: %s]", flare_test.pid)
+end)
+
 local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
   object_type = proto.types.item,
 
@@ -108,10 +122,11 @@ events.on('critter_killed', function(victim, killer)
 
   log.info("mod_id: " .. victim:get_mod_id())
 
-  victim:give_item(golden_tail.pid, 1, true)
+  victim:give_item(flare_test.pid, 1)
 end)
 
 events.on('map_enter', function(map_id)
+  -- items.add(player.ptr(), flare_test.pid, 5)
   -- player.add_experience(155000)
   monitor.print("Map id: " .. tostring(map_id))
   monitor.print("Entered map!")

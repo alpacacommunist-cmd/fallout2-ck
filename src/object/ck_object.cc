@@ -206,3 +206,5 @@ int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
     return ck::object::find_by_pid(pid, buffer, max_count);
 }
 
+int player_get_pid() { return fallout::gDude->pid; };
+fallout::Object* player_get_ptr() { return fallout::gDude; };

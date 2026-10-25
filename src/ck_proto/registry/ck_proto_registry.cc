@@ -132,6 +132,12 @@ namespace ck::proto::registry {
 
     // TODO: replace with proto->sid
     int bind_prototype_script(int pid) {
+        Proto* proto = get(pid);
+
+        if (!proto) {
+            logger.error("Couldn't bind, pid not found: {}", pid);
+        }
+
         for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
             if (registered_pid == pid) return sid;
         }
@@ -145,11 +151,7 @@ namespace ck::proto::registry {
         int proto_sid = ck::ids::make_proto_sid(assigned_sid);
 
         g_proto_sid_to_pid[assigned_sid] = pid;
-
-        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
-        if (it != g_registry_protos.end()) {
-            it->get()->set_sid(proto_sid);
-        }
+        proto->set_sid(proto_sid);
 
         logger.debug("Bound custom prototype PID {} to SID {} ({})", pid, assigned_sid, proto_sid);
         return proto_sid;

@@ -182,11 +182,13 @@ ffi.cdef[[
   bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
   int  ck_critter_get_gender(fallout_Object* critter);
 
-  int  player_stat(int stat);
-  int  player_pc_stat(int stat);
-  int  player_set_base_stat(int stat, int value);
-  int  player_set_bonus_stat(int stat, int value);
-  int  player_give_experience(int xp);
+  int player_stat(int stat);
+  int player_pc_stat(int stat);
+  int player_set_base_stat(int stat, int value);
+  int player_set_bonus_stat(int stat, int value);
+  int player_give_experience(int xp);
+  int player_get_pid();
+  fallout_Object* player_get_ptr();
 
   // --- Skills  ---
   void ck_get_skills_metadata(void (*callback)(const char* name, int value));
