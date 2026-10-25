@@ -1,19 +1,9 @@
 #include "game_time/ck_game_time.h"
-#include "ck_dispatcher/ck_dispatcher.h"
 
-namespace ck {
-	void on_day_passed() {
-        ck::dispatcher::on_day_passed();
-	}
-
-	// just in case
-	void on_after_rest(int hours, int minutes) {
-		on_time_advance(hours, minutes);
-	}
-
-	void on_time_advance(int hours, int minutes) {
-        ck::dispatcher::on_time_advance(hours, minutes);
-	}
+namespace fallout {
+    unsigned int gameTimeGetTime();
+    void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr);
+    int gameTimeGetHour();
 }
 
 // ffi

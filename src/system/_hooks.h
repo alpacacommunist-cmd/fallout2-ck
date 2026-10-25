@@ -3,6 +3,9 @@
 
 namespace fallout {
     struct Object;
+
+	bool _combat_reload_map();
+    void mapEdgeFree();
 }
 
 namespace ck::dispatcher {
@@ -10,6 +13,8 @@ namespace ck::dispatcher {
     void on_engine_ready();
     void on_game_loaded();
     void on_map_enter();
+    void on_day_passed();
+    void on_time_advance(int hours, int minutes);
 }
 
 namespace ck::script {

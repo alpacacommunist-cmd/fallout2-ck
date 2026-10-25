@@ -11,15 +11,9 @@
 #include "log.h"
 static logging::Context logger{"system/hooks/system.cc", logging::Source::Native};
 
-namespace fallout {
-	bool _combat_reload_map();
-    void mapEdgeFree();
-}
-
 // LUA calls
 namespace ck::proxy::detail {
     extern int clear_registries;
-    extern int map_exit;
     extern int map_exit;
 }
 
@@ -147,6 +141,20 @@ namespace ck::hooks::gameplay {
 
         ck::hooks::init_runtime_context();
     }
+
+    // script.cc
+	void time_advance(int hours, int minutes) {
+        logger.debug("time_advance");
+
+        ck::dispatcher::on_time_advance(hours, minutes);
+	}
+    void after_rest(int hours, int minutes) { time_advance(hours, minutes); }
+
+	void day_passed() {
+        logger.debug("day_passed");
+
+        ck::dispatcher::on_day_passed();
+	}
 
     // Separate hook for destroying objects to help clearing out ptrs
     // object.cc: int objectDestroy(Object* object, Rect* rect)

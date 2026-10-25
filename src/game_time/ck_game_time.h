@@ -4,18 +4,6 @@
 
 #include "ck_api.h"
 
-namespace fallout {
-    unsigned int gameTimeGetTime();
-    void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr);
-    int gameTimeGetHour();
-}
-
-namespace ck {
-	void on_day_passed();
-	void on_after_rest(int hours, int minutes);
-	void on_time_advance(int hours, int minutes);
-}
-
 // ffi
 CK_API int ck_game_time_get_year();
 CK_API int ck_game_time_get_day();
