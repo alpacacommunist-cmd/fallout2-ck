@@ -33,7 +33,7 @@ namespace ck::proto::registry::item {
 
         object->id  = object->pid;
         object->pid = proto->source_pid;
-        object->sid = proto->source_sid;
+        object->scriptIndex = proto->source_sid;
 
         if (proto->source_fid != proto->get_fid()) object->fid = proto->source_fid;
     }
@@ -45,7 +45,7 @@ namespace ck::proto::registry::item {
             if (!proto || !ck::ids::is_item(object)) return;
 
             object->pid = proto->pid;
-            object->sid = proto->get_sid();
+            object->scriptIndex = proto->get_sid();
             object->id = 0;
 
             if (proto->source_fid != proto->get_fid()) object->fid = proto->get_fid();

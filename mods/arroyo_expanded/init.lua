@@ -122,6 +122,7 @@ events.on('critter_killed', function(victim, killer)
 
   log.info("mod_id: " .. victim:get_mod_id())
 
+  victim:give_item(golden_tail.pid, 1)
   victim:give_item(flare_test.pid, 1)
 end)
 

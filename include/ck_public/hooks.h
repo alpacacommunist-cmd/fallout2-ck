@@ -38,6 +38,8 @@ namespace ck::hooks::gameplay {
     void proto_script_requested(fallout::Script* script);
     // object.cc
     void object_destroyed(fallout::Object* object);
+    // item.cc
+    bool items_identical_check(fallout::Object* item1, fallout::Object* item2);
 }
 
 namespace ck::mods {

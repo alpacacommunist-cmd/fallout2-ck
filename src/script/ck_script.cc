@@ -65,8 +65,8 @@ namespace ck::script {
 		return ck::ids::is_ck_sid(sid);
 	}
 
-    bool proto_handle(int sid, int proc) {
-        int pid = ck::proto::registry::get_pid_by_sid(sid);
+    bool proto_handle(int sid, int proc, int script_index) {
+        int pid = ck::proto::registry::get_pid_by_sid(script_index);
 		fallout::Script* script = get_dummy(sid);
 
 		int fixed_param = script->fixedParam;
@@ -86,9 +86,15 @@ namespace ck::script {
     }
 
 	bool try_handle(int sid, int proc) {
-		if (!ck::ids::is_ck_sid(sid)) return false;
+        fallout::Script* active_script;
+        if (fallout::scriptGetScript(sid, &active_script) == -1 || active_script == nullptr) return false;
 
-        if (ck::ids::is_ck_proto_sid(sid)) return proto_handle(sid, proc);
+        int active_script_index = active_script->index;
+        if (ck::ids::is_ck_proto_sid(active_script_index)) {
+            return proto_handle(sid, proc, active_script_index);
+        }
+
+		if (!ck::ids::is_ck_sid(sid)) return false;
 
 		int lua_id = ck::ids::lua_id_from_sid(sid);
 		const LuaMeta* meta = ck::registry::get_meta(lua_id);
@@ -105,8 +111,6 @@ namespace ck::script {
 
 		int fixed_param = script->fixedParam;
 		script->scriptOverrides = 0;
-
-		// void* source_ptr = script->source;
 
 		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
 

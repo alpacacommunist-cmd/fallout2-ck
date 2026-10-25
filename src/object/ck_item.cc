@@ -5,7 +5,6 @@
 #include "ck_proto/registry/ck_proto_registry.h"
 
 #include "fallout2-ce/item.h"
-#include "fallout2-ce/object.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_item.cc"};
@@ -19,18 +18,18 @@ namespace ck {
 	void clear_inventory(fallout::Object* object) {
 		fallout::Inventory* inventory = &(object->data.inventory);
 
-		if (inventory && inventory->items) {
-			for (int i = inventory->length - 1; i >= 0; i--) {
-				fallout::Object* item = inventory->items[i].item;
-				int               qty = inventory->items[i].quantity;
+        if (inventory && inventory->items) {
+            for (int i = inventory->length - 1; i >= 0; i--) {
+                fallout::Object *item = inventory->items[i].item;
+                int qty = inventory->items[i].quantity;
 
-				if (item) {
-					fallout::itemRemove(object, item, qty);
-					fallout::objectDestroy(item, nullptr);
-				}
-			}
-		}
-	}
+                if (item) {
+                    fallout::itemRemove(object, item, qty);
+                    fallout::objectDestroy(item, nullptr);
+                }
+            }
+        }
+    }
 
 	bool inventory_add(void* container_ptr, int item_pid, int count) {
 		if (!container_ptr || count < 1) return false;
@@ -55,10 +54,10 @@ namespace ck {
 			return false;
 		}
 
-        Proto* custom_proto = ck::proto::registry::get(item_pid);
-        if (custom_proto) {
-            new_item->sid = custom_proto->get_sid();
-        }
+        // Proto* custom_proto = ck::proto::registry::get(item_pid);
+        // if (custom_proto) {
+        //     new_item->sid = custom_proto->get_sid();
+        // }
 
 		fallout::_obj_disconnect(new_item, nullptr);
 

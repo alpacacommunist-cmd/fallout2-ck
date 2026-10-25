@@ -1,5 +1,5 @@
-#ifndef CK_PROTO_H
-#define CK_PROTO_H
+#ifndef CK_TYPES_PROTO_H
+#define CK_TYPES_PROTO_H
 
 namespace ck::utils::fallout::types {
     struct ItemView;

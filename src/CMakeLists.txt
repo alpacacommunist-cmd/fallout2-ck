@@ -22,6 +22,7 @@ add_library(fallout2-ck STATIC
     # Utils
     utils/fallout/types.cc
     utils/fallout/types/proto.cc
+    utils/fallout/types/object.cc
 
     utils/utils.cc
     utils/log.cc

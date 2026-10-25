@@ -2,6 +2,7 @@
 #include "system/init.h"
 #include "system/rendering.h"
 #include "debug/overlay.h"
+#include "utils/fallout/types/object.h"
 
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
@@ -11,6 +12,8 @@
 
 #include "log.h"
 static logging::Context logger{"system/hooks/system.cc", logging::Source::Native};
+
+namespace ck_object = ck::utils::fallout::types::object;
 
 // LUA calls
 namespace ck::proxy::detail {
@@ -178,5 +181,11 @@ namespace ck::hooks::gameplay {
     void object_destroyed(fallout::Object* object) {
         logger.debug("object_destroyed");
         ck::registry::created::remove_by_ptr(object);
+    }
+
+    // Checks whether items are identical
+    // items.cc: static bool _item_identical
+    bool items_identical_check(fallout::Object* item1, fallout::Object* item2) {
+        return ck_object::pid(item1) == ck_object::pid(item2);
     }
 }

@@ -56,4 +56,24 @@ function player.ptr()
   return ffi.C.player_get_ptr()
 end
 
+function player.add_skill(skill, value)
+  if not skills.ID_MAP[skill] then return end
+  ffi.C.player_add_skill(skill, value)
+end
+
+function player.set_skill(skill, value)
+  if not skills.MAP[skill] then return end
+  ffi.C.player_set_skill(skills.MAP[skill], value)
+end
+
+function player.set_base_stat(stat, value)
+  if not stats.MAP[stat] then return end
+  ffi.C.player_set_base_stat(stats.MAP[stat], value)
+end
+
+function player.add_perk_rank(perk)
+  if not perks.MAP[perk] then return end
+  ffi.C.player_perk_add_rank(perks.MAP[perk])
+end
+
 return player
