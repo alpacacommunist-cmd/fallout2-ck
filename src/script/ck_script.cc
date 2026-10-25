@@ -10,25 +10,10 @@
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
 #include "script/ck_script.h"
+#include "ck_mods/ck_mods.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_script.cc"};
-
-namespace fallout {
-    struct Object;
-	struct Script;
-    struct Program;
-
-	void displayMonitorAddMessage(const char* str);
-}
-
-namespace ck::common {
-    const char* current_mod_id();
-}
-
-namespace ck::mods {
-    const char* system_mod_id();
-}
 
 namespace ck::script {
 	int gLastDialogChoice = -1;
