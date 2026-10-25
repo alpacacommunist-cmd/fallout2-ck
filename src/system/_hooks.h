@@ -3,22 +3,16 @@
 
 namespace fallout {
     struct Object;
+    struct Script;
 
 	bool _combat_reload_map();
     void mapEdgeFree();
 }
 
-namespace ck::dispatcher {
-    void on_game_start();
-    void on_engine_ready();
-    void on_game_loaded();
-    void on_map_enter();
-    void on_day_passed();
-    void on_time_advance(int hours, int minutes);
-}
-
 namespace ck::script {
+	fallout::Script* get_dummy(int sid);
 	void reset();
+    void reset_vars(fallout::Script* script);
 }
 
 namespace ck::config {

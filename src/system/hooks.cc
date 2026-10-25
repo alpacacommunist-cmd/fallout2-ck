@@ -5,6 +5,7 @@
 
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
+#include "ck_dispatcher/ck_dispatcher.h"
 
 #include "fallout2-ce/settings.h"
 
@@ -155,6 +156,22 @@ namespace ck::hooks::gameplay {
 
         ck::dispatcher::on_day_passed();
 	}
+
+	void map_update(unsigned int ticks) {
+        ck::dispatcher::on_map_update(ticks);
+	}
+
+    // Object requests script
+    // scripts.cc: int scriptGetScript
+    void script_requested(fallout::Script** script_ptr, int sid) {
+        *script_ptr = ck::script::get_dummy(sid);
+    }
+
+    // set localVarsCount to 0 bc script is fake
+    // scripts.cc: int _scr_find_str_run_info
+    void proto_script_requested(fallout::Script* script) {
+        ck::script::reset_vars(script);
+    }
 
     // Separate hook for destroying objects to help clearing out ptrs
     // object.cc: int objectDestroy(Object* object, Rect* rect)

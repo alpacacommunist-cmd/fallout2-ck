@@ -2,8 +2,9 @@
 #include "ffi/tests.h"
 #include "ffi/gameplay.h"
 #include "ck_proto/registry/ck_proto_registry.h"
+#include "game_time/ck_game_time.h"
 
-// TODO:: move to headers
+// TODO: move to headers
 extern "C" {
     int ck_assets_register_path(...);
     bool ck_proto_get_by_pid(...);
@@ -32,6 +33,10 @@ namespace ck::ffi {
             // ck_proto_registry.h
             (void*)&ck_item_proto_register,
             (void*)&ck_critter_allocate_prototype,
+            // ...
+
+            // ck_game_time.h
+            (void*)ck_game_time_get_year,
             // ...
             // TODO:: move to headers
             (void*)&ck_assets_register_path,

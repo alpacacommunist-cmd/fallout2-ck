@@ -130,6 +130,7 @@ namespace ck::proto::registry {
         return -1;
     }
 
+    // TODO: replace with proto->sid
     int bind_prototype_script(int pid) {
         for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
             if (registered_pid == pid) return sid;

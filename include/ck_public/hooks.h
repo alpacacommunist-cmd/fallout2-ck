@@ -3,6 +3,7 @@
 
 namespace fallout {
     struct Object;
+    struct Script;
 }
 
 namespace ck::hooks::system {
@@ -27,12 +28,16 @@ namespace ck::hooks::gameplay {
     // map.cc
     void before_map_load();
     void map_enter();
-    // object.cc
-    void object_destroyed(fallout::Object* object);
-    // script.cc (game time), proto_instance.cc, pipboy.cc, skill.cc
+    // scripts.cc (game time), proto_instance.cc, pipboy.cc, skill.cc
 	void time_advance(int hours, int minutes);
     void after_rest(int hours, int minutes);
 	void day_passed();
+    // scripts.cc
+	void map_update(unsigned int ticks);
+    void script_requested(fallout::Script** script_ptr, int sid);
+    void proto_script_requested(fallout::Script* script);
+    // object.cc
+    void object_destroyed(fallout::Object* object);
 }
 
 namespace ck::mods {

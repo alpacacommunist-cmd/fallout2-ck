@@ -25,6 +25,7 @@ namespace ck::script {
 	fallout::Script*  get_dummy(int sid);
 	fallout::Program* program_get_dummy();
 
+    void reset_vars(fallout::Script* script);
     void set_no_save(int sid);
     void kick_off_map_updates_for_sid(int sid);
     void disable_map_updates_for_object(fallout::Object* object);

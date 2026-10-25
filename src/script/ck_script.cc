@@ -57,12 +57,12 @@ namespace ck::script {
 		return &gDummyProgram;
 	}
 
+    void reset_vars(fallout::Script* script) {
+        if (script) script->localVarsCount = 0;
+    }
+
 	bool owns_sid(int sid) {
 		return ck::ids::is_ck_sid(sid);
-	}
-
-	void on_map_update(unsigned int ticks) {
-        ck::dispatcher::on_map_update(ticks);
 	}
 
     bool proto_handle(int sid, int proc) {

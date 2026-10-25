@@ -38,10 +38,10 @@ local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expan
   inv_fid    = inv_fid,
   ground_fid = ground_fid,
 
-  -- usable = true
+  usable = true
 })
 
-print("PID: " .. tostring(golden_tail.pid))
+log.info("golden_tail PID: %s", tostring(golden_tail.pid))
 
 golden_tail:bind()
 :on('use', function()

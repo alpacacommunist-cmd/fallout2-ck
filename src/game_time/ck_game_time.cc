@@ -6,7 +6,7 @@ namespace fallout {
     int gameTimeGetHour();
 }
 
-// ffi
+// FFI
 int ck_game_time_get_year() {
 	int year = 0;
 	fallout::gameTimeGetDate(nullptr, nullptr, &year);
