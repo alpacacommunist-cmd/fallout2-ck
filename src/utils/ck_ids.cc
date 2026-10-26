@@ -29,6 +29,18 @@ namespace ck::ids {
     static_assert(static_cast<int>(ObjectType::TILE) == fallout::OBJ_TYPE_TILE, "TILE mismatch!");
     static_assert(static_cast<int>(ObjectType::MISC) == fallout::OBJ_TYPE_MISC, "MISC mismatch!");
 
+    constexpr const char *object_type_to_string(int object_type) {
+        switch (object_type) {
+        case fallout::OBJ_TYPE_ITEM:    return "ITEM";
+        case fallout::OBJ_TYPE_CRITTER: return "CRITTER";
+        case fallout::OBJ_TYPE_SCENERY: return "SCENERY";
+        case fallout::OBJ_TYPE_WALL:    return "WALL";
+        case fallout::OBJ_TYPE_TILE:    return "TILE";
+        case fallout::OBJ_TYPE_MISC:    return "MISC";
+        default:                        return "UNKNOWN";
+        }
+    }
+
     int object_type(int pid) {
         return ck_proto::type(pid);
     }
@@ -92,8 +104,13 @@ namespace ck::ids {
     }
 
     void clear_for_object_type(int object_type) {
+        logger.info("Clearing ids for object_type: {}", object_type_to_string(object_type));
+
         std::erase_if(script_indexes, [&object_type](const auto& item) { return item.object_type == object_type; });
         std::erase_if(proto_ids, [&object_type](const auto& item) { return item.object_type == object_type; });
+    }
+    void clear_for_object_type(ObjectType object_type) {
+        clear_for_object_type(static_cast<int>(object_type));
     }
 
     int next_script_index(const char* mod_id, int object_type) {

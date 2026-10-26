@@ -10,8 +10,6 @@ namespace fallout {
 }
 
 namespace ck::script {
-	fallout::Script* get_dummy(int sid);
-	void reset();
     void reset_vars(fallout::Script* script);
 }
 

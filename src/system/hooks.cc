@@ -1,3 +1,4 @@
+#include "ck_ids.h"
 #include "system/_hooks.h"
 #include "system/init.h"
 #include "system/rendering.h"
@@ -31,8 +32,8 @@ namespace ck::hooks {
 
         // Resets lua registries, updates state when leaving a map
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::map_exit);
-        // Resets custom object scripts
-        ck::script::reset();
+        // Resets critter proto, script indexes
+        ck::ids::clear_for_object_type(ck::ids::ObjectType::CRITTER);
         // Restores original objects SID/PID/flags for [modified]/[deleted] objects, clears [created] pointers
         ck::registry::clear_context();
 

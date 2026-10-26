@@ -39,6 +39,7 @@ namespace ck::ids {
     void clear_all();
     void clear_for_mod(const char* mod_id);
     void clear_for_object_type(int object_type);
+    void clear_for_object_type(ObjectType object_type);
     int next_script_index(const char* mod_id, int object_type);
     int next_proto_id(const char* mod_id, int object_type);
     void add_custom_script_index(int script_index, int object_type, const char* mod_id);
