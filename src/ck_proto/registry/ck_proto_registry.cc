@@ -13,7 +13,7 @@ namespace ck::proto::registry {
     using namespace ck::utils::fallout;
 
     namespace {
-        std::vector<std::unique_ptr<Proto>> g_registry_protos; // fallout proto ptr + meta
+        std::vector<std::unique_ptr<Proto>> protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
 
         void link_sid_to_pid(int sid, int pid) { g_proto_sid_to_pid[sid] = pid; }
@@ -21,12 +21,12 @@ namespace ck::proto::registry {
     }
 
     Proto* get(int pid) {
-        auto it = std::ranges::find_if(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
-        return it != g_registry_protos.end() ? it->get() : nullptr;
+        auto it = std::ranges::find_if(protos, [pid](const auto &proto) { return proto->pid == pid; });
+        return it != protos.end() ? it->get() : nullptr;
     }
 
     void for_each_item(TypesCallback callback, void* user_data) {
-        for (const auto &proto : g_registry_protos) {
+        for (const auto &proto : protos) {
             if (proto->object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {
                 callback(*proto, user_data);
             }
@@ -34,25 +34,11 @@ namespace ck::proto::registry {
     }
 
     void for_each_critter(TypesCallback callback, void* user_data) {
-        for (const auto &proto : g_registry_protos) {
+        for (const auto &proto : protos) {
             if (proto->object_type == static_cast<int>(ck::ids::ObjectType::CRITTER)) {
                 callback(*proto, user_data);
             }
         }
-    }
-
-    void clear_for_mod(const char *mod_id) {
-        for (auto &proto : g_registry_protos) {
-            if (proto && proto->mod_id == mod_id) {
-                unlink_sid(proto->get_sid());
-            }
-        }
-
-        // std::erase_if(g_registry_protos,
-        //               [mod_id](const auto &p) { return p->mod_id == mod_id && p->object_type == 1; });
-
-        std::erase_if(g_registry_protos, [mod_id](const auto &proto) { return proto->mod_id == mod_id; });
-        logger.info("Cleared registry for mod: {}", mod_id);
     }
 
     int bind_prototype_script(Proto* proto) {
@@ -87,7 +73,7 @@ namespace ck::proto::registry {
         proto->mod_id = mod_id;
 
         Proto* proto_ptr = proto.get();
-        g_registry_protos.push_back(std::move(proto));
+        protos.push_back(std::move(proto));
 
         bind_prototype_script(proto_ptr);
 
@@ -95,9 +81,42 @@ namespace ck::proto::registry {
     }
 
     void clear() {
-        g_registry_protos.clear(); 
+        protos.clear();
 
         logger.info("registry cleared");
+    }
+
+    void clear_for_object_type(int object_type) {
+        const char* type_name = ck::ids::object_type_to_string(object_type);
+        logger.info("Clearing prototypes for object_type: {}", type_name);
+
+        for (auto &proto : protos) {
+            if (proto && proto->object_type == object_type) {
+                ck::ids::free_script_index(proto->get_sid());
+                ck::ids::free_proto_id(proto->pid);
+
+                unlink_sid(proto->get_sid());
+            }
+        }
+
+        size_t count = std::erase_if(protos, [object_type](const auto &proto) { return proto->object_type == object_type; });
+        logger.debug("Successfully removed {} prototypes of type '{}' from registry", count, type_name);
+    }
+
+    void clear_for_mod(const char *mod_id) {
+        logger.info("Clearing prototypes for mod: {}", mod_id);
+
+        for (auto &proto : protos) {
+            if (proto && proto->mod_id == mod_id) {
+                ck::ids::free_script_index(proto->get_sid());
+                ck::ids::free_proto_id(proto->pid);
+
+                unlink_sid(proto->get_sid());
+            }
+        }
+
+        size_t count = std::erase_if(protos, [mod_id](const auto &proto) { return proto->mod_id == mod_id; });
+        logger.debug("Hot Reload: Cleared {} prototypes for mod '{}'", count, mod_id);
     }
 
     // ENGINE HOOK
@@ -117,7 +136,7 @@ namespace ck::proto::registry {
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
-        auto it = std::ranges::find_if(g_registry_protos, [lua_tag](const auto &proto) { return proto->lua_tag == lua_tag; });
+        auto it = std::ranges::find_if(protos, [lua_tag](const auto &proto) { return proto->lua_tag == lua_tag; });
 
         return -1;
     }

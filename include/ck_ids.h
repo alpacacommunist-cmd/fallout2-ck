@@ -10,6 +10,22 @@ namespace fallout {
 namespace ck::ids {
     enum class ObjectType : int { ITEM = 0, CRITTER = 1, SCENERY = 2, WALL = 3, TILE = 4, MISC = 5 };
 
+    constexpr const char *object_type_to_string(ObjectType object_type) {
+        switch (object_type) {
+        case ObjectType::ITEM:    return "ITEM";
+        case ObjectType::CRITTER: return "CRITTER";
+        case ObjectType::SCENERY: return "SCENERY";
+        case ObjectType::WALL:    return "WALL";
+        case ObjectType::TILE:    return "TILE";
+        case ObjectType::MISC:    return "MISC";
+        default:                  return "UNKNOWN";
+        }
+    }
+
+    constexpr const char* object_type_to_string(int object_type) {
+        return object_type_to_string(static_cast<ObjectType>(object_type));
+    }
+
     namespace script_index {
         constexpr int base = 2000;
         constexpr int limit = 16000;
@@ -38,11 +54,11 @@ namespace ck::ids {
     // ids registry (vectors)
     void clear_all();
     void clear_for_mod(const char* mod_id);
-    void clear_for_object_type(int object_type);
-    void clear_for_object_type(ObjectType object_type);
     int next_script_index(const char* mod_id, int object_type);
     int next_proto_id(const char* mod_id, int object_type);
     void add_custom_script_index(int script_index, int object_type, const char* mod_id);
+    void free_script_index(int id);
+    void free_proto_id(int id);
 
     int make_packed_sid(int script_type, int script_index);
     int make_packed_sid(fallout::Object* object, int script_index);

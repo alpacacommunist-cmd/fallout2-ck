@@ -59,6 +59,7 @@ namespace ck::proto::registry {
     Proto* get(int pid);
 
     void clear();
+    void clear_for_object_type(int object_type);
     void clear_for_mod(const char* mod_id);
 
     int get_pid_by_tag(const std::string& lua_tag);

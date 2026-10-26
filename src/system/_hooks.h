@@ -53,6 +53,8 @@ namespace ck::proto::registry {
         Restore
     };
 
+    void clear_for_object_type(int object_type);
+
     namespace item {
         void sync_custom_items_on_map(SyncMode mode);
     }
