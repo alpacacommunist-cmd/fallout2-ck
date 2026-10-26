@@ -3,7 +3,6 @@
 
 namespace ck::ids {
     bool is_ck_sid(int sid);
-    bool is_ck_proto_sid(int sid);
 }
 
 #endif

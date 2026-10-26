@@ -32,32 +32,30 @@ namespace ck::script {
 		g_lua_scripts.clear();
 	}
 
-		//   fallout::Script* get_dummy(int sid) {
-		// int lua_id = ck::ids::lua_id_from_sid(sid);
-		//
-		//       auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
-		//       auto& script = it->second;
-		//
-		//       if (inserted) {
-		//           script.sp.built_tile = -1;
-		//           script.sp.radius = -1;
-		//           script.index = -1;
-		//           script.localVarsOffset = -1;
-		//           script.actionBeingUsed = -1;
-		//
-		//           script.index = -1;
-		//           script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
-		//
-		//           for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
-		//       }
-		//
-		//       script.sid = sid;
-		//       script.program = nullptr;
-		//
-		//       return &script;
-		//   }
+    fallout::Script *get_dummy(int sid, int lua_id) {
+        auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
+        auto &script = it->second;
 
-	fallout::Program* program_get_dummy() {
+        if (inserted) {
+            script.sp.built_tile = -1;
+            script.sp.radius = -1;
+            script.index = -1;
+            script.localVarsOffset = -1;
+            script.actionBeingUsed = -1;
+
+            script.index = -1;
+            script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
+
+            for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
+        }
+
+        script.sid = sid;
+        script.program = nullptr;
+
+        return &script;
+    }
+
+    fallout::Program* program_get_dummy() {
 		return &gDummyProgram;
 	}
 
@@ -65,7 +63,7 @@ namespace ck::script {
         if (script) script->localVarsCount = 0;
     }
 
-    bool handle_proc(int sid, int proc, fallout::Script* script) {
+    bool handle_proc(fallout::Script* script, int proc) {
         int lua_id = ck::registry::find_by_ptr(script->owner);
         bool handled = false;
 
@@ -82,7 +80,7 @@ namespace ck::script {
 
             handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
             if (!handled) {
-                logger.warning("unhandled proc: {} for sid: {}", proc, sid);
+                logger.warning("unhandled proc: {} for script_index: {}", proc, script->index);
             }
         } else {
             int pid = ck::proto::registry::get_pid_by_sid(script->index);
@@ -90,12 +88,35 @@ namespace ck::script {
 
             handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
             if (!handled) {
-                logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
+                logger.warning("[proto] unhandled proc: {} for script_index: {}", proc, script->index);
             }
         }
 
         return handled;
     };
+
+    bool handle_proc(int sid, int proc) {
+        int lua_id = ck::registry::find_by_sid(sid);
+        if (lua_id == -1) return false;
+
+        fallout::Script* script = get_dummy(sid, lua_id);
+
+		const LuaMeta* meta = ck::registry::get_meta(lua_id);
+        if (meta == nullptr) return false;
+
+		int fixed_param = script->fixedParam;
+		script->scriptOverrides = 0;
+
+		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
+
+		if (handled_in_lua) {
+			script->scriptOverrides = 1;
+			return true;
+		}
+
+		logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
+		return false;
+    }
 
 	// bool try_handle(int sid, int proc) {
 	//        // fallout::Script* active_script;

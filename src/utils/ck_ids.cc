@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "ck_ids.h"
 #include "utils/fallout/types/proto.h"
 
@@ -56,6 +58,60 @@ namespace ck::ids {
         return script_type_for_object_type(ck_proto::type(object->pid));
     }
 
+    namespace {
+        struct AllocatedId {
+            int id;
+            const char* mod_id;
+        };
+
+        std::vector<AllocatedId> script_indexes;
+        std::vector<AllocatedId> proto_ids;
+    } // namespace
+
+    void clear_all() {
+        script_indexes.clear();
+        proto_ids.clear();
+    }
+
+    void clear_for_mod(const char* mod_id) {
+        std::erase_if(script_indexes, [&mod_id](const auto& item) { return item.mod_id == mod_id; });
+        std::erase_if(proto_ids, [&mod_id](const auto& item) { return item.mod_id == mod_id; });
+    }
+
+    int next_available_script_index(const char* mod_id) {
+        for (int index = script_index::base; index < script_index::limit; ++index) {
+            bool occupied =
+                std::ranges::any_of(script_indexes, [index](const auto &item) { return item.id == index; });
+
+            if (!occupied) {
+                script_indexes.push_back({index, mod_id});
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    int next_available_proto_id(const char* mod_id) {
+        for (int pid = proto_id::base; pid < proto_id::limit; ++pid) {
+            bool occupied = std::ranges::any_of(proto_ids, [pid](const auto &item) { return item.id == pid; });
+
+            if (!occupied) {
+                proto_ids.push_back({pid, mod_id});
+                return pid;
+            }
+        }
+        return -1;
+    }
+
+    int make_packed_sid(int script_type, int script_index) {
+        return (script_type << 24) | (script_index & 0x00FFFFFF);
+    }
+
+    int make_packed_sid(fallout::Object* object, int script_index) {
+        return (script_type_for_object(object) << 24) | (script_index & 0x00FFFFFF);
+    }
+
     bool is_ck_frm(int fid) {
         if (fid == -1) return false;
 
@@ -71,85 +127,24 @@ namespace ck::ids {
         return ((art_type & 0xF) << 24) | (custom_frm_id & 0xFFF);
     }
 
-    int clean_sid(int full_sid) {
-        if ((full_sid) == -1) return -1;
-        return full_sid & 0x00FFFFFF;
+    int clean_sid(int packed_sid) {
+        if ((packed_sid) == -1) return -1;
+        return packed_sid & 0x00FFFFFF;
     }
 
-    int clean_pid(int full_pid) {
-        if ((full_pid) == -1) return -1;
-        return full_pid & 0x00FFFFFF;
+    int clean_pid(int packed_pid) {
+        if ((packed_pid) == -1) return -1;
+        return packed_pid & 0x00FFFFFF;
     }
 
     bool is_ck_pid(int pid) {
-        int unpacked_pid = clean_pid(pid);
-        return unpacked_pid >= proto_id::base && unpacked_pid < proto_id::limit;
+        int clean = clean_pid(pid);
+        return (clean >= proto_id::base && clean < proto_id::limit);
     }
 
     bool is_ck_sid(int sid) {
         int clean = clean_sid(sid);
         return (clean >= script_index::base && clean <= script_index::limit);
-    }
-
-    bool is_ck_proto_sid(int sid) {
-        int clean = clean_sid(sid);
-        return clean >= script_index::proto_base && clean < script_index::proto_limit;
-    }
-
-    bool is_created_sid(int sid) {
-        int clean = clean_sid(sid);
-        return (clean >= script_index::created_base && clean <= script_index::created_limit);
-    }
-
-    bool is_modified_sid(int sid) {
-        int clean = clean_sid(sid);
-        return (clean >= script_index::modified_base && clean <= script_index::modified_limit);
-    }
-
-    int lua_id_from_sid(int sid) {
-        int clean = clean_sid(sid);
-
-        if (is_modified_sid(sid)) return clean - script_index::modified_base;
-        if (is_created_sid(sid)) return clean - script_index::created_base;
-        if (is_ck_proto_sid(sid)) return clean + script_index::proto_base;
-        if (is_ck_sid(sid)) return clean - script_index::base;
-
-        return -1;
-    }
-
-    int make_created_sid(int lua_id) {
-        return script_index::created_base + lua_id;
-    }
-
-    int make_modified_sid(int lua_id) {
-        return script_index::modified_base + lua_id;
-    }
-
-    int make_full_sid(int script_type, int custom_sid) {
-        return (script_type << 24) | (custom_sid & 0x00FFFFFF);
-    }
-
-    int make_proto_sid(int custom_sid, int object_type) {
-        int script_type = script_type_for_object_type(object_type);
-        return (script_type << 24) | (custom_sid & 0x00FFFFFF);
-    }
-
-    int make_sid_created(fallout::Object *obj, int lua_id) {
-        if (!obj || lua_id == -1) return -1;
-
-        int script_type = script_type_for_object(obj);
-        int custom_sid = make_created_sid(lua_id);
-
-        return make_full_sid(script_type, custom_sid);
-    }
-
-    int make_sid_modified(fallout::Object *obj, int lua_id) {
-        if (!obj || lua_id == -1) return -1;
-
-        int script_type = script_type_for_object(obj);
-        int custom_sid = make_modified_sid(lua_id);
-
-        return make_full_sid(script_type, custom_sid);
     }
 } // namespace ck::ids
 

@@ -12,12 +12,6 @@ namespace ck::ids {
 
     namespace script_index {
         constexpr int base = 2000;
-        constexpr int created_base = 2000;
-        constexpr int created_limit = 6000;
-        constexpr int modified_base = 6000;
-        constexpr int modified_limit = 10000;
-        constexpr int proto_base = 10000;
-        constexpr int proto_limit = 11000;
         constexpr int limit = 16000;
     }
 
@@ -40,26 +34,24 @@ bool is_scenery(fallout::Object* object);
 int script_type_for_object_type(int object_type);
 int script_type_for_object(fallout::Object* object);
 
+// ids registry (vectors)
+void clear_all();
+void clear_for_mod(const char* mod_id);
+int next_available_script_index(const char* mod_id);
+int next_available_proto_id(const char* mod_id);
+
+int make_packed_sid(int script_type, int script_index);
+int make_packed_sid(fallout::Object* object, int script_index);
+
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
 int  make_ck_fid(int custom_frm_id, int art_type = ck::ids::frm::transport_type);
 
 bool is_ck_pid(int pid);
-
 bool is_ck_sid(int sid);
-bool is_ck_proto_sid(int sid);
-bool is_created_sid(int sid);
-bool is_modified_sid(int sid);
-int  lua_id_from_sid(int sid);
 
-int make_created_sid(int lua_id);
-int make_modified_sid(int lua_id);
-int make_proto_sid(int custom_sid, int object_type);
 int clean_sid(int full_sid);
 int clean_pid(int full_pid);
-
-int make_sid_created(fallout::Object* obj, int lua_id);
-int make_sid_modified(fallout::Object* obj, int lua_id);
 
 } // namespace ck
 

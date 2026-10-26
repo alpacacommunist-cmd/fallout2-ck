@@ -95,8 +95,14 @@ namespace ck::critter {
         }
 
         // Otherwise assign LUA script
-        ck::script::assign_script_index_to_object(ck::ids::make_sid_created(critter, lua_id), critter);
-        logger.info("PID {} uses script_index: {} (custom)", critter->pid, critter->scriptIndex);
+        int custom_script_index = ck::ids::next_available_script_index(ck::mods::current_mod_id());
+        if (custom_script_index == -1) {
+            logger.error("Couldn't allocate script_index!");
+            return;
+        } else {
+            ck::script::assign_script_index_to_object(custom_script_index, critter);
+            logger.info("PID {} uses script_index: {} (custom)", critter->pid, critter->scriptIndex);
+        }
     }
 
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {

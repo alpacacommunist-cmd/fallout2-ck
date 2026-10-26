@@ -22,11 +22,11 @@ function Object.new(lua_id)-- tag, mod_id, config)
   self.c_ptr = ffi.C.ck_object_get_ptr(self.lua_id)
   self.fallout_Object = ffi.cast("struct fallout_Object*", self.c_ptr)
 
-  self.sid         = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
-  self.pid         = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
+  self.sid = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
+  self.pid = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
 
-  self.mod_id      = ffi.string(ffi.C.ck_registry_object_get_mod_id(self.c_ptr))
-  self.tag         = ffi.string(ffi.C.ck_registry_object_get_lua_tag(self.c_ptr))
+  self.mod_id = ffi.string(ffi.C.ck_registry_object_get_mod_id(self.c_ptr))
+  self.tag = ffi.string(ffi.C.ck_registry_object_get_lua_tag(self.c_ptr))
 
   if self.tag and utils.is_blank(self.tag) then self.tag = nil end
 
@@ -82,6 +82,12 @@ local proc_handlers = {
   look_at = function(self, fixed_param)
     if self.name then
       monitor.print(self.name)
+      return true
+    end
+
+    local name = self:get_name()
+    if name then
+      monitor.print(name)
       return true
     end
   end,

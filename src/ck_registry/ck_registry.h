@@ -16,6 +16,8 @@ struct LuaMeta {
 
     int source_pid = -1;
     int source_sid = -1;
+
+    int custom_sid;
 };
 
 struct CkCreatedObject {
@@ -43,11 +45,13 @@ namespace ck::registry {
     extern std::vector<CkDeletedObject>              g_deleted_objects;
 
     extern std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
+    extern std::unordered_map<int, int> sid_to_lua_id;
 
 	int next_lua_id();
 	void reset_lua_id_counter();
 
 	int find_by_ptr(fallout::Object* ptr);
+	int find_by_sid(int sid);
 	const LuaMeta* get_meta(int lua_id);
 
 	fallout::Object* get_object(int lua_id);

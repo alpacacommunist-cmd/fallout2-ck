@@ -13,37 +13,8 @@ namespace ck::proto::registry {
     using namespace ck::utils::fallout;
 
     namespace {
-        int g_next_proto_sid = ck::ids::script_index::proto_base;
-
         std::vector<std::unique_ptr<Proto>> g_registry_protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
-
-        bool pid_occupied(int pid) {
-            // cache locality?
-            return std::ranges::any_of(g_registry_protos, [pid](const auto &proto) { return proto->pid == pid; });
-        }
-
-        bool sid_occupied(int sid) {
-            return g_proto_sid_to_pid.contains(sid);
-        }
-
-        int next_proto_pid() {
-            for (int pid = ck::ids::proto_id::base; pid < ck::ids::proto_id::limit; ++pid) {
-                if (!pid_occupied(pid)) return pid;
-            }
-
-            logger.error("CRITICAL: Out of custom PIDs! All slots are occupied.");
-            return -1;
-        }
-
-        int next_proto_sid() {
-            for (int sid = ck::ids::script_index::proto_base; sid < ck::ids::script_index::proto_limit; ++sid) {
-                if (!sid_occupied(sid)) return sid;
-            }
-
-            logger.error("CRITICAL: Out of custom SIDs! All slots are occupied.");
-            return -1;
-        }
 
         void link_sid_to_pid(int sid, int pid) { g_proto_sid_to_pid[sid] = pid; }
         void unlink_sid(int sid) { g_proto_sid_to_pid.erase(sid); }
@@ -93,30 +64,26 @@ namespace ck::proto::registry {
             if (registered_pid == proto->pid) return sid;
         }
 
-        if (g_next_proto_sid >= ck::ids::script_index::proto_limit) {
-            logger.error("Prototype SIDs limit reached!");
-            return -1;
-        }
-
-        int assigned_sid = g_next_proto_sid++;
-        int proto_sid = ck::ids::make_proto_sid(assigned_sid, proto->object_type);
+        int assigned_sid = ck::ids::next_available_script_index(ck::mods::current_mod_id());
 
         g_proto_sid_to_pid[assigned_sid] = proto->pid;
-        proto->set_sid(proto_sid);
+        proto->set_sid(assigned_sid);
 
-        logger.debug("Bound custom prototype PID {} to SID {} ({})", proto->pid, assigned_sid, proto_sid);
-        return proto_sid;
+        logger.debug("Bound custom prototype PID {} to script_index {}", proto->pid, assigned_sid);
+        return assigned_sid;
     }
 
     Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
-        int assigned_pid = next_proto_pid();
+        const char* mod_id = ck::mods::current_mod_id();
+
+        int assigned_pid = ck::ids::next_available_proto_id(mod_id);
         if (assigned_pid == -1) return nullptr;
 
         auto proto = std::make_unique<Proto>();
         if (types::proto::allocate(source_pid, assigned_pid, *proto) != 0) return nullptr;
 
         if (lua_tag) proto->lua_tag = std::string(lua_tag);
-        proto->mod_id = ck::mods::current_mod_id();
+        proto->mod_id = mod_id;
 
         Proto* proto_ptr = proto.get();
         g_registry_protos.push_back(std::move(proto));
@@ -126,16 +93,8 @@ namespace ck::proto::registry {
         return proto_ptr;
     }
 
-    void counters_reset() {
-        g_next_proto_sid = ck::ids::script_index::proto_base;
-        g_proto_sid_to_pid.clear();
-
-        logger.debug("counters reset");
-    }
-
     void clear() {
         g_registry_protos.clear(); 
-        counters_reset();
 
         logger.info("registry cleared");
     }

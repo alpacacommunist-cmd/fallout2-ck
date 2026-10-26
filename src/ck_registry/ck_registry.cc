@@ -18,6 +18,8 @@ namespace ck::registry {
 
     // Holds both CREATED and MODIFIED ptrs
     std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
+    // quick ref map for "modified" objects
+    std::unordered_map<int, int> sid_to_lua_id;
 
 	static int g_next_id = 1;
 
@@ -28,6 +30,11 @@ namespace ck::registry {
 		if (ptr == nullptr) return -1;
 		auto it = g_ptr_to_lua_id.find(ptr);
 		return (it == g_ptr_to_lua_id.end()) ? -1 : it->second;
+	}
+
+	int find_by_sid(int sid) {
+		auto it = sid_to_lua_id.find(sid);
+		return (it == sid_to_lua_id.end()) ? -1 : it->second;
 	}
 
 	const LuaMeta* get_meta(int lua_id) {
