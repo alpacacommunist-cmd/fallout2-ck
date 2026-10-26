@@ -34,6 +34,7 @@ namespace ck::proto::registry::item {
 
         object->id  = object->pid;
         object->pid = proto->source_pid;
+        object->sid = -1;
         object->scriptIndex = proto->source_sid;
 
         if (proto->source_fid != proto->get_fid()) object->fid = proto->source_fid;
