@@ -1,6 +1,5 @@
+#include "ck_ids.h"
 #include "ck_registry.h"
-
-#include "fallout2-ce/proto_types.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry.cc"};
@@ -113,13 +112,11 @@ bool ck_registry_bind_to_object(int lua_id) {
     fallout::Object* object = ck::registry::created::get_object(lua_id);
     if (object == nullptr) return false;
 
-    // int object_type = fallout::ProtoId(object->pid).objectType();
-    fallout::ObjectType type = fallout::ProtoId(object->pid).objectType();
     ck::script::remove_object_script(object);
 
-    if (type == fallout::OBJ_TYPE_CRITTER) {
+    if (ck::ids::is_critter(object)) {
         ck::critter::assign_script(object, -1, lua_id);
-    } else if (type == fallout::OBJ_TYPE_SCENERY) {
+    } else if (ck::ids::is_scenery(object)) {
     }
 
     return true;

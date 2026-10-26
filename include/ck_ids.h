@@ -36,6 +36,7 @@ constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
 
 bool is_item(fallout::Object* object);
 bool is_critter(fallout::Object* object);
+bool is_scenery(fallout::Object* object);
 
 int script_type_for_object(fallout::Object* object);
 bool is_ck_frm(int fid);

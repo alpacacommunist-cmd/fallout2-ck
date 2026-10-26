@@ -18,6 +18,8 @@ namespace fallout {
     } ScriptType;
 }
 
+namespace ck_proto = ck::utils::fallout::types::proto;
+
 namespace ck::ids {
 
 static_assert(static_cast<int>(ObjectType::ITEM)    == fallout::OBJ_TYPE_ITEM,    "ITEM mismatch!");
@@ -28,11 +30,15 @@ static_assert(static_cast<int>(ObjectType::TILE)    == fallout::OBJ_TYPE_TILE,  
 static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,    "MISC mismatch!");
 
 bool is_item(fallout::Object* object) {
-    return ck::utils::fallout::types::proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
+    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
 }
 
 bool is_critter(fallout::Object* object) {
-    return ck::utils::fallout::types::proto::type(object->pid) == static_cast<int>(ObjectType::CRITTER);
+    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::CRITTER);
+}
+
+bool is_scenery(fallout::Object* object) {
+    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::SCENERY);
 }
 
 int script_type_for_object(fallout::Object* object) {
