@@ -65,7 +65,7 @@ bool is_ck_frm(int fid) {
     if (fid == -1) return false;
 
     int frm_id = fid & 0xFFF;
-    return frm_id >= CK_FRM_BASE && frm_id <= CK_FRM_LIMIT;
+    return frm_id >= frm::base && frm_id <= frm::limit;
 }
 
 int art_id_from_fid(int fid) {
@@ -88,46 +88,46 @@ int clean_pid(int full_pid) {
 
 bool is_ck_pid(int pid) {
     int unpacked_pid = clean_pid(pid);
-    return unpacked_pid >= CK_PID_START && unpacked_pid < CK_PID_LIMIT;
+    return unpacked_pid >= proto_id::base && unpacked_pid < proto_id::limit;
 }
 
 bool is_ck_sid(int sid) {
 	int clean = clean_sid(sid);
-    return (clean >= CK_SID_BASE && clean <= CK_SID_LIMIT);
+    return (clean >= script_index::base && clean <= script_index::limit);
 }
 
 bool is_ck_proto_sid(int sid) {
     int clean = clean_sid(sid);
-    return clean >= CK_PROTO_SID_START && clean < CK_PROTO_SID_LIMIT;
+    return clean >= script_index::proto_base && clean < script_index::proto_limit;
 }
 
 bool is_created_sid(int sid) {
 	int clean = clean_sid(sid);
-    return (clean >= CK_CREATED_START && clean <= CK_CREATED_LIMIT);
+    return (clean >= script_index::created_base && clean <= script_index::created_limit);
 }
 
 bool is_modified_sid(int sid) {
 	int clean = clean_sid(sid);
-    return (clean >= CK_MODIFIED_START && clean <= CK_MODIFIED_LIMIT);
+    return (clean >= script_index::modified_base && clean <= script_index::modified_limit);
 }
 
 int lua_id_from_sid(int sid) {
 	int clean = clean_sid(sid);
 
-    if (is_modified_sid(sid))     return clean - CK_MODIFIED_START;
-    if (is_created_sid(sid))      return clean - CK_CREATED_START;
-    if (is_ck_proto_sid(sid))     return clean + CK_PROTO_SID_START;
-    if (is_ck_sid(sid))           return clean - CK_SID_BASE;
+    if (is_modified_sid(sid))     return clean - script_index::modified_base;
+    if (is_created_sid(sid))      return clean - script_index::created_base;
+    if (is_ck_proto_sid(sid))     return clean + script_index::proto_base;
+    if (is_ck_sid(sid))           return clean - script_index::base;
 
     return -1;
 }
 
 int make_created_sid(int lua_id) {
-    return CK_CREATED_START + lua_id;
+    return script_index::created_base + lua_id;
 }
 
 int make_modified_sid(int lua_id) {
-    return CK_MODIFIED_START + lua_id;
+    return script_index::modified_base + lua_id;
 }
 
 int make_full_sid(int script_type, int custom_sid) {

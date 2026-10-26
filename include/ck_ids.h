@@ -8,31 +8,30 @@ namespace fallout {
 }
 
 namespace ck::ids {
+    enum class ObjectType : int { ITEM = 0, CRITTER = 1, SCENERY = 2, WALL = 3, TILE = 4, MISC = 5 };
 
-constexpr int CK_SID_BASE          = 2000;
-constexpr int CK_CREATED_START     = 2000;
-constexpr int CK_CREATED_LIMIT     = 6000;
-constexpr int CK_MODIFIED_START    = 6000;
-constexpr int CK_MODIFIED_LIMIT    = 10000;
-constexpr int CK_PROTO_SID_START   = 10000;
-constexpr int CK_PROTO_SID_LIMIT   = 11000;
-constexpr int CK_SID_LIMIT         = 16000;
+    namespace script_index {
+        constexpr int base = 2000;
+        constexpr int created_base = 2000;
+        constexpr int created_limit = 6000;
+        constexpr int modified_base = 6000;
+        constexpr int modified_limit = 10000;
+        constexpr int proto_base = 10000;
+        constexpr int proto_limit = 11000;
+        constexpr int limit = 16000;
+    }
 
-constexpr int CK_PID_START  = 10000;
-constexpr int CK_PID_LIMIT  = 15000;
+    // pid
+    namespace proto_id {
+        constexpr int base = 10000;
+        constexpr int limit = 15000;
+    }
 
-enum class ObjectType : int {
-    ITEM    = 0,
-    CRITTER = 1,
-    SCENERY = 2,
-    WALL    = 3,
-    TILE    = 4,
-    MISC    = 5
-};
-
-constexpr int CK_FRM_BASE              = 2000;
-constexpr int CK_FRM_LIMIT             = 4095; // 0xFFF
-constexpr int CK_ASSET_TRANSPORT_TYPE  = 6;    // fallout::OBJ_TYPE_INTERFACE
+    namespace frm {
+        constexpr int base = 2000;
+        constexpr int limit = 4095; // 0xFFF
+        constexpr int transport_type = 6; // fallout::OBJ_TYPE_INTERFACE
+    }
 
 bool is_item(fallout::Object* object);
 bool is_critter(fallout::Object* object);
@@ -41,7 +40,7 @@ bool is_scenery(fallout::Object* object);
 int script_type_for_object(fallout::Object* object);
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
-int  make_ck_fid(int custom_frm_id, int art_type = CK_ASSET_TRANSPORT_TYPE);
+int  make_ck_fid(int custom_frm_id, int art_type = ck::ids::frm::transport_type);
 
 bool is_ck_pid(int pid);
 
@@ -63,7 +62,7 @@ int make_sid_modified(fallout::Object* obj, int lua_id);
 
 } // namespace ck
 
-CK_API int ck_ids_make_ck_fid(int custom_frm_id, int art_type = ck::ids::CK_ASSET_TRANSPORT_TYPE);
+CK_API int ck_ids_make_ck_fid(int custom_frm_id, int art_type = ck::ids::frm::transport_type);
 CK_API int ck_ids_art_id_from_fid(int fid);
 CK_API bool ck_is_sid_ck_custom(int sid);
 

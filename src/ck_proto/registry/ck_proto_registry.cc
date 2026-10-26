@@ -13,7 +13,7 @@ namespace ck::proto::registry {
     using namespace ck::utils::fallout;
 
     namespace {
-        int g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+        int g_next_proto_sid = ck::ids::script_index::proto_base;
 
         std::vector<std::unique_ptr<Proto>> g_registry_protos; // fallout proto ptr + meta
         std::unordered_map<int, int> g_proto_sid_to_pid; // sid -> pid for ck_script
@@ -28,7 +28,7 @@ namespace ck::proto::registry {
         }
 
         int next_proto_pid() {
-            for (int pid = ck::ids::CK_PID_START; pid < ck::ids::CK_PID_LIMIT; ++pid) {
+            for (int pid = ck::ids::proto_id::base; pid < ck::ids::proto_id::limit; ++pid) {
                 if (!pid_occupied(pid)) return pid;
             }
 
@@ -37,7 +37,7 @@ namespace ck::proto::registry {
         }
 
         int next_proto_sid() {
-            for (int sid = ck::ids::CK_PROTO_SID_START; sid < ck::ids::CK_PROTO_SID_LIMIT; ++sid) {
+            for (int sid = ck::ids::script_index::proto_base; sid < ck::ids::script_index::proto_limit; ++sid) {
                 if (!sid_occupied(sid)) return sid;
             }
 
@@ -101,7 +101,7 @@ namespace ck::proto::registry {
     }
 
     void counters_reset() {
-        g_next_proto_sid = ck::ids::CK_PROTO_SID_START;
+        g_next_proto_sid = ck::ids::script_index::proto_base;
         g_proto_sid_to_pid.clear();
 
         logger.debug("counters reset");
@@ -142,7 +142,7 @@ namespace ck::proto::registry {
             if (registered_pid == pid) return sid;
         }
 
-        if (g_next_proto_sid >= ck::ids::CK_PROTO_SID_LIMIT) {
+        if (g_next_proto_sid >= ck::ids::script_index::proto_limit) {
             logger.error("Prototype SIDs limit reached!");
             return -1;
         }

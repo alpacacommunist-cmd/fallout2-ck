@@ -10,10 +10,10 @@ static constexpr logging::Context logger{"ck_asset_registry.cc"};
 namespace ck::assets {
     // [frm_id] -> "/mods/my_mod/art/..."
     static std::unordered_map<int, std::string> g_custom_paths;
-    static int g_next_free_frm_id = ck::ids::CK_FRM_BASE;
+    static int g_next_free_frm_id = ck::ids::frm::base;
 
     int register_path(const char* path) {
-        if (!path || g_next_free_frm_id > ck::ids::CK_FRM_LIMIT) {
+        if (!path || g_next_free_frm_id > ck::ids::frm::limit) {
             return -1;
         }
 
@@ -35,7 +35,7 @@ namespace ck::assets {
 
     void clear() {
         g_custom_paths.clear();
-        g_next_free_frm_id = ck::ids::CK_FRM_BASE;
+        g_next_free_frm_id = ck::ids::frm::base;
 
         logger.debug("Registry cleared, next_frm_id: {}", g_next_free_frm_id);
     }
