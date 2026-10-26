@@ -23,37 +23,18 @@ namespace ck::script {
 	int gLastDialogChoice = -1;
 
 	static fallout::Program gDummyProgram;
-	static fallout::Script gDummyScript;
+	// static fallout::Script gDummyScript;
 
-	static std::unordered_map<int, fallout::Script> g_lua_scripts;
+	// static std::unordered_map<int, fallout::Script> g_lua_scripts;
+
+    static bool script_proc_enabled(fallout::Script* script, int proc) {
+        return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;
+    }
 
 	void reset() {
 		logger.debug("RESET lua_scripts");
-		g_lua_scripts.clear();
+		// g_lua_scripts.clear();
 	}
-
-    fallout::Script *get_dummy(int sid, int lua_id) {
-        auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
-        auto &script = it->second;
-
-        if (inserted) {
-            script.sp.built_tile = -1;
-            script.sp.radius = -1;
-            script.index = -1;
-            script.localVarsOffset = -1;
-            script.actionBeingUsed = -1;
-
-            script.index = -1;
-            script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
-
-            for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
-        }
-
-        script.sid = sid;
-        script.program = nullptr;
-
-        return &script;
-    }
 
     fallout::Program* program_get_dummy() {
 		return &gDummyProgram;
@@ -63,98 +44,34 @@ namespace ck::script {
         if (script) script->localVarsCount = 0;
     }
 
-    bool handle_proc(fallout::Script* script, int proc) {
-        int lua_id = ck::registry::find_by_ptr(script->owner);
+    bool handle_proc(int sid, fallout::Script* script, int proc) {
+        // skip if script isn't processed
+        if (!ck::ids::is_ck_script_index(script->index)) return false;
+        // skip map updates (if proc disabled)
+        if (proc == fallout::SCRIPT_PROC_CRITTER && !script_proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+
         bool handled = false;
 
-        // skip map updates (if proc disabled)
-        if (proc == fallout::SCRIPT_PROC_CRITTER && script->procs[fallout::SCRIPT_PROC_CRITTER] == fallout::SCRIPT_PROC_NO_PROC) {
-            return false;
-        }
-
-        if (lua_id) {
-            logger.info.banner("lua_id: {}", lua_id);
-
+        int lua_id = ck::registry::find_by_ptr(script->owner);
+        if (lua_id != -1) {
             const LuaMeta* meta = ck::registry::get_meta(lua_id);
-            if (meta == nullptr) return false;
-
             handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
-            if (!handled) {
-                logger.warning("unhandled proc: {} for script_index: {}", proc, script->index);
-            }
         } else {
             int pid = ck::proto::registry::get_pid_by_sid(script->index);
             if (pid == -1) return false;
 
             handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
-            if (!handled) {
-                logger.warning("[proto] unhandled proc: {} for script_index: {}", proc, script->index);
-            }
         }
 
-        return handled;
+        if (handled) {
+            script->scriptOverrides = 1;
+            return true;
+        } else {
+            logger.warning("unhandled proc: {} (script_index: {})", proc, script->index);
+        }
+
+        return false;
     };
-
-    bool handle_proc(int sid, int proc) {
-        int lua_id = ck::registry::find_by_sid(sid);
-        if (lua_id == -1) return false;
-
-        fallout::Script* script = get_dummy(sid, lua_id);
-
-		const LuaMeta* meta = ck::registry::get_meta(lua_id);
-        if (meta == nullptr) return false;
-
-		int fixed_param = script->fixedParam;
-		script->scriptOverrides = 0;
-
-		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
-
-		if (handled_in_lua) {
-			script->scriptOverrides = 1;
-			return true;
-		}
-
-		logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
-		return false;
-    }
-
-	// bool try_handle(int sid, int proc) {
-	//        // fallout::Script* active_script;
-	//        // if (fallout::scriptGetScript(sid, &active_script) == -1 || active_script == nullptr) return false;
-	//        //
-	//        // int active_script_index = active_script->index;
-	//        // if (ck::ids::is_ck_proto_sid(active_script_index)) {
-	//        //     return proto_handle(sid, proc, active_script_index);
-	//        // }
-	//
-	// 	if (!ck::ids::is_ck_sid(sid)) return false;
-	//
-	// 	int lua_id = ck::ids::lua_id_from_sid(sid);
-	// 	const LuaMeta* meta = ck::registry::get_meta(lua_id);
-	//
-	// 	if (meta == nullptr) return false; // game loading
-	//        // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
-	//
-	// 	if (!meta->mod_id) {
-	// 		logger.warning("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
-	// 		return false;
-	// 	}
-	//
-	// 	fallout::Script* script = get_dummy(sid);
-	//
-	// 	int fixed_param = script->fixedParam;
-	// 	script->scriptOverrides = 0;
-	//
-	// 	bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
-	//
-	// 	if (handled_in_lua) {
-	// 		script->scriptOverrides = 1;
-	// 		return true;
-	// 	}
-	//
-	// 	logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
-	// 	return false;
-	// }
 
     void handle_global_proc_event(int sid, int proc) {
         if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY

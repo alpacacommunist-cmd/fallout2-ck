@@ -94,8 +94,8 @@ namespace ck::critter {
             return;
         }
 
-        // Otherwise assign LUA script
-        int custom_script_index = ck::ids::next_available_script_index(ck::mods::current_mod_id());
+        // Otherwise assign custom script
+        int custom_script_index = ck::ids::next_script_index(ck::mods::current_mod_id(), ck::ids::object_type(critter->pid));
         if (custom_script_index == -1) {
             logger.error("Couldn't allocate script_index!");
             return;

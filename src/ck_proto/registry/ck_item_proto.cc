@@ -16,6 +16,7 @@ static constexpr logging::Context logger{"ck_item_proto.cc"};
 namespace fallout {
     Object* objectFindFirstAtElevation(MapElevation elevation);
     Object* objectFindNextAtElevation();
+    int objectSetScriptFromProto(Object* object, int* sidPtr);
 }
 
 namespace ck::proto::registry::item {
@@ -47,6 +48,9 @@ namespace ck::proto::registry::item {
             object->pid = proto->pid;
             object->scriptIndex = proto->get_sid();
             object->id = 0;
+
+            fallout::objectSetScriptFromProto(object, &object->sid);
+            logger.info.banner("restored sid: {}, index: {}", object->sid, object->scriptIndex);
 
             if (proto->source_fid != proto->get_fid()) object->fid = proto->get_fid();
         }

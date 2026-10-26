@@ -41,9 +41,9 @@ namespace ck::debug {
 			while (object != nullptr) {
 				int object_type = ck::utils::fallout::types::proto::type(object->pid);
 
-				logger.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, Flags: {:#x}",
+				logger.raw("[OBJ #{} Name: {}, ID: {} | Type: {}, PID: {}, FID: {}, SID: {}, script_index: {}, Flags: {:#x}",
 						objIndex, fallout::objectGetName(object), object->id, object_type, object->pid, object->fid, object->sid,
-						static_cast<unsigned int>(object->flags));
+						object->scriptIndex, static_cast<unsigned int>(object->flags));
 
 				std::string data_debug = ck::debug::format_object_data(object, object_type);
 				logger.raw("{}", data_debug);

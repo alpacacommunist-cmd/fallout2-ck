@@ -7,8 +7,7 @@ namespace fallout {
 
 namespace ck::script {
     void handle_global_proc_event(int sid, int proc);
-    bool handle_proc(fallout::Script* script, int proc);
-    bool handle_proc(int sid, int proc);
+    bool handle_proc(int sid, fallout::Script* script, int proc);
 }
 
 #endif

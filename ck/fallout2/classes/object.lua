@@ -84,23 +84,11 @@ local proc_handlers = {
       monitor.print(self.name)
       return true
     end
-
-    local name = self:get_name()
-    if name then
-      monitor.print(name)
-      return true
-    end
   end,
 
   description = function(self, fixed_param)
     if self.description then
       monitor.print(self.description)
-      return true
-    end
-
-    local description = self:get_description()
-    if description then
-      monitor.print(description)
       return true
     end
   end,

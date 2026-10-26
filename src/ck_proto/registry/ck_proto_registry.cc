@@ -64,7 +64,7 @@ namespace ck::proto::registry {
             if (registered_pid == proto->pid) return sid;
         }
 
-        int assigned_sid = ck::ids::next_available_script_index(ck::mods::current_mod_id());
+        int assigned_sid = ck::ids::next_script_index(ck::mods::current_mod_id(), proto->object_type);
 
         g_proto_sid_to_pid[assigned_sid] = proto->pid;
         proto->set_sid(assigned_sid);
@@ -75,8 +75,9 @@ namespace ck::proto::registry {
 
     Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
         const char* mod_id = ck::mods::current_mod_id();
+        int object_type = types::proto::type(source_pid);
 
-        int assigned_pid = ck::ids::next_available_proto_id(mod_id);
+        int assigned_pid = ck::ids::next_proto_id(mod_id, object_type);
         if (assigned_pid == -1) return nullptr;
 
         auto proto = std::make_unique<Proto>();

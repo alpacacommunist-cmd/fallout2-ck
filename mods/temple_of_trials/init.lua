@@ -102,11 +102,9 @@ events.on('map_enter', function(map_id)
   log.info("lua id: " .. tostring(klint_obj.lua_id))
   log.info(klint:get_name())
 
-  -- log.info("klint lua_id: %d, mod_id: %s, tag: %s", klint.lua_ia, klint.mod_id, klint.tag);
-  -- log.info("klint modified: %s", klint.modified)
-
   klint:on('talk', function(self)
     self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
+    return true
   end)
   klint:on('push', function(self)
     self:float_message('denied', 1)

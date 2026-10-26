@@ -1,6 +1,6 @@
+#include "ck_ids.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_mods/ck_mods.h"
-#include "ck_ids.h"
 
 #include "fallout2-ce/obj_types.h"
 
@@ -35,25 +35,12 @@ namespace ck::registry::modified {
         g_modified_objects[lua_id] = CkModifiedObject{ object, lua_id, std::move(meta) };
         g_ptr_to_lua_id[object] = lua_id;
 
-		// assign sid
-        int custom_script_index = ck::ids::next_available_script_index(meta.mod_id);
-        if (custom_script_index == -1) {
-            logger.error("Couldn't allocate script_index!");
-            return -1;
+        if (object->scriptIndex != -1) {
+            ck::ids::add_custom_script_index(object->scriptIndex, ck::ids::object_type(object->pid), meta.mod_id);
+            logger.info.banner("tracking script_index: {}", object->scriptIndex);
         }
 
-        object->sid = ck::ids::make_packed_sid(object, custom_script_index);
-        meta.custom_sid = object->sid;
-
-        if (ck::ids::is_ck_sid(object->sid)) {
-            logger.error("CK SID!");
-        } else {
-            logger.error("not CK SID!");
-        }
-
-        sid_to_lua_id[object->sid] = lua_id;
-        logger.debug("Registered modified object. LuaID: {}, Vanilla SID: {}, New Packed SID: {}",
-                  lua_id, meta.source_sid, object->sid);
+        logger.debug("Registered modified object. lua_id: {}, script_index: {}", lua_id, object->scriptIndex);
 
         return lua_id;
     }
@@ -70,8 +57,8 @@ namespace ck::registry::modified {
         auto modified_it = g_modified_objects.find(lua_id);
         if (modified_it != g_modified_objects.end()) {
 			source_sid = modified_it->second.meta.source_sid;
-            object->sid = modified_it->second.meta.source_sid;
-
+            // object->sid = modified_it->second.meta.source_sid;
+            //
             g_modified_objects.erase(modified_it);
         }
 
@@ -90,7 +77,7 @@ namespace ck::registry::modified {
         while (modified_it != g_modified_objects.end()) {
             if (modified_it->second.meta.mod_id == mod_id) {
                 if (modified_it->second.ptr != nullptr) {
-                    modified_it->second.ptr->sid = modified_it->second.meta.source_sid;
+                    // modified_it->second.ptr->sid = modified_it->second.meta.source_sid;
                     g_ptr_to_lua_id.erase(modified_it->second.ptr);
                     restored_sids_count++;
                 }
@@ -109,7 +96,7 @@ namespace ck::registry::modified {
         int restored_count = 0;
         for (const auto& [id, entry] : g_modified_objects) {
             if (entry.ptr != nullptr) {
-                entry.ptr->sid = entry.meta.source_sid; // return source_sid
+                // entry.ptr->sid = entry.meta.source_sid; // return source_sid
                 restored_count++;
             }
         }
@@ -123,7 +110,7 @@ namespace ck::registry::modified {
         for (const auto& [id, entry] : g_modified_objects) {
             if (entry.ptr != nullptr) {
                 // reapply modified sid
-                entry.ptr->sid = entry.meta.custom_sid;
+                // entry.ptr->sid = entry.meta.custom_sid;
                 reapplied_count++;
             }
         }

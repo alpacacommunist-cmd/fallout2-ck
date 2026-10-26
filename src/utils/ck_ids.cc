@@ -29,6 +29,10 @@ namespace ck::ids {
     static_assert(static_cast<int>(ObjectType::TILE) == fallout::OBJ_TYPE_TILE, "TILE mismatch!");
     static_assert(static_cast<int>(ObjectType::MISC) == fallout::OBJ_TYPE_MISC, "MISC mismatch!");
 
+    int object_type(int pid) {
+        return ck_proto::type(pid);
+    }
+
     bool is_item(fallout::Object *object) {
         return ck_proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
     }
@@ -61,11 +65,20 @@ namespace ck::ids {
     namespace {
         struct AllocatedId {
             int id;
+            int object_type;
             const char* mod_id;
         };
 
         std::vector<AllocatedId> script_indexes;
         std::vector<AllocatedId> proto_ids;
+
+        bool script_index_occupied(int id) {
+            return std::ranges::any_of(script_indexes, [id](const auto &item) { return item.id == id; });
+        }
+
+        bool proto_id_occupied(int id) {
+            return std::ranges::any_of(proto_ids, [id](const auto &item) { return item.id == id; });
+        }
     } // namespace
 
     void clear_all() {
@@ -78,13 +91,17 @@ namespace ck::ids {
         std::erase_if(proto_ids, [&mod_id](const auto& item) { return item.mod_id == mod_id; });
     }
 
-    int next_available_script_index(const char* mod_id) {
+    void clear_for_object_type(int object_type) {
+        std::erase_if(script_indexes, [&object_type](const auto& item) { return item.object_type == object_type; });
+        std::erase_if(proto_ids, [&object_type](const auto& item) { return item.object_type == object_type; });
+    }
+
+    int next_script_index(const char* mod_id, int object_type) {
         for (int index = script_index::base; index < script_index::limit; ++index) {
-            bool occupied =
-                std::ranges::any_of(script_indexes, [index](const auto &item) { return item.id == index; });
+            bool occupied = script_index_occupied(index);
 
             if (!occupied) {
-                script_indexes.push_back({index, mod_id});
+                script_indexes.push_back({index, object_type, mod_id});
                 return index;
             }
         }
@@ -92,16 +109,20 @@ namespace ck::ids {
         return -1;
     }
 
-    int next_available_proto_id(const char* mod_id) {
+    int next_proto_id(const char* mod_id, int object_type) {
         for (int pid = proto_id::base; pid < proto_id::limit; ++pid) {
-            bool occupied = std::ranges::any_of(proto_ids, [pid](const auto &item) { return item.id == pid; });
+            bool occupied = proto_id_occupied(pid);
 
             if (!occupied) {
-                proto_ids.push_back({pid, mod_id});
+                proto_ids.push_back({pid, object_type, mod_id});
                 return pid;
             }
         }
         return -1;
+    }
+
+    void add_custom_script_index(int script_index, int object_type, const char* mod_id) {
+        script_indexes.push_back({script_index, object_type, mod_id});
     }
 
     int make_packed_sid(int script_type, int script_index) {
@@ -145,6 +166,10 @@ namespace ck::ids {
     bool is_ck_sid(int sid) {
         int clean = clean_sid(sid);
         return (clean >= script_index::base && clean <= script_index::limit);
+    }
+
+    bool is_ck_script_index(int script_index) {
+        return script_index_occupied(script_index);
     }
 } // namespace ck::ids
 
