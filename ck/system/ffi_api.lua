@@ -166,6 +166,7 @@ ffi.cdef[[
   int ck_object_get_tile(fallout_Object* object);
   int ck_object_get_sid(fallout_Object* object);
   char* ck_object_get_name(void* ptr);
+  char* ck_object_get_description(void* ptr);
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 

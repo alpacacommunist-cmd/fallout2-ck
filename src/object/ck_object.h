@@ -69,6 +69,7 @@ CK_API int   ck_object_get_pid(fallout::Object* object);
 CK_API int   ck_object_get_tile(fallout::Object* object);
 CK_API int   ck_object_get_sid(fallout::Object* object);
 CK_API char* ck_object_get_name(void* ptr);
+CK_API char* ck_object_get_description(void* ptr);
 CK_API int ck_object_get_type(void* ptr);
 
 CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);

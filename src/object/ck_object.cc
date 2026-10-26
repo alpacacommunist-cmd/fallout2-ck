@@ -193,6 +193,11 @@ char* ck_object_get_name(void* ptr) {
 	return fallout::objectGetName(object);
 }
 
+char* ck_object_get_description(void* ptr) {
+	if (!ptr) return nullptr; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+	return fallout::objectGetDescription(object);
+}
+
 int ck_object_get_type(void* ptr) {
 	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
 	return ck::object::type(object->pid);

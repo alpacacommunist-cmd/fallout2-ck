@@ -97,6 +97,12 @@ local proc_handlers = {
       monitor.print(self.description)
       return true
     end
+
+    local description = self:get_description()
+    if description then
+      monitor.print(description)
+      return true
+    end
   end,
 
   damage = function(self, fixed_param)
@@ -159,6 +165,10 @@ end
 
 function Object:get_name()
   return ffi.string(ffi.C.ck_object_get_name(self.c_ptr))
+end
+
+function Object:get_description()
+  return ffi.string(ffi.C.ck_object_get_description(self.c_ptr))
 end
 
 function Object:type()
