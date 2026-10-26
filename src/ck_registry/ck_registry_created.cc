@@ -9,6 +9,9 @@ namespace fallout {
     int scriptRemove(int index);
     // animation.cc
     void animationStop();
+    int reg_anim_clear(Object* obj);
+    // object.cc
+    int objectDestroy(Object* object, Rect* rect);
 }
 
 namespace ck::registry::created {

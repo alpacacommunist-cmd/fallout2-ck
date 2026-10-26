@@ -45,7 +45,16 @@ namespace ck::critter {
 	static fallout::Object* create(int pid, int tile, int elevation) {
 		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
 
-		if (critter != nullptr) return critter;
+		if (critter != nullptr) {
+            Proto* proto = ck::proto::registry::get(pid);
+            if (proto) {
+                critter->scriptIndex = proto->get_sid();
+            }
+
+            logger.error("created critter: {}, script_index: {}", pid, critter->scriptIndex);
+            return critter;
+        }
+
 		return nullptr;
 	}
 
@@ -70,20 +79,24 @@ namespace ck::critter {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
             ck::script::assign_script_index_to_object(script_index, critter);
+            ck::script::disable_map_updates_for_object(critter);
+
+            logger.info("PID {} uses script_index: {} (passed explicitly)", critter->pid, script_index);
+            return;
         }
 
         // Critter has PROTOTYPE script
         if (critter->scriptIndex != -1) {
-            ck::script::set_no_save(critter->sid);
-            ck::script::kick_off_map_updates_for_sid(critter->sid);
+            ck::script::assign_proto_script(critter);
+            ck::script::disable_map_updates_for_object(critter);
 
-            logger.debug("PID {} uses native fallout2-ce script slot {}", critter->pid, critter->scriptIndex);
+            logger.info("PID {} uses script_index: {} (proto)", critter->pid, critter->scriptIndex);
             return;
         }
 
         // Otherwise assign LUA script
-        critter->sid = ids::make_sid_created(critter, lua_id);
-        logger.debug("assigning lua SID {} to PID {}", critter->sid, critter->pid);
+        ck::script::assign_script_index_to_object(ck::ids::make_sid_created(critter, lua_id), critter);
+        logger.info("PID {} uses script_index: {} (custom)", critter->pid, critter->scriptIndex);
     }
 
 	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
@@ -101,7 +114,7 @@ namespace ck::critter {
         // Check if state json exists for given tag
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
         if (state.elevation != -1) spawn_params->elevation = state.elevation;
-		if (state.tile != -1)      tile = state.tile;
+        if (state.tile != -1) tile = state.tile;
 
         // Either alive or first spawn
         bool critter_alive = (state.hp > 0 || state.id == -1);
@@ -112,7 +125,6 @@ namespace ck::critter {
 
         fallout::Object* critter = create(pid, tile, spawn_params->elevation);
         if (critter == nullptr) {
-            logger.error("source pid: {}, pid: {}", source_pid, pid);
             return -1;
         }
 

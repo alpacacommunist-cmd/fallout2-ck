@@ -1,14 +1,11 @@
 #include "ck_ids.h"
+#include "object/critter/ck_critter.h"
 #include "ck_registry.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry.cc"};
 
 namespace ck {
-    namespace critter {
-        void assign_script(fallout::Object* critter, int script_index, int lua_id);
-    }
-
     namespace script {
         void remove_object_script(fallout::Object* object);
     }
@@ -111,8 +108,6 @@ const char* ck_registry_object_get_lua_tag(fallout::Object* object) {
 bool ck_registry_bind_to_object(int lua_id) {
     fallout::Object* object = ck::registry::created::get_object(lua_id);
     if (object == nullptr) return false;
-
-    ck::script::remove_object_script(object);
 
     if (ck::ids::is_critter(object)) {
         ck::critter::assign_script(object, -1, lua_id);

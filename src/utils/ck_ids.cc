@@ -20,144 +20,138 @@ namespace fallout {
 namespace ck_proto = ck::utils::fallout::types::proto;
 
 namespace ck::ids {
+    static_assert(static_cast<int>(ObjectType::ITEM) == fallout::OBJ_TYPE_ITEM, "ITEM mismatch!");
+    static_assert(static_cast<int>(ObjectType::CRITTER) == fallout::OBJ_TYPE_CRITTER, "CRITTER mismatch!");
+    static_assert(static_cast<int>(ObjectType::SCENERY) == fallout::OBJ_TYPE_SCENERY, "SCENERY mismatch!");
+    static_assert(static_cast<int>(ObjectType::WALL) == fallout::OBJ_TYPE_WALL, "WALL mismatch!");
+    static_assert(static_cast<int>(ObjectType::TILE) == fallout::OBJ_TYPE_TILE, "TILE mismatch!");
+    static_assert(static_cast<int>(ObjectType::MISC) == fallout::OBJ_TYPE_MISC, "MISC mismatch!");
 
-static_assert(static_cast<int>(ObjectType::ITEM)    == fallout::OBJ_TYPE_ITEM,    "ITEM mismatch!");
-static_assert(static_cast<int>(ObjectType::CRITTER) == fallout::OBJ_TYPE_CRITTER, "CRITTER mismatch!");
-static_assert(static_cast<int>(ObjectType::SCENERY) == fallout::OBJ_TYPE_SCENERY, "SCENERY mismatch!");
-static_assert(static_cast<int>(ObjectType::WALL)    == fallout::OBJ_TYPE_WALL,    "WALL mismatch!");
-static_assert(static_cast<int>(ObjectType::TILE)    == fallout::OBJ_TYPE_TILE,    "TILE mismatch!");
-static_assert(static_cast<int>(ObjectType::MISC)    == fallout::OBJ_TYPE_MISC,    "MISC mismatch!");
+    bool is_item(fallout::Object *object) {
+        return ck_proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
+    }
 
-bool is_item(fallout::Object* object) {
-    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
-}
+    bool is_critter(fallout::Object *object) {
+        return ck_proto::type(object->pid) == static_cast<int>(ObjectType::CRITTER);
+    }
 
-bool is_critter(fallout::Object* object) {
-    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::CRITTER);
-}
+    bool is_scenery(fallout::Object *object) {
+        return ck_proto::type(object->pid) == static_cast<int>(ObjectType::SCENERY);
+    }
 
-bool is_scenery(fallout::Object* object) {
-    return ck_proto::type(object->pid) == static_cast<int>(ObjectType::SCENERY);
-}
-
-int script_type_for_object_type(int object_type) {
-    switch (object_type) {
-		case fallout::OBJ_TYPE_CRITTER:
-            return fallout::SCRIPT_TYPE_CRITTER;
-		case fallout::OBJ_TYPE_ITEM:
-            return fallout::SCRIPT_TYPE_ITEM;
-		case fallout::OBJ_TYPE_SCENERY:
+    int script_type_for_object_type(int object_type) {
+        switch (object_type) {
+        case fallout::OBJ_TYPE_CRITTER: return fallout::SCRIPT_TYPE_CRITTER;
+        case fallout::OBJ_TYPE_ITEM:    return fallout::SCRIPT_TYPE_ITEM;
+        case fallout::OBJ_TYPE_SCENERY:
         case fallout::OBJ_TYPE_WALL:
         case fallout::OBJ_TYPE_TILE:
-        case fallout::OBJ_TYPE_MISC:
-            return fallout::SCRIPT_TYPE_SPATIAL;
-        default:
-            return fallout::SCRIPT_TYPE_SYSTEM;
+        case fallout::OBJ_TYPE_MISC:    return fallout::SCRIPT_TYPE_SPATIAL;
+        default:                        return fallout::SCRIPT_TYPE_SYSTEM;
+        }
     }
-}
 
-int script_type_for_object(fallout::Object* object) {
-    if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
-    return script_type_for_object_type(ck_proto::type(object->pid));
-}
+    int script_type_for_object(fallout::Object *object) {
+        if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
+        return script_type_for_object_type(ck_proto::type(object->pid));
+    }
 
-bool is_ck_frm(int fid) {
-    if (fid == -1) return false;
+    bool is_ck_frm(int fid) {
+        if (fid == -1) return false;
 
-    int frm_id = fid & 0xFFF;
-    return frm_id >= frm::base && frm_id <= frm::limit;
-}
+        int frm_id = fid & 0xFFF;
+        return frm_id >= frm::base && frm_id <= frm::limit;
+    }
 
-int art_id_from_fid(int fid) {
-    return fid & 0xFFF;
-}
+    int art_id_from_fid(int fid) {
+        return fid & 0xFFF;
+    }
 
-int make_ck_fid(int custom_frm_id, int art_type) {
-    return ((art_type & 0xF) << 24) | (custom_frm_id & 0xFFF);
-}
+    int make_ck_fid(int custom_frm_id, int art_type) {
+        return ((art_type & 0xF) << 24) | (custom_frm_id & 0xFFF);
+    }
 
-int clean_sid(int full_sid) {
-    if ((full_sid) == -1) return -1;
-    return full_sid & 0x00FFFFFF;
-}
+    int clean_sid(int full_sid) {
+        if ((full_sid) == -1) return -1;
+        return full_sid & 0x00FFFFFF;
+    }
 
-int clean_pid(int full_pid) {
-    if ((full_pid) == -1) return -1;
-    return full_pid & 0x00FFFFFF;
-}
+    int clean_pid(int full_pid) {
+        if ((full_pid) == -1) return -1;
+        return full_pid & 0x00FFFFFF;
+    }
 
-bool is_ck_pid(int pid) {
-    int unpacked_pid = clean_pid(pid);
-    return unpacked_pid >= proto_id::base && unpacked_pid < proto_id::limit;
-}
+    bool is_ck_pid(int pid) {
+        int unpacked_pid = clean_pid(pid);
+        return unpacked_pid >= proto_id::base && unpacked_pid < proto_id::limit;
+    }
 
-bool is_ck_sid(int sid) {
-	int clean = clean_sid(sid);
-    return (clean >= script_index::base && clean <= script_index::limit);
-}
+    bool is_ck_sid(int sid) {
+        int clean = clean_sid(sid);
+        return (clean >= script_index::base && clean <= script_index::limit);
+    }
 
-bool is_ck_proto_sid(int sid) {
-    int clean = clean_sid(sid);
-    return clean >= script_index::proto_base && clean < script_index::proto_limit;
-}
+    bool is_ck_proto_sid(int sid) {
+        int clean = clean_sid(sid);
+        return clean >= script_index::proto_base && clean < script_index::proto_limit;
+    }
 
-bool is_created_sid(int sid) {
-	int clean = clean_sid(sid);
-    return (clean >= script_index::created_base && clean <= script_index::created_limit);
-}
+    bool is_created_sid(int sid) {
+        int clean = clean_sid(sid);
+        return (clean >= script_index::created_base && clean <= script_index::created_limit);
+    }
 
-bool is_modified_sid(int sid) {
-	int clean = clean_sid(sid);
-    return (clean >= script_index::modified_base && clean <= script_index::modified_limit);
-}
+    bool is_modified_sid(int sid) {
+        int clean = clean_sid(sid);
+        return (clean >= script_index::modified_base && clean <= script_index::modified_limit);
+    }
 
-int lua_id_from_sid(int sid) {
-	int clean = clean_sid(sid);
+    int lua_id_from_sid(int sid) {
+        int clean = clean_sid(sid);
 
-    if (is_modified_sid(sid))     return clean - script_index::modified_base;
-    if (is_created_sid(sid))      return clean - script_index::created_base;
-    if (is_ck_proto_sid(sid))     return clean + script_index::proto_base;
-    if (is_ck_sid(sid))           return clean - script_index::base;
+        if (is_modified_sid(sid)) return clean - script_index::modified_base;
+        if (is_created_sid(sid)) return clean - script_index::created_base;
+        if (is_ck_proto_sid(sid)) return clean + script_index::proto_base;
+        if (is_ck_sid(sid)) return clean - script_index::base;
 
-    return -1;
-}
+        return -1;
+    }
 
-int make_created_sid(int lua_id) {
-    return script_index::created_base + lua_id;
-}
+    int make_created_sid(int lua_id) {
+        return script_index::created_base + lua_id;
+    }
 
-int make_modified_sid(int lua_id) {
-    return script_index::modified_base + lua_id;
-}
+    int make_modified_sid(int lua_id) {
+        return script_index::modified_base + lua_id;
+    }
 
-int make_full_sid(int script_type, int custom_sid) {
-    return (script_type << 24) | (custom_sid & 0x00FFFFFF);
-}
+    int make_full_sid(int script_type, int custom_sid) {
+        return (script_type << 24) | (custom_sid & 0x00FFFFFF);
+    }
 
-int make_proto_sid(int custom_sid, int object_type) {
-    int script_type = script_type_for_object_type(object_type);
-    return (script_type << 24) | (custom_sid & 0x00FFFFFF);
-}
+    int make_proto_sid(int custom_sid, int object_type) {
+        int script_type = script_type_for_object_type(object_type);
+        return (script_type << 24) | (custom_sid & 0x00FFFFFF);
+    }
 
-int make_sid_created(fallout::Object* obj, int lua_id) {
-    if (!obj || lua_id == -1) return -1;
+    int make_sid_created(fallout::Object *obj, int lua_id) {
+        if (!obj || lua_id == -1) return -1;
 
-    int script_type = script_type_for_object(obj);
-    int custom_sid  = make_created_sid(lua_id);
+        int script_type = script_type_for_object(obj);
+        int custom_sid = make_created_sid(lua_id);
 
-    return make_full_sid(script_type, custom_sid);
-}
+        return make_full_sid(script_type, custom_sid);
+    }
 
-int make_sid_modified(fallout::Object* obj, int lua_id) {
-    if (!obj || lua_id == -1) return -1;
+    int make_sid_modified(fallout::Object *obj, int lua_id) {
+        if (!obj || lua_id == -1) return -1;
 
-    int script_type = script_type_for_object(obj);
-    int custom_sid  = make_modified_sid(lua_id);
+        int script_type = script_type_for_object(obj);
+        int custom_sid = make_modified_sid(lua_id);
 
-    return make_full_sid(script_type, custom_sid);
-}
-
-} // namespace ck
+        return make_full_sid(script_type, custom_sid);
+    }
+} // namespace ck::ids
 
 int ck_ids_make_ck_fid(int custom_frm_id, int art_type) {
     logger.info("ART_TYPE: {}", art_type);

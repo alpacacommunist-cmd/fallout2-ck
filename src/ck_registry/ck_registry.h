@@ -8,8 +8,6 @@
 namespace fallout {
     struct Object;
     struct Rect;
-    int objectDestroy(Object* object, Rect* rect);
-    int reg_anim_clear(Object* obj);
 }
 
 struct LuaMeta {

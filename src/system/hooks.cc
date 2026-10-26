@@ -164,12 +164,6 @@ namespace ck::hooks::gameplay {
         ck::dispatcher::on_map_update(ticks);
 	}
 
-    // Object requests script
-    // scripts.cc: int scriptGetScript
-    void script_requested(fallout::Script** script_ptr, int sid) {
-        *script_ptr = ck::script::get_dummy(sid);
-    }
-
     // set localVarsCount to 0 bc script is fake
     // scripts.cc: int _scr_find_str_run_info
     void proto_script_requested(fallout::Script* script) {

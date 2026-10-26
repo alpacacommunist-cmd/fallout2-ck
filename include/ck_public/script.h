@@ -7,10 +7,7 @@ namespace fallout {
 
 namespace ck::script {
     void handle_global_proc_event(int sid, int proc);
-	bool try_handle(int sid, int proc);
-	bool owns_sid(int sid);
-
-	fallout::Script* get_dummy(int sid);
+    bool handle_proc(int sid, int proc, fallout::Script* script);
 }
 
 #endif

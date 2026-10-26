@@ -84,6 +84,30 @@ namespace ck::proto::registry {
         logger.info("Cleared registry for mod: {}", mod_id);
     }
 
+    int bind_prototype_script(Proto* proto) {
+        if (!proto) {
+            logger.error("Couldn't bind, pid not found: {}", proto->pid);
+        }
+
+        for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
+            if (registered_pid == proto->pid) return sid;
+        }
+
+        if (g_next_proto_sid >= ck::ids::script_index::proto_limit) {
+            logger.error("Prototype SIDs limit reached!");
+            return -1;
+        }
+
+        int assigned_sid = g_next_proto_sid++;
+        int proto_sid = ck::ids::make_proto_sid(assigned_sid, proto->object_type);
+
+        g_proto_sid_to_pid[assigned_sid] = proto->pid;
+        proto->set_sid(proto_sid);
+
+        logger.debug("Bound custom prototype PID {} to SID {} ({})", proto->pid, assigned_sid, proto_sid);
+        return proto_sid;
+    }
+
     Proto* build_generic_prototype(int source_pid, const char* lua_tag) {
         int assigned_pid = next_proto_pid();
         if (assigned_pid == -1) return nullptr;
@@ -96,6 +120,8 @@ namespace ck::proto::registry {
 
         Proto* proto_ptr = proto.get();
         g_registry_protos.push_back(std::move(proto));
+
+        bind_prototype_script(proto_ptr);
 
         return proto_ptr;
     }
@@ -128,33 +154,6 @@ namespace ck::proto::registry {
         logger.error("Proto not found: {}", pid);
         *protoPtr = nullptr;
         return -1;
-    }
-
-    // TODO: replace with proto->sid
-    int bind_prototype_script(int pid) {
-        Proto* proto = get(pid);
-
-        if (!proto) {
-            logger.error("Couldn't bind, pid not found: {}", pid);
-        }
-
-        for (const auto& [sid, registered_pid] : g_proto_sid_to_pid) {
-            if (registered_pid == pid) return sid;
-        }
-
-        if (g_next_proto_sid >= ck::ids::script_index::proto_limit) {
-            logger.error("Prototype SIDs limit reached!");
-            return -1;
-        }
-
-        int assigned_sid = g_next_proto_sid++;
-        int proto_sid = ck::ids::make_proto_sid(assigned_sid, proto->object_type);
-
-        g_proto_sid_to_pid[assigned_sid] = pid;
-        proto->set_sid(proto_sid);
-
-        logger.debug("Bound custom prototype PID {} to SID {} ({})", pid, assigned_sid, proto_sid);
-        return proto_sid;
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
@@ -200,7 +199,3 @@ int ck_proto_get_pid_by_tag(const char* lua_tag) {
     return ck::proto::registry::get_pid_by_tag(std::string(lua_tag));
 }
 
-int ck_proto_bind(int pid) {
-    if (!ck::ids::is_ck_pid(pid)) return -1;
-    return ck::proto::registry::bind_prototype_script(pid);
-}

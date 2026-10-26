@@ -36,7 +36,7 @@ local flare_test = proto.register_prototype(79, "flare", {
 
   usable = true
 })
-flare_test:bind()
+-- flare_test:bind()
 :on('use', function()
   log.info("hello world [from flare_test PID: %s]", flare_test.pid)
 end)
@@ -57,8 +57,8 @@ local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expan
 
 log.info("golden_tail PID: %s", tostring(golden_tail.pid))
 
-golden_tail:bind()
-:on('use', function()
+-- golden_tail:bind()
+golden_tail:on('use', function()
   log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
 end)
 :on('look_at', function()

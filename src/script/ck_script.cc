@@ -15,6 +15,10 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_script.cc"};
 
+namespace fallout {
+    int objectSetScriptFromProto(Object* object, int* sidPtr);
+}
+
 namespace ck::script {
 	int gLastDialogChoice = -1;
 
@@ -28,30 +32,30 @@ namespace ck::script {
 		g_lua_scripts.clear();
 	}
 
-    fallout::Script* get_dummy(int sid) {
-		int lua_id = ck::ids::lua_id_from_sid(sid);
-
-        auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
-        auto& script = it->second;
-
-        if (inserted) {
-            script.sp.built_tile = -1;
-            script.sp.radius = -1;
-            script.index = -1;
-            script.localVarsOffset = -1;
-            script.actionBeingUsed = -1;
-
-            script.index = -1;
-            script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
-
-            for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
-        }
-
-        script.sid = sid;
-        script.program = nullptr;
-
-        return &script;
-    }
+		//   fallout::Script* get_dummy(int sid) {
+		// int lua_id = ck::ids::lua_id_from_sid(sid);
+		//
+		//       auto [it, inserted] = g_lua_scripts.try_emplace(lua_id);
+		//       auto& script = it->second;
+		//
+		//       if (inserted) {
+		//           script.sp.built_tile = -1;
+		//           script.sp.radius = -1;
+		//           script.index = -1;
+		//           script.localVarsOffset = -1;
+		//           script.actionBeingUsed = -1;
+		//
+		//           script.index = -1;
+		//           script.flags |= (fallout::SCRIPT_FLAG_LOADED | fallout::SCRIPT_FLAG_EXECUTED);
+		//
+		//           for (int i = 0; i < fallout::SCRIPT_PROC_COUNT; i++) script.procs[i] = -1;
+		//       }
+		//
+		//       script.sid = sid;
+		//       script.program = nullptr;
+		//
+		//       return &script;
+		//   }
 
 	fallout::Program* program_get_dummy() {
 		return &gDummyProgram;
@@ -61,67 +65,75 @@ namespace ck::script {
         if (script) script->localVarsCount = 0;
     }
 
-	bool owns_sid(int sid) {
-		return ck::ids::is_ck_sid(sid);
-	}
+    bool handle_proc(int sid, int proc, fallout::Script* script) {
+        int lua_id = ck::registry::find_by_ptr(script->owner);
+        bool handled = false;
 
-    bool proto_handle(int sid, int proc, int script_index) {
-        int pid = ck::proto::registry::get_pid_by_sid(script_index);
-		fallout::Script* script = get_dummy(sid);
-
-		int fixed_param = script->fixedParam;
-		script->scriptOverrides = 0;
-
-        std::string mod_id = ck::mods::system_mod_id();
-		bool handled_in_lua = ck::dispatcher::on_proto_proc(pid, proc, fixed_param, mod_id.c_str());
-
-		if (handled_in_lua) {
-			script->scriptOverrides = 1;
-			return true;
-		} else {
-            logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
+        // skip map updates (if proc disabled)
+        if (proc == fallout::SCRIPT_PROC_CRITTER && script->procs[fallout::SCRIPT_PROC_CRITTER] == fallout::SCRIPT_PROC_NO_PROC) {
+            return false;
         }
 
-		return false;
-    }
+        if (lua_id) {
+            logger.info.banner("lua_id: {}", lua_id);
 
-	bool try_handle(int sid, int proc) {
-        fallout::Script* active_script;
-        if (fallout::scriptGetScript(sid, &active_script) == -1 || active_script == nullptr) return false;
+            const LuaMeta* meta = ck::registry::get_meta(lua_id);
+            if (meta == nullptr) return false;
 
-        int active_script_index = active_script->index;
-        if (ck::ids::is_ck_proto_sid(active_script_index)) {
-            return proto_handle(sid, proc, active_script_index);
+            handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
+            if (!handled) {
+                logger.warning("unhandled proc: {} for sid: {}", proc, sid);
+            }
+        } else {
+            int pid = ck::proto::registry::get_pid_by_sid(script->index);
+            if (pid == -1) return false;
+
+            handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
+            if (!handled) {
+                logger.warning("[proto] unhandled proc: {} for sid: {}", proc, sid);
+            }
         }
 
-		if (!ck::ids::is_ck_sid(sid)) return false;
+        return handled;
+    };
 
-		int lua_id = ck::ids::lua_id_from_sid(sid);
-		const LuaMeta* meta = ck::registry::get_meta(lua_id);
-
-		if (meta == nullptr) return false; // game loading
-        // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
-
-		if (!meta->mod_id) {
-			logger.warning("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
-			return false;
-		}
-
-		fallout::Script* script = get_dummy(sid);
-
-		int fixed_param = script->fixedParam;
-		script->scriptOverrides = 0;
-
-		bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
-
-		if (handled_in_lua) {
-			script->scriptOverrides = 1;
-			return true;
-		}
-
-		logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
-		return false;
-	}
+	// bool try_handle(int sid, int proc) {
+	//        // fallout::Script* active_script;
+	//        // if (fallout::scriptGetScript(sid, &active_script) == -1 || active_script == nullptr) return false;
+	//        //
+	//        // int active_script_index = active_script->index;
+	//        // if (ck::ids::is_ck_proto_sid(active_script_index)) {
+	//        //     return proto_handle(sid, proc, active_script_index);
+	//        // }
+	//
+	// 	if (!ck::ids::is_ck_sid(sid)) return false;
+	//
+	// 	int lua_id = ck::ids::lua_id_from_sid(sid);
+	// 	const LuaMeta* meta = ck::registry::get_meta(lua_id);
+	//
+	// 	if (meta == nullptr) return false; // game loading
+	//        // logger.warn("object {} pid {} sid {}", meta->tag, meta->source_pid, ck::ids::clean_sid(sid));
+	//
+	// 	if (!meta->mod_id) {
+	// 		logger.warning("Object with LuaID {} found in SIDs, but missing in registries", lua_id);
+	// 		return false;
+	// 	}
+	//
+	// 	fallout::Script* script = get_dummy(sid);
+	//
+	// 	int fixed_param = script->fixedParam;
+	// 	script->scriptOverrides = 0;
+	//
+	// 	bool handled_in_lua = ck::dispatcher::on_proc(lua_id, proc, fixed_param, meta->mod_id);
+	//
+	// 	if (handled_in_lua) {
+	// 		script->scriptOverrides = 1;
+	// 		return true;
+	// 	}
+	//
+	// 	logger.warning("Unhandled proc: {} for id: {}", proc, lua_id);
+	// 	return false;
+	// }
 
     void handle_global_proc_event(int sid, int proc) {
         if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
@@ -174,25 +186,38 @@ namespace ck::script {
             script->procs[fallout::SCRIPT_PROC_TIMED]   = fallout::SCRIPT_PROC_NO_PROC;
             script->procs[fallout::SCRIPT_PROC_CRITTER] = fallout::SCRIPT_PROC_NO_PROC;
             script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = fallout::SCRIPT_PROC_NO_PROC;
-        }
 
-        logger.debug("Disabled PROC_CRITTER, PROC_MAP_UPDATE, PROC_TIMED for pid: {}", object->pid);
+            logger.debug("Disabled PROC_CRITTER, PROC_MAP_UPDATE, PROC_TIMED for pid: {}", object->pid);
+        }
     }
 
     void enable_map_updates_for_object(fallout::Object* object) {
         fallout::Script* script;
         fallout::scriptGetScript(object->sid, &script);
         if (script != nullptr) {
-            logger.debug("enabling map_update for SID: {}", script->sid);
-
             script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
             script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
             script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = 1;
+
+            logger.debug("enabling map_update for SID: {}", script->sid);
         }
     }
 
-    void assign_script_index_to_object(int script_index, fallout::Object* object) {
+    // Removes both current script and scriptIndex
+    void remove_object_script(fallout::Object* object) {
         if (object->sid != -1) fallout::scriptRemove(object->sid);
+        object->scriptIndex = -1;
+    }
+
+    void assign_proto_script(fallout::Object* object) {
+        ck::script::remove_object_script(object);
+
+        fallout::objectSetScriptFromProto(object, &object->sid);
+        ck::script::set_no_save(object->sid);
+    }
+
+    void assign_script_index_to_object(int script_index, fallout::Object* object) {
+        ck::script::remove_object_script(object);
 
         fallout::scriptAdd(&object->sid, static_cast<fallout::ScriptType>(ck::ids::script_type_for_object(object)));
 
@@ -207,12 +232,6 @@ namespace ck::script {
             script->index = script_index;
             script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
         }
-    }
-
-    // Removes both current script and scriptIndex
-    void remove_object_script(fallout::Object* object) {
-        if (object->sid != -1) fallout::scriptRemove(object->sid);
-        object->scriptIndex = -1;
     }
 
 	int dialog_init_ui() {

@@ -61,8 +61,6 @@ namespace ck::proto::registry {
     void clear();
     void clear_for_mod(const char* mod_id);
 
-    int bind_prototype_script(int pid);
-
     int get_pid_by_tag(const std::string& lua_tag);
     int get_pid_by_sid(int sid);
     int get_sid_by_pid(int pid);
@@ -72,7 +70,6 @@ namespace ck::proto::registry {
 }
 
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
-CK_API int ck_proto_bind(int pid);
 CK_API int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data);
 CK_API int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* ffi_data);
 CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
