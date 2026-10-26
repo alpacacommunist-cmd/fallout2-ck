@@ -37,7 +37,9 @@ bool is_item(fallout::Object* object);
 bool is_critter(fallout::Object* object);
 bool is_scenery(fallout::Object* object);
 
+int script_type_for_object_type(int object_type);
 int script_type_for_object(fallout::Object* object);
+
 bool is_ck_frm(int fid);
 int  art_id_from_fid(int fid);
 int  make_ck_fid(int custom_frm_id, int art_type = ck::ids::frm::transport_type);
@@ -52,8 +54,7 @@ int  lua_id_from_sid(int sid);
 
 int make_created_sid(int lua_id);
 int make_modified_sid(int lua_id);
-int make_full_sid(int script_type, int custom_sid);
-int make_proto_sid(int custom_sid);
+int make_proto_sid(int custom_sid, int object_type);
 int clean_sid(int full_sid);
 int clean_pid(int full_pid);
 

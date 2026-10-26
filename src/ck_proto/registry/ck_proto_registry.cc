@@ -148,7 +148,7 @@ namespace ck::proto::registry {
         }
 
         int assigned_sid = g_next_proto_sid++;
-        int proto_sid = ck::ids::make_proto_sid(assigned_sid);
+        int proto_sid = ck::ids::make_proto_sid(assigned_sid, proto->object_type);
 
         g_proto_sid_to_pid[assigned_sid] = pid;
         proto->set_sid(proto_sid);
@@ -172,13 +172,16 @@ namespace ck::proto::registry {
         return -1;
     }
 
-    int get_sid_by_pid(int pid) {
-        for (const auto& [clean_sid, registered_pid] : g_proto_sid_to_pid) {
-            if (registered_pid == pid) return ck::ids::make_proto_sid(clean_sid);
-        }
-
-        return -1;
-    }
+    // int get_sid_by_pid(int pid) {
+    //     for (const auto& [clean_sid, registered_pid] : g_proto_sid_to_pid) {
+    //         if (registered_pid == pid) {
+    //             Proto* proto = get(pid);
+    //             return proto ? ck::ids::make_proto_sid(clean_sid, proto->object_type) : -1;
+    //         }
+    //     }
+    //
+    //     return -1;
+    // }
 
     bool has_pid(int pid) {
         Proto* proto = get(ck::ids::clean_pid(pid));

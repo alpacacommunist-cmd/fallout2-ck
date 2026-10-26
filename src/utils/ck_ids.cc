@@ -1,5 +1,4 @@
 #include "ck_ids.h"
-#include "utils/fallout/types.h"
 #include "utils/fallout/types/proto.h"
 
 #include "fallout2-ce/obj_types.h"
@@ -41,11 +40,7 @@ bool is_scenery(fallout::Object* object) {
     return ck_proto::type(object->pid) == static_cast<int>(ObjectType::SCENERY);
 }
 
-int script_type_for_object(fallout::Object* object) {
-    if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
-
-    int object_type = static_cast<int>(ck::utils::types::object_type(object));
-
+int script_type_for_object_type(int object_type) {
     switch (object_type) {
 		case fallout::OBJ_TYPE_CRITTER:
             return fallout::SCRIPT_TYPE_CRITTER;
@@ -59,6 +54,11 @@ int script_type_for_object(fallout::Object* object) {
         default:
             return fallout::SCRIPT_TYPE_SYSTEM;
     }
+}
+
+int script_type_for_object(fallout::Object* object) {
+    if (!object) return fallout::SCRIPT_TYPE_SYSTEM;
+    return script_type_for_object_type(ck_proto::type(object->pid));
 }
 
 bool is_ck_frm(int fid) {
@@ -134,8 +134,9 @@ int make_full_sid(int script_type, int custom_sid) {
     return (script_type << 24) | (custom_sid & 0x00FFFFFF);
 }
 
-int make_proto_sid(int custom_sid) {
-    return (fallout::SCRIPT_TYPE_ITEM << 24) | (custom_sid & 0x00FFFFFF);
+int make_proto_sid(int custom_sid, int object_type) {
+    int script_type = script_type_for_object_type(object_type);
+    return (script_type << 24) | (custom_sid & 0x00FFFFFF);
 }
 
 int make_sid_created(fallout::Object* obj, int lua_id) {
