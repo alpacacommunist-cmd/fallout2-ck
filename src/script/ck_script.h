@@ -17,6 +17,10 @@ namespace ck::script {
 
     void reset_vars(fallout::Script* script);
     void set_no_save(int sid);
+    int index(fallout::Script* script);
+    int param(fallout::Script* script);
+    fallout::Object* owner(fallout::Script* script);
+    void overrides(fallout::Script* script, int value);
 
     void kick_off_map_updates_for_sid(int sid);
     void disable_map_updates_for_object(fallout::Object* object);

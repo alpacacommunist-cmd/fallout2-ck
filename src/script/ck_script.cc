@@ -5,10 +5,8 @@
 #include "fallout2-ce/scripts.h"
 
 #include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
-#include "ck_mods/ck_mods.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_script.cc"};
@@ -50,6 +48,14 @@ namespace ck::script {
         fallout::scriptGetScript(sid, &script);
 
         if (script != nullptr) script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
+    }
+
+    int index(fallout::Script* script) { return script->index; }
+    int param(fallout::Script* script) { return script->fixedParam; }
+    fallout::Object* owner(fallout::Script* script) { return script->owner; }
+
+    void overrides(fallout::Script* script, int value) {
+        script->scriptOverrides = value;
     }
 
     void kick_off_map_updates_for_sid(int sid) {
@@ -115,35 +121,6 @@ namespace ck::script {
             script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
         }
     }
-
-    bool handle_proc(int sid, fallout::Script* script, int proc) {
-        // skip if script isn't processed
-        if (!ck::ids::is_ck_script_index(script->index)) return false;
-        // skip map updates (if proc disabled)
-        if (proc == fallout::SCRIPT_PROC_CRITTER && !proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
-
-        bool handled = false;
-
-        int lua_id = ck::registry::find_by_ptr(script->owner);
-        if (lua_id != -1) {
-            const LuaMeta* meta = ck::registry::get_meta(lua_id);
-            handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
-        } else {
-            int pid = ck::proto::registry::get_pid_by_sid(script->index);
-            if (pid == -1) return false;
-
-            handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
-        }
-
-        if (handled) {
-            script->scriptOverrides = 1;
-            return true;
-        } else {
-            logger.warning("unhandled proc: {} (script_index: {})", proc, script->index);
-        }
-
-        return false;
-    };
 
     void handle_global_proc_event(int sid, int proc) {
         if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY

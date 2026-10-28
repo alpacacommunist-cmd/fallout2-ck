@@ -8,6 +8,8 @@
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+#include "ck_registry/ck_registry.h"
+#include "script/ck_script.h"
 
 #include "fallout2-ce/settings.h"
 
@@ -170,6 +172,36 @@ namespace ck::hooks::gameplay {
     void proto_script_requested(fallout::Script* script) {
         ck::script::reset_vars(script);
     }
+
+    bool handle_proc(int sid, fallout::Script* script, int proc) {
+        // skip if script isn't processed
+        if (!ck::ids::is_ck_script_index(ck::script::index(script))) return false;
+        // skip map updates (if proc disabled)
+        if (proc == fallout::SCRIPT_PROC_CRITTER && !proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+
+        bool handled = false;
+
+        int lua_id = ck::registry::find_by_ptr(ck::script::owner(script));
+        if (lua_id != -1) {
+            const LuaMeta* meta = ck::registry::get_meta(lua_id);
+            handled = ck::dispatcher::on_proc(lua_id, proc, ck::script::param(script), meta->mod_id);
+        } else {
+            int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
+            if (pid == -1) return false;
+
+            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), ck::mods::system_mod_id());
+        }
+
+        if (handled) {
+            ck::script::overrides(script, 1);
+            return true;
+        } else {
+            logger.warning("unhandled proc: {} (script_index: {})", proc, ck::script::index(script));
+        }
+
+        return false;
+    };
+
 
     // sets last dialog choice (used for controlling dialogs)
     // game_dialog.cc: int _gdProcessChoice(int optionIndex)

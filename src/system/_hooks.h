@@ -9,13 +9,13 @@ namespace fallout {
     void mapEdgeFree();
 }
 
-namespace ck::script {
-    void reset_vars(fallout::Script* script);
-    void set_last_dialog_choice(int option_index);
-}
-
 namespace ck::config {
     bool apply_worldmap_patches();
+}
+
+namespace ck::mods {
+    const char* system_mod_id();
+    const char* current_mod_id();
 }
 
 namespace ck::state {
@@ -28,39 +28,19 @@ namespace ck::common {
     bool in_combat();
 }
 
-namespace ck::registry {
-	void clear_context();
-    void clear();
-
-    namespace deleted {
-        void unhide();
-        void hide();
-    }
-
-    namespace modified {
-		void restore_sids();
-		void reapply_sids();
-    }
-
-    namespace created {
-        int  remove_by_ptr(fallout::Object* ptr);
-    }
-}
-
-
 namespace ck::proto::registry {
     enum class SyncMode {
         Prepare,
         Restore
     };
 
+    void clear();
     void clear_for_object_type(int object_type);
+    int get_pid_by_sid(int sid);
 
     namespace item {
         void sync_custom_items_on_map(SyncMode mode);
     }
-
-    void clear();
 }
 
 #endif
