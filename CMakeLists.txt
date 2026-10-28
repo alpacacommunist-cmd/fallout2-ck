@@ -28,6 +28,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"
         message(STATUS "LTO/IPO enabled!")
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
     endif()
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_link_options("-s")
+    endif()
 else()
     message(STATUS "(${CMAKE_BUILD_TYPE}). LTO disabled.")
 endif()

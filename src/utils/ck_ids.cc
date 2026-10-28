@@ -73,22 +73,30 @@ namespace ck::ids {
         std::vector<AllocatedId> proto_ids;
 
         bool script_index_occupied(int id) {
-            return std::ranges::any_of(script_indexes, [id](const auto &item) { return item.id == id; });
+            return std::ranges::any_of(script_indexes, [id](const auto &entry) { return entry.id == id; });
         }
 
         bool proto_id_occupied(int id) {
-            return std::ranges::any_of(proto_ids, [id](const auto &item) { return item.id == id; });
+            return std::ranges::any_of(proto_ids, [id](const auto &entry) { return entry.id == id; });
         }
     } // namespace
 
-    void clear_all() {
+    void clear() {
         script_indexes.clear();
         proto_ids.clear();
     }
 
+    void clear_for_object_type(int object_type) {
+        int count;
+        count = std::erase_if(script_indexes, [&object_type](const auto& entry) { return entry.object_type == object_type; });
+        logger.debug("cleared {} script indexes", count);
+        count = std::erase_if(proto_ids, [&object_type](const auto& entry) { return entry.object_type == object_type; });
+        logger.debug("cleared {} proto ids", count);
+    }
+
     void clear_for_mod(const char* mod_id) {
-        std::erase_if(script_indexes, [&mod_id](const auto& item) { return item.mod_id == mod_id; });
-        std::erase_if(proto_ids, [&mod_id](const auto& item) { return item.mod_id == mod_id; });
+        std::erase_if(script_indexes, [&mod_id](const auto& entry) { return entry.mod_id == mod_id; });
+        std::erase_if(proto_ids, [&mod_id](const auto& entry) { return entry.mod_id == mod_id; });
     }
 
     int next_script_index(const char* mod_id, int object_type) {
@@ -113,6 +121,7 @@ namespace ck::ids {
                 return pid;
             }
         }
+
         return -1;
     }
 
@@ -121,13 +130,13 @@ namespace ck::ids {
     }
 
     void free_script_index(int id) {
-        if (size_t count = std::erase_if(script_indexes, [&id](const auto& item) { return item.id == id; }); count > 0) {
+        if (size_t count = std::erase_if(script_indexes, [&id](const auto& entry) { return entry.id == id; }); count > 0) {
             logger.debug("cleared script index: {}", id);
         }
     }
 
     void free_proto_id(int id) {
-        if (size_t count = std::erase_if(proto_ids, [&id](const auto& item) { return item.id == id; }); count > 0) {
+        if (size_t count = std::erase_if(proto_ids, [&id](const auto& entry) { return entry.id == id; }); count > 0) {
             logger.debug("cleared proto_id: {}", id);
         }
     }

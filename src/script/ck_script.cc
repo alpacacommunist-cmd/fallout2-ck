@@ -4,9 +4,6 @@
 #include "fallout2-ce/game_dialog.h"
 #include "fallout2-ce/scripts.h"
 
-#include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_registry/ck_registry.h"
-#include "object/ck_object.h"
 #include "script/ck_script.h"
 
 #include "log.h"
@@ -81,6 +78,7 @@ namespace ck::script {
     int index(fallout::Script* script) { return script->index; }
     int param(fallout::Script* script) { return script->fixedParam; }
     fallout::Object* owner(fallout::Script* script) { return script->owner; }
+    fallout::Object* source(fallout::Script* script) { return script->source; }
 
     void overrides(fallout::Script* script, int value) {
         script->scriptOverrides = value;
@@ -147,35 +145,6 @@ namespace ck::script {
 
             script->index = script_index;
             script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;
-        }
-    }
-
-    void handle_global_proc_event(int sid, int proc) {
-        if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
-
-        fallout::Script* script = nullptr;
-        if (fallout::scriptGetScript(sid, &script) == -1 || script == nullptr) return;
-
-        fallout::Object* victim_ptr = script->owner;
-        fallout::Object* killer_ptr = script->source;
-
-        if (victim_ptr == nullptr || fallout::ProtoId(victim_ptr->pid).objectType() != fallout::OBJ_TYPE_CRITTER) return;
-
-        CkObjectFFI victim{}, killer{};
-        if (victim_ptr) ck::object::to_ffi(victim, victim_ptr);
-        if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
-
-        if (!victim_ptr || !killer_ptr) return;
-
-        ck::dispatcher::on_critter_killed(&victim, &killer);
-
-        // object was spawned by lua mod but has no lua script
-        if (victim.lua_id != -1 && !ck::ids::is_ck_sid(victim_ptr->sid)) {
-            const LuaMeta* meta = ck::registry::get_meta(victim.lua_id);
-
-            // dispatch proc manually
-            logger.debug("Dispatching proc {} to lua_id {} manually (no lua script found)", proc, victim.lua_id);
-            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id);
         }
     }
 

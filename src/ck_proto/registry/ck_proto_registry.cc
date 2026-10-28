@@ -82,6 +82,7 @@ namespace ck::proto::registry {
 
     void clear() {
         protos.clear();
+        ck::ids::clear();
 
         logger.info("registry cleared");
     }
@@ -92,12 +93,11 @@ namespace ck::proto::registry {
 
         for (auto &proto : protos) {
             if (proto && proto->object_type == object_type) {
-                ck::ids::free_script_index(proto->get_sid());
-                ck::ids::free_proto_id(proto->pid);
-
                 unlink_sid(proto->get_sid());
             }
         }
+
+        ck::ids::clear_for_object_type(object_type);
 
         size_t count = std::erase_if(protos, [object_type](const auto &proto) { return proto->object_type == object_type; });
         logger.debug("Successfully removed {} prototypes of type '{}' from registry", count, type_name);
@@ -108,12 +108,11 @@ namespace ck::proto::registry {
 
         for (auto &proto : protos) {
             if (proto && proto->mod_id == mod_id) {
-                ck::ids::free_script_index(proto->get_sid());
-                ck::ids::free_proto_id(proto->pid);
-
                 unlink_sid(proto->get_sid());
             }
         }
+
+        ck::ids::clear_for_mod(mod_id);
 
         size_t count = std::erase_if(protos, [mod_id](const auto &proto) { return proto->mod_id == mod_id; });
         logger.debug("Hot Reload: Cleared {} prototypes for mod '{}'", count, mod_id);

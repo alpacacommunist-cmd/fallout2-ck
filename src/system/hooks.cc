@@ -10,6 +10,7 @@
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_registry/ck_registry.h"
 #include "script/ck_script.h"
+#include "object/ck_object.h"
 
 #include "fallout2-ce/settings.h"
 
@@ -24,12 +25,12 @@ namespace ck::proxy::detail {
     extern int map_exit;
 }
 
-namespace ck::hooks {
+namespace detail {
     static void clear_runtime_context() {
         // Custom proto items PID is temporary, restore it to SOURCE_PID before leaving the map
         // so that map save file holds vanilla data
         if (!ck::common::game_is_loading()) {
-            ck::proto::registry::item::sync_custom_items_on_map(proto::registry::SyncMode::Prepare);
+            ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Prepare);
         }
 
         // Resets lua registries, updates state when leaving a map
@@ -57,7 +58,131 @@ namespace ck::hooks {
         ck::rendering::refresh();
         if (ck::common::in_combat()) fallout::_combat_reload_map();
     }
+
+    // global events bus helper
+    static void process_global_events(fallout::Script *script, int proc) {
+        auto script_proc = static_cast<ck::script::Proc>(proc);
+
+        switch (script_proc) {
+        case ck::script::Proc::DESTROY: {
+            // critter killed
+            fallout::Object *victim_ptr = ck::script::owner(script);
+            fallout::Object *killer_ptr = ck::script::source(script);
+
+            if (victim_ptr && ck::ids::is_critter(victim_ptr)) {
+                CkObjectFFI victim{}, killer{};
+                ck::object::to_ffi(victim, victim_ptr);
+                if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
+
+                ck::dispatcher::on_critter_killed(&victim, &killer);
+            }
+            break;
+        }
+
+        default: break;
+        }
+    }
 }
+
+namespace ck::hooks::gameplay {
+    // worldmap.cc
+    void worldmap_open() {
+        logger.debug("worldmap_open");
+
+        detail::clear_runtime_context();
+    }
+
+    // map.cc
+    void before_map_load() {
+        logger.debug("before_map_load");
+
+        detail::clear_runtime_context();
+    }
+
+    void map_enter() {
+        logger.debug("map_enter");
+
+        detail::init_runtime_context();
+    }
+
+    // script.cc
+	void time_advance(int hours, int minutes) {
+        logger.debug("time_advance");
+
+        ck::dispatcher::on_time_advance(hours, minutes);
+	}
+    void after_rest(int hours, int minutes) { time_advance(hours, minutes); }
+
+	void day_passed() {
+        logger.debug("day_passed");
+
+        ck::dispatcher::on_day_passed();
+	}
+
+    // alternative map updater
+    // scripts.cc: static void _doBkProcesses()
+	void map_update(unsigned int ticks) {
+        ck::dispatcher::on_map_update(ticks);
+	}
+
+    // set localVarsCount to 0 bc script is fake (isn't physically loaded in gScriptsListEntries)
+    // scripts.cc: int _scr_find_str_run_info
+    void proto_script_requested(fallout::Script* script) {
+        ck::script::reset_vars(script);
+    }
+
+    // proc handler
+    // scripts.cc: int scriptExecProc(int sid, ScriptProc proc)
+    bool proc(fallout::Script* script, int proc) {
+        detail::process_global_events(script, proc);
+
+        // skip if script isn't processed
+        if (!ck::ids::is_ck_script_index(ck::script::index(script))) return false;
+        // skip map updates (if proc disabled)
+        if (proc == static_cast<int>(ck::script::Proc::CRITTER) && !ck::script::proc_enabled(script, proc)) return false;
+
+        bool handled = false;
+
+        int lua_id = ck::registry::find_by_ptr(ck::script::owner(script));
+        if (lua_id != -1) {
+            const LuaMeta* meta = ck::registry::get_meta(lua_id);
+            handled = ck::dispatcher::on_proc(lua_id, proc, ck::script::param(script), meta->mod_id);
+        } else {
+            int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
+            if (pid == -1) return false;
+
+            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), ck::mods::system_mod_id());
+        }
+
+        if (handled) {
+            ck::script::overrides(script, 1);
+            return true;
+        } else {
+            logger.warning("unhandled proc: {} (script_index: {})", proc, ck::script::index(script));
+        }
+
+        return false;
+    };
+
+    // sets last dialog choice (used for controlling dialogs)
+    // game_dialog.cc: int _gdProcessChoice(int optionIndex)
+    void last_dialog_choice(int option_index) {
+        ck::script::set_last_dialog_choice(option_index);
+    }
+
+    // Separate hook for destroying objects to help clearing out ptrs
+    // object.cc: int objectDestroy(Object* object, Rect* rect)
+    void object_destroyed(fallout::Object* object) {
+        logger.debug("object_destroyed");
+        ck::registry::created::remove_by_ptr(object);
+    }
+
+    // Checks whether items are identical
+    // items.cc: static bool _item_identical
+    bool items_identical_check(fallout::Object* item1, fallout::Object* item2) {
+        return ck_object::pid(item1) == ck_object::pid(item2);
+    }
+} // namespace ck::hooks::gameplay
 
 namespace ck::hooks::system {
     void game_start() {
@@ -106,7 +231,7 @@ namespace ck::hooks::system {
     void before_game_load(const char* path) {
         logger.debug("before_game_load");
 
-        ck::hooks::clear_runtime_context();
+        // ck::hooks::clear_runtime_context();
         ck::state::load(path);
     }
 
@@ -114,7 +239,7 @@ namespace ck::hooks::system {
         logger.debug("game_loaded");
 
         ck::dispatcher::on_game_loaded();
-        ck::hooks::init_runtime_context();
+        ck::hooks::gameplay::map_enter();
     }
 
     // Exit
@@ -126,98 +251,3 @@ namespace ck::hooks::system {
     }
 }
 
-namespace ck::hooks::gameplay {
-    // worldmap.cc
-    void worldmap_open() {
-        logger.debug("worldmap_open");
-
-        ck::hooks::clear_runtime_context();
-    }
-
-    // map.cc
-    void before_map_load() {
-        logger.debug("before_map_load");
-
-        ck::hooks::clear_runtime_context();
-    }
-
-    void map_enter() {
-        logger.debug("map_enter");
-
-        ck::hooks::init_runtime_context();
-    }
-
-    // script.cc
-	void time_advance(int hours, int minutes) {
-        logger.debug("time_advance");
-
-        ck::dispatcher::on_time_advance(hours, minutes);
-	}
-    void after_rest(int hours, int minutes) { time_advance(hours, minutes); }
-
-	void day_passed() {
-        logger.debug("day_passed");
-
-        ck::dispatcher::on_day_passed();
-	}
-
-    // alternative map updater
-    // scripts.cc: static void _doBkProcesses()
-	void map_update(unsigned int ticks) {
-        ck::dispatcher::on_map_update(ticks);
-	}
-
-    // set localVarsCount to 0 bc script is fake (isn't physically loaded in gScriptsListEntries)
-    // scripts.cc: int _scr_find_str_run_info
-    void proto_script_requested(fallout::Script* script) {
-        ck::script::reset_vars(script);
-    }
-
-    bool proc(fallout::Script* script, int proc) {
-        // skip if script isn't processed
-        if (!ck::ids::is_ck_script_index(ck::script::index(script))) return false;
-        // skip map updates (if proc disabled)
-        if (proc == static_cast<int>(ck::script::Proc::CRITTER) && !ck::script::proc_enabled(script, proc)) return false;
-
-        bool handled = false;
-
-        int lua_id = ck::registry::find_by_ptr(ck::script::owner(script));
-        if (lua_id != -1) {
-            const LuaMeta* meta = ck::registry::get_meta(lua_id);
-            handled = ck::dispatcher::on_proc(lua_id, proc, ck::script::param(script), meta->mod_id);
-        } else {
-            int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
-            if (pid == -1) return false;
-
-            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), ck::mods::system_mod_id());
-        }
-
-        if (handled) {
-            ck::script::overrides(script, 1);
-            return true;
-        } else {
-            logger.warning("unhandled proc: {} (script_index: {})", proc, ck::script::index(script));
-        }
-
-        return false;
-    };
-
-    // sets last dialog choice (used for controlling dialogs)
-    // game_dialog.cc: int _gdProcessChoice(int optionIndex)
-    void last_dialog_choice(int option_index) {
-        ck::script::set_last_dialog_choice(option_index);
-    }
-
-    // Separate hook for destroying objects to help clearing out ptrs
-    // object.cc: int objectDestroy(Object* object, Rect* rect)
-    void object_destroyed(fallout::Object* object) {
-        logger.debug("object_destroyed");
-        ck::registry::created::remove_by_ptr(object);
-    }
-
-    // Checks whether items are identical
-    // items.cc: static bool _item_identical
-    bool items_identical_check(fallout::Object* item1, fallout::Object* item2) {
-        return ck_object::pid(item1) == ck_object::pid(item2);
-    }
-}

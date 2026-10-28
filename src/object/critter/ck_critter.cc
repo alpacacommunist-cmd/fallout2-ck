@@ -95,6 +95,7 @@ namespace ck::critter {
         }
 
         // Otherwise assign custom script
+        logger.error("TYPE: {}", ck::ids::object_type(critter->pid));
         int custom_script_index = ck::ids::next_script_index(ck::mods::current_mod_id(), ck::ids::object_type(critter->pid));
         if (custom_script_index == -1) {
             logger.error("Couldn't allocate script_index!");

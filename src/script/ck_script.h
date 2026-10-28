@@ -90,6 +90,7 @@ namespace ck::script {
     int index(fallout::Script* script);
     int param(fallout::Script* script);
     fallout::Object* owner(fallout::Script* script);
+    fallout::Object* source(fallout::Script* script);
     void overrides(fallout::Script* script, int value);
 
     void kick_off_map_updates_for_sid(int sid);
@@ -99,10 +100,6 @@ namespace ck::script {
     void remove_object_script(fallout::Object* object);
     void assign_proto_script(fallout::Object* object);
     void assign_script_index_to_object(int script_index, fallout::Object* object);
-
-	bool owns_sid(int sid);
-	void on_map_update(unsigned int ticks);
-    void handle_global_proc_event(int sid, int proc);
 }
 
 // ffi
