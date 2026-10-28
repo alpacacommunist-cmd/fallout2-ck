@@ -11,6 +11,7 @@ namespace fallout {
 
 namespace ck::script {
     void reset_vars(fallout::Script* script);
+    void set_last_dialog_choice(int option_index);
 }
 
 namespace ck::config {

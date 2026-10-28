@@ -89,7 +89,6 @@ namespace ck::hooks::system {
         logger.debug("before_game_save");
 
         ck::registry::deleted::unhide();
-        ck::registry::modified::restore_sids();
         ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Prepare);
     }
 
@@ -99,7 +98,6 @@ namespace ck::hooks::system {
         ck::state::save(path);
 
         ck::registry::deleted::hide();
-        ck::registry::modified::reapply_sids();
         ck::proto::registry::item::sync_custom_items_on_map(ck::proto::registry::SyncMode::Restore);
     }
 
@@ -161,14 +159,22 @@ namespace ck::hooks::gameplay {
         ck::dispatcher::on_day_passed();
 	}
 
+    // alternative map updater
+    // scripts.cc: static void _doBkProcesses()
 	void map_update(unsigned int ticks) {
         ck::dispatcher::on_map_update(ticks);
 	}
 
-    // set localVarsCount to 0 bc script is fake
+    // set localVarsCount to 0 bc script is fake (isn't physically loaded in gScriptsListEntries)
     // scripts.cc: int _scr_find_str_run_info
     void proto_script_requested(fallout::Script* script) {
         ck::script::reset_vars(script);
+    }
+
+    // sets last dialog choice (used for controlling dialogs)
+    // game_dialog.cc: int _gdProcessChoice(int optionIndex)
+    void last_dialog_choice(int option_index) {
+        ck::script::set_last_dialog_choice(option_index);
     }
 
     // Separate hook for destroying objects to help clearing out ptrs

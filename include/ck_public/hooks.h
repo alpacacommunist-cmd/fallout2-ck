@@ -34,8 +34,9 @@ namespace ck::hooks::gameplay {
 	void day_passed();
     // scripts.cc
 	void map_update(unsigned int ticks);
-    void script_requested(fallout::Script** script_ptr, int sid);
     void proto_script_requested(fallout::Script* script);
+    // game_dialog.cc
+    void last_dialog_choice(int option_index);
     // object.cc
     void object_destroyed(fallout::Object* object);
     // item.cc

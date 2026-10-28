@@ -3,8 +3,6 @@
 
 #include "ck_api.h"
 
-struct CkObjectFFI;
-
 namespace fallout {
 	struct Object;
 	struct Script;
@@ -12,21 +10,12 @@ namespace fallout {
 }
 
 namespace ck::script {
-	void reset();
-
-	extern int gLastDialogChoice;
-
-	typedef enum GameDialogReaction {
-		GAME_DIALOG_REACTION_GOOD = 49,
-		GAME_DIALOG_REACTION_NEUTRAL = 50,
-		GAME_DIALOG_REACTION_BAD = 51,
-	} GameDialogReaction;
-
-	fallout::Script*  get_dummy(int sid);
-	fallout::Program* program_get_dummy();
+    void set_last_dialog_choice(int option_index);
+    bool script_proc_enabled(fallout::Script* script, int proc);
 
     void reset_vars(fallout::Script* script);
     void set_no_save(int sid);
+
     void kick_off_map_updates_for_sid(int sid);
     void disable_map_updates_for_object(fallout::Object* object);
     void enable_map_updates_for_object(fallout::Object* object);
@@ -38,7 +27,6 @@ namespace ck::script {
 	bool owns_sid(int sid);
 	void on_map_update(unsigned int ticks);
     void handle_global_proc_event(int sid, int proc);
-	bool try_handle(int sid, int proc);
 }
 
 // ffi

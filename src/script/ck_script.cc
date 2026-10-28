@@ -20,86 +20,23 @@ namespace fallout {
 }
 
 namespace ck::script {
-	int gLastDialogChoice = -1;
+	static int last_dialog_choice = -1;
 
 	static fallout::Program gDummyProgram;
-	// static fallout::Script gDummyScript;
-
-	// static std::unordered_map<int, fallout::Script> g_lua_scripts;
-
-    static bool script_proc_enabled(fallout::Script* script, int proc) {
-        return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;
-    }
-
-	void reset() {
-		logger.debug("RESET lua_scripts");
-		// g_lua_scripts.clear();
-	}
-
     fallout::Program* program_get_dummy() {
 		return &gDummyProgram;
 	}
 
-    void reset_vars(fallout::Script* script) {
-        if (script) script->localVarsCount = 0;
+    void set_last_dialog_choice(int option_index) {
+        last_dialog_choice = option_index;
     }
 
-    bool handle_proc(int sid, fallout::Script* script, int proc) {
-        // skip if script isn't processed
-        if (!ck::ids::is_ck_script_index(script->index)) return false;
-        // skip map updates (if proc disabled)
-        if (proc == fallout::SCRIPT_PROC_CRITTER && !script_proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+    bool script_proc_enabled(fallout::Script* script, int proc) {
+        return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;
+    }
 
-        bool handled = false;
-
-        int lua_id = ck::registry::find_by_ptr(script->owner);
-        if (lua_id != -1) {
-            const LuaMeta* meta = ck::registry::get_meta(lua_id);
-            handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
-        } else {
-            int pid = ck::proto::registry::get_pid_by_sid(script->index);
-            if (pid == -1) return false;
-
-            handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
-        }
-
-        if (handled) {
-            script->scriptOverrides = 1;
-            return true;
-        } else {
-            logger.warning("unhandled proc: {} (script_index: {})", proc, script->index);
-        }
-
-        return false;
-    };
-
-    void handle_global_proc_event(int sid, int proc) {
-        if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
-
-        fallout::Script* script = nullptr;
-        if (fallout::scriptGetScript(sid, &script) == -1 || script == nullptr) return;
-
-        fallout::Object* victim_ptr = script->owner;
-        fallout::Object* killer_ptr = script->source;
-
-        if (victim_ptr == nullptr || fallout::ProtoId(victim_ptr->pid).objectType() != fallout::OBJ_TYPE_CRITTER) return;
-
-        CkObjectFFI victim{}, killer{};
-        if (victim_ptr) ck::object::to_ffi(victim, victim_ptr);
-        if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
-
-        if (!victim_ptr || !killer_ptr) return;
-
-        ck::dispatcher::on_critter_killed(&victim, &killer);
-
-        // object was spawned by lua mod but has no lua script
-        if (victim.lua_id != -1 && !ck::ids::is_ck_sid(victim_ptr->sid)) {
-            const LuaMeta* meta = ck::registry::get_meta(victim.lua_id);
-
-            // dispatch proc manually
-            logger.debug("Dispatching proc {} to lua_id {} manually (no lua script found)", proc, victim.lua_id);
-            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id);
-        }
+    void reset_vars(fallout::Script* script) {
+        if (script) script->localVarsCount = 0;
     }
 
     void set_no_save(int sid) {
@@ -172,6 +109,64 @@ namespace ck::script {
         }
     }
 
+    bool handle_proc(int sid, fallout::Script* script, int proc) {
+        // skip if script isn't processed
+        if (!ck::ids::is_ck_script_index(script->index)) return false;
+        // skip map updates (if proc disabled)
+        if (proc == fallout::SCRIPT_PROC_CRITTER && !script_proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+
+        bool handled = false;
+
+        int lua_id = ck::registry::find_by_ptr(script->owner);
+        if (lua_id != -1) {
+            const LuaMeta* meta = ck::registry::get_meta(lua_id);
+            handled = ck::dispatcher::on_proc(lua_id, proc, script->fixedParam, meta->mod_id);
+        } else {
+            int pid = ck::proto::registry::get_pid_by_sid(script->index);
+            if (pid == -1) return false;
+
+            handled = ck::dispatcher::on_proto_proc(pid, proc, script->fixedParam, ck::mods::system_mod_id());
+        }
+
+        if (handled) {
+            script->scriptOverrides = 1;
+            return true;
+        } else {
+            logger.warning("unhandled proc: {} (script_index: {})", proc, script->index);
+        }
+
+        return false;
+    };
+
+    void handle_global_proc_event(int sid, int proc) {
+        if (proc != 18) return; // 18 = SCRIPT_PROC_DESTROY
+
+        fallout::Script* script = nullptr;
+        if (fallout::scriptGetScript(sid, &script) == -1 || script == nullptr) return;
+
+        fallout::Object* victim_ptr = script->owner;
+        fallout::Object* killer_ptr = script->source;
+
+        if (victim_ptr == nullptr || fallout::ProtoId(victim_ptr->pid).objectType() != fallout::OBJ_TYPE_CRITTER) return;
+
+        CkObjectFFI victim{}, killer{};
+        if (victim_ptr) ck::object::to_ffi(victim, victim_ptr);
+        if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
+
+        if (!victim_ptr || !killer_ptr) return;
+
+        ck::dispatcher::on_critter_killed(&victim, &killer);
+
+        // object was spawned by lua mod but has no lua script
+        if (victim.lua_id != -1 && !ck::ids::is_ck_sid(victim_ptr->sid)) {
+            const LuaMeta* meta = ck::registry::get_meta(victim.lua_id);
+
+            // dispatch proc manually
+            logger.debug("Dispatching proc {} to lua_id {} manually (no lua script found)", proc, victim.lua_id);
+            ck::dispatcher::on_proc(victim.lua_id, proc, 0, meta->mod_id);
+        }
+    }
+
 	int dialog_init_ui() {
 		return fallout::_gdialogInitFromScript(fallout::HeadFrmId(), fallout::HeadFidget(0));
 	}
@@ -189,7 +184,7 @@ namespace ck::script {
 
 	int dialog_go() {
 		fallout::_gdialogGo();
-		return gLastDialogChoice;
+		return last_dialog_choice;
 	}
 
 	void dialog_exit() { fallout::gameDialogExit(); }
