@@ -99,6 +99,10 @@ namespace ck {
 namespace ck::skills {
 	static int g_outdoorsman_steps_accumulator = 0;
 
+    static bool roll_success(int result) {
+        return (result == static_cast<int>(fallout::Roll::Success) || static_cast<int>(fallout::Roll::CriticalSuccess));
+    }
+
 	void on_use_complete(fallout::Object* obj, int skill, fallout::Object* target, int success_count, int bonus) {
 		if (obj != fallout::gDude) return;
 
@@ -108,8 +112,8 @@ namespace ck::skills {
 	void on_attack_complete(fallout::Object* attacker, int skill, fallout::Object* target, int roll_result, int accuracy) {
         if (attacker != fallout::gDude) return;
 
-		bool is_success  = (roll_result == fallout::ROLL_SUCCESS || roll_result == fallout::ROLL_CRITICAL_SUCCESS);
-		int combat_bonus = accuracy - 90;
+        bool is_success = roll_success(roll_result);
+        int combat_bonus = accuracy - 90;
 
 		on_use_complete(attacker, skill, target, is_success, combat_bonus);
 
