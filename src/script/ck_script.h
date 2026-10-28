@@ -11,7 +11,9 @@ namespace fallout {
 
 namespace ck::script {
     void set_last_dialog_choice(int option_index);
-    bool script_proc_enabled(fallout::Script* script, int proc);
+    bool proc_enabled(fallout::Script* script, int proc);
+    bool disable_proc(fallout::Script* script, int proc);
+    bool enable_proc(fallout::Script* script, int proc);
 
     void reset_vars(fallout::Script* script);
     void set_no_save(int sid);

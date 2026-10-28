@@ -1,6 +1,5 @@
 #include "ck_ids.h"
 #include "system/encoding.h"
-#include "utils.h"
 
 #include "fallout2-ce/game_dialog.h"
 #include "fallout2-ce/scripts.h"
@@ -9,7 +8,6 @@
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
-#include "script/ck_script.h"
 #include "ck_mods/ck_mods.h"
 
 #include "log.h"
@@ -31,8 +29,16 @@ namespace ck::script {
         last_dialog_choice = option_index;
     }
 
-    bool script_proc_enabled(fallout::Script* script, int proc) {
+    bool proc_enabled(fallout::Script* script, int proc) {
         return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;
+    }
+
+    void disable_proc(fallout::Script* script, int proc) {
+        script->procs[proc] = fallout::SCRIPT_PROC_NO_PROC;
+    }
+
+    void enable_proc(fallout::Script* script, int proc) {
+        script->procs[proc] = 1;
     }
 
     void reset_vars(fallout::Script* script) {
@@ -58,9 +64,9 @@ namespace ck::script {
         fallout::scriptGetScript(object->sid, &script);
 
         if (script != nullptr) {
-            script->procs[fallout::SCRIPT_PROC_TIMED]   = fallout::SCRIPT_PROC_NO_PROC;
-            script->procs[fallout::SCRIPT_PROC_CRITTER] = fallout::SCRIPT_PROC_NO_PROC;
-            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = fallout::SCRIPT_PROC_NO_PROC;
+            disable_proc(script, fallout::SCRIPT_PROC_TIMED);
+            disable_proc(script, fallout::SCRIPT_PROC_CRITTER);
+            disable_proc(script, fallout::SCRIPT_PROC_MAP_UPDATE);
 
             logger.debug("Disabled PROC_CRITTER, PROC_MAP_UPDATE, PROC_TIMED for pid: {}", object->pid);
         }
@@ -69,10 +75,11 @@ namespace ck::script {
     void enable_map_updates_for_object(fallout::Object* object) {
         fallout::Script* script;
         fallout::scriptGetScript(object->sid, &script);
+
         if (script != nullptr) {
-            script->procs[fallout::SCRIPT_PROC_TIMED]   = 1;
-            script->procs[fallout::SCRIPT_PROC_CRITTER] = 1;
-            script->procs[fallout::SCRIPT_PROC_MAP_UPDATE] = 1;
+            enable_proc(script, fallout::SCRIPT_PROC_TIMED);
+            enable_proc(script, fallout::SCRIPT_PROC_CRITTER);
+            enable_proc(script, fallout::SCRIPT_PROC_MAP_UPDATE);
 
             logger.debug("enabling map_update for SID: {}", script->sid);
         }
@@ -113,7 +120,7 @@ namespace ck::script {
         // skip if script isn't processed
         if (!ck::ids::is_ck_script_index(script->index)) return false;
         // skip map updates (if proc disabled)
-        if (proc == fallout::SCRIPT_PROC_CRITTER && !script_proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+        if (proc == fallout::SCRIPT_PROC_CRITTER && !proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
 
         bool handled = false;
 
@@ -189,7 +196,6 @@ namespace ck::script {
 
 	void dialog_exit() { fallout::gameDialogExit(); }
 	void dialog_close_ui() { fallout::_gdialogExitFromScript(); }
-
 } // namespace ck
 
 // ffi
