@@ -173,11 +173,11 @@ namespace ck::hooks::gameplay {
         ck::script::reset_vars(script);
     }
 
-    bool handle_proc(int sid, fallout::Script* script, int proc) {
+    bool proc(fallout::Script* script, int proc) {
         // skip if script isn't processed
         if (!ck::ids::is_ck_script_index(ck::script::index(script))) return false;
         // skip map updates (if proc disabled)
-        if (proc == fallout::SCRIPT_PROC_CRITTER && !proc_enabled(script, fallout::SCRIPT_PROC_CRITTER)) return false;
+        if (proc == static_cast<int>(ck::script::Proc::CRITTER) && !ck::script::proc_enabled(script, proc)) return false;
 
         bool handled = false;
 
@@ -201,7 +201,6 @@ namespace ck::hooks::gameplay {
 
         return false;
     };
-
 
     // sets last dialog choice (used for controlling dialogs)
     // game_dialog.cc: int _gdProcessChoice(int optionIndex)

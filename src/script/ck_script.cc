@@ -7,6 +7,7 @@
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
+#include "script/ck_script.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_script.cc"};
@@ -16,6 +17,33 @@ namespace fallout {
 }
 
 namespace ck::script {
+    // PROCS
+    static_assert(static_cast<int>(Proc::NO_PROC) == fallout::SCRIPT_PROC_NO_PROC);
+    static_assert(static_cast<int>(Proc::START) == fallout::SCRIPT_PROC_START);
+    static_assert(static_cast<int>(Proc::SPATIAL) == fallout::SCRIPT_PROC_SPATIAL);
+    static_assert(static_cast<int>(Proc::DESCRIPTION) == fallout::SCRIPT_PROC_DESCRIPTION);
+    static_assert(static_cast<int>(Proc::PICKUP) == fallout::SCRIPT_PROC_PICKUP);
+    static_assert(static_cast<int>(Proc::DROP) == fallout::SCRIPT_PROC_DROP);
+    static_assert(static_cast<int>(Proc::USE) == fallout::SCRIPT_PROC_USE);
+    static_assert(static_cast<int>(Proc::USE_OBJ_ON) == fallout::SCRIPT_PROC_USE_OBJ_ON);
+    static_assert(static_cast<int>(Proc::USE_SKILL_ON) == fallout::SCRIPT_PROC_USE_SKILL_ON);
+    static_assert(static_cast<int>(Proc::TALK) == fallout::SCRIPT_PROC_TALK);
+    static_assert(static_cast<int>(Proc::CRITTER) == fallout::SCRIPT_PROC_CRITTER);
+    static_assert(static_cast<int>(Proc::COMBAT) == fallout::SCRIPT_PROC_COMBAT);
+    static_assert(static_cast<int>(Proc::DAMAGE) == fallout::SCRIPT_PROC_DAMAGE);
+    static_assert(static_cast<int>(Proc::MAP_ENTER) == fallout::SCRIPT_PROC_MAP_ENTER);
+    static_assert(static_cast<int>(Proc::MAP_EXIT) == fallout::SCRIPT_PROC_MAP_EXIT);
+    static_assert(static_cast<int>(Proc::CREATE) == fallout::SCRIPT_PROC_CREATE);
+    static_assert(static_cast<int>(Proc::DESTROY) == fallout::SCRIPT_PROC_DESTROY);
+    static_assert(static_cast<int>(Proc::LOOK_AT) == fallout::SCRIPT_PROC_LOOK_AT);
+    static_assert(static_cast<int>(Proc::TIMED) == fallout::SCRIPT_PROC_TIMED);
+    static_assert(static_cast<int>(Proc::MAP_UPDATE) == fallout::SCRIPT_PROC_MAP_UPDATE);
+    static_assert(static_cast<int>(Proc::PUSH) == fallout::SCRIPT_PROC_PUSH);
+    static_assert(static_cast<int>(Proc::IS_DROPPING) == fallout::SCRIPT_PROC_IS_DROPPING);
+    static_assert(static_cast<int>(Proc::COMBAT_IS_STARTING) == fallout::SCRIPT_PROC_COMBAT_IS_STARTING);
+    static_assert(static_cast<int>(Proc::COMBAT_IS_OVER) == fallout::SCRIPT_PROC_COMBAT_IS_OVER);
+    static_assert(static_cast<int>(Proc::COUNT) == fallout::SCRIPT_PROC_COUNT, "Proc count mismatch!");
+
 	static int last_dialog_choice = -1;
 
 	static fallout::Program gDummyProgram;
