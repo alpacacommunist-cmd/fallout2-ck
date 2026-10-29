@@ -108,8 +108,6 @@ local proc_handlers = {
 
       ffi.C.ck_critter_kill(self.lua_id)
       objects.registry[self.lua_id] = nil
-
-      return true
     end
   end
 }

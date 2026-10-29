@@ -143,16 +143,17 @@ local proc_handlers = {
   combat = function(self, fixed_param)
     log.info(string.format("combat npc: %d, fixed_param: %d", self.lua_id, fixed_param))
 
-    if fixed_param == 5 then
-      return false
-    end
+    return false
+    -- if fixed_param == 5 then
+    --   return false
+    -- end
+    --
+    -- if fixed_param == 4 then
+    --   self.in_combat = true
+    --   ffi.C.ck_critter_process_turn(self.c_ptr, self.lua_id)
+    -- end
 
-    if fixed_param == 4 then
-      self.in_combat = true
-      ffi.C.ck_critter_process_turn(self.c_ptr, self.lua_id)
-    end
-
-    return true
+    -- return true
   end,
 
   talk = function(self, fixed_param)
