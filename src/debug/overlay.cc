@@ -114,6 +114,14 @@ static HexState ck_hex_state_for_tile(int tile) {
     return ck_is_tile_blocking(tile) ? HexState::BLOCKER : HexState::WALKABLE;
 }
 
+static void remove_selected_objects() {
+	std::vector<ckDebugHex*> selected_hexes = ck_debug_overlay_selected_hexes();
+
+	std::vector<int> selected_tiles;
+	for (auto* hex : selected_hexes) ck::object::destroy_at(hex->tile);
+	gNeedsRefresh = true;
+}
+
 static void ck_toggle_camera_square() {
 	if (gCameraSquareDrawn) {
 		ck_debug_overlay_clear_hexes_by_state(HexState::CAMERA);
@@ -340,8 +348,8 @@ static void mode_main() {
         if (ck::input::alt()) ck_toggle_camera_square();
         break;
     }
-    case CK_KEY_X: {
-        if (ck::input::alt()) ck_toggle_camera_square();
+    case CK_KEY_D: {
+        if (ck::input::ctrl()) remove_selected_objects();
         break;
     }
     case CK_KEY_T: {

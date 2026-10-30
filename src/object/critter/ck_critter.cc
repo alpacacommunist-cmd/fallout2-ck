@@ -61,17 +61,18 @@ namespace ck::critter {
         fallout::Object* corpse = ck::object::find_id_at(tile, elevation, id);
 
         // Mod specifies custom name/description (for look_at/examine).
-        // Assign allocated pid to corpse.radiation to enable custom messages (temp workaround)
+        // Assign allocated pid to cid to enable custom messages (temp workaround)
         // critter.cc (critterGetName(Object* obj)
         if (corpse != nullptr) {
             logger.debug("Critter {} is dead, corpse found", pid);
-            corpse->data.critter.radiation = pid;
+
+            corpse->cid = pid;
+            return -3;
         } else {
             // TODO: remove from state.db
             logger.debug("Removing critter from state.db: {} (dead, corpse not found)", pid);
+            return -2;
         }
-
-        return -3;
     }
 
     void assign_script(fallout::Object* critter, int script_index, int lua_id) {
@@ -159,12 +160,12 @@ namespace ck::critter {
         if (critter_proto) {
             logger.debug("Killed critter {} identified as custom prototype", critter_proto->pid);
             // store pid for proto messages
-            registry_object->ptr->data.critter.radiation = critter_proto->packed_pid();
+            registry_object->ptr->cid = critter_proto->packed_pid();
             // reset pid for savegames
             registry_object->ptr->pid = ck::ids::make_packed_pid(critter_proto->source_pid, critter_proto->object_type);
 
-            logger.debug("OBJECT_NO_SAVE removed, PID set to: {}, CUSTOM pid saved to data.critter.radiation: {}",
-                         registry_object->ptr->pid, registry_object->ptr->data.critter.radiation);
+            logger.debug("OBJECT_NO_SAVE removed, PID set to: {}, CUSTOM pid saved to `cid`: {}",
+                         registry_object->ptr->pid, registry_object->ptr->cid);
         }
 
 		return true;

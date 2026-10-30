@@ -42,18 +42,34 @@ namespace ck::object {
         }
 	}
 
+    // hides objects
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
 		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::MapElevation(fallout::gElevation), tile);
 
 		if (object == nullptr) return;
 
-		while (object != nullptr) {
+		while (fallout::objectIsSavable(object)) {
 			fallout::Object* next_object = fallout::objectFindNextAtLocation();
 			to_delete.push_back(object); object = next_object;
 		}
 
 		for (fallout::Object* object : to_delete) ck::registry::deleted::add(object);
+	}
+
+    // actual physical destroy
+	void destroy_at(int tile) {
+		std::vector<fallout::Object*> to_destroy;
+		fallout::Object* object = fallout::objectFindFirstAtLocation(fallout::MapElevation(fallout::gElevation), tile);
+
+		if (object == nullptr) return;
+
+		while (fallout::objectIsSavable(object)) {
+			fallout::Object* next_object = fallout::objectFindNextAtLocation();
+			to_destroy.push_back(object); object = next_object;
+		}
+
+		for (fallout::Object* object : to_destroy) fallout::objectDestroy(object, nullptr);
 	}
 
 	int find_at(int tile, CkObjectFFI* buffer, int max_count) {
