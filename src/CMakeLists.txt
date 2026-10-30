@@ -75,6 +75,7 @@ add_library(fallout2-ck STATIC
 )
 
 target_precompile_headers(fallout2-ck PRIVATE
+    <algorithm>
 	<vector>
 	<string>
 	<format>

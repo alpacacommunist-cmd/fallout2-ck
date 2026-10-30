@@ -8,18 +8,32 @@
 static constexpr logging::Context logger{"ck_registry_modified.cc"};
 
 namespace ck::registry::modified {
+    static void free_object(fallout::Object* object) {
+        ck::ids::free_script_index(object->scriptIndex);
+        g_ptr_to_lua_id.erase(object);
+    }
+
+    static bool erase(int lua_id) {
+        auto it = g_modified_objects.find(lua_id);
+        if (it != g_modified_objects.end()) {
+            free_object(it->second.ptr);
+
+            logger.debug("removing entry (lua_id): {}", lua_id);
+            g_modified_objects.erase(it);
+
+            return true;
+        }
+
+        return false;
+    }
+
     int add(fallout::Object* object, LuaMeta meta) {
         if (object == nullptr) return -1;
 
-        // return id if already exists
-        auto ptr_it = g_ptr_to_lua_id.find(object);
-        if (ptr_it != g_ptr_to_lua_id.end()) {
-            if (g_modified_objects.contains(ptr_it->second)) {
-                return ptr_it->second;
-            }
-        }
+        int lua_id = ck::registry::find_by_ptr(object);
+        if ((lua_id) != -1) return lua_id;
 
-        int lua_id = next_lua_id();
+        lua_id = next_lua_id();
 
 		// fill meta
         meta.source_sid = object->sid;
@@ -45,52 +59,27 @@ namespace ck::registry::modified {
         return lua_id;
     }
 
-	int restore(fallout::Object* object) {
+	bool restore(fallout::Object* object) {
         if (object == nullptr) return false;
 
-        auto ptr_it = g_ptr_to_lua_id.find(object);
-        if (ptr_it == g_ptr_to_lua_id.end()) return false;
+        int lua_id = ck::registry::find_by_ptr(object);
+        if ((lua_id) != -1) return lua_id;
 
-        int lua_id = ptr_it->second;
-		int source_sid;
-
-        auto modified_it = g_modified_objects.find(lua_id);
-        if (modified_it != g_modified_objects.end()) {
-			source_sid = modified_it->second.meta.source_sid;
-            // object->sid = modified_it->second.meta.source_sid;
-            //
-            g_modified_objects.erase(modified_it);
-        }
-
-        g_ptr_to_lua_id.erase(ptr_it);
-
-        logger.debug("Restored individual object by pointer [LuaID: {}]. Remaining modified size: {}",
-                  lua_id, g_modified_objects.size());
-
-        return source_sid;
+        return erase(lua_id);
     }
 
-	void clear_for_mod(const char* mod_id) {
-		int restored_sids_count = 0;
+    void clear_for_mod(const char *mod_id) {
+        std::erase_if(g_modified_objects, [mod_id](const auto &item) {
+            if (item.second.meta.mod_id == mod_id) {
+                free_object(item.second.ptr);
+                logger.debug("removing entry (lua_id: {}) (mod_id: {})", item.second.lua_id, mod_id);
 
-        auto modified_it = g_modified_objects.begin();
-        while (modified_it != g_modified_objects.end()) {
-            if (modified_it->second.meta.mod_id == mod_id) {
-                if (modified_it->second.ptr != nullptr) {
-                    // modified_it->second.ptr->sid = modified_it->second.meta.source_sid;
-                    g_ptr_to_lua_id.erase(modified_it->second.ptr);
-                    restored_sids_count++;
-                }
-                modified_it = g_modified_objects.erase(modified_it);
-            } else {
-                ++modified_it;
+                return true;
             }
-        }
 
-        if (restored_sids_count > 0) {
-            logger.info("Hot Reload: Restored {} modified SIDs for mod '{}'", restored_sids_count, mod_id);
-        }
-	}
+            return false;
+        });
+    }
 
     void restore_sids() {
         int restored_count = 0;

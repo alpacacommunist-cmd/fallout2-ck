@@ -77,9 +77,8 @@ namespace ck::registry {
 
 	namespace modified {
 		int  add(fallout::Object* obj, LuaMeta meta = {});
-		int  restore(fallout::Object* object);
+		bool restore(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
-
 		void restore_sids();
 		void reapply_sids();
 
