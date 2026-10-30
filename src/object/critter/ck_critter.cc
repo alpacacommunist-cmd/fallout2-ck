@@ -51,7 +51,6 @@ namespace ck::critter {
                 critter->scriptIndex = proto->get_sid();
             }
 
-            logger.error("created critter: {}, script_index: {}", pid, critter->scriptIndex);
             return critter;
         }
 
@@ -95,10 +94,8 @@ namespace ck::critter {
         }
 
         // Otherwise assign custom script
-        logger.error("TYPE: {}", ck::ids::object_type(critter->pid));
         int custom_script_index = ck::ids::next_script_index(ck::mods::current_mod_id(), ck::ids::object_type(critter->pid));
         if (custom_script_index == -1) {
-            logger.error("Couldn't allocate script_index!");
             return;
         } else {
             ck::script::assign_script_index_to_object(custom_script_index, critter);
@@ -154,15 +151,20 @@ namespace ck::critter {
 		const CkCreatedObject* registry_object = ck::registry::created::get(lua_id);
 		if (!registry_object || !registry_object->ptr) return false;
 
+        const Proto* critter_proto = ck::proto::registry::get(ck::ids::clean_pid(registry_object->ptr->pid));
+
         // let fallout2-ce handle the corpse
 		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
 
-        if (proto::registry::has_pid(registry_object->ptr->pid)) {
-            logger.debug("Killed critter {} identified as custom prototype", registry_object->ptr->pid);
+        if (critter_proto) {
+            logger.debug("Killed critter {} identified as custom prototype", critter_proto->pid);
             // store pid for proto messages
-            registry_object->ptr->data.critter.radiation = registry_object->ptr->pid;
+            registry_object->ptr->data.critter.radiation = critter_proto->packed_pid();
             // reset pid for savegames
-            registry_object->ptr->pid = registry_object->meta.source_pid;
+            registry_object->ptr->pid = ck::ids::make_packed_pid(critter_proto->source_pid, critter_proto->object_type);
+
+            logger.debug("OBJECT_NO_SAVE removed, PID set to: {}, CUSTOM pid saved to data.critter.radiation: {}",
+                         registry_object->ptr->pid, registry_object->ptr->data.critter.radiation);
         }
 
 		return true;
@@ -218,7 +220,6 @@ bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
     CK_ENSURE_VALID_OBJECT(critter);
 
 	if (critter->data.critter.combat.ap <= 0) {
-		logger.info("combat_turn_run for {}", lua_id);
 		fallout::_combat_turn_run();
 		return true;
 	}

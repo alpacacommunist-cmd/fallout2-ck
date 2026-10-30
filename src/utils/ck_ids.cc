@@ -149,6 +149,10 @@ namespace ck::ids {
         return (script_type_for_object(object) << 24) | (script_index & 0x00FFFFFF);
     }
 
+    int make_packed_pid(int pid, int object_type) {
+        return ck_proto::packed_pid(pid, object_type);
+    }
+
     bool is_ck_frm(int fid) {
         if (fid == -1) return false;
 

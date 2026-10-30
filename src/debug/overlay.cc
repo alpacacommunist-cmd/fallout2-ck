@@ -336,12 +336,14 @@ static void mode_main() {
         if (ck::input::shift()) mode_main_toggle_hidden_in_rect();
         break;
     }
-
     case CK_KEY_C: {
         if (ck::input::alt()) ck_toggle_camera_square();
         break;
     }
-
+    case CK_KEY_X: {
+        if (ck::input::alt()) ck_toggle_camera_square();
+        break;
+    }
     case CK_KEY_T: {
         if (ck::input::alt()) ck_teleport_to_tile();
         if (ck::input::ctrl()) mode_main_teleport_to_map();

@@ -64,6 +64,7 @@ namespace ck::ids {
 
     int make_packed_sid(int script_type, int script_index);
     int make_packed_sid(fallout::Object* object, int script_index);
+    int make_packed_pid(int pid, int object_type);
 
     bool is_ck_frm(int fid);
     int  art_id_from_fid(int fid);
