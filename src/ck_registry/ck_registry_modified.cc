@@ -13,20 +13,6 @@ namespace ck::registry::modified {
         g_ptr_to_lua_id.erase(object);
     }
 
-    static bool erase(int lua_id) {
-        auto it = g_modified_objects.find(lua_id);
-        if (it != g_modified_objects.end()) {
-            free_object(it->second.ptr);
-
-            logger.debug("removing entry (lua_id): {}", lua_id);
-            g_modified_objects.erase(it);
-
-            return true;
-        }
-
-        return false;
-    }
-
     int add(fallout::Object* object, LuaMeta meta) {
         if (object == nullptr) return -1;
 
@@ -63,9 +49,19 @@ namespace ck::registry::modified {
         if (object == nullptr) return false;
 
         int lua_id = ck::registry::find_by_ptr(object);
-        if ((lua_id) != -1) return lua_id;
+        if (lua_id == -1) return false;
 
-        return erase(lua_id);
+        auto it = g_modified_objects.find(lua_id);
+        if (it != g_modified_objects.end()) {
+            free_object(it->second.ptr);
+
+            logger.debug("removing entry (lua_id): {}", lua_id);
+            g_modified_objects.erase(it);
+
+            return true;
+        }
+
+        return false;
     }
 
     void clear_for_mod(const char *mod_id) {
@@ -81,30 +77,12 @@ namespace ck::registry::modified {
         });
     }
 
-    void restore_sids() {
+    void free_script_indexes() {
         int restored_count = 0;
         for (const auto& [id, entry] : g_modified_objects) {
             if (entry.ptr != nullptr) {
-                // entry.ptr->sid = entry.meta.source_sid; // return source_sid
-                restored_count++;
+                ck::ids::free_script_index(entry.ptr->scriptIndex);
             }
-        }
-        if (restored_count > 0) {
-            logger.info("Restored {} original SIDs before save/exit", restored_count);
-        }
-    }
-
-    void reapply_sids() {
-        int reapplied_count = 0;
-        for (const auto& [id, entry] : g_modified_objects) {
-            if (entry.ptr != nullptr) {
-                // reapply modified sid
-                // entry.ptr->sid = entry.meta.custom_sid;
-                reapplied_count++;
-            }
-        }
-        if (reapplied_count > 0) {
-            logger.info("Reapplied {} Lua SIDs after save", reapplied_count);
         }
     }
 
@@ -124,7 +102,7 @@ bool ck_registry_object_is_modified(int lua_id) {
     return ck::registry::modified::get(lua_id) != nullptr;
 }
 
-int ck_registry_restore_modified_object(void* ptr) {
+bool ck_registry_restore_modified_object(void* ptr) {
 	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
 
 	return ck::registry::modified::restore(object);

@@ -106,7 +106,7 @@ ffi.cdef[[
   int ck_registry_modify_object(void* ptr);
   bool ck_registry_object_is_modified(int lua_id);
   bool ck_registry_object_is_created(int lua_id);
-  int ck_registry_restore_modified_object(void* ptr);
+  bool ck_registry_restore_modified_object(void* ptr);
 
   // created
   bool ck_registry_bind_to_object(int lua_id);

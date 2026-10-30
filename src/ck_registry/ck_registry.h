@@ -79,8 +79,7 @@ namespace ck::registry {
 		int  add(fallout::Object* obj, LuaMeta meta = {});
 		bool restore(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
-		void restore_sids();
-		void reapply_sids();
+        void free_script_indexes();
 
 		const CkModifiedObject* get(int lua_id);
 	}
@@ -91,7 +90,7 @@ CK_API void ck_registry_clear();
 CK_API int  ck_registry_modify_object(void* ptr);
 CK_API bool ck_registry_object_is_modified(int lua_id);
 CK_API bool ck_registry_object_is_created(int lua_id);
-CK_API int  ck_registry_restore_modified_object(void* ptr);
+CK_API bool ck_registry_restore_modified_object(void* ptr);
 
 CK_API bool ck_registry_bind_to_object(int lua_id);
 

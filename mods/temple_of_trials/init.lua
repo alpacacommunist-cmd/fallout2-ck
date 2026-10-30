@@ -111,8 +111,7 @@ events.on('map_enter', function(map_id)
     return true
   end)
 
-  -- local orig_klint_sid = klint:restore()
-  -- log.warn(orig_klint_sid)
+  -- klint:restore()
 
   local asset = assets.resolve('scenery/tree10')
 

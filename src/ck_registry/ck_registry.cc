@@ -67,7 +67,7 @@ namespace ck::registry {
 	void clear_context() {
         // Restores original object data
 		deleted::unhide();
-		modified::restore_sids();
+		modified::free_script_indexes();
 
         // Clears [created], [modified], [deleted] registry object pointers
         ck::registry::clear();
