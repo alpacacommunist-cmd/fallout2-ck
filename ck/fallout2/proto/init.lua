@@ -1,7 +1,7 @@
 local ffi = require('ffi')
-local ck  = require('ck')
-local utils  = require('ck.system.utils')
+local ck = require('ck')
 local log = ck.log.new('proto.lua')
+local validations = require('ck.fallout2.proto.validations')
 
 local proto = {}
 
@@ -32,8 +32,7 @@ proto.registry = {}
 proto.tags_registry = { items = {}, critters = {} }
 
 function proto.register_item_prototype(source_pid, lua_tag, config)
-  if utils.is_blank(lua_tag) then
-    log.error("Can't register proto: lua_tag is required")
+  if (not validations.register_item_params(source_pid, lua_tag, config)) then
     return nil
   end
 
@@ -46,11 +45,11 @@ function proto.register_item_prototype(source_pid, lua_tag, config)
 
   ffi_data.lua_tag = lua_tag
 
-  ffi_data.name = config.name or ""
-  ffi_data.description = config.description or ""
+  ffi_data.name = config.name
+  ffi_data.description = config.description
 
-  ffi_data.price  = config.price  or 0
-  ffi_data.weight = config.weight or 0
+  ffi_data.price  = config.price  or -1
+  ffi_data.weight = config.weight or -1
 
   ffi_data.inv_fid    = config.inv_fid or -1
   ffi_data.ground_fid = config.ground_fid or -1

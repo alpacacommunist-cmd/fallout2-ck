@@ -36,9 +36,11 @@ local flare_test = proto.register_prototype(79, "flare", {
 
   usable = true
 })
-flare_test:on('use', function()
-  log.info("hello world [from flare_test PID: %s]", flare_test.pid)
-end)
+if (flare_test) then
+  flare_test:on('use', function()
+    log.info("hello world [from flare_test PID: %s]", flare_test.pid)
+  end)
+end
 
 local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
   object_type = proto.types.item,
