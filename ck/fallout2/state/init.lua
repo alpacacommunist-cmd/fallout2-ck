@@ -134,8 +134,31 @@ function state.sync_save()
   return state.db
 end
 
-function state.get_proto_list()
-  return state.db.proto_list
+-- Backend calls this to receive registered prototypes
+function state.send_proto_list(out_address_ptr, out_size_ptr)
+  local list = state.db.proto_list or {}
+  local count = #list
+
+  if count == 0 then
+    ffi.cast("int*", out_size_ptr)[0] = 0
+    ffi.cast("void**", out_address_ptr)[0] = nil
+    return
+  end
+
+  local protos_array = ffi.new("ItemProtoLuaView[?]", count)
+
+  for index = 1, count do
+    local item = list[index]
+    local proto = protos_array[index - 1]
+
+    proto.pid = item.id
+    proto.lua_tag = item.tag
+  end
+
+  ffi.cast("int*", out_size_ptr)[0] = count
+  ffi.cast("const ItemProtoLuaView**", out_address_ptr)[0] = protos_array
+
+  return protos_array
 end
 
 -- Backend calls this to push registered prototypes

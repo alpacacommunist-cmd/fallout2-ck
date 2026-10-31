@@ -69,7 +69,7 @@ namespace ck::proto::registry::item {
             registry::for_each_item(callback, &state_vector);
             proxy::receive_proto_list(state_vector.data(), static_cast<int>(state_vector.size()));
         } else { // SyncMode::Restore (on game load)
-            std::vector<proxy::CustomProtoState> state_protos = ck::proxy::get_proto_list();
+            std::vector<proxy::CustomProtoState> state_protos = ck::proxy::send_proto_list();
 
             // (quick ref map)
             std::unordered_map<std::string, int> tag_to_current_pid;

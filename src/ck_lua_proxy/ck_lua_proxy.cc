@@ -2,11 +2,9 @@
 
 #include <lua.hpp>
 #include <array>
-#include <cstdint>
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_lua_proxy.cc"};
-
 
 lua_State* gLuaState = nullptr;
 
@@ -24,7 +22,7 @@ namespace ck::proxy::detail {
     int clear_registries   = LUA_NOREF;
     int critter_killed     = LUA_NOREF;
     int get_state_data     = LUA_NOREF;
-    int get_proto_list     = LUA_NOREF;
+    int send_proto_list    = LUA_NOREF;
     int receive_proto_list = LUA_NOREF;
     int state_sync_load    = LUA_NOREF;
     int state_sync_save    = LUA_NOREF;
@@ -47,7 +45,7 @@ const std::array<LuaHookBinding, 17> hooks = {{
 	{ "ck.system.events",      "clear_registries",      &ck::proxy::detail::clear_registries },
 	{ "ck.system.events",      "critter_killed",        &ck::proxy::detail::critter_killed },
 	{ "ck.fallout2.state",     "get_state_data",        &ck::proxy::detail::get_state_data },
-	{ "ck.fallout2.state",     "get_proto_list",        &ck::proxy::detail::get_proto_list },
+	{ "ck.fallout2.state",     "send_proto_list",       &ck::proxy::detail::send_proto_list },
 	{ "ck.fallout2.state",     "receive_proto_list",    &ck::proxy::detail::receive_proto_list },
 	{ "ck.fallout2.state",     "sync_load",             &ck::proxy::detail::state_sync_load },
 	{ "ck.fallout2.state",     "sync_save",             &ck::proxy::detail::state_sync_save },
@@ -110,7 +108,7 @@ namespace ck::proxy {
 	void push_arg(const std::string& val) { lua_pushstring(gLuaState, val.c_str()); }
 	void push_arg(bool val)              { lua_pushboolean(gLuaState, val); }
     void push_arg(const void* val) {
-        lua_pushnumber(gLuaState, static_cast<double>(reinterpret_cast<uintptr_t>(val)));
+        lua_pushlightuserdata(gLuaState, const_cast<void*>(val));
     }
 
 	bool safe_pcall_with_traceback(int nargs, int nresults) {

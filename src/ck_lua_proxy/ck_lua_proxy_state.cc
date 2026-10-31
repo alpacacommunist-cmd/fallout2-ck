@@ -13,7 +13,7 @@ extern lua_State* gLuaState;
 
 namespace ck::proxy::detail {
     extern int get_state_data;
-    extern int get_proto_list;
+    extern int send_proto_list;
     extern int receive_proto_list;
 
 	extern int state_sync_load;
@@ -129,15 +129,37 @@ namespace ck::proxy {
         return result;
     }
 
-    std::vector<CustomProtoState> get_proto_list() {
-        auto parse_proto = []() -> CustomProtoState {
-            CustomProtoState state;
-            state.id  = read_table_int("id", 0);
-            state.tag = read_table_string("tag", "");
-            return state;
-        };
+    std::vector<CustomProtoState> send_proto_list() {
+        std::vector<CustomProtoState> result;
 
-        return execute_proxy_call_vector<CustomProtoState>(detail::get_proto_list, parse_proto);
+        const ItemProtoLuaView *data_ptr = nullptr;
+        int size = 0;
+
+        {
+            LuaStackGuard guard;
+            if (!internal_call_start(detail::send_proto_list)) return result;
+
+            push_arg(&data_ptr);
+            push_arg(&size);
+
+            if (!internal_call_execute(2, 1)) return result;
+
+            if (data_ptr && size > 0) {
+                result.reserve(size);
+                for (int i = 0; i < size; ++i) {
+                    CustomProtoState state;
+                    state.id = data_ptr[i].pid;
+                    state.tag = data_ptr[i].lua_tag;
+                    result.push_back(state);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    bool receive_proto_list(const ItemProtoLuaView* data, int size) {
+        return execute_proxy_call<bool>(detail::receive_proto_list, data, size);
     }
 
     ObjectState get_object_state(int map_id, const std::string &lua_tag) {
@@ -153,10 +175,6 @@ namespace ck::proxy {
 
         const char* mod_id = ck::mods::current_mod_id();
         return execute_proxy_call_custom_table<ObjectState>(detail::get_state_data, parser, mod_id, map_id, lua_tag);
-    }
-
-    bool receive_proto_list(const ItemProtoLuaView* data, int size) {
-        return execute_proxy_call<bool>(detail::receive_proto_list, data, size);
     }
 
 	bool sync_state_load(const picojson::value& state_data) {
