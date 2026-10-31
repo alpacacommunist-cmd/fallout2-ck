@@ -26,6 +26,13 @@ namespace ck::proto::registry::item {
         // item's mod-defined custom pid is temporarily stored in object's `id`
         // field and is recovered back to pid on game load
         std::unordered_map<int, int> id_translation_table;
+
+        // state.db keeps proto entries in separate mod namespaces, e.g: { mod_id = { id = 10000, tag = ... } }
+        // When restoring items entries are pulled from lua as a flat list, e.g [ { mod_id = ..., tag = ..., id = ... } ]
+        // Temporary composite key is used to guarantee tag uniqueness
+        std::string composite_key(const char* mod_id, const char* lua_tag) {
+            return std::format("{}:{}", mod_id, lua_tag);
+        }
     }
 
     static void prepare_item_for_save(fallout::Object* object) {
@@ -51,13 +58,14 @@ namespace ck::proto::registry::item {
             object->id = 0;
 
             fallout::objectSetScriptFromProto(object, &object->sid);
-            logger.info.banner("restored sid: {}, index: {}", object->sid, object->scriptIndex);
+            logger.debug("restored sid: {}, index: {}", object->sid, object->scriptIndex);
 
             if (proto->source_fid != proto->get_fid()) object->fid = proto->get_fid();
         }
     }
 
     void sync_custom_items_on_map(registry::SyncMode mode) {
+        // Push registered prototypes to LUA (saved in ck_state.json)
         if (mode == registry::SyncMode::Prepare) { // (on game save)
             std::vector<ck::proxy::ItemProtoLuaView> state_vector;
 
@@ -69,23 +77,32 @@ namespace ck::proto::registry::item {
             registry::for_each_item(callback, &state_vector);
             proxy::receive_proto_list(state_vector.data(), static_cast<int>(state_vector.size()));
         } else { // SyncMode::Restore (on game load)
+                 // Receive registered prototypes from ck_state.json
+                 // (which proto was saved with which pid)
             std::vector<proxy::ItemProtoLuaView> state_protos = ck::proxy::send_proto_list();
 
             // (quick ref map)
-            std::unordered_map<std::string, int> tag_to_current_pid;
+            // key is a composite mod_id:lua_tag string
+            std::unordered_map<std::string, int> composite_tag_to_current_pid;
             auto callback = [](const types::Proto& item_proto, void* user_data) {
                 auto* map = static_cast<std::unordered_map<std::string, int>*>(user_data);
-                (*map)[item_proto.lua_tag] = item_proto.pid;
+
+                std::string key = composite_key(item_proto.mod_id, item_proto.lua_tag.data());
+                (*map)[key] = item_proto.pid;
             };
-            registry::for_each_item(callback, &tag_to_current_pid);
+            registry::for_each_item(callback, &composite_tag_to_current_pid);
 
             for (const auto& proto_state : state_protos) {
-                if (!proto_state.lua_tag) continue;
-                auto it = tag_to_current_pid.find(std::string(proto_state.lua_tag));
+                if (!proto_state.lua_tag || !proto_state.mod_id) continue;
 
-                if (it != tag_to_current_pid.end()) {
+                std::string key = composite_key(proto_state.mod_id, proto_state.lua_tag);
+                auto it = composite_tag_to_current_pid.find(key);
+
+                if (it != composite_tag_to_current_pid.end()) {
                     id_translation_table[proto_state.pid] = it->second;
                     logger.info("{} -> {}", proto_state.pid, it->second);
+                } else {
+                    logger.warning("[{}] Could not find current PID for tag: {}", proto_state.mod_id, proto_state.lua_tag);
                 }
 
                 logger.info("proto_tag: {}, proto_id: {}", proto_state.lua_tag, proto_state.pid);

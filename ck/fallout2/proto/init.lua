@@ -1,6 +1,5 @@
 local ffi = require('ffi')
 local ck = require('ck')
-local state = require('ck/fallout2/state')
 local log = ck.log.new('proto.lua')
 local validations = require('ck.fallout2.proto.validations')
 
@@ -109,7 +108,7 @@ function proto.rename(previous_name, new_name)
   local mod_id = ck.tools.current_mod_id()
 
   proto.migrations[mod_id][previous_name] = new_name
-  log.error("[%s] Registered tag rename: %s -> %s", mod_id, previous_name, new_name)
+  log.info("[%s] Registered tag rename: %s -> %s", mod_id, previous_name, new_name)
 end
 
 return proto
