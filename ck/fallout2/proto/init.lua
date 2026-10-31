@@ -29,15 +29,18 @@ proto.types = {
 -- { pid = { tag = '...', pid = .., handlers = {...} } }
 proto.registry = {}
 -- quickref map for tags
-proto.tags_registry = { items = {}, critters = {} }
+-- { mod_id = { items = {}, critters, = {} } ... }
+proto.tags_registry = ck.registries.prototype_tags
 
 function proto.register_item_prototype(source_pid, lua_tag, config)
   if (not validations.register_item_params(source_pid, lua_tag, config)) then
     return nil
   end
 
-  if proto.tags_registry.items[lua_tag] then
-    log.error("Can't register proto: lua_tag is already taken: %s", lua_tag)
+  local mod_id = ck.tools.current_mod_id()
+
+  if proto.tags_registry[mod_id].items[lua_tag] then
+    log.error("Can't register proto: lua_tag is already taken: %s for mod_id: %s", lua_tag, mod_id)
     return nil
   end
 
@@ -82,7 +85,7 @@ function proto.register_item_prototype(source_pid, lua_tag, config)
   end
 
   proto.registry[pid] = proto_instance
-  proto.tags_registry.items[proto_instance.lua_tag] = true
+  proto.tags_registry[mod_id].items[proto_instance.lua_tag] = true
 
   return proto_instance
 end

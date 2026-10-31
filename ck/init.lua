@@ -106,6 +106,9 @@ ck.registries = {
   -- ck/fallout2/dialogs.lua 💬
   dialogs = {},
 
+  -- ck/fallout2/proto/init.lua 🧬
+  prototype_tags = {},
+
   -- ck/fallout2/timers.lua ⏱️
   timers = {},
   timer_categories = { live = {}, evented = {} },
@@ -137,15 +140,18 @@ function ck.registries.init_mod(mod_id)
 
   ck.registries.objects[mod_id] = {}
 
-  -- 💬
+  -- ck/fallout2/dialogs.lua 💬
   ck.registries.dialogs[mod_id] = {}
 
-  -- ⏱️
+  -- ck/fallout2/proto/init.lua 🧬
+  ck.registries.prototype_tags[mod_id] = { items = {}, critters = {} }
+
+  -- ck/fallout2/timers.lua ⏱️
   ck.registries.timers[mod_id]  = {}
   ck.registries.timer_categories.live[mod_id] = {}
   ck.registries.timer_categories.evented[mod_id] = {}
 
-  -- 🦂
+  -- ck/fallout2/critters.lua 🦂
   ck.registries.critter_spawn_counters[mod_id] = 0
   ck.registries.critter_respawns[mod_id] = {}
   ck.registries.critter_active_tags[mod_id] = {}
@@ -163,6 +169,9 @@ function ck.registries.clear_mod(mod_id)
 
   -- 💬
   ck.registries.dialogs[mod_id] = nil
+
+  -- 🧬
+  ck.registries.prototype_tags[mod_id] = nil
 
   -- ⏱️
   ck.registries.timers[mod_id]  = nil
@@ -187,6 +196,9 @@ function ck.registries.reset_map_context()
     ck.registries.timers[mod_id]  = {}
     ck.registries.timer_categories.live[mod_id] = {}
     ck.registries.timer_categories.evented[mod_id] = {}
+
+    -- 🧬
+    ck.registries.prototype_tags[mod_id].critters = {}
 
     -- 🦂
     ck.registries.critter_spawn_counters[mod_id] = 0
