@@ -108,6 +108,7 @@ ck.registries = {
 
   -- ck/fallout2/proto/init.lua 🧬
   prototype_tags = {},
+  prototype_migrations = {},
 
   -- ck/fallout2/timers.lua ⏱️
   timers = {},
@@ -145,6 +146,7 @@ function ck.registries.init_mod(mod_id)
 
   -- ck/fallout2/proto/init.lua 🧬
   ck.registries.prototype_tags[mod_id] = { items = {}, critters = {} }
+  ck.registries.prototype_migrations[mod_id] = {}
 
   -- ck/fallout2/timers.lua ⏱️
   ck.registries.timers[mod_id]  = {}
@@ -172,6 +174,7 @@ function ck.registries.clear_mod(mod_id)
 
   -- 🧬
   ck.registries.prototype_tags[mod_id] = nil
+  ck.registries.prototype_migrations[mod_id] = nil
 
   -- ⏱️
   ck.registries.timers[mod_id]  = nil

@@ -2,7 +2,6 @@
 local ck    = require('ck')
 local ffi   = require('ffi')
 local utils = require('ck.system.utils')
-local state_gc = require('ck.fallout2.state.gc')
 
 local state = {}
 local log   = ck.log.new('state/init.lua')
@@ -154,13 +153,22 @@ function state.send_proto_list(out_address_ptr, out_size_ptr)
 
   local current_index = 0
   for mod_id, protos in pairs(mod_table) do
-    for i = 1, #protos do
-      local item = protos[i]
-      local proto = protos_array[current_index]
+    local mod_migrations = ck.registries.prototype_migrations[mod_id]
+
+    for index = 1, #protos do
+      local item = protos[index] -- state (lua)
+      local proto = protos_array[current_index] -- in-mem array for c++
 
       proto.pid = item.id
-      proto.lua_tag = item.tag
       proto.mod_id = mod_id
+
+      -- tag migrations
+      local current_tag = item.tag
+      if mod_migrations[current_tag] then
+        log.info("[%s] Migrating tag in save: %s -> %s", mod_id, current_tag, mod_migrations[current_tag])
+        current_tag = mod_migrations[current_tag]
+      end
+      proto.lua_tag = current_tag
 
       current_index = current_index + 1
     end

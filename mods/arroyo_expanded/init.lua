@@ -42,7 +42,8 @@ if (flare_test) then
   end)
 end
 
-local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "arroyo_expanded:golden_scorpion_tail", {
+proto.rename("arroyo_expanded:golden_scorpion_tail", "golden_scorpion_tail")
+local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "golden_scorpion_tail", {
   object_type = proto.types.item,
 
   name        = "Золотой хвост скорпиона",

@@ -1,5 +1,6 @@
 local ffi = require('ffi')
 local ck = require('ck')
+local state = require('ck/fallout2/state')
 local log = ck.log.new('proto.lua')
 local validations = require('ck.fallout2.proto.validations')
 
@@ -28,6 +29,8 @@ proto.types = {
 
 -- { pid = { tag = '...', pid = .., handlers = {...} } }
 proto.registry = {}
+-- { [mod_id] = { ["previous_tag"] = "new_tag" } }
+proto.migrations = ck.registries.prototype_migrations
 -- quickref map for tags
 -- { mod_id = { items = {}, critters, = {} } ... }
 proto.tags_registry = ck.registries.prototype_tags
@@ -100,6 +103,13 @@ function proto.register_prototype(source_pid, lua_tag, config)
   if object_type == proto.types.item then
     return proto.register_item_prototype(source_pid, lua_tag, config)
   end
+end
+
+function proto.rename(previous_name, new_name)
+  local mod_id = ck.tools.current_mod_id()
+
+  proto.migrations[mod_id][previous_name] = new_name
+  log.error("[%s] Registered tag rename: %s -> %s", mod_id, previous_name, new_name)
 end
 
 return proto
