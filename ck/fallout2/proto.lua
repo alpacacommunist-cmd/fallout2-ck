@@ -1,5 +1,7 @@
-local ffi = require("ffi")
-local log = require('ck.system.log').new('proto.lua')
+local ffi = require('ffi')
+local ck  = require('ck')
+local utils  = require('ck.system.utils')
+local log = ck.log.new('proto.lua')
 
 local proto = {}
 
@@ -24,32 +26,44 @@ proto.types = {
   critter = 1,
 }
 
+-- { pid = { tag = '...', pid = .., handlers = {...} } }
 proto.registry = {}
+-- quickref map for tags
+proto.tags_registry = { items = {}, critters = {} }
 
 function proto.register_item_prototype(source_pid, lua_tag, config)
+  if utils.is_blank(lua_tag) then
+    log.error("Can't register proto: lua_tag is required")
+    return nil
+  end
+
+  if proto.tags_registry.items[lua_tag] then
+    log.error("Can't register proto: lua_tag is already taken: %s", lua_tag)
+    return nil
+  end
+
   local ffi_data = ffi.new("ItemProtoFFI")
+
+  ffi_data.lua_tag = lua_tag
+
+  ffi_data.name = config.name or ""
+  ffi_data.description = config.description or ""
 
   ffi_data.price  = config.price  or 0
   ffi_data.weight = config.weight or 0
-
-  ffi_data.name   = config.name or ""
-  ffi_data.description   = config.description or ""
 
   ffi_data.inv_fid    = config.inv_fid or -1
   ffi_data.ground_fid = config.ground_fid or -1
 
   ffi_data.usable = config.usable or false
 
-  local pid = ffi.C.ck_item_proto_register(source_pid, lua_tag, ffi_data)
+  local pid = ffi.C.ck_item_proto_register(source_pid, ffi_data)
   if pid == -1 then
-    error("Failed to declare custom prototype: " .. tostring(lua_tag))
+    log.error("Failed to define prototype: " .. tostring(lua_tag))
+    return nil
   end
 
-  local proto_instance = { tag = lua_tag, pid = pid, sid = -1, handlers = {} }
-  function proto_instance:bind()
-    ffi.C.ck_proto_bind(self.pid)
-    return self
-  end
+  local proto_instance = { lua_tag = lua_tag, pid = pid, handlers = {} }
 
   function proto_instance:on(event_name, callback)
     self.handlers[event_name] = callback
@@ -69,6 +83,7 @@ function proto.register_item_prototype(source_pid, lua_tag, config)
   end
 
   proto.registry[pid] = proto_instance
+  proto.tags_registry.items[proto_instance.lua_tag] = true
 
   return proto_instance
 end

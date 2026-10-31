@@ -135,7 +135,8 @@ namespace ck::proto::registry {
     }
 
     int get_pid_by_tag(const std::string& lua_tag) {
-        auto it = std::ranges::find_if(protos, [lua_tag](const auto &proto) { return proto->lua_tag == lua_tag; });
+        auto it = std::ranges::find_if(protos, [&lua_tag](const auto &proto) { return proto->lua_tag == lua_tag; });
+        if (it != protos.end()) return (*it)->pid;
 
         return -1;
     }
@@ -148,17 +149,6 @@ namespace ck::proto::registry {
 
         return -1;
     }
-
-    // int get_sid_by_pid(int pid) {
-    //     for (const auto& [clean_sid, registered_pid] : g_proto_sid_to_pid) {
-    //         if (registered_pid == pid) {
-    //             Proto* proto = get(pid);
-    //             return proto ? ck::ids::make_proto_sid(clean_sid, proto->object_type) : -1;
-    //         }
-    //     }
-    //
-    //     return -1;
-    // }
 
     bool has_pid(int pid) {
         Proto* proto = get(ck::ids::clean_pid(pid));

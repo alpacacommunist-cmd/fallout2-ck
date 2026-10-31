@@ -127,8 +127,8 @@ namespace ck::proto::registry::item {
         }
     }
 
-    int allocate(int source_pid, const char *lua_tag, const ItemProtoFFI &ffi_data) {
-        Proto *proto = registry::build_generic_prototype(source_pid, lua_tag);
+    int allocate(int source_pid, const ItemProtoFFI &ffi_data) {
+        Proto *proto = registry::build_generic_prototype(source_pid, ffi_data.lua_tag);
         if (!proto) return -1;
 
         auto item = proto->as_item();
@@ -160,9 +160,9 @@ namespace ck::proto::registry::item {
 }
 
 // FFI
-int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data) {
-    if (!lua_tag || !ffi_data) return -1;
+int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data) {
+    if (!ffi_data || ck::utils::is_blank(ffi_data->lua_tag)) return -1;
 
-    return ck::proto::registry::item::allocate(source_pid, lua_tag, *ffi_data);
+    return ck::proto::registry::item::allocate(source_pid, *ffi_data);
 }
 

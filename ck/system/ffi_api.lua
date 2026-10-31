@@ -1,4 +1,4 @@
-local ffi = require("ffi")
+local ffi = require('ffi')
 
 -- logger.error("SIZES: rotation: {}, ObjectFlags: {}, ObjectData: {}, OutlineType: {}", sizeof(fallout::Rotation),
 --         sizeof(fallout::ObjectFlags), sizeof(fallout::ObjectData), sizeof(fallout::OutlineType)
@@ -308,19 +308,22 @@ ffi.cdef[[
 
   // --- Proto Registry ---
   typedef struct {
-    int weight; int price;
-
-    int inv_fid; int ground_fid;
-
-    bool usable;
-
+    const char *lua_tag;
     const char *name;
     const char *description;
+
+    int weight;
+    int price;
+
+    int inv_fid;
+    int ground_fid;
+
+    bool usable;
   } ItemProtoFFI;
 
   typedef struct { int pid; const char* lua_tag; } ItemProtoLuaView;
 
-  int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data);
+  int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data);
   int ck_proto_get_pid_by_tag(const char* lua_tag);
   int ck_proto_bind(int pid);
 

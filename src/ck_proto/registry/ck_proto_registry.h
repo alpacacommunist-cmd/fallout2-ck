@@ -12,6 +12,10 @@ namespace fallout {
 
 // passed FROM lua
 struct ItemProtoFFI {
+    const char *lua_tag;
+    const char *name;
+    const char *description;
+
     int weight = -1;
     int price = -1;
 
@@ -19,17 +23,15 @@ struct ItemProtoFFI {
     int ground_fid = -1;
 
     bool usable = false;
-
-    const char *name;
-    const char *description;
 };
 
 // passed FROM lua
 struct CritterProtoFFI {
+    const char *lua_tag;
     const char* name;
     const char* description;
-    const char* ai_packet;
 
+    const char* ai_packet;
     int team;
 };
 
@@ -44,7 +46,7 @@ namespace ck::proto::registry {
     void for_each_critter(TypesCallback callback, void* user_data);
 
     namespace item {
-        int allocate(int source_pid, const char* lua_tag, const ItemProtoFFI& ffi_data);
+        int allocate(int source_pid, const ItemProtoFFI& ffi_data);
         void sync_custom_items_on_map(SyncMode mode);
     }
 
@@ -71,7 +73,7 @@ namespace ck::proto::registry {
 }
 
 CK_API int ck_proto_get_pid_by_tag(const char* lua_tag);
-CK_API int ck_item_proto_register(int source_pid, const char* lua_tag, const ItemProtoFFI* ffi_data);
+CK_API int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data);
 CK_API int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* ffi_data);
 CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
 

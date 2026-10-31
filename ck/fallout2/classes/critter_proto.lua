@@ -1,4 +1,4 @@
-local ffi = require("ffi")
+local ffi = require('ffi')
 local stats  = require('ck.fallout2.objects.critters.stats')
 local skills = require('ck.fallout2.objects.critters.skills')
 
