@@ -69,7 +69,7 @@ namespace ck::proto::registry::item {
             registry::for_each_item(callback, &state_vector);
             proxy::receive_proto_list(state_vector.data(), static_cast<int>(state_vector.size()));
         } else { // SyncMode::Restore (on game load)
-            std::vector<proxy::CustomProtoState> state_protos = ck::proxy::send_proto_list();
+            std::vector<proxy::ItemProtoLuaView> state_protos = ck::proxy::send_proto_list();
 
             // (quick ref map)
             std::unordered_map<std::string, int> tag_to_current_pid;
@@ -80,13 +80,15 @@ namespace ck::proto::registry::item {
             registry::for_each_item(callback, &tag_to_current_pid);
 
             for (const auto& proto_state : state_protos) {
-                auto it = tag_to_current_pid.find(proto_state.tag);
+                if (!proto_state.lua_tag) continue;
+                auto it = tag_to_current_pid.find(std::string(proto_state.lua_tag));
+
                 if (it != tag_to_current_pid.end()) {
-                    id_translation_table[proto_state.id] = it->second;
-                    logger.info("{} -> {}", proto_state.id, it->second);
+                    id_translation_table[proto_state.pid] = it->second;
+                    logger.info("{} -> {}", proto_state.pid, it->second);
                 }
 
-                logger.info("proto_tag: {}, proto_id: {}", proto_state.tag, proto_state.id);
+                logger.info("proto_tag: {}, proto_id: {}", proto_state.lua_tag, proto_state.pid);
             }
         }
 

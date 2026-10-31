@@ -129,8 +129,8 @@ namespace ck::proxy {
         return result;
     }
 
-    std::vector<CustomProtoState> send_proto_list() {
-        std::vector<CustomProtoState> result;
+    std::vector<ItemProtoLuaView> send_proto_list() {
+        std::vector<ItemProtoLuaView> result;
 
         const ItemProtoLuaView *data_ptr = nullptr;
         int size = 0;
@@ -147,10 +147,7 @@ namespace ck::proxy {
             if (data_ptr && size > 0) {
                 result.reserve(size);
                 for (int i = 0; i < size; ++i) {
-                    CustomProtoState state;
-                    state.id = data_ptr[i].pid;
-                    state.tag = data_ptr[i].lua_tag;
-                    result.push_back(state);
+                    result.push_back(data_ptr[i]);
                 }
             }
         }
