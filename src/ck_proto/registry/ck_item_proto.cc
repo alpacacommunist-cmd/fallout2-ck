@@ -61,9 +61,9 @@ namespace ck::proto::registry::item {
         if (mode == registry::SyncMode::Prepare) { // (on game save)
             std::vector<ck::proxy::ItemProtoLuaView> state_vector;
 
-            auto callback = [](const Proto& item_proto, void* user_data) {
+            auto callback = [](const Proto &item_proto, void *user_data) {
                 auto* vector = static_cast<std::vector<ck::proxy::ItemProtoLuaView>*>(user_data);
-                vector->push_back({item_proto.pid, item_proto.lua_tag.c_str()});
+                vector->push_back({item_proto.pid, item_proto.lua_tag.c_str(), item_proto.mod_id});
             };
 
             registry::for_each_item(callback, &state_vector);

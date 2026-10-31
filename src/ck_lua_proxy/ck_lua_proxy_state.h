@@ -11,7 +11,7 @@ namespace picojson { class value; }
 
 namespace ck::proxy {
 	struct ObjectState { int tile = -1; int elevation = -1; int hp = -1; int id = -1; bool is_dead = false; };
-    struct ItemProtoLuaView { int pid; const char* lua_tag; };
+    struct ItemProtoLuaView { int pid; const char* lua_tag; const char* mod_id; };
 
     template <typename T, typename... Args>
     std::vector<T> execute_proxy_call_vector(int func_ref, std::function<T()> parser, Args... args) {

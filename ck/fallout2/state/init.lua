@@ -136,26 +136,37 @@ end
 
 -- Backend calls this to receive registered prototypes
 function state.send_proto_list(out_address_ptr, out_size_ptr)
-  local list = state.db.proto_list or {}
-  local count = #list
+  local mod_table = state.db.proto_list
 
-  if count == 0 then
+  local total_count = 0
+  for mod_id, protos in pairs(mod_table) do
+    total_count = total_count + #protos
+  end
+
+  if total_count == 0 then
     ffi.cast("int*", out_size_ptr)[0] = 0
     ffi.cast("void**", out_address_ptr)[0] = nil
+
     return
   end
 
-  local protos_array = ffi.new("ItemProtoLuaView[?]", count)
+  local protos_array = ffi.new("ItemProtoLuaView[?]", total_count)
 
-  for index = 1, count do
-    local item = list[index]
-    local proto = protos_array[index - 1]
+  local current_index = 0
+  for mod_id, protos in pairs(mod_table) do
+    for i = 1, #protos do
+      local item = protos[i]
+      local proto = protos_array[current_index]
 
-    proto.pid = item.id
-    proto.lua_tag = item.tag
+      proto.pid = item.id
+      proto.lua_tag = item.tag
+      proto.mod_id = mod_id
+
+      current_index = current_index + 1
+    end
   end
 
-  ffi.cast("int*", out_size_ptr)[0] = count
+  ffi.cast("int*", out_size_ptr)[0] = total_count
   ffi.cast("const ItemProtoLuaView**", out_address_ptr)[0] = protos_array
 
   return protos_array
@@ -170,10 +181,15 @@ function state.receive_proto_list(data_address, size)
   for index = 0, size - 1 do
     local proto = protos[index]
 
-    local pid     = proto.pid
+    local pid = proto.pid
     local lua_tag = ffi.string(proto.lua_tag)
 
-    table.insert(state.db.proto_list, { id = pid, tag = lua_tag })
+    local mod_id = ffi.string(proto.mod_id)
+    if not state.db.proto_list[mod_id] then
+      state.db.proto_list[mod_id] = {}
+    end
+
+    table.insert(state.db.proto_list[mod_id], { id = pid, tag = lua_tag })
 
     log.debug(string.format("Index: %d, PID: %d, Tag: %s", index, pid, lua_tag))
   end
