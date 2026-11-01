@@ -27,8 +27,8 @@ local PID_RADSCORPION_TAIL = 92
 local inv_fid    = assets.resolve("skilldex/scorpg.frm", 7)
 local ground_fid = assets.resolve("scorpg_ground.frm", 0)
 
-local flare_test = proto.register_prototype(79, "flare", {
-  object_type = proto.types.item,
+local flare_test = items.register_prototype(79, "flare", {
+  -- object_type = proto.types.item,
 
   name = "flare-flare",
   description = "test flare",
@@ -43,9 +43,9 @@ if (flare_test) then
 end
 
 proto.rename("arroyo_expanded:golden_scorpion_tail", "golden_scorpion_tail")
-local golden_tail = proto.register_prototype(PID_RADSCORPION_TAIL, "golden_scorpion_tail", {
-  object_type = proto.types.item,
-
+local golden_tail = items.register_prototype(PID_RADSCORPION_TAIL, "golden_scorpion_tail", {
+  -- object_type = proto.types.item,
+  --
   name        = "Золотой хвост скорпиона",
   description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
   price  = 600,
