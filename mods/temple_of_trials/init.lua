@@ -37,7 +37,7 @@ end)
 events.on('map_enter', function(map_id)
   if map_id ~= 4 then return end
 
-  local ralph_prototype = critters.allocate_prototype(16777217, {
+  local ralph_prototype = critters.register_prototype(16777217, "ralph", {
     name = 'Ralph', description = 'Ralph The Wanderer', stats = { max_hp = 10, hp = 1 }
   })
 
@@ -49,7 +49,7 @@ end)
 events.on('map_enter', function(map_id)
   if map_id ~= 72 then return end
 
-  local ralph_prototype = critters.allocate_prototype(16777217, {
+  local ralph_prototype = critters.register_prototype(16777217, "ralph", {
     name = 'Ralph', description = 'Ralph The Wanderer', stats = { max_hp = 10, hp = 1 }
   })
 

@@ -23,7 +23,7 @@ function Critter.new(lua_id, config)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
   if self.has_custom_prototype then
-    self.proto = ck.registries.critter_prototypes[self.mod_id][self.pid]
+    self.proto = ck.registries.prototypes[self.mod_id].critters[self.pid]
   end
 
   -- save respawn tag (used on object_destroy)

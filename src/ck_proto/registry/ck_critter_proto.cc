@@ -8,7 +8,7 @@
 #include "fallout2-ce/obj_types.h"
 
 #include "log.h"
-static constexpr logging::Context logger{"ck_item_proto.cc"};
+static constexpr logging::Context logger{"ck_critter_proto.cc"};
 
 namespace fallout {
     int combat_ai_packet_num_by_name(const char* name);
@@ -17,30 +17,30 @@ namespace fallout {
 namespace ck::proto::registry::critter {
     using namespace ck::utils::fallout;
 
-    int allocate(int source_pid, const CritterProtoFFI* ffi_data) {
-        Proto* proto = registry::build_generic_prototype(source_pid, nullptr);
+    int allocate(int source_pid, const CritterProtoFFI &ffi_data) {
+        Proto* proto = registry::build_generic_prototype(source_pid, ffi_data.lua_tag);
         if (!proto) return -1;
 
         auto critter = proto->as_critter();
 
-        if (ffi_data->ai_packet) {
-            int ai_id = fallout::combat_ai_packet_num_by_name(ffi_data->ai_packet);
+        if (ffi_data.ai_packet) {
+            int ai_id = fallout::combat_ai_packet_num_by_name(ffi_data.ai_packet);
 
             if (ai_id != -1) {
                 critter.set_ai(ai_id);
-                logger.debug("Assigned AI packet '{}' (ID: {}) to unique proto", ffi_data->ai_packet, ai_id);
+                logger.debug("Assigned AI packet '{}' (ID: {}) to unique proto", ffi_data.ai_packet, ai_id);
             } else {
-                logger.warning("AI packet '{}' not found in game data! Using base proto AI.", ffi_data->ai_packet);
+                logger.warning("AI packet '{}' not found in game data! Using base proto AI.", ffi_data.ai_packet);
             }
         }
 
         int msg_name_id = proto->get_msg_id();
-        if (!utils::is_blank(ffi_data->name)) {
-            ck::messages_add_string("pro_crit.msg", msg_name_id, ffi_data->name);
+        if (!utils::is_blank(ffi_data.name)) {
+            ck::messages_add_string("pro_crit.msg", msg_name_id, ffi_data.name);
         }
 
-        if (!utils::is_blank(ffi_data->description)) {
-            ck::messages_add_string("pro_crit.msg", msg_name_id + 1, ffi_data->description);
+        if (!utils::is_blank(ffi_data.description)) {
+            ck::messages_add_string("pro_crit.msg", msg_name_id + 1, ffi_data.description);
         }
 
         return proto->packed_pid();
@@ -49,7 +49,7 @@ namespace ck::proto::registry::critter {
 
 // FFI
 int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* params) {
-    return ck::proto::registry::critter::allocate(source_pid, params);
+    return ck::proto::registry::critter::allocate(source_pid, *params);
 }
 
 bool ck_critter_has_custom_prototype(fallout::Object* critter) {

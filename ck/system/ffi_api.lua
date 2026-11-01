@@ -132,6 +132,7 @@ ffi.cdef[[
   } CritterLuaSpawnParams;
 
   typedef struct {
+    const char* lua_tag;
     const char* name;
     const char* description;
     const char* ai_packet;

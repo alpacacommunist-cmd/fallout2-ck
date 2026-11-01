@@ -150,6 +150,11 @@ namespace ck::proto::registry {
         return -1;
     }
 
+    const char* get_mod_id_by_pid(int pid) {
+        Proto* proto = get(ck::ids::clean_pid(pid));
+        return proto ? proto->mod_id : nullptr;
+    }
+
     bool has_pid(int pid) {
         Proto* proto = get(ck::ids::clean_pid(pid));
         return proto != nullptr;

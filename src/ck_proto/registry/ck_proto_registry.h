@@ -28,10 +28,10 @@ struct ItemProtoFFI {
 // passed FROM lua
 struct CritterProtoFFI {
     const char *lua_tag;
-    const char* name;
-    const char* description;
+    const char *name;
+    const char *description;
 
-    const char* ai_packet;
+    const char *ai_packet;
     int team;
 };
 
@@ -67,6 +67,7 @@ namespace ck::proto::registry {
     int get_pid_by_tag(const std::string& lua_tag);
     int get_pid_by_sid(int sid);
     int get_sid_by_pid(int pid);
+    const char* get_mod_id_by_pid(int pid);
 
     bool has_pid(int pid);
     int source_pid(int pid);

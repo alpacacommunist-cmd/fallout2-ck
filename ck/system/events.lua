@@ -93,7 +93,7 @@ end
 
 -- TODO: add to registries
 function events.on_proto_proc(pid, proc_id, fixed_param, mod_id)
-  local proto = proto.registry[pid]
+  local proto = proto.registry[mod_id].items[pid]
 
   if not proto then return false end
   return proto:_handle_proc(proc_id, fixed_param)

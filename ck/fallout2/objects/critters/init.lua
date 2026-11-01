@@ -3,7 +3,7 @@ local ffi = require('ffi')
 local utils = require('ck.system.utils')
 
 local CritterClass = require('ck.fallout2.classes.critter')
-local CritterProto = require('ck.fallout2.classes.critter_proto')
+local CritterProto = require('ck.fallout2.proto.critter')
 
 local log = ck.log.new('objects/critters.lua')
 
@@ -33,41 +33,16 @@ end
 
 -- Allocates critter prototype
 -- It lives in a context of a map and is erased by fallout2-ce on map transitions/game loads
-function critters.allocate_prototype(pid, config)
+function critters.register_prototype(source_pid, lua_tag, config)
   local mod_id = ck.tools.current_mod_id()
+  local proto_instance = CritterProto:new(source_pid, lua_tag, mod_id, config)
 
-  local proto_name = not utils.is_blank(config.name) and config.name or nil
-  local proto_description = not utils.is_blank(config.description) and config.description or nil
-  local ai_packet  = not utils.is_blank(config.ai_packet) and config.ai_packet or nil
-
-  local proto_params = ffi.new("CritterProtoFFI", {
-    name = proto_name,
-    description = proto_description,
-    ai_packet = ai_packet
-  })
-
-  local allocated_pid = ffi.C.ck_critter_allocate_prototype(pid, proto_params)
-
-  if allocated_pid == -1 then
-    log.error("Failed to allocate prototype: [%d]", pid)
-
+  if ck.registries.prototype_tags[mod_id].critters[proto_instance.lua_tag] then
+    log.error("Can't register proto: lua_tag is already taken: %s for mod_id: %s", lua_tag, mod_id)
     return nil
   end
 
-  local proto = CritterProto.new(allocated_pid, proto_name, proto_description, ai_packet)
-
-  if config.stats and not utils.table_is_empty(config.stats) then
-    proto:set_stats(config.stats)
-  end
-
-  if config.skills and not utils.table_is_empty(config.skills) then
-    proto:set_skills(config.skills)
-  end
-
-  -- store proto instance
-  critters.prototypes[mod_id][allocated_pid] = proto
-
-  return proto
+  return proto_instance:register()
 end
 
 -- Spawn/create

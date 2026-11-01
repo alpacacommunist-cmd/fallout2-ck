@@ -1,7 +1,8 @@
 local ffi = require('ffi')
 local ck = require('ck')
-local log = ck.log.new('proto.lua')
 local validations = require('ck.fallout2.proto.validations')
+
+local log = ck.log.new('proto.lua')
 
 local proto = {}
 
@@ -26,8 +27,8 @@ proto.types = {
   critter = 1,
 }
 
--- { pid = { tag = '...', pid = .., handlers = {...} } }
-proto.registry = {}
+-- { [mod_id] = { items = { [pid] = proto_instance }, critters = { [pid] = proto_instance } }
+proto.registry = ck.registries.prototypes
 -- { [mod_id] = { ["previous_tag"] = "new_tag" } }
 proto.migrations = ck.registries.prototype_migrations
 -- quickref map for tags
@@ -37,12 +38,14 @@ proto.tags_registry = ck.registries.prototype_tags
 local Proto = {}
 Proto.__index = Proto
 
-function Proto:new(source_pid, lua_tag, mod_id, config)
+function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   local instance = setmetatable({}, self)
 
   if (not validations.base_params(source_pid, lua_tag, config)) then
     return nil
   end
+
+  instance.object_type = object_type
 
   instance.mod_id = mod_id
   instance.source_pid = source_pid
@@ -73,5 +76,6 @@ function proto.rename(previous_name, new_name)
 end
 
 proto.ProtoClass = Proto
+proto.validations = validations
 
 return proto

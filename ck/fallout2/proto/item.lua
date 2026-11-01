@@ -1,14 +1,16 @@
 local ffi = require('ffi')
 local ck = require('ck')
-local log = ck.log.new('proto/item.lua')
 local proto = require('ck.fallout2.proto')
+
+local log = ck.log.new('proto/item.lua')
 
 local ProtoClass = proto.ProtoClass
 local ItemProto = setmetatable({}, { __index = ProtoClass })
 ItemProto.__index = ItemProto
 
 function ItemProto:new(source_pid, lua_tag, mod_id, config)
-  local instance = ProtoClass.new(self, source_pid, lua_tag, mod_id, config)
+  local object_type = proto.types.item
+  local instance = ProtoClass.new(self, source_pid, lua_tag, mod_id, object_type, config)
 
   instance.price = config.price or -1
   instance.weight = config.weight or -1
@@ -45,7 +47,7 @@ function ItemProto:register()
     return nil
   end
 
-  proto.registry[self.pid] = self
+  proto.registry[self.mod_id].items[self.pid] = self
   proto.tags_registry[self.mod_id].items[self.lua_tag] = true
 
   return self

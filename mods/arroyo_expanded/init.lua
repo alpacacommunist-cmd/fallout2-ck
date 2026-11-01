@@ -150,7 +150,7 @@ events.on('map_enter', function(map_id)
   -- })
 
   -- Alice --
-  local alice_prototype = critters.allocate_prototype(16777255, {
+  local alice_prototype = critters.register_prototype(16777255, "alice", {
     name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain',
     stats = { strength = 8, endurance = 8, agility = 8, perception = 7, luck = 5, hp = 75, max_hp = 90 },
     skills = { small_guns = 200 }
@@ -221,7 +221,7 @@ events.on('map_enter', function(map_id)
   villager1:set_hp(1)
   --
 
-  local female_trapper_prototype = critters.allocate_prototype(16777391,
+  local female_trapper_prototype = critters.register_prototype(16777391, "female_trapper",
     { name = "Female Trapper", description = "F", ai_packet = 'Merc Captain' }
   )
   female_trapper_prototype

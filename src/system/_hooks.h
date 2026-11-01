@@ -37,6 +37,7 @@ namespace ck::proto::registry {
     void clear();
     void clear_for_object_type(int object_type);
     int get_pid_by_sid(int sid);
+    const char* get_mod_id_by_pid(int pid);
 
     namespace item {
         void sync_custom_items_on_map(SyncMode mode);

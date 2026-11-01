@@ -45,7 +45,7 @@ namespace ck::proxy {
     }
 
     bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
-        return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, fixed_param);
+        return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, fixed_param, object_mod_id);
     }
 
     bool critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {

@@ -149,7 +149,10 @@ namespace ck::hooks::gameplay {
             int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
             if (pid == -1) return false;
 
-            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), ck::mods::system_mod_id());
+            const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
+            if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
+
+            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), mod_id);
         }
 
         if (handled) {
