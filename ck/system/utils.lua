@@ -18,8 +18,9 @@ function utils.print_table(t, context_log, indent)
   end
 end
 
-function utils.compile_chunk(content, name)
-  local chunk, error = loadstring(content, "@" .. name)
+function utils.compile_chunk(content, name, chunk_env)
+  local chunk, error = load(content, "@" .. name, "t", chunk_env)
+
   if not chunk then
     return nil, debug.traceback(string.format("Syntax error compiling '%s':\n%s", name, error), 2)
   end

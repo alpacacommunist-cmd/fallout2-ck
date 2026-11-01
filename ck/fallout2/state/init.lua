@@ -134,6 +134,7 @@ function state.sync_save()
 end
 
 -- Backend calls this to receive registered prototypes
+-- (items only)
 function state.send_proto_list(out_address_ptr, out_size_ptr)
   local mod_table = state.db.proto_list
 
@@ -181,6 +182,7 @@ function state.send_proto_list(out_address_ptr, out_size_ptr)
 end
 
 -- Backend calls this to push registered prototypes
+-- (items only)
 function state.receive_proto_list(data_address, size)
   local protos = ffi.cast("ItemProtoLuaView*", data_address)
 

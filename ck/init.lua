@@ -72,6 +72,10 @@ function ck.tools.key_to_path(key)
   return "../" .. key:gsub("%.", "/") .. ".lua"
 end
 
+function ck.tools.mod_directory(mod_id)
+  return string.format("../mods/%s/", mod_id)
+end
+
 function ck.tools.mod_preload_key(mod_id)
   return ck.libs_preload_key .. mod_id
 end

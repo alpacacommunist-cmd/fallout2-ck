@@ -18,11 +18,11 @@ local safe_globals = {
 
 sandbox.handlers = {
   -- 📦 libs
-  library = function(env, mod_folder, manifest)
+  library = function(env, mod_data)
   end,
 
   -- 🎮 gameplay
-  gameplay = function(env, mod_folder, manifest)
+  gameplay = function(env, mod_data)
   end
 }
 
@@ -53,16 +53,17 @@ local function resolve_relative_path(target_name)
 end
 
 function sandbox.create_env(mod_data)
+  local manifest = mod_data.manifest
+  local mod_folder = ck.tools.mod_directory(manifest.id)
+
   local mod_package = {
-    loaded = {},        -- module cache
-    path = package.path -- module paths
+    loaded = {}, -- module cache
+    path = string.format("%s/?.lua;%s/?/init.lua", mod_folder, mod_folder) -- mod folder only
   }
 
   local env = setmetatable({
     package = mod_package,
   }, { __index = safe_globals })
-
-  local manifest = mod_data.manifest
 
   env.__manifest = manifest
   env.__mod_id   = manifest.id
@@ -109,13 +110,10 @@ function sandbox.create_env(mod_data)
 
     -- read and compile using mod env
     local content = utils.read_file(filepath, log)
-    local chunk, chunk_err = utils.compile_chunk(content, filepath)
+    local chunk, chunk_err = utils.compile_chunk(content, filepath, env)
     if not chunk then
       _G.error(string.format("Syntax error in '%s':\n%s", target_name, chunk_err))
     end
-
-    -- (JIT-friendly, chunk wasn't executed yet)
-    setfenv(chunk, env)
 
     -- exec chunk
     local success, result = xpcall(chunk, debug.traceback)
@@ -129,7 +127,7 @@ function sandbox.create_env(mod_data)
 
   local decorator = sandbox.handlers[manifest.type]
   if decorator then
-    decorator(env, mod_folder, manifest)
+    decorator(env, mod_data)
   end
 
   return env

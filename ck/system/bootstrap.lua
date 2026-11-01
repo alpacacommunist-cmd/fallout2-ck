@@ -38,7 +38,7 @@ local function parse_manifest(path)
   local ok, manifest = pcall(require, path)
 
   if not ok or type(manifest) ~= 'table' then
-    log.warn("WARNING: failed to parse manifest: " .. path)
+    log.warning("WARNING: failed to parse manifest: " .. path)
     return nil
   end
 

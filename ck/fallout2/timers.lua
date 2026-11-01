@@ -1,4 +1,4 @@
--- ck/fallout2/timers.lua
+-- goto marks: PUBLIC
 local ck = require('ck')
 local ffi = require('ffi')
 
@@ -199,6 +199,7 @@ timers.check_timers = function(collection, ticks, mod_id)
 
 end
 
+-- PUBLIC
 timers.public = {
   timer_types = timers.timer_types,
 
