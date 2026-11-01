@@ -3,7 +3,7 @@ local log   = require('ck.system.log').new('proto/validations.lua')
 
 local proto_validations = {}
 
-proto_validations.register_item_params = function(pid, lua_tag, config)
+proto_validations.base_params = function(pid, lua_tag, config)
   local success = true
 
   if (type(pid) ~= "number" or pid <= 0) then
