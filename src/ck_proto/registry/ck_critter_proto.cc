@@ -82,6 +82,6 @@ void ck_critter_proto_set_base_stat(Proto* proto, int stat_id, int value) {
 void ck_critter_proto_set_skill(Proto* proto, int skill_id, int value) {
     if (proto == nullptr) return;
 
-    proto->as_critter().set_base_stat(skill_id, value);
+    proto->as_critter().set_skill(skill_id, value);
     logger.debug("Proto PID {} skill {} changed to {}", proto->pid, skill_id, value);
 }

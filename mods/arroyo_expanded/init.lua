@@ -237,7 +237,7 @@ events.on('map_enter', function(map_id)
     if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
       quests.set("erlang_refactoring", quests.status.ACTIVE)
 
-      -- log.info("Accepted quest!")
+      log.info("Accepted quest!")
     end
   end)
 end)

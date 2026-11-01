@@ -60,11 +60,10 @@ function Critter:set_stats(stats_table)
   stats.assign(self.c_ptr, stats_table)
 end
 
--- TODO: see if it makes sense (bonus skills/buffs)
-function Critter:set_skills(skills)
-  if skills == nil or utils.table_is_empty(skills) then return nil end
+function Critter:set_skills(skills_table)
+  if skills == nil or utils.table_is_empty(skills_table) then return nil end
 
-  for skill_id, skill_value in pairs(skills) do
+  for skill_id, skill_value in pairs(skills_table) do
     ffi.C.ck_critter_set_skill(self.c_ptr, skills.MAP[skill_id], skill_value)
   end
 end

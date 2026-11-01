@@ -203,47 +203,6 @@ function state.receive_proto_list(data_address, size)
   end
 end
 
--- local function get_mod_storage(section, mod_id)
---   if not mod_id then return nil end
---   local map_id = ck.map_id
---
---   if section == "global" then
---     state.db.global[mod_id] = state.db.global[mod_id] or {}
---
---     return state.db.global[mod_id]
---   elseif section == "maps" then
---     if map_id == -1 then return nil end
---
---     state.db.maps[map_id] = state.db.maps[map_id] or {}
---     state.db.maps[map_id][mod_id] = state.db.maps[map_id][mod_id] or {}
---     return state.db.maps[target_map][m_id]
---   end
--- end
---
--- function state.set_local(key, value, mod_id)
---   local storage = get_mod_storage("maps", mod_id)
---   if storage then storage[key] = value end
--- end
---
--- function state.get_local(key, default, mod_id)
---   local storage = get_mod_storage("maps", mod_id)
---   if storage and storage[key] ~= nil then return storage[key] end
---   return default
--- end
-
--- function state.set_global(mod_id, sub_section, key, value)
---   state.db.global[mod_id] = state.db.global[mod_id] or {}
---   state.db.global[mod_id][sub_section] = state.db.global[mod_id][sub_section] or {}
---   state.db.global[mod_id][sub_section][key] = value
--- end
-
--- function state.get_global(mod_id, sub_section, key)
---   if state.db.global[mod_id] and state.db.global[mod_id][sub_section] then
---     return state.db.global[mod_id][sub_section][key]
---   end
---   return nil
--- end
-
 function state.get_stored_object_data(mod_id, map_id, tag)
   if not (state.db.maps[map_id] and state.db.maps[map_id][mod_id]) then
     return nil
