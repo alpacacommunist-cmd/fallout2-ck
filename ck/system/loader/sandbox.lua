@@ -1,7 +1,7 @@
 -- ck/fallout2/loader/sandbox.lua
 local ck = require('ck')
 local utils = require('ck.system.utils')
-local log   = ck.log.new('sandbox.lua')
+local log = ck.log.new('sandbox.lua')
 
 local _G_require = _G.require
 
@@ -26,39 +26,13 @@ sandbox.handlers = {
   end
 }
 
-local function resolve_relative_path(target_name)
-  if target_name:sub(1, 1) ~= "." then
-    return target_name
-  end
-
-  -- debug.getinfo(3, "S") checks 3 levels up in call stack:
-  -- 1 - resolve_relative_path
-  -- 2 - env.require
-  -- 3 - mod file calling require()
-  local info = debug.getinfo(3, "S")
-  if info and info.source and info.source:sub(1, 1) == "@" then
-    -- info.source: "@../mods/arroyo_expanded/dialogs.lua"
-    local current_file = info.source:sub(2)
-
-    -- file path to lua notation
-    local current_dir = current_file:match("(.*[/\\])") or ""
-    current_dir = current_dir:gsub("[/\\]", "."):gsub("^%.+", ""):gsub("%.$", "")
-
-    -- compile path: "mods.arroyo_expanded" + ".locale.ru"
-    local full_path = current_dir .. target_name
-    return full_path
-  end
-
-  return target_name
-end
-
 function sandbox.create_env(mod_data)
   local manifest = mod_data.manifest
   local mod_folder = ck.tools.mod_directory(manifest.id)
 
   local mod_package = {
     loaded = {}, -- module cache
-    path = string.format("%s/?.lua;%s/?/init.lua", mod_folder, mod_folder) -- mod folder only
+    path = package.path
   }
 
   local env = setmetatable({
@@ -79,7 +53,9 @@ function sandbox.create_env(mod_data)
     if target_name == 'ffi' then return nil end
 
     -- allow relative paths (eg '.locale.ru' -> 'mods.arroyo_expanded.locale.ru')
-    target_name = resolve_relative_path(target_name)
+    if target_name:sub(1, 1) == "." then
+      target_name = "mods." .. env.__mod_id .. target_name
+    end
 
     if mod_package.loaded[target_name] then
       return mod_package.loaded[target_name]
@@ -94,10 +70,7 @@ function sandbox.create_env(mod_data)
       local result_to_cache = module
 
       if type(module) == "table" and module.public then
-        log.debug('=============')
         log.debug('returning public table: %s', target_name)
-        log.debug('=============')
-
         result_to_cache = module.public
       end
 
@@ -106,7 +79,7 @@ function sandbox.create_env(mod_data)
     end
 
     -- mod's local file (eg mods.arroyo_expanded.dialogs)
-    local filepath, error = package.searchpath(target_name, package.path)
+    local filepath, error = package.searchpath(target_name, mod_package.path)
 
     -- read and compile using mod env
     local content = utils.read_file(filepath, log)
