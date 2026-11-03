@@ -37,13 +37,4 @@ critter_validations.base_params = function(params)
   return success
 end
 
-critter_validations.set_spawn_params_defaults = function(params)
-  params.elevation    = params.elevation or nil
-  params.script_index = params.script_index or -1
-  params.team         = params.team or -1
-  params.respawn      = params.respawn or nil
-
-  return params
-end
-
 return critter_validations

@@ -52,9 +52,12 @@ local _ck_critter_validate_params = function(tag, params)
     return nil
   end
 
-  validations.set_spawn_params_defaults(params)
+  params.elevation    = params.elevation or ffi.C.ck_current_elevation()
+  params.script_index = params.script_index or -1
+  params.team         = params.team or -1
+  params.respawn      = params.respawn or nil
 
-  return tag, mod_id, params
+  return mod_id, params
 end
 
 -- internal register
@@ -77,7 +80,7 @@ local _register_validated = function(tag, mod_id, params)
   -- spawn params
   local ffi_params = ffi.new("CritterLuaSpawnParams", {
     tag = tag,
-    elevation = params.elevation or ffi.C.ck_current_elevation(),
+    elevation = params.elevation,
     script_index = params.script_index,
     team = params.team
   })
@@ -98,13 +101,14 @@ end
 
 -- main register function
 function critters.register(tag, params)
-  local tag, mod_id, params = _ck_critter_validate_params(tag, params)
+  local mod_id, params = _ck_critter_validate_params(tag, params)
 
   return _register_validated(tag, mod_id, params)
 end
 
+-- TODO: allow autotag
 function critters.create(tag, params)
-  local tag, mod_id, params = _ck_critter_validate_params(tag, params)
+  local mod_id, params = _ck_critter_validate_params(tag, params)
 
   return _register_validated(tag, mod_id, params)
 end
