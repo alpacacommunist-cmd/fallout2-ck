@@ -64,7 +64,7 @@ namespace ck::critter {
         // Assign allocated pid to cid to enable custom messages (temp workaround)
         // critter.cc (critterGetName(Object* obj)
         if (corpse != nullptr) {
-            logger.debug("Critter {} is dead, corpse found", pid);
+            logger.debug("Critter {} is dead, corpse found (pid is written to object->`cid`)", pid);
 
             corpse->cid = pid;
         } else {
