@@ -99,19 +99,14 @@ end
 
 -- main register function
 function critters.register(tag, params)
-  if type(tag) ~= "string" then
-    log.error "register(): first argumnt (tag) must be a string"
-    return nil
-  end
-
-  if type(params) ~= "table" then
-    log.error "register(): second argument (params) must be a table"
-    return nil
+  if type(tag) == "table" and params == nil then
+    params = tag
+    tag = params.tag
   end
 
   local mod_id, params = _ck_critter_validate_params(tag, params)
   if mod_id == nil then
-    log.error("(create): Couldn't create critter")
+    log.error("(register): Couldn't create critter (validations failing)")
     return nil
   end
 
@@ -126,19 +121,24 @@ function critters.create(tag, params)
   end
 
   if not validations.base_params(params) then
-    log.error("(create): Couldn't create critter")
-
+    log.error("(create): Couldn't create critter (params validation failing)")
     return nil
   end
 
   -- generate autotag anchor_{tile}
-  if tag == nil then tag = string.format("anchor_%d", params.tile) end
+  local mod_id = ck.tools.current_mod_id()
 
-  local mod_id, params = _ck_critter_validate_params(tag, params)
-  if mod_id == nil then
-    log.error("(create): Couldn't create critter")
+  if tag == nil then tag = string.format("anchor_%d", params.tile) end
+  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
+    log.error("(create): Couldn't create critter (tag validation failing)")
     return nil
   end
+
+  -- set defaults
+  params.elevation    = params.elevation or ffi.C.ck_current_elevation()
+  params.script_index = params.script_index or -1
+  params.team         = params.team or -1
+  params.respawn      = params.respawn or nil
 
   return _register_validated(tag, mod_id, params)
 end

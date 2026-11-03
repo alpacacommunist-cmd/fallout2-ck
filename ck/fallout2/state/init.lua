@@ -41,10 +41,10 @@ end
 function state.sync_load(loaded_db)
   state.db = loaded_db or {}
 
-  state.db.global = state.db.global or db_init_state.global
-  state.db.player = state.db.player or db_init_state.player
-  state.db.proto_list = state.db.proto_list or db_init_state.proto_list
-  state.db.maps = state.db.maps or db_init_state.maps
+  state.db.global = state.db.global or utils.deep_copy(db_init_state.global)
+  state.db.player = state.db.player or utils.deep_copy(db_init_state.player)
+  state.db.proto_list = state.db.proto_list or utils.deep_copy(db_init_state.proto_list)
+  state.db.maps = state.db.maps or utils.deep_copy(db_init_state.maps)
 end
 
 -- returns lua, backend marshalls it to json and saves
