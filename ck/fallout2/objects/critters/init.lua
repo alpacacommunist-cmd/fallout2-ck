@@ -37,27 +37,6 @@ end
 -- [debug] args tracer
 local _ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 
--- params validator
-local _ck_critter_validate_params = function(tag, params)
-  local mod_id = ck.tools.current_mod_id()
-
-  if not validations.tag_presence_and_uniqueness(mod_id, tag)
-    then return nil
-  end
-
-  if not validations.base_params(params) then
-    log.error("can't register critter (tag: %s)", tag)
-    return nil
-  end
-
-  params.elevation    = params.elevation or ffi.C.ck_current_elevation()
-  params.script_index = params.script_index or -1
-  params.team         = params.team or -1
-  params.respawn      = params.respawn or nil
-
-  return mod_id, params
-end
-
 -- internal register
 local _register_validated = function(tag, mod_id, params)
   -- check if critter is dead (state.db check)
@@ -99,25 +78,41 @@ end
 
 -- main register function
 function critters.register(tag, params)
+  -- allows tag to be specified through params.tag or as first argument
   if type(tag) == "table" and params == nil then
     params = tag
     tag = params.tag
+    params.tag = nil
   end
 
-  local mod_id, params = _ck_critter_validate_params(tag, params)
-  if mod_id == nil then
-    log.error("(register): Couldn't create critter (validations failing)")
+  if not validations.base_params(params) then
+    log.error("(register): Couldn't create critter (params validation failing)")
     return nil
   end
+
+  local mod_id = ck.tools.current_mod_id()
+
+  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
+    log.error("(register): Couldn't create critter (tag validation failing)")
+    return nil
+  end
+
+  -- sets defaults
+  params.elevation    = params.elevation or ffi.C.ck_current_elevation()
+  params.script_index = params.script_index or -1
+  params.team         = params.team or -1
+  params.respawn      = params.respawn or nil
 
   return _register_validated(tag, mod_id, params)
 end
 
 -- allows optional tag (nil is replaced with autotag)
 function critters.create(tag, params)
+  -- allows tag to be specified through params.tag or as first argument
   if type(tag) == "table" and params == nil then
     params = tag
     tag = params.tag
+    params.tag = nil
   end
 
   if not validations.base_params(params) then
@@ -125,7 +120,7 @@ function critters.create(tag, params)
     return nil
   end
 
-  -- generate autotag anchor_{tile}
+  -- generates autotag anchor_{tile}
   local mod_id = ck.tools.current_mod_id()
 
   if tag == nil then tag = string.format("anchor_%d", params.tile) end
@@ -134,7 +129,7 @@ function critters.create(tag, params)
     return nil
   end
 
-  -- set defaults
+  -- sets defaults
   params.elevation    = params.elevation or ffi.C.ck_current_elevation()
   params.script_index = params.script_index or -1
   params.team         = params.team or -1
