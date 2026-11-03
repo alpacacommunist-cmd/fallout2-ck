@@ -1,5 +1,8 @@
 local ck = require('ck')
 local ffi = require('ffi')
+
+local state = require('ck.fallout2.state')
+local validations = require('ck.fallout2.objects.critters.validations')
 local utils = require('ck.system.utils')
 
 local CritterClass = require('ck.fallout2.classes.critter')
@@ -21,16 +24,6 @@ critters.spawn_counters = ck.registries.critter_spawn_counters
 -- used by state.db GC to clear out unused tags
 critters.active_tags = ck.registries.critter_active_tags
 
--- stores allocated prototypes ref table
--- { "temple_of_trials" = { pid = CritterProto } ... }
-critters.prototypes = ck.registries.critter_prototypes
-
-function critters.generate_unique_tag(mod_id)
-  critters.spawn_counters[mod_id] = critters.spawn_counters[mod_id] + 1
-
-  return "spawn_" .. mod_id .. "_" .. (critters.spawn_counters[mod_id])
-end
-
 -- Allocates critter prototype
 -- It lives in a context of a map and is erased by fallout2-ce on map transitions/game loads
 function critters.register_prototype(source_pid, lua_tag, config)
@@ -50,45 +43,55 @@ end
 local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 
 -- main register function
-function critters.register(tag, pid, tile, config)
-  config = config or {}
-
-  if config.respawn then
-    log.error("Can't use :respawn with critters.register, please use critters.create instead")
+function critters.register(tag, params)
+  if not validations.tag_presence_and_uniqueness(tag) then
+    log.error("(critters.register) can't register critter (tag: %s)", tag)
     return nil
   end
 
-  local mod_id = ck.tools.current_mod_id()
+  params = (params and type(params) == "table") and params or {}
+  if not validations.base_params(params) then
+    log.error("(critters.register) can't register critter (tag: %s)", tag)
+    utils.print_table(params, log)
+    return nil
+  end
 
-  -- Check if tag is blank, treat it as nil
-  if tag and utils.is_blank(tag) then tag = nil end
-  -- autogenerate tag if not explicitly specified
-  tag = tag or critters.generate_unique_tag(mod_id)
+  validations.set_spawn_params_defaults(params)
+
+  -- if spawn_params.respawn then
+  --   log.error("Can't use :respawn with critters.register, please use critters.create instead")
+  --   return nil
+  -- end
+
+  local mod_id = ck.tools.current_mod_id()
+  -- local current_map_mod_state = state.db.ensure_mod_map_namespace(mod_id)
+  -- if current_map_mod_state.objects[tag] then
+  -- end
 
   -- _respawn_queue is set by timer callback (critters.respawns.append)
-  if config._respawn_queue then
-    tag = critters.respawns.generate_unique_tag(mod_id, config._respawn_queue)
-
-    local respawn_queue = critters.respawns.registry[mod_id][config._respawn_queue]
-    respawn_queue.spawned_count = respawn_queue.spawned_count + 1
-  end
+  -- if config._respawn_queue then
+  --   tag = critters.respawns.generate_unique_tag(mod_id, config._respawn_queue)
+  --
+  --   local respawn_queue = critters.respawns.registry[mod_id][config._respawn_queue]
+  --   respawn_queue.spawned_count = respawn_queue.spawned_count + 1
+  -- end
 
   -- update active tags list
   critters.active_tags[mod_id][tag] = true
 
   -- spawn params
-  local spawn_params = ffi.new("CritterLuaSpawnParams", {
+  local ffi_params = ffi.new("CritterLuaSpawnParams", {
     tag = tag,
-    elevation = config.elevation or ffi.C.ck_current_elevation(),
-    script_index = config.script_index or -1,
-    team = config.team or -1
+    elevation = params.elevation or ffi.C.ck_current_elevation(),
+    script_index = params.script_index,
+    team = params.team
   })
 
   --- args tracer function
-  local lua_id = ck_critter_spawn_traced(pid, tile, spawn_params)
+  local lua_id = ck_critter_spawn_traced(params.pid, params.tile, ffi_params)
 
   if lua_id == -1 then
-    log.warning("Failed to register critter (FFI) (tag: %s)", spawn_params.tag)
+    log.warning("Failed to register critter (FFI) (tag: %s)", tag)
     return nil
   end
 
@@ -102,27 +105,31 @@ function critters.register(tag, pid, tile, config)
     return nil
   end
 
-  return CritterClass.new(lua_id, config)
+  return CritterClass.new(lua_id, params)
 end
 
-function critters.create(pid, tile, config)
-  local spawn_params = {}
+function critters.create(tag, params)
+  if not validations.tag_presence_and_uniqueness(tag) then
+    log.error("(critters.create) can't register critter (tag: %s)", tag)
+    return nil
+  end
 
-  spawn_params.elevation    = config.elevation or 0
-  spawn_params.script_index = config.script_index or -1
-  spawn_params.team         = config.team or -1
-  spawn_params.respawn      = config.respawn or nil
+  params = (params and type(params) == "table") and params or {}
+  if not validations.base_params(params) then
+    log.error("(critters.create) can't register critter (tag: %s)", tag)
+    return nil
+  end
+
+  validations.set_spawn_params_defaults(params)
 
   -- modder registered respawn queue
   -- append callback and return
-  if spawn_params.respawn then
-    local mod_id = ck.tools.current_mod_id()
-    return critters.respawns.append(mod_id, pid, tile, spawn_params, critters.register)
-  end
+  -- if params.respawn then
+  --   local mod_id = ck.tools.current_mod_id()
+  --   return critters.respawns.append(mod_id, pid, tile, spawn_params, critters.register)
+  -- end
 
-  -- This is used for critters without explicitly specified tag
-  -- critters.spawn automatically generates spawn_{index} tag (without custom prototype)
-  return critters.register(nil, pid, tile, spawn_params)
+  return critters.register(tag, params)
 end
 
 return critters

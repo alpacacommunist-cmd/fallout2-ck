@@ -41,7 +41,7 @@ events.on('map_enter', function(map_id)
     name = 'Ralph', description = 'Ralph The Wanderer', stats = { max_hp = 10, hp = 1 }
   })
 
-  local ralph = critters.register('ralph_arroyo', ralph_prototype.pid, 19905)
+  local ralph = critters.register('ralph_arroyo', { pid = ralph_prototype.pid, tile = 19905 })
 
   -- ralph:set_behavior(behaviors.wander, 3)
 end)
@@ -53,7 +53,7 @@ events.on('map_enter', function(map_id)
     name = 'Ralph', description = 'Ralph The Wanderer', stats = { max_hp = 10, hp = 1 }
   })
 
-  local ralph = critters.register('ralph_arroyo', ralph_prototype.pid, 25103)
+  local ralph = critters.register('ralph_arroyo', { pid = ralph_prototype.pid, tile = 25103 })
 
   if (ralph) then
     -- ralph:set_behavior(behaviors.wander, 3)

@@ -23,7 +23,7 @@ state.db = {
 }
 
 -- ensures mod's state table structure is present
-function state.ensure_mod_namespace(mod_id)
+function state.ensure_mod_map_namespace(mod_id)
   if ck.map_id == -1 then return nil end
   state.db.maps[ck.map_id] = state.db.maps[ck.map_id] or {}
 
@@ -64,7 +64,7 @@ function state.sync_save()
   -- check active mods
   for _, mod_id in ipairs(ck.active_mods_list) do
     -- make sure mod structure is present
-    local mod_namespace_db = state.ensure_mod_namespace(mod_id)
+    local mod_namespace_db = state.ensure_mod_map_namespace(mod_id)
 
     -- check if any data for mod_namespace_db is present
     local mod_namespace_is_empty = true

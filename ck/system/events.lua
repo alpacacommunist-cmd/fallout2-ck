@@ -148,7 +148,7 @@ end
 
 -- Runs before mod's map_enter callback
 function events.before_map_enter(mod_id, map_id)
-  state.ensure_mod_namespace(mod_id)
+  state.ensure_mod_map_namespace(mod_id)
 end
 
 function events.after_map_enter(mod_id, map_id)

@@ -157,7 +157,7 @@ events.on('map_enter', function(map_id)
   })
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
-  local alice = critters.register("alice_arroyo", alice_prototype.pid, 19908, { script_index = 8, team = 0 })
+  local alice = critters.register("alice_arroyo", { pid = alice_prototype.pid, tile = 19908, script_index = 8, team = 0 })
   alice:set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 375, max_hp = 390 })
   alice:bind() -- removes script_index, assigns lua SID
 
@@ -200,9 +200,9 @@ events.on('map_enter', function(map_id)
   log.info("Alice small_weapons: %d", alice.skills.small_guns)
   --! Alice --
 
-  local villager1 = critters.create(16777219, 21119, { team = 0, script_index = 8 })
-  local villager2 = critters.create(16777220, 21716, { team = 0, script_index = 8 })
-  local villager3 = critters.create(16777220, 21716, { team = 0 })
+  local villager1 = critters.create("villager1", { pid = 16777219, tile = 21119, team = 0, script_index = 8 })
+  local villager2 = critters.create("villager2", { pid = 16777220, tile = 21716, team = 0, script_index = 8 })
+  local villager3 = critters.create("villager3", { pid = 16777220, tile = 21716, team = 0 })
 
   log.info("villager1 gender: %d", villager1:gender())
   log.info("villager2 gender: %d", villager2:gender())
@@ -215,8 +215,8 @@ events.on('map_enter', function(map_id)
   local game_time = require('ck.fallout2.game_time')
   -- critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))
   --
-  radscorpion1 = critters.create(16777221, 27916, { team = 2 })
-  radscorpion2 = critters.create(16777221, 28513, { team = 2 })
+  radscorpion1 = critters.create("radscorp1", { pid = 16777221, tile = 27916,  team = 2 })
+  radscorpion2 = critters.create("radscorp2", { pid = 16777221, tile = 28513,  team = 2 })
 
   villager1:set_hp(1)
   --
@@ -228,7 +228,7 @@ events.on('map_enter', function(map_id)
     :set_stats({ strength = 10, agility = 9, luck = 8})
     :set_skills({ unarmed = 100, small_guns = 85 })
 
-  local trapper1 = critters.create(female_trapper_prototype.pid, 20909, { script_index = 8, team = 0 })
+  local trapper1 = critters.create("ftrapper1", { pid = female_trapper_prototype.pid, tile = 20909, script_index = 8, team = 0 })
   -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)
