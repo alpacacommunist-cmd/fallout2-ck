@@ -22,6 +22,11 @@ end
 critter_validations.base_params = function(params)
   local success = true
 
+  if type(params) ~= "table" then
+    log.error "params must be a table"
+    return false
+  end
+
   -- pid
   if (type(params.pid) ~= "number" or params.pid <= 0) then
     log.error("pid(int) must be specified")

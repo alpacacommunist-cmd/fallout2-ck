@@ -200,9 +200,9 @@ events.on('map_enter', function(map_id)
   log.info("Alice small_weapons: %d", alice.skills.small_guns)
   --! Alice --
 
-  local villager1 = critters.create("villager1", { pid = 16777219, tile = 21119, team = 0, script_index = 8 })
-  local villager2 = critters.create("villager2", { pid = 16777220, tile = 21716, team = 0, script_index = 8 })
-  local villager3 = critters.create("villager3", { pid = 16777220, tile = 21716, team = 0 })
+  local villager1 = critters.create({ pid = 16777219, tile = 21119, team = 0, script_index = 8 })
+  local villager2 = critters.create({ pid = 16777220, tile = 21716, team = 0, script_index = 8 })
+  local villager3 = critters.create({ pid = 16777220, tile = 21717, team = 0 })
 
   log.info("villager1 gender: %d", villager1:gender())
   log.info("villager2 gender: %d", villager2:gender())
@@ -215,8 +215,8 @@ events.on('map_enter', function(map_id)
   local game_time = require('ck.fallout2.game_time')
   -- critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))
   --
-  radscorpion1 = critters.create("radscorp1", { pid = 16777221, tile = 27916,  team = 2 })
-  radscorpion2 = critters.create("radscorp2", { pid = 16777221, tile = 28513,  team = 2 })
+  radscorpion1 = critters.create({ pid = 16777221, tile = 27916,  team = 2 })
+  radscorpion2 = critters.create({ pid = 16777221, tile = 28513,  team = 2 })
 
   villager1:set_hp(1)
   --

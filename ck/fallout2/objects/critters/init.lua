@@ -41,12 +41,10 @@ local _ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_cr
 local _ck_critter_validate_params = function(tag, params)
   local mod_id = ck.tools.current_mod_id()
 
-  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
-    log.error("can't register critter (tag: %s)", tag)
-    return nil
+  if not validations.tag_presence_and_uniqueness(mod_id, tag)
+    then return nil
   end
 
-  params = (params and type(params) == "table") and params or {}
   if not validations.base_params(params) then
     log.error("can't register critter (tag: %s)", tag)
     return nil
@@ -101,14 +99,46 @@ end
 
 -- main register function
 function critters.register(tag, params)
+  if type(tag) ~= "string" then
+    log.error "register(): first argumnt (tag) must be a string"
+    return nil
+  end
+
+  if type(params) ~= "table" then
+    log.error "register(): second argument (params) must be a table"
+    return nil
+  end
+
   local mod_id, params = _ck_critter_validate_params(tag, params)
+  if mod_id == nil then
+    log.error("(create): Couldn't create critter")
+    return nil
+  end
 
   return _register_validated(tag, mod_id, params)
 end
 
--- TODO: allow autotag
+-- allows optional tag (nil is replaced with autotag)
 function critters.create(tag, params)
+  if type(tag) == "table" and params == nil then
+    params = tag
+    tag = params.tag
+  end
+
+  if not validations.base_params(params) then
+    log.error("(create): Couldn't create critter")
+
+    return nil
+  end
+
+  -- generate autotag anchor_{tile}
+  if tag == nil then tag = string.format("anchor_%d", params.tile) end
+
   local mod_id, params = _ck_critter_validate_params(tag, params)
+  if mod_id == nil then
+    log.error("(create): Couldn't create critter")
+    return nil
+  end
 
   return _register_validated(tag, mod_id, params)
 end
