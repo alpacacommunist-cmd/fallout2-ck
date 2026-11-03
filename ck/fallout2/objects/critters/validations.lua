@@ -5,13 +5,13 @@ local log = ck.log.new('critters/validations.lua')
 
 local critter_validations = {}
 
-critter_validations.tag_presence_and_uniqueness = function(tag)
+critter_validations.tag_presence_and_uniqueness = function(mod_id, tag)
   if utils.is_blank(tag) then
     log.error("tag is nil or blank")
     return false
   end
 
-  if ck.registries.critter_active_tags[tag] then
+  if ck.registries.critter_active_tags[mod_id][tag] then
     log.error("tag is already registered: %s", tag)
     return false
   end

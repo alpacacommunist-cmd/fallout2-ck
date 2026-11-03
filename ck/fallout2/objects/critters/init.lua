@@ -44,7 +44,9 @@ local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_cri
 
 -- main register function
 function critters.register(tag, params)
-  if not validations.tag_presence_and_uniqueness(tag) then
+  local mod_id = ck.tools.current_mod_id()
+
+  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
     log.error("(critters.register) can't register critter (tag: %s)", tag)
     return nil
   end
@@ -62,8 +64,6 @@ function critters.register(tag, params)
   --   log.error("Can't use :respawn with critters.register, please use critters.create instead")
   --   return nil
   -- end
-
-  local mod_id = ck.tools.current_mod_id()
   -- local current_map_mod_state = state.db.ensure_mod_map_namespace(mod_id)
   -- if current_map_mod_state.objects[tag] then
   -- end
@@ -109,7 +109,9 @@ function critters.register(tag, params)
 end
 
 function critters.create(tag, params)
-  if not validations.tag_presence_and_uniqueness(tag) then
+  local mod_id = ck.tools.current_mod_id()
+
+  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
     log.error("(critters.create) can't register critter (tag: %s)", tag)
     return nil
   end
