@@ -57,7 +57,7 @@ namespace ck::critter {
 		return nullptr;
 	}
 
-    static int handle_dead_critter_spawn(int id, int pid, int tile, int elevation = fallout::gElevation) {
+    static void handle_dead_critter_spawn(int id, int pid, int tile, int elevation = fallout::gElevation) {
         fallout::Object* corpse = ck::object::find_id_at(tile, elevation, id);
 
         // Mod specifies custom name/description (for look_at/examine).
@@ -67,11 +67,9 @@ namespace ck::critter {
             logger.debug("Critter {} is dead, corpse found", pid);
 
             corpse->cid = pid;
-            return -3;
         } else {
-            // TODO: remove from state.db
-            logger.debug("Removing critter from state.db: {} (dead, corpse not found)", pid);
-            return -2;
+            // TODO: remove from state.db (if respawn)
+            logger.debug("Removing respawning critter from state.db: {} (dead, corpse not found)", pid);
         }
     }
 
@@ -111,31 +109,18 @@ namespace ck::critter {
         int map_id = common::current_map_id();
         const char* mod_id = mods::current_mod_id();
 
-        // Locate source pid
-        // It's being used when critter dies: source_pid is restored and
-        // OBJECT_NO_SAVE is removed, body is handled by engine
-        int source_pid = proto::registry::source_pid(pid);
-
         // Check if state json exists for given tag
+        // TODO: separate create/setLocation
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
         if (state.elevation != -1) spawn_params->elevation = state.elevation;
         if (state.tile != -1) tile = state.tile;
 
-        // Either alive or first spawn
-        bool critter_alive = (state.hp > 0 || state.id == -1);
-
-        if (!critter_alive) {
-            return handle_dead_critter_spawn(state.id, pid, tile, spawn_params->elevation);
-        }
-
         fallout::Object* critter = create(pid, tile, spawn_params->elevation);
-        if (critter == nullptr) {
-            return -1;
-        }
+        if (critter == nullptr) return -1;
 
         if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
-        LuaMeta meta = { mod_id, lua_tag, source_pid, critter->sid };
+        LuaMeta meta = { mod_id, lua_tag, pid, critter->sid };
         lua_id = registry::created::add(critter, std::move(meta));
 
         ck::critter::assign_script(critter, spawn_params->script_index, lua_id);
@@ -237,4 +222,8 @@ bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
 
 bool ck_critter_kill(int lua_id) {
 	return ck::critter::kill(lua_id);
+}
+
+void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile) {
+    ck::critter::handle_dead_critter_spawn(id, pid, tile);
 }

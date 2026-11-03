@@ -153,6 +153,7 @@ ffi.cdef[[
   // --- Critter Events
   bool ck_critter_kill(int lua_id);
   bool ck_critter_process_turn(fallout_Object* critter, int lua_id);
+  void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
   // --- Critter HP ---
   int  ck_critter_get_hp(void* ptr);

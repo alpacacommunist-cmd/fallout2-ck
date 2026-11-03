@@ -20,7 +20,7 @@ critters.respawns = require('ck.fallout2.objects.critters.respawns')
 critters.active_tags = ck.registries.critter_active_tags
 
 -- Allocates critter prototype
--- It lives in a context of a map and is erased by fallout2-ce on map transitions/game loads
+-- (lives in a map context)
 function critters.register_prototype(source_pid, lua_tag, config)
   local mod_id = ck.tools.current_mod_id()
   local proto_instance = CritterProto:new(source_pid, lua_tag, mod_id, config)
@@ -35,11 +35,36 @@ end
 
 -- Spawn/create
 -- [debug] args tracer
-local ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
+local _ck_critter_spawn_traced = utils.trace("FFI:ck_critter_spawn", ffi.C.ck_critter_spawn)
 
+-- internal register
 local _register_validated = function(tag, mod_id, params)
   -- update active tags list
   critters.active_tags[mod_id][tag] = true
+
+  -- check if critter is dead (state.db check)
+  local mod_map_state_db = state.ensure_mod_map_namespace(mod_id)
+  local critter_state = mod_map_state_db.objects[tag]
+
+  if critter_state and critter_state.hp <= 0 then
+    ffi.C.ck_critter_handle_dead_critter_spawn(critter_state.id, params.pid, critter_state.tile)
+
+    log.info("[%s] critter %s is dead", mod_id, tag)
+    return nil
+  end
+
+  -- if spawn_params.respawn then
+  --   log.error("Can't use :respawn with critters.register, please use critters.create instead")
+  --   return nil
+  -- end
+
+  -- _respawn_queue is set by timer callback (critters.respawns.append)
+  -- if config._respawn_queue then
+  --   tag = critters.respawns.generate_unique_tag(mod_id, config._respawn_queue)
+  --
+  --   local respawn_queue = critters.respawns.registry[mod_id][config._respawn_queue]
+  --   respawn_queue.spawned_count = respawn_queue.spawned_count + 1
+  -- end
 
   -- spawn params
   local ffi_params = ffi.new("CritterLuaSpawnParams", {
@@ -50,20 +75,10 @@ local _register_validated = function(tag, mod_id, params)
   })
 
   --- args tracer function
-  local lua_id = ck_critter_spawn_traced(params.pid, params.tile, ffi_params)
+  local lua_id = _ck_critter_spawn_traced(params.pid, params.tile, ffi_params)
 
   if lua_id == -1 then
     log.warning("Failed to register critter (FFI) (tag: %s)", tag)
-    return nil
-  end
-
-  if lua_id == -2 then
-    log.debug("Critter %s is dead and has default prototype name/description (or body is gone)", tag)
-    return nil
-  end
-
-  if lua_id == -3 then
-    log.debug("Critter %s is dead, body found, allocated pid assigned to object->cid", tag)
     return nil
   end
 
@@ -82,30 +97,12 @@ function critters.register(tag, params)
   params = (params and type(params) == "table") and params or {}
   if not validations.base_params(params) then
     log.error("(critters.register) can't register critter (tag: %s)", tag)
-    utils.print_table(params, log)
     return nil
   end
 
   validations.set_spawn_params_defaults(params)
 
   return _register_validated(tag, mod_id, params)
-
-  -- if spawn_params.respawn then
-  --   log.error("Can't use :respawn with critters.register, please use critters.create instead")
-  --   return nil
-  -- end
-  -- local current_map_mod_state = state.db.ensure_mod_map_namespace(mod_id)
-  -- if current_map_mod_state.objects[tag] then
-  -- end
-
-  -- _respawn_queue is set by timer callback (critters.respawns.append)
-  -- if config._respawn_queue then
-  --   tag = critters.respawns.generate_unique_tag(mod_id, config._respawn_queue)
-  --
-  --   local respawn_queue = critters.respawns.registry[mod_id][config._respawn_queue]
-  --   respawn_queue.spawned_count = respawn_queue.spawned_count + 1
-  -- end
-
 end
 
 function critters.create(tag, params)

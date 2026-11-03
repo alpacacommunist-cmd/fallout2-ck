@@ -36,5 +36,6 @@ CK_API bool ck_critter_is_busy(fallout::Object* critter);
 CK_API bool ck_critter_process_turn(fallout::Object* critter, int lua_id);
 CK_API bool ck_critter_bind(int lua_id);
 CK_API bool ck_critter_kill(int lua_id);
+CK_API void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
 #endif
