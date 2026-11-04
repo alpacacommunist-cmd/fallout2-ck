@@ -79,7 +79,7 @@ function Critter:set_behavior(behavior_fn, ...)
   else
     -- disable default fallout2-ce map update procs
     -- and switch to lua map updates (doesn't require SID, dispatched directly)
-    if not self.has_lua_script then
+    if not self:has_lua_script_index() then
       ffi.C.ck_script_disable_map_updates_for_object(self.c_ptr)
     end
 

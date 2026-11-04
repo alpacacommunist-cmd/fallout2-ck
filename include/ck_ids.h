@@ -80,6 +80,6 @@ namespace ck::ids {
 
 CK_API int ck_ids_make_ck_fid(int custom_frm_id, int art_type = ck::ids::frm::transport_type);
 CK_API int ck_ids_art_id_from_fid(int fid);
-CK_API bool ck_is_sid_ck_custom(int sid);
+CK_API bool ck_is_ck_script_index(int script_index);
 
 #endif

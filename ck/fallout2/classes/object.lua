@@ -48,9 +48,18 @@ function Object.new(ptr)-- tag, mod_id, config)
   return self
 end
 
+function Object:has_lua_script_index()
+  return ffi.C.ck_is_ck_script_index(self.fallout_Object.scriptIndex)
+end
+
 function Object:bind()
+  if self:has_lua_script_index() then
+    log.error("bind: already bound to lua script index")
+    return false
+  end
+
   if self.modified then
-    logger.error("Can't bind to modified object")
+    log.error("Can't bind to modified object")
     return false
   end
 

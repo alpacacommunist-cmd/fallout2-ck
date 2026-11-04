@@ -202,6 +202,6 @@ int ck_ids_art_id_from_fid(int fid) {
     return ck::ids::art_id_from_fid(fid);
 }
 
-bool ck_is_sid_ck_custom(int sid) {
-    return ck::ids::is_ck_sid(sid);
+bool ck_is_ck_script_index(int script_index) {
+    return ck::ids::is_ck_script_index(script_index);
 }
