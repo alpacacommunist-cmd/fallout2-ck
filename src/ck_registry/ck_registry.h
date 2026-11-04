@@ -46,6 +46,10 @@ namespace ck::registry {
         std::string tag;
 
         Status status;
+
+        inline bool is_created() const  { return status == Status::Created; }
+        inline bool is_modified() const { return status == Status::Modified; }
+        inline bool is_deleted() const  { return status == Status::Deleted; }
     };
 
     extern std::unordered_map<fallout::Object*, RegistryEntry> g_object_registry;
@@ -102,10 +106,10 @@ namespace ck::registry {
 
 CK_API void ck_registry_clear();
 
-CK_API int  ck_registry_modify_object(void* ptr);
-CK_API bool ck_registry_object_is_modified(int lua_id);
-CK_API bool ck_registry_object_is_created(int lua_id);
-CK_API bool ck_registry_restore_modified_object(void* ptr);
+CK_API int ck_registry_modify_object(fallout::Object* object);
+CK_API bool ck_registry_object_is_modified(fallout::Object* object);
+CK_API bool ck_registry_object_is_created(fallout::Object* object);
+CK_API bool ck_registry_restore_modified_object(fallout::Object* object);
 
 CK_API bool ck_registry_bind_to_object(int lua_id);
 

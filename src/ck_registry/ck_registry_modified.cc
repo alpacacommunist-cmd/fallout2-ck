@@ -81,25 +81,16 @@ namespace ck::registry::modified {
     }
 }
 
-int ck_registry_modify_object(void* ptr) {
-    if (!ptr) return -1;
-    auto* object = static_cast<fallout::Object*>(ptr);
-
+int ck_registry_modify_object(fallout::Object* object) {
     return ck::registry::modified::add(object, nullptr);
 }
 
-bool ck_registry_object_is_modified(int object_id) {
-    for (const auto& [object, entry] : ck::registry::g_object_registry) {
-        if (entry.status == ck::registry::Status::Modified && object->id == object_id) {
-            return true;
-        }
-    }
-    return false;
+bool ck_registry_object_is_modified(fallout::Object* object) {
+    const auto* existing_entry = ck::registry::get(object);
+
+    return existing_entry != nullptr && existing_entry->is_modified();
 }
 
-bool ck_registry_restore_modified_object(void* ptr) {
-    if (!ptr) return false;
-    auto* object = static_cast<fallout::Object*>(ptr);
-
+bool ck_registry_restore_modified_object(fallout::Object* object) {
     return ck::registry::modified::restore(object);
 }

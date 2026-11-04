@@ -101,10 +101,10 @@ ffi.cdef[[
   void ck_registry_clear();
 
   // modified
-  int ck_registry_modify_object(void* ptr);
-  bool ck_registry_object_is_modified(int lua_id);
-  bool ck_registry_object_is_created(int lua_id);
-  bool ck_registry_restore_modified_object(void* ptr);
+  int ck_registry_modify_object(fallout_Object* object);
+  bool ck_registry_object_is_modified(fallout_Object* object);
+  bool ck_registry_object_is_created(fallout_Object* object);
+  bool ck_registry_restore_modified_object(fallout_Object* object);
 
   // created
   bool ck_registry_bind_to_object(int lua_id);

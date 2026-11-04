@@ -40,7 +40,7 @@ namespace ck::registry::deleted {
         for (auto it = g_object_registry.begin(); it != g_object_registry.end();) {
             const auto &entry = it->second;
 
-            if (entry.status == Status::Deleted && entry.mod_id == mod_id) {
+            if (entry.is_deleted() && entry.mod_id == mod_id) {
                 if (entry.object != nullptr) {
                     entry.object->flags &= ~fallout::OBJECT_HIDDEN;
                     restored_count++;
@@ -61,7 +61,7 @@ namespace ck::registry::deleted {
         int restored_count = 0;
 
         for (const auto &[object, entry] : g_object_registry) {
-            if (entry.status == Status::Deleted && entry.object != nullptr) {
+            if (entry.is_deleted() && entry.object != nullptr) {
                 entry.object->flags &= ~fallout::OBJECT_HIDDEN;
                 logger.debug("restored hidden object for mod: {}", entry.mod_id);
                 restored_count++;
@@ -75,7 +75,7 @@ namespace ck::registry::deleted {
         int hidden_count = 0;
 
         for (const auto &[object, entry] : g_object_registry) {
-            if (entry.status == Status::Deleted && entry.object != nullptr) {
+            if (entry.is_deleted() && entry.object != nullptr) {
                 entry.object->flags |= fallout::OBJECT_HIDDEN;
                 hidden_count++;
             }

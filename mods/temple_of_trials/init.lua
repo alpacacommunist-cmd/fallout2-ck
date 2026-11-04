@@ -109,7 +109,7 @@ events.on('map_enter', function(map_id)
     return true
   end)
 
-  klint:restore()
+  -- klint:restore()
 
   local asset = assets.resolve('scenery/tree10')
 

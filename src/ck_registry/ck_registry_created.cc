@@ -90,7 +90,9 @@ namespace ck::registry::created {
 
 // FFI
 
-bool ck_registry_object_is_created(int lua_id) {
-    return ck::registry::created::get(lua_id) != nullptr;
+bool ck_registry_object_is_created(fallout::Object* object) {
+    const auto* existing_entry = ck::registry::get(object);
+
+    return existing_entry != nullptr && existing_entry->is_created();
 }
 

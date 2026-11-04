@@ -30,8 +30,8 @@ function Object.new(ptr)-- tag, mod_id, config)
   if self.tag and utils.is_blank(self.tag) then self.tag = nil end
 
   -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
-  self.modified    = ffi.C.ck_registry_object_is_modified(self.id)
-  self.created     = ffi.C.ck_registry_object_is_created(self.id)
+  self.modified = ffi.C.ck_registry_object_is_modified(self.c_ptr)
+  self.created  = ffi.C.ck_registry_object_is_created(self.c_ptr)
 
   self.elevation = self.fallout_Object.elevation
 
