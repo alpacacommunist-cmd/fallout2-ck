@@ -18,7 +18,7 @@ Critter.__index = Critter -- instances look for methods here
 setmetatable(Critter, { __index = Object })
 
 function Critter.new(ptr, config)
-  local self = Object.new(ptr)--, config)
+  local self = Object.new(ptr)
   setmetatable(self, Critter)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)

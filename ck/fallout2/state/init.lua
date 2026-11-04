@@ -106,7 +106,7 @@ function state.sync_save()
       if object.tile then object_state.tile = object:tile() end
       if object.hp   then object_state.hp   = object:hp()   end
 
-      object_state.id = object:id()
+      object_state.id = object.id
       object_state.inventory = object:inventory_table()
 
       ::continue::

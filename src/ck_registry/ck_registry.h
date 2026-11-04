@@ -9,28 +9,6 @@ namespace fallout {
     struct Rect;
 }
 
-struct LuaMeta {
-    const char* mod_id;
-    std::string tag;
-
-    int source_pid = -1;
-    int source_sid = -1;
-};
-
-struct CkCreatedObject {
-    fallout::Object* ptr = nullptr;
-    int lua_id = -1;
-
-    LuaMeta meta;
-};
-
-struct CkModifiedObject {
-    fallout::Object* ptr = nullptr;
-    int lua_id = -1;
-
-    LuaMeta meta;
-};
-
 namespace ck::registry {
     enum class Status {
         Created,
@@ -80,7 +58,7 @@ namespace ck::registry {
     }
 
 	namespace modified {
-		int  add(fallout::Object* obj, LuaMeta meta = {});
+        int add(fallout::Object *object, const char *mod_id);
 		bool restore(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
         void free_script_indexes();

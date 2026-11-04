@@ -162,7 +162,7 @@ events.on('map_enter', function(map_id)
   alice:bind() -- removes script_index, assigns lua SID
 
   local alice_dialog = require('.dialogs').alice_nodes
-  dialogs.register(alice.lua_id, alice_dialog)
+  dialogs.register(alice.id, alice_dialog)
 
   if (alice:has_inventory()) then
     log.info("Alice inventory is managed through state")

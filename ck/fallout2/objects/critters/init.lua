@@ -63,9 +63,9 @@ local _register_validated = function(tag, mod_id, params)
   })
 
   --- args tracer function
-  local lua_id = _ck_critter_spawn_traced(params.pid, params.tile, ffi_params)
+  local critter = _ck_critter_spawn_traced(params.pid, params.tile, ffi_params)
 
-  if lua_id == -1 then
+  if critter == nil then
     log.error("Failed to register critter (FFI) (tag: %s)", tag)
     return nil
   end
@@ -73,7 +73,7 @@ local _register_validated = function(tag, mod_id, params)
   -- update active tags list
   critters.active_tags[mod_id][tag] = true
 
-  return CritterClass.new(lua_id, params)
+  return CritterClass.new(critter, params)
 end
 
 -- main register function

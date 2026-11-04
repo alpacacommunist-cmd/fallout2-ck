@@ -21,8 +21,9 @@ function Object.new(ptr)-- tag, mod_id, config)
   self.fallout_Object = ffi.cast("struct fallout_Object*", self.c_ptr)
 
   self.id = self.fallout_Object.id
-  self.sid = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
-  self.pid = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
+  self.sid = self.fallout_Object.sid
+  self.pid = self.fallout_Object.pid
+  self.elevation = self.fallout_Object.elevation
 
   self.mod_id = ck.tools.current_mod_id()
 
@@ -32,8 +33,6 @@ function Object.new(ptr)-- tag, mod_id, config)
   -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
   self.modified = ffi.C.ck_registry_object_is_modified(self.c_ptr)
   self.created  = ffi.C.ck_registry_object_is_created(self.c_ptr)
-
-  self.elevation = self.fallout_Object.elevation
 
   self.handlers = {}
 
@@ -50,13 +49,12 @@ function Object.new(ptr)-- tag, mod_id, config)
 end
 
 function Object:bind()
-  if self.has_lua_script then return true end
   if self.modified then
     logger.error("Can't bind to modified object")
     return false
   end
 
-  ffi.C.ck_registry_bind_to_object(self.id)
+  ffi.C.ck_registry_bind_to_object(self.c_ptr)
 end
 
 function Object:on(event_name, callback)
