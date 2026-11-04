@@ -54,21 +54,9 @@ namespace ck::registry {
 
     extern std::unordered_map<fallout::Object*, RegistryEntry> g_object_registry;
 
-    extern std::unordered_map<int, CkCreatedObject>  g_created_objects;
-	extern std::unordered_map<int, CkModifiedObject> g_modified_objects;
-
-    extern std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
-
-	int next_lua_id();
-	void reset_lua_id_counter();
-
 	const RegistryEntry* get(fallout::Object* object);
 
 	int find_by_ptr(fallout::Object* ptr);
-	int find_by_sid(int sid);
-	const LuaMeta* get_meta(int lua_id);
-
-	fallout::Object* get_object(int lua_id);
 
     void clear();
     void clear_resources_for_mod(const char* target_mod_id);
@@ -76,12 +64,9 @@ namespace ck::registry {
 	void clear_context();
 
     namespace created {
-        int  add(fallout::Object* obj, LuaMeta meta = {});
-        int  remove_by_ptr(fallout::Object* ptr);
+        int add(fallout::Object *object, const char *tag, const char *mod_id);
+        int remove_by_ptr(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
-
-        fallout::Object* get_object(int lua_id);
-        const CkCreatedObject* get(int lua_id);
     }
 
     namespace deleted {
@@ -99,8 +84,6 @@ namespace ck::registry {
 		bool restore(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
         void free_script_indexes();
-
-		const CkModifiedObject* get(int lua_id);
 	}
 }
 
@@ -111,7 +94,7 @@ CK_API bool ck_registry_object_is_modified(fallout::Object* object);
 CK_API bool ck_registry_object_is_created(fallout::Object* object);
 CK_API bool ck_registry_restore_modified_object(fallout::Object* object);
 
-CK_API bool ck_registry_bind_to_object(int lua_id);
+CK_API bool ck_registry_bind_to_object(fallout::Object* object);
 
 CK_API const char* ck_registry_object_get_mod_id(fallout::Object* object);
 CK_API const char* ck_registry_object_get_lua_tag(fallout::Object* object);

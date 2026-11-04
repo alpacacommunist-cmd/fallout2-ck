@@ -54,8 +54,6 @@ bool ck_object_blocking(int tile, int elevation = fallout::gElevation);
 fallout::Object* ck_object_create(int pid, int tile, int elevation = fallout::gElevation, bool search_free_tile = false);
 fallout::Object* ck_object_create_at(int fid, int tile);
 
-int ck_object_register(int pid, int tile, const LuaMeta& meta);
-
 void ck_object_remove(fallout::Object* obj);
 void ck_object_remove_blocker_at(int tile);
 
@@ -63,13 +61,8 @@ void ck_object_create_blocker_at(int tile);
 
 CK_API void ck_object_remove_at(int tile);
 
-CK_API void* ck_object_get_ptr(int lua_id);
-CK_API int   ck_object_get_id(fallout::Object* object);
-CK_API int   ck_object_get_pid(fallout::Object* object);
-CK_API int   ck_object_get_tile(fallout::Object* object);
-CK_API int   ck_object_get_sid(fallout::Object* object);
-CK_API char* ck_object_get_name(void* ptr);
-CK_API char* ck_object_get_description(void* ptr);
+CK_API char* ck_object_get_name(fallout::Object* object);
+CK_API char* ck_object_get_description(fallout::Object* object);
 CK_API int ck_object_get_type(void* ptr);
 
 CK_API int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);

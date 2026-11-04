@@ -1,8 +1,9 @@
 #include "ck_registry/ck_registry.h"
 #include "fallout2-ce/obj_types.h"
+#include "ck_mods/ck_mods.h"
 
 #include "log.h"
-static constexpr logging::Context log{"ck_registry_created.cc"};
+static constexpr logging::Context logger{"ck_registry_created.cc"};
 
 namespace fallout {
     // scripts.cc
@@ -15,76 +16,63 @@ namespace fallout {
 }
 
 namespace ck::registry::created {
-    int add(fallout::Object* object, LuaMeta meta) {
+    int add(fallout::Object *object, const char *tag, const char *mod_id) {
         if (!object) return -1;
-        int lua_id = next_lua_id();
 
-        g_created_objects[lua_id] = CkCreatedObject{ object, lua_id, std::move(meta) };
-        g_ptr_to_lua_id[object] = lua_id;
-        return lua_id;
+        const RegistryEntry *existing_entry = ck::registry::get(object);
+        if (existing_entry != nullptr) {
+            return object->id;
+        }
+
+        if (mod_id == nullptr) {
+            const char *current_mod_id = ck::mods::current_mod_id();
+            mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::mods::system_mod_id();
+        }
+
+        RegistryEntry entry { .object = object, .mod_id = mod_id, .status = Status::Created };
+        entry.tag = tag ? std::string(tag) : std::string();
+
+        g_object_registry[object] = std::move(entry);
+
+        return object->id;
     }
 
-	void clear_for_mod(const char* mod_id) {
-        std::vector<fallout::Object*> to_destroy;
+    void clear_for_mod(const char *mod_id) {
+        if (mod_id == nullptr) return;
 
-        for (const auto& [id, managed] : g_created_objects) {
-            if (managed.meta.mod_id == mod_id && managed.ptr != nullptr) {
-                to_destroy.push_back(managed.ptr);
+        std::vector<fallout::Object *> to_destroy;
+        for (const auto &[object, entry] : g_object_registry) {
+            if (entry.is_created() && entry.mod_id == mod_id && object != nullptr) {
+                logger.debug("destroying object [ID: {}, Tag: '{}']",
+                        entry.object->id, entry.tag.empty() ? "untagged" : entry.tag);
+
+                to_destroy.push_back(object);
             }
         }
 
-        // stops active animations
         fallout::animationStop();
-        for (fallout::Object* object : to_destroy) {
+        for (fallout::Object *object : to_destroy) {
             // Removes script + active engine timers
             fallout::scriptRemove(object->sid);
-
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
             fallout::objectDestroy(object, nullptr);
         }
 
-        std::erase_if(g_created_objects, [mod_id](const auto& item) {
-            return item.second.meta.mod_id == mod_id;
-        });
-
         if (!to_destroy.empty()) {
-            log.info("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_id);
+            logger.info("Hot Reload: Physically destroyed {} temporary objects for mod '{}'", to_destroy.size(), mod_id);
         }
     }
 
-    int remove_by_ptr(fallout::Object* ptr) {
-        if (ptr == nullptr) return -1;
+    int remove_by_ptr(fallout::Object *object) {
+        if (object == nullptr) return -1;
 
-        auto it = g_ptr_to_lua_id.find(ptr);
-        if (it == g_ptr_to_lua_id.end()) {
-			return -1;
-		}
+        auto it = g_object_registry.find(object);
+        if (it == g_object_registry.end() || !it->second.is_created()) { return -1; }
 
-        int deleted_id = it->second;
-        std::string obj_tag;
+        g_object_registry.erase(it);
+        logger.debug("Created registry size: {}", g_object_registry.size());
 
-        auto created_it = g_created_objects.find(deleted_id);
-        if (created_it != g_created_objects.end()) {
-            obj_tag = created_it->second.meta.tag;
-            g_created_objects.erase(created_it);
-        }
-
-        g_ptr_to_lua_id.erase(it);
-
-        log.debug("Engine destroyed object [ID: {}, Tag: '{}']. Created registry size: {}",
-                  deleted_id, obj_tag.empty() ? "untagged" : obj_tag, g_created_objects.size());
-
-        return deleted_id;
-    }
-
-    const CkCreatedObject* get(int lua_id) {
-        auto it = g_created_objects.find(lua_id);
-        return (it == g_created_objects.end()) ? nullptr : &it->second;
-    }
-
-    fallout::Object* get_object(int lua_id) {
-        auto it = g_created_objects.find(lua_id);
-        return (it == g_created_objects.end()) ? nullptr : it->second.ptr;
+        return 0;
     }
 }
 

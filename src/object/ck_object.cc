@@ -161,55 +161,19 @@ fallout::Object* ck_object_create(int pid, int tile, int elevation, bool search_
 	return nullptr;
 }
 
-int ck_object_register(int pid, int tile, const LuaMeta& meta) {
-	fallout::Object* object = ck_object_create(pid, tile);
-
-	if (object != nullptr) return ck::registry::created::add(object, meta);
-
-	return -1;
-}
-
-// ffi
+// FFI
 
 void ck_object_remove_at(int tile) {
 	ck::object::remove_at(tile);
 }
 
-void* ck_object_get_ptr(int lua_id) {
-	fallout::Object* object = ck::registry::get_object(lua_id);
-
-	if (!object) return nullptr;
-	return object;
-}
-
-// fallout id
-int ck_object_get_id(fallout::Object* object) {
+char* ck_object_get_name(fallout::Object* object) {
     CK_ENSURE_VALID_OBJECT(object);
-	return object->id;
-}
-
-int ck_object_get_pid(fallout::Object* object) {
-    CK_ENSURE_VALID_OBJECT(object);
-    return object->pid;
-}
-
-int ck_object_get_tile(fallout::Object* object) {
-    CK_ENSURE_VALID_OBJECT(object);
-	return object->tile;
-}
-
-int ck_object_get_sid(fallout::Object* object) {
-    CK_ENSURE_VALID_OBJECT(object);
-	return object->sid;
-}
-
-char* ck_object_get_name(void* ptr) {
-	if (!ptr) return nullptr; fallout::Object* object = static_cast<fallout::Object*>(ptr);
 	return fallout::objectGetName(object);
 }
 
-char* ck_object_get_description(void* ptr) {
-	if (!ptr) return nullptr; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+char* ck_object_get_description(fallout::Object* object) {
+    CK_ENSURE_VALID_OBJECT(object);
 	return fallout::objectGetDescription(object);
 }
 

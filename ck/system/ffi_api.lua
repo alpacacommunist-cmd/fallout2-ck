@@ -103,11 +103,11 @@ ffi.cdef[[
   // modified
   int ck_registry_modify_object(fallout_Object* object);
   bool ck_registry_object_is_modified(fallout_Object* object);
-  bool ck_registry_object_is_created(fallout_Object* object);
   bool ck_registry_restore_modified_object(fallout_Object* object);
 
   // created
-  bool ck_registry_bind_to_object(int lua_id);
+  bool ck_registry_bind_to_object(fallout_Object* object);
+  bool ck_registry_object_is_created(fallout_Object* object);
 
   int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
   int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
@@ -149,7 +149,7 @@ ffi.cdef[[
   void ck_critter_proto_set_skill(ck_CritterProto* proto, int skill_id, int value);
 
   // --- Critter Events
-  bool ck_critter_kill(int lua_id);
+  bool ck_critter_kill(fallout_Object* critter);
   bool ck_critter_process_turn(fallout_Object* critter, int lua_id);
   void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
@@ -160,13 +160,8 @@ ffi.cdef[[
   int  ck_critter_set_full_hp(void* ptr);
 
   // --- Object Base ---
-  void* ck_object_get_ptr(int lua_id);
-  int ck_object_get_id(void* c_ptr);
-  int ck_object_get_pid(fallout_Object* object);
-  int ck_object_get_tile(fallout_Object* object);
-  int ck_object_get_sid(fallout_Object* object);
-  char* ck_object_get_name(void* ptr);
-  char* ck_object_get_description(void* ptr);
+  char* ck_object_get_name(fallout_Object* object);
+  char* ck_object_get_description(fallout_Object* object);
   int ck_object_get_type(void* ptr);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 

@@ -24,10 +24,10 @@ function Object.new(ptr)-- tag, mod_id, config)
   self.sid = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
   self.pid = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
 
-  self.mod_id = ffi.string(ffi.C.ck_registry_object_get_mod_id(self.c_ptr))
-  self.tag = ffi.string(ffi.C.ck_registry_object_get_lua_tag(self.c_ptr))
+  self.mod_id = ck.tools.current_mod_id()
 
-  if self.tag and utils.is_blank(self.tag) then self.tag = nil end
+  local tag = ffi.C.ck_registry_object_get_lua_tag(self.c_ptr)
+  self.tag = tag ~= nil and ffi.string(tag) or nil
 
   -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
   self.modified = ffi.C.ck_registry_object_is_modified(self.c_ptr)

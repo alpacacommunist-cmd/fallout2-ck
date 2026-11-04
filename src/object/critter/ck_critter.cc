@@ -73,7 +73,7 @@ namespace ck::critter {
         }
     }
 
-    void assign_script(fallout::Object* critter, int script_index, int lua_id) {
+    void assign_script(fallout::Object* critter, int script_index) {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
             ck::script::assign_script_index_to_object(script_index, critter);
@@ -102,8 +102,7 @@ namespace ck::critter {
         }
     }
 
-	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
-        int lua_id = -1;
+    fallout::Object* spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
         std::string lua_tag = spawn_params->tag;
 
         int map_id = common::current_map_id();
@@ -116,48 +115,48 @@ namespace ck::critter {
         if (state.tile != -1) tile = state.tile;
 
         fallout::Object* critter = create(pid, tile, spawn_params->elevation);
-        if (critter == nullptr) return -1;
+        if (critter == nullptr) return nullptr;
 
         if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);
 
-        LuaMeta meta = { mod_id, lua_tag, pid, critter->sid };
-        lua_id = registry::created::add(critter, std::move(meta));
+        int critter_id = registry::created::add(critter, lua_tag.data(), mod_id);
+        if (critter_id == -1) return nullptr;
 
-        ck::critter::assign_script(critter, spawn_params->script_index, lua_id);
+        ck::critter::assign_script(critter, spawn_params->script_index);
 
         if (spawn_params->team != -1) {
             critter->data.critter.combat.team = spawn_params->team;
             logger.debug("Assigned team ID: {} to critter {}", spawn_params->team, lua_tag);
         }
 
-        return lua_id;
+        return critter;
 	}
 
-	bool kill(int lua_id) {
-		const CkCreatedObject* registry_object = ck::registry::created::get(lua_id);
-		if (!registry_object || !registry_object->ptr) return false;
+	bool kill(fallout::Object* object) {
+		const auto* registry_object = ck::registry::get(object);
+		if (!registry_object || !registry_object->object) return false;
 
-        const Proto* critter_proto = ck::proto::registry::get(ck::ids::clean_pid(registry_object->ptr->pid));
+        const Proto* critter_proto = ck::proto::registry::get(ck::ids::clean_pid(object->pid));
 
         // let fallout2-ce handle the corpse
-		registry_object->ptr->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
+		object->flags &= ~fallout::ObjectFlags::OBJECT_NO_SAVE;
 
         if (critter_proto) {
             logger.debug("Killed critter {} identified as custom prototype", critter_proto->pid);
             // store pid for proto messages
-            registry_object->ptr->cid = critter_proto->packed_pid();
+            object->cid = critter_proto->packed_pid();
             // reset pid for savegames
-            registry_object->ptr->pid = ck::ids::make_packed_pid(critter_proto->source_pid, critter_proto->object_type);
+            object->pid = ck::ids::make_packed_pid(critter_proto->source_pid, critter_proto->object_type);
 
             logger.debug("OBJECT_NO_SAVE removed, PID set to: {}, CUSTOM pid saved to `cid`: {}",
-                         registry_object->ptr->pid, registry_object->ptr->cid);
+                         object->pid, object->cid);
         }
 
 		return true;
 	}
 }
 
-int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
+fallout::Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params) {
 	return ck::critter::spawn(pid, tile, spawn_params);
 }
 
@@ -220,8 +219,10 @@ bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
 	return true;
 }
 
-bool ck_critter_kill(int lua_id) {
-	return ck::critter::kill(lua_id);
+bool ck_critter_kill(fallout::Object* object) {
+    if (object == nullptr) return false;
+
+	return ck::critter::kill(object);
 }
 
 void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile) {

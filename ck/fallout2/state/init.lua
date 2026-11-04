@@ -97,7 +97,7 @@ function state.sync_save()
     -- objects
     -- `maps.id.mod_id.objects` e.g. maps.4.arroyo_expanded.objects
     for _, object in pairs(ck.registries.objects[mod_id]) do
-      if not object.lua_id or not object.mod_id or not object.tag or object.modified then
+      if not object.mod_id or not object.tag or object.modified then
         goto continue
       end
 

@@ -8,6 +8,9 @@
 
 #include "fallout2-ce/proto_types.h"
 
+#include "log.h"
+static constexpr logging::Context logger{"geometry/landscape.cc"};
+
 namespace f_types = ck::utils::types;
 namespace fallout {
     struct Object;
@@ -69,31 +72,34 @@ void ck_landscape_create_exit_grid_in_rect(int t1, int t2, int t3, int t4, int p
 	if (!rect.is_valid()) return;
 
 	rect.for_each_tile([pid, &data](int tile) {
-		const LuaMeta& meta  = { ck::mods::current_mod_id(), {}, {}, {} };
-		int lua_id = ck_object_register(pid, tile, meta);
+        fallout::Object* object = ck_object_create(pid, tile);
+        if (object == nullptr) return;
 
-		fallout::Object* obj = ck::registry::created::get_object(lua_id);
+        int object_id = ck::registry::created::add(object, nullptr, ck::mods::current_mod_id());
 
-		if (obj != nullptr) {
-			obj->data.misc.map       = fallout::Map(data.target_map);
-			obj->data.misc.tile      = data.target_tile;
-			obj->data.misc.elevation = fallout::MapElevation(data.target_elevation);
-			obj->data.misc.rotation  = static_cast<fallout::Rotation>(data.target_rotation);
-		}
+		if (object_id != -1) {
+			object->data.misc.map       = fallout::Map(data.target_map);
+			object->data.misc.tile      = data.target_tile;
+			object->data.misc.elevation = fallout::MapElevation(data.target_elevation);
+			object->data.misc.rotation  = static_cast<fallout::Rotation>(data.target_rotation);
+		} else {
+            logger.error("Couldn't created registry entry for created object: {}", object->pid);
+        }
 	});
 }
 
 void ck_landscape_create_exit_grid_at_tile(int tile, int pid, const CKExitGridData* data) {
     if (data == nullptr) return;
 
-    const LuaMeta& meta = { ck::mods::current_mod_id(), {}, {}, {} };
-    int lua_id = ck_object_register(pid, tile, meta);
+    fallout::Object* object = ck_object_create(pid, tile);
+    if (object == nullptr) return;
 
-    fallout::Object* obj = ck::registry::created::get_object(lua_id);
-    if (obj != nullptr) {
-        obj->data.misc.map       = fallout::Map(data->target_map);
-        obj->data.misc.tile      = data->target_tile;
-        obj->data.misc.elevation = fallout::MapElevation(data->target_elevation);
-        obj->data.misc.rotation  = static_cast<fallout::Rotation>(data->target_rotation);
+    int object_id = ck::registry::created::add(object, nullptr, ck::mods::current_mod_id());
+
+    if (object_id != -1) {
+        object->data.misc.map       = fallout::Map(data->target_map);
+        object->data.misc.tile      = data->target_tile;
+        object->data.misc.elevation = fallout::MapElevation(data->target_elevation);
+        object->data.misc.rotation  = static_cast<fallout::Rotation>(data->target_rotation);
     }
 }

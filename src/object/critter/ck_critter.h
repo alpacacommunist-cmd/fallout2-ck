@@ -17,15 +17,12 @@ struct CritterLuaSpawnParams {
 };
 
 namespace ck::critter {
-    bool has_custom_prototype(int pid);
-    void clear_spawn_queues();
-
-	int spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
-    void assign_script(fallout::Object* critter, int script_index, int lua_id);
+    fallout::Object* spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
+    void assign_script(fallout::Object* critter, int script_index);
     bool kill(int lua_id);
 }
 
-CK_API int ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
+CK_API fallout::Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_anim_take_out_weapon(fallout::Object* critter, int delay);
 CK_API int ck_anim_move_to(void* ptr, int tile, int elevation);
@@ -34,8 +31,9 @@ CK_API int ck_anim_clear(void* ptr);
 CK_API int ck_anim_end();
 CK_API bool ck_critter_is_busy(fallout::Object* critter);
 CK_API bool ck_critter_process_turn(fallout::Object* critter, int lua_id);
-CK_API bool ck_critter_bind(int lua_id);
-CK_API bool ck_critter_kill(int lua_id);
+
+CK_API bool ck_critter_bind(fallout::Object* object);
+CK_API bool ck_critter_kill(fallout::Object* object);
 CK_API void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
 #endif

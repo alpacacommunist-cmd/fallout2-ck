@@ -94,31 +94,30 @@ void ck_registry_clear() {
 }
 
 const char* ck_registry_object_get_mod_id(fallout::Object* object) {
-    const ck::registry::RegistryEntry *existing_entry = ck::registry::get(object);
+    const auto* existing_entry = ck::registry::get(object);
     if (existing_entry != nullptr) {
         return existing_entry->mod_id;
-    } else {
-        return nullptr;
     }
+
+    return nullptr;
 }
 
-// MODIFIED critters don't have a tag. Only CREATED
 const char* ck_registry_object_get_lua_tag(fallout::Object* object) {
-    const ck::registry::RegistryEntry *existing_entry = ck::registry::get(object);
-    if (existing_entry != nullptr) {
+    const auto* existing_entry = ck::registry::get(object);
+    if (existing_entry != nullptr && existing_entry->is_created()) {
         return existing_entry->tag.data();
-    } else {
-        return nullptr;
     }
+
+    return nullptr;
 }
 
 // Bind lua script to [CREATED] object
-bool ck_registry_bind_to_object(int lua_id) {
-    fallout::Object* object = ck::registry::created::get_object(lua_id);
-    if (object == nullptr) return false;
+bool ck_registry_bind_to_object(fallout::Object* object) {
+    const auto* existing_entry = ck::registry::get(object);
+    if (existing_entry == nullptr || !existing_entry->is_created()) return false;
 
     if (ck::ids::is_critter(object)) {
-        ck::critter::assign_script(object, -1, lua_id);
+        ck::critter::assign_script(object, -1);
     } else if (ck::ids::is_scenery(object)) {
     }
 
