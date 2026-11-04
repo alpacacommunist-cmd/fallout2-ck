@@ -94,8 +94,6 @@ ffi.cdef[[
       int       rotation;
 
       const char* name;
-
-      int         lua_id;
       const char* mod_id;
   } CkObjectFFI;
 

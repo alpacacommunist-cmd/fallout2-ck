@@ -94,18 +94,22 @@ void ck_registry_clear() {
 }
 
 const char* ck_registry_object_get_mod_id(fallout::Object* object) {
-    if (object == nullptr) return nullptr;
-
-	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
-    return (meta != nullptr) ? meta->mod_id : nullptr;
+    const ck::registry::RegistryEntry *existing_entry = ck::registry::get(object);
+    if (existing_entry != nullptr) {
+        return existing_entry->mod_id;
+    } else {
+        return nullptr;
+    }
 }
 
 // MODIFIED critters don't have a tag. Only CREATED
 const char* ck_registry_object_get_lua_tag(fallout::Object* object) {
-    if (object == nullptr) return nullptr;
-
-	const LuaMeta* meta = ck::registry::get_meta(ck::registry::find_by_ptr(object));
-    return (meta != nullptr) ? meta->tag.data() : nullptr;
+    const ck::registry::RegistryEntry *existing_entry = ck::registry::get(object);
+    if (existing_entry != nullptr) {
+        return existing_entry->tag.data();
+    } else {
+        return nullptr;
+    }
 }
 
 // Bind lua script to [CREATED] object

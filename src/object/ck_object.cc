@@ -29,17 +29,16 @@ namespace ck::object {
 		destination.rotation  = source->rotation;
 
 		destination.name      = fallout::objectGetName(source);
-		destination.lua_id    = ck::registry::find_by_ptr(source);
         destination.mod_id    = ck::mods::system_mod_id();
 
         const char* current_mod_id = ck::mods::current_mod_id();
         if (current_mod_id != nullptr) destination.mod_id = current_mod_id;
 
-        if (destination.lua_id != -1) {
-            const LuaMeta* object_meta = registry::get_meta(destination.lua_id);
-
-            if (object_meta) destination.mod_id = object_meta->mod_id;
-        }
+        // if (destination.lua_id != -1) {
+        //     const LuaMeta* object_meta = registry::get_meta(destination.lua_id);
+        //
+        //     if (object_meta) destination.mod_id = object_meta->mod_id;
+        // }
 	}
 
     // hides objects

@@ -37,7 +37,6 @@ struct CkObjectFFI {
 
 	const char* name;
 
-	int         lua_id    = -1;
 	const char* mod_id = "__ck_system__";
 };
 

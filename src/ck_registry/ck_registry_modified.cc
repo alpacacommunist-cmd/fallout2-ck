@@ -9,54 +9,45 @@ static constexpr logging::Context logger{"ck_registry_modified.cc"};
 
 namespace ck::registry::modified {
     static void free_object(fallout::Object* object) {
+        if (object == nullptr) return;
         ck::ids::free_script_index(object->scriptIndex);
-        g_ptr_to_lua_id.erase(object);
     }
 
-    int add(fallout::Object* object, LuaMeta meta) {
+    int add(fallout::Object *object, const char *mod_id) {
         if (object == nullptr) return -1;
 
-        int lua_id = ck::registry::find_by_ptr(object);
-        if ((lua_id) != -1) return lua_id;
-
-        lua_id = next_lua_id();
-
-		// fill meta
-        meta.source_sid = object->sid;
-        meta.source_pid = object->pid;
-        if (!meta.mod_id) {
-            const char* current_mod_id = ck::mods::current_mod_id();
-            const char* mod_id = current_mod_id != nullptr ? current_mod_id : ck::mods::system_mod_id();
-
-            meta.mod_id = mod_id;
+        const RegistryEntry *existing_entry = ck::registry::get(object);
+        if (existing_entry != nullptr) {
+            return object->id;
         }
 
-        // write to registry
-        g_modified_objects[lua_id] = CkModifiedObject{ object, lua_id, std::move(meta) };
-        g_ptr_to_lua_id[object] = lua_id;
+        if (mod_id == nullptr) {
+            const char *current_mod_id = ck::mods::current_mod_id();
+            mod_id = (current_mod_id != nullptr) ? current_mod_id : ck::mods::system_mod_id();
+        }
+
+        RegistryEntry entry { .object = object, .mod_id = mod_id, .status = Status::Modified };
+        g_object_registry[object] = std::move(entry);
 
         if (object->scriptIndex != -1) {
-            ck::ids::add_custom_script_index(object->scriptIndex, ck::ids::object_type(object->pid), meta.mod_id);
+            ck::ids::add_custom_script_index(object->scriptIndex, ck::ids::object_type(object->pid), mod_id);
             logger.info.banner("tracking script_index: {}", object->scriptIndex);
         }
 
-        logger.debug("Registered modified object. lua_id: {}, script_index: {}", lua_id, object->scriptIndex);
+        logger.debug("Registered modified object. object_id: {}, script_index: {}", object->id, object->scriptIndex);
 
-        return lua_id;
+        return object->id;
     }
 
-	bool restore(fallout::Object* object) {
+    bool restore(fallout::Object *object) {
         if (object == nullptr) return false;
 
-        int lua_id = ck::registry::find_by_ptr(object);
-        if (lua_id == -1) return false;
+        auto it = g_object_registry.find(object);
+        if (it != g_object_registry.end() && it->second.status == Status::Modified) {
+            free_object(object);
 
-        auto it = g_modified_objects.find(lua_id);
-        if (it != g_modified_objects.end()) {
-            free_object(it->second.ptr);
-
-            logger.debug("removing entry (lua_id): {}", lua_id);
-            g_modified_objects.erase(it);
+            logger.debug("removing entry (object_id): {}", object->id);
+            g_object_registry.erase(it);
 
             return true;
         }
@@ -65,46 +56,50 @@ namespace ck::registry::modified {
     }
 
     void clear_for_mod(const char *mod_id) {
-        std::erase_if(g_modified_objects, [mod_id](const auto &item) {
-            if (item.second.meta.mod_id == mod_id) {
-                free_object(item.second.ptr);
-                logger.debug("removing entry (lua_id: {}) (mod_id: {})", item.second.lua_id, mod_id);
+        if (mod_id == nullptr) return;
 
-                return true;
-            }
+        for (auto it = g_object_registry.begin(); it != g_object_registry.end();) {
+            const auto &entry = it->second;
 
-            return false;
-        });
-    }
+            if (entry.status == Status::Modified && entry.mod_id == mod_id) {
+                free_object(entry.object);
+                logger.debug("removing entry (object_id: {}) (mod_id: {})", entry.object ? entry.object->id : -1, mod_id);
 
-    void free_script_indexes() {
-        int restored_count = 0;
-        for (const auto& [id, entry] : g_modified_objects) {
-            if (entry.ptr != nullptr) {
-                ck::ids::free_script_index(entry.ptr->scriptIndex);
+                it = g_object_registry.erase(it);
+            } else {
+                ++it;
             }
         }
     }
 
-    const CkModifiedObject* get(int lua_id) {
-        auto it = g_modified_objects.find(lua_id);
-        return (it != g_modified_objects.end()) ? &it->second : nullptr;
+    void free_script_indexes() {
+        for (const auto &[object, entry] : g_object_registry) {
+            if (entry.status == Status::Modified && entry.object != nullptr) {
+                ck::ids::free_script_index(entry.object->scriptIndex);
+            }
+        }
     }
 }
 
 int ck_registry_modify_object(void* ptr) {
-	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
+    if (!ptr) return -1;
+    auto* object = static_cast<fallout::Object*>(ptr);
 
-	return ck::registry::modified::add(object);
+    return ck::registry::modified::add(object, nullptr);
 }
 
-bool ck_registry_object_is_modified(int lua_id) {
-    return ck::registry::modified::get(lua_id) != nullptr;
+bool ck_registry_object_is_modified(int object_id) {
+    for (const auto& [object, entry] : ck::registry::g_object_registry) {
+        if (entry.status == ck::registry::Status::Modified && object->id == object_id) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool ck_registry_restore_modified_object(void* ptr) {
-	if (!ptr) return false; auto* object = static_cast<fallout::Object*>(ptr);
+    if (!ptr) return false;
+    auto* object = static_cast<fallout::Object*>(ptr);
 
-	return ck::registry::modified::restore(object);
+    return ck::registry::modified::restore(object);
 }
-

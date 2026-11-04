@@ -17,8 +17,8 @@ Critter.__index = Critter -- instances look for methods here
 
 setmetatable(Critter, { __index = Object })
 
-function Critter.new(lua_id, config)
-  local self = Object.new(lua_id)--, config)
+function Critter.new(ptr, config)
+  local self = Object.new(ptr)--, config)
   setmetatable(self, Critter)
 
   self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
@@ -140,7 +140,7 @@ end
 
 local proc_handlers = {
   combat = function(self, fixed_param)
-    log.info(string.format("combat npc: %d, fixed_param: %d", self.lua_id, fixed_param))
+    log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
     return false
     -- if fixed_param == 5 then
@@ -156,9 +156,9 @@ local proc_handlers = {
   end,
 
   talk = function(self, fixed_param)
-    if not dialogs.is_registered(self.lua_id) then return end
+    if not dialogs.is_registered(self.id) then return end
 
-    dialogs.start(self.lua_id)
+    dialogs.start(self.id)
     self:clear_animations():emit('dialog_finished')
 
     return true

@@ -7,7 +7,6 @@
   --     int       elevation;
   --     int       flags;
   --     int       rotation;
-  --     int       lua_id;
   --     const char* mod_id;
 	--     const char* name;
   -- } CkObjectFFI;
@@ -19,6 +18,9 @@ local objects = require('ck.fallout2.objects')
 local items   = require('ck.fallout2.objects.items')
 
 local encoding = require('ck.fallout2.encoding')
+
+local ck  = require('ck')
+local log = ck.log.new('object_ffi.lua')
 
 object_ffi = {}
 
@@ -65,17 +67,17 @@ function object_ffi:bind()
   local mod_id = self:get_mod_id()
   if mod_id == nil then return end
 
-  if self.lua_id ~= -1 then return objects.registry[mod_id][self.lua_id] end
-  local object = objects.registry[mod_id][self.lua_id]
+  local existing_entry = objects.registry[mod_id][self.id]
+  if (existing_entry) then return existing_entry end
 
-  if not object then
-    self.lua_id = ffi.C.ck_registry_modify_object(self.c_ptr)
+  local status = ffi.C.ck_registry_modify_object(self.c_ptr)
+  if (status == -1) then return nil end
 
-    if self:is_critter() then
-      object = Critter.new(self.lua_id)
-    else
-      object = Object.new(self.lua_id)
-    end
+  local object
+  if self:is_critter() then
+    object = Critter.new(self.c_ptr)
+  else
+    object = Object.new(self.c_ptr)
   end
 
   return object

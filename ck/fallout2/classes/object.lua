@@ -14,14 +14,13 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(lua_id)-- tag, mod_id, config)
+function Object.new(ptr)-- tag, mod_id, config)
   local self = setmetatable({}, Object)
+  self.c_ptr = ptr
 
-  self.lua_id = lua_id
-
-  self.c_ptr = ffi.C.ck_object_get_ptr(self.lua_id)
   self.fallout_Object = ffi.cast("struct fallout_Object*", self.c_ptr)
 
+  self.id = self.fallout_Object.id
   self.sid = self.fallout_Object.sid -- ffi.C.ck_object_get_sid(self.c_ptr)
   self.pid = self.fallout_Object.pid -- ffi.C.ck_object_get_pid(self.c_ptr)
 
@@ -31,8 +30,8 @@ function Object.new(lua_id)-- tag, mod_id, config)
   if self.tag and utils.is_blank(self.tag) then self.tag = nil end
 
   -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
-  self.modified    = ffi.C.ck_registry_object_is_modified(self.lua_id)
-  self.created     = ffi.C.ck_registry_object_is_created(self.lua_id)
+  self.modified    = ffi.C.ck_registry_object_is_modified(self.id)
+  self.created     = ffi.C.ck_registry_object_is_created(self.id)
 
   self.elevation = self.fallout_Object.elevation
 
@@ -45,7 +44,7 @@ function Object.new(lua_id)-- tag, mod_id, config)
     end
   end
 
-  objects.registry[self.mod_id][lua_id] = self
+  objects.registry[self.mod_id][self.id] = self
 
   return self
 end
@@ -57,7 +56,7 @@ function Object:bind()
     return false
   end
 
-  ffi.C.ck_registry_bind_to_object(self.lua_id)
+  ffi.C.ck_registry_bind_to_object(self.id)
 end
 
 function Object:on(event_name, callback)
@@ -94,20 +93,20 @@ local proc_handlers = {
   end,
 
   damage = function(self, fixed_param)
-    log.info('damaged object: ' .. tostring(self.lua_id))
+    log.info('damaged object: ' .. tostring(self.id))
     return false
   end,
 
   destroy = function(self, fixed_param)
     if ffi.C.ck_system_reloading_mods() then return false end
 
-    log.info('Object destroyed: ' .. tostring(self.lua_id))
+    log.info('Object destroyed: ' .. tostring(self.id))
 
     if self:type() == 'critter' then
-      log.info('Critter destroyed: ' .. tostring(self.lua_id))
+      log.info('Critter destroyed: ' .. tostring(self.id))
 
-      ffi.C.ck_critter_kill(self.lua_id)
-      objects.registry[self.lua_id] = nil
+      ffi.C.ck_critter_kill(self.id)
+      objects.registry[self.id] = nil
     end
   end
 }
@@ -139,10 +138,6 @@ end
 
 function Object:float_message(text, type)
   return ffi.C.ck_object_float_msg(self.c_ptr, text, type)
-end
-
-function Object:id()
-  return self.fallout_Object.id --ffi.C.ck_object_get_id(self.c_ptr)
 end
 
 function Object:tile()

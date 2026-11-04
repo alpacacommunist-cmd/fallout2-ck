@@ -95,15 +95,13 @@ events.on('map_enter', function(map_id)
 
   log.warning(klint_obj.pid)
   log.warning(klint_obj:is_critter())
-  log.warning("lua id: " .. tostring(klint_obj.lua_id))
 
   local klint = klint_obj:bind()
-  log.info(klint.modified)
-  log.info("lua id: " .. tostring(klint_obj.lua_id))
-  log.info(klint:get_name())
+  log.info("modified: %s", klint.modified)
+  log.info("name: %s", klint:get_name())
 
   klint:on('talk', function(self)
-    self:float_message('Lua intercepted my script, Chosen One. My ID is: ' .. tostring(self:id()), 1)
+    self:float_message(string.format('Lua intercepted my script, Chosen One. My ID is: %d', self.id), 1)
     return true
   end)
   klint:on('push', function(self)
@@ -111,7 +109,7 @@ events.on('map_enter', function(map_id)
     return true
   end)
 
-  -- klint:restore()
+  klint:restore()
 
   local asset = assets.resolve('scenery/tree10')
 

@@ -84,8 +84,8 @@ function events.critter_killed(victim, killer)
   end
 end
 
-function events.on_proc(lua_id, proc_id, fixed_param, mod_id)
-  local object = ck.registries.objects[mod_id][lua_id]
+function events.on_proc(object_id, proc_id, fixed_param, mod_id)
+  local object = ck.registries.objects[mod_id][object_id]
   if not object then return false end
 
   return object:_handle_proc(proc_id, fixed_param)

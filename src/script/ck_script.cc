@@ -79,6 +79,7 @@ namespace ck::script {
     int param(fallout::Script* script) { return script->fixedParam; }
     fallout::Object* owner(fallout::Script* script) { return script->owner; }
     fallout::Object* source(fallout::Script* script) { return script->source; }
+    int owner_id(fallout::Script* script) { return script->owner ? script->owner->id : -1; }
 
     void overrides(fallout::Script* script, int value) {
         script->scriptOverrides = value;

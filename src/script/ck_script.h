@@ -91,6 +91,7 @@ namespace ck::script {
     int param(fallout::Script* script);
     fallout::Object* owner(fallout::Script* script);
     fallout::Object* source(fallout::Script* script);
+    int owner_id(fallout::Script* script);
     void overrides(fallout::Script* script, int value);
 
     void kick_off_map_updates_for_sid(int sid);

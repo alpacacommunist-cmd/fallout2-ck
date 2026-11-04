@@ -141,10 +141,10 @@ namespace ck::hooks::gameplay {
 
         bool handled = false;
 
-        int lua_id = ck::registry::find_by_ptr(ck::script::owner(script));
-        if (lua_id != -1) {
-            const LuaMeta* meta = ck::registry::get_meta(lua_id);
-            handled = ck::dispatcher::on_proc(lua_id, proc, ck::script::param(script), meta->mod_id);
+        const auto* registry_entry = ck::registry::get(ck::script::owner(script));
+        if (registry_entry) {
+            handled = ck::dispatcher::on_proc(ck::script::owner_id(script), proc,
+                    ck::script::param(script), registry_entry->mod_id);
         } else {
             int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
             if (pid == -1) return false;

@@ -94,8 +94,9 @@ function map.find_at_tile(tile, max_count)
   for index = 0, count - 1 do
     local object = buffer[index]
 
-    if object.lua_id ~= -1 and objects.registry[object.lua_id] then
-      table.insert(results, objects.registry[object.lua_id])
+    local existing_entry = objects.registry[object.id]
+    if existing_entry then
+      table.insert(results, existing_entry)
     else
       table.insert(results, object)
     end
@@ -116,8 +117,9 @@ function map.find_by_pid(pid, max_count)
   for index = 0, count - 1 do
     local object = buffer[index]
 
-    if object.lua_id ~= -1 and objects.registry[object.lua_id] then
-      table.insert(results, objects.registry[object.lua_id])
+    local existing_entry = objects.registry[object.id]
+    if existing_entry then
+      table.insert(results, existing_entry)
     else
       table.insert(results, object)
     end
