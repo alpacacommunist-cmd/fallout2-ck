@@ -22,6 +22,18 @@ namespace ck::registry::deleted {
         g_object_registry[object] = std::move(entry);
     }
 
+    void remove(fallout::Object* object) {
+        if (object == nullptr) return;
+
+        const RegistryEntry* existing_entry = ck::registry::get(object);
+        if (existing_entry != nullptr && existing_entry->status == Status::Deleted) {
+            object->flags &= ~fallout::OBJECT_HIDDEN;
+            g_object_registry.erase(object);
+
+            logger.debug("Restored object visibility, erased from registry ({})", existing_entry->mod_id);
+        }
+    }
+
     void clear_for_mod(const char *mod_id) {
         int restored_count = 0;
 

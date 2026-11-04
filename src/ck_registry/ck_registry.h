@@ -2,7 +2,6 @@
 #define CK_REGISTRY_H
 
 #include <unordered_map>
-#include <vector>
 #include "ck_api.h"
 
 namespace fallout {
@@ -32,11 +31,6 @@ struct CkModifiedObject {
     LuaMeta meta;
 };
 
-struct CkDeletedObject {
-    fallout::Object* ptr = nullptr;
-    const char* mod_id;
-};
-
 namespace ck::registry {
     enum class Status {
         Created,
@@ -58,7 +52,6 @@ namespace ck::registry {
 
     extern std::unordered_map<int, CkCreatedObject>  g_created_objects;
 	extern std::unordered_map<int, CkModifiedObject> g_modified_objects;
-    extern std::vector<CkDeletedObject>              g_deleted_objects;
 
     extern std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
 
@@ -88,7 +81,9 @@ namespace ck::registry {
     }
 
     namespace deleted {
-        void add(fallout::Object* obj);
+        void add(fallout::Object* object);
+        void remove(fallout::Object* object);
+
 		void clear_for_mod(const char* mod_id);
 
         void unhide();

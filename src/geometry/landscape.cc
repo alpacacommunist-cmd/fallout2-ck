@@ -25,33 +25,17 @@ namespace fallout {
 
 void ck_landscape_toggle_visibility_in_rect(const HexRect& rect, bool visible) {
     rect.for_each_tile([visible](int tile) {
-        fallout::Object* obj = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
+        fallout::Object* object = fallout::objectFindFirstAtLocation(f_types::map_elevation(fallout::gElevation), tile);
 
-        while (obj != nullptr) {
-            fallout::Object* nextObj = fallout::objectFindNextAtLocation();
+        while (object != nullptr) {
+            fallout::Object* next_object = fallout::objectFindNextAtLocation();
 
-            if (fallout::ProtoId(obj->pid).objectType() != fallout::OBJ_TYPE_CRITTER && obj != fallout::gEgg) {
-                if (visible) {
-                    obj->flags &= ~fallout::OBJECT_HIDDEN;
-
-                    std::erase_if(ck::registry::g_deleted_objects, [obj](const auto& entry) {
-                        return entry.ptr == obj;
-                    });
-                }
-                else {
-                    bool already_tracked = std::any_of(
-                        ck::registry::g_deleted_objects.begin(),
-                        ck::registry::g_deleted_objects.end(),
-                        [obj](const auto& entry) { return entry.ptr == obj; }
-                    );
-
-                    if (!already_tracked) {
-                        ck::registry::deleted::add(obj);
-                    }
-                }
+            if (fallout::ProtoId(object->pid).objectType() != fallout::OBJ_TYPE_CRITTER && object != fallout::gEgg) {
+                if (visible) ck::registry::deleted::remove(object);
+                else ck::registry::deleted::add(object);
             }
 
-            obj = nextObj;
+            object = next_object;
         }
 	});
 }

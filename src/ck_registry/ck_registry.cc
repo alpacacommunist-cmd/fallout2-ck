@@ -10,7 +10,6 @@ namespace ck::registry {
 
     std::unordered_map<int, CkCreatedObject>  g_created_objects;
 	std::unordered_map<int, CkModifiedObject> g_modified_objects;
-    std::vector<CkDeletedObject>              g_deleted_objects;
 
     // Holds both CREATED and MODIFIED ptrs
     std::unordered_map<fallout::Object*, int> g_ptr_to_lua_id;
@@ -80,7 +79,7 @@ namespace ck::registry {
 
 	void clear() {
         g_created_objects.clear();
-        g_deleted_objects.clear();
+        g_object_registry.clear();
 		g_modified_objects.clear();
 
         g_ptr_to_lua_id.clear();
