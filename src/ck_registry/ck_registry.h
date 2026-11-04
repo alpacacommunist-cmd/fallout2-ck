@@ -38,6 +38,24 @@ struct CkDeletedObject {
 };
 
 namespace ck::registry {
+    enum class Status {
+        Created,
+        Modified,
+        Deleted
+    };
+
+    struct RegistryEntry {
+        fallout::Object* object = nullptr;
+        const char* mod_id = nullptr;
+
+        // "created" only
+        std::string tag;
+
+        Status status;
+    };
+
+    extern std::unordered_map<fallout::Object*, RegistryEntry> g_object_registry;
+
     extern std::unordered_map<int, CkCreatedObject>  g_created_objects;
 	extern std::unordered_map<int, CkModifiedObject> g_modified_objects;
     extern std::vector<CkDeletedObject>              g_deleted_objects;
@@ -46,6 +64,8 @@ namespace ck::registry {
 
 	int next_lua_id();
 	void reset_lua_id_counter();
+
+	const RegistryEntry* get(fallout::Object* object);
 
 	int find_by_ptr(fallout::Object* ptr);
 	int find_by_sid(int sid);

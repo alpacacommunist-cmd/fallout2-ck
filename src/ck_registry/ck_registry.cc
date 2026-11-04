@@ -5,13 +5,9 @@
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry.cc"};
 
-namespace ck {
-    namespace script {
-        void remove_object_script(fallout::Object* object);
-    }
-}
-
 namespace ck::registry {
+    std::unordered_map<fallout::Object*, RegistryEntry> g_object_registry;
+
     std::unordered_map<int, CkCreatedObject>  g_created_objects;
 	std::unordered_map<int, CkModifiedObject> g_modified_objects;
     std::vector<CkDeletedObject>              g_deleted_objects;
@@ -23,6 +19,15 @@ namespace ck::registry {
 
 	int  next_lua_id() { return g_next_id++; }
 	void reset_lua_id_counter() { g_next_id = 1; }
+
+    const RegistryEntry *get(fallout::Object *object) {
+        if (object == nullptr) return nullptr;
+
+        auto reg_it = g_object_registry.find(object);
+        if (reg_it == g_object_registry.end()) return nullptr;
+
+        return &reg_it->second;
+    }
 
 	int find_by_ptr(fallout::Object* ptr) {
 		if (ptr == nullptr) return -1;
