@@ -33,6 +33,10 @@ namespace ck::ids {
         return ck_proto::type(pid);
     }
 
+    int object_type(fallout::Object* object) {
+        return object_type(object->pid);
+    }
+
     bool is_item(fallout::Object *object) {
         return ck_proto::type(object->pid) == static_cast<int>(ObjectType::ITEM);
     }

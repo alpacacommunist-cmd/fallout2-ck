@@ -44,6 +44,8 @@ namespace ck::ids {
     }
 
     int object_type(int pid);
+    int object_type(fallout::Object* object);
+
     bool is_item(fallout::Object* object);
     bool is_critter(fallout::Object* object);
     bool is_scenery(fallout::Object* object);

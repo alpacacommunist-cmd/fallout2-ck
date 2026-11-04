@@ -1,16 +1,17 @@
 #include "ck_ids.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_mods/ck_mods.h"
-
-#include "fallout2-ce/obj_types.h"
+#include "utils/fallout/types/object.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_modified.cc"};
 
+namespace ck_object = ck::utils::fallout::types::object;
+
 namespace ck::registry::modified {
     static void free_object(fallout::Object* object) {
         if (object == nullptr) return;
-        ck::ids::free_script_index(object->scriptIndex);
+        ck::ids::free_script_index(ck_object::script_index(object));
     }
 
     int add(fallout::Object *object, const char *mod_id) {
@@ -18,7 +19,7 @@ namespace ck::registry::modified {
 
         const RegistryEntry *existing_entry = ck::registry::get(object);
         if (existing_entry != nullptr) {
-            return object->id;
+            return ck_object::id(object);
         }
 
         if (mod_id == nullptr) {
@@ -29,14 +30,15 @@ namespace ck::registry::modified {
         RegistryEntry entry { .object = object, .mod_id = mod_id, .status = Status::Modified };
         g_object_registry[object] = std::move(entry);
 
-        if (object->scriptIndex != -1) {
-            ck::ids::add_custom_script_index(object->scriptIndex, ck::ids::object_type(object->pid), mod_id);
-            logger.info.banner("tracking script_index: {}", object->scriptIndex);
+        if (ck_object::script_index(object) != -1) {
+            ck::ids::add_custom_script_index(ck_object::script_index(object), ck::ids::object_type(object), mod_id);
+            logger.info.banner("tracking script_index: {}", ck_object::script_index(object));
         }
 
-        logger.debug("Registered modified object. object_id: {}, script_index: {}", object->id, object->scriptIndex);
+        logger.debug("Registered modified object. object_id: {}, script_index: {}",
+                ck_object::id(object), ck_object::script_index(object));
 
-        return object->id;
+        return ck_object::id(object);
     }
 
     bool restore(fallout::Object *object) {
@@ -46,7 +48,7 @@ namespace ck::registry::modified {
         if (it != g_object_registry.end() && it->second.status == Status::Modified) {
             free_object(object);
 
-            logger.debug("removing entry (object_id): {}", object->id);
+            logger.debug("removing entry (object_id): {}", ck_object::id(object));
             g_object_registry.erase(it);
 
             return true;
@@ -63,7 +65,8 @@ namespace ck::registry::modified {
 
             if (entry.status == Status::Modified && entry.mod_id == mod_id) {
                 free_object(entry.object);
-                logger.debug("removing entry (object_id: {}) (mod_id: {})", entry.object ? entry.object->id : -1, mod_id);
+                logger.debug("removing entry (object_id: {}) (mod_id: {})",
+                        entry.object ? ck_object::id(entry.object) : -1, mod_id);
 
                 it = g_object_registry.erase(it);
             } else {
@@ -75,7 +78,7 @@ namespace ck::registry::modified {
     void free_script_indexes() {
         for (const auto &[object, entry] : g_object_registry) {
             if (entry.status == Status::Modified && entry.object != nullptr) {
-                ck::ids::free_script_index(entry.object->scriptIndex);
+                ck::ids::free_script_index(ck_object::script_index(entry.object));
             }
         }
     }

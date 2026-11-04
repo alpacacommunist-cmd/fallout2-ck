@@ -1,9 +1,11 @@
 #include "ck_registry/ck_registry.h"
-#include "fallout2-ce/obj_types.h"
 #include "ck_mods/ck_mods.h"
+#include "utils/fallout/types/object.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_created.cc"};
+
+namespace ck_object = ck::utils::fallout::types::object;
 
 namespace fallout {
     // scripts.cc
@@ -21,7 +23,7 @@ namespace ck::registry::created {
 
         const RegistryEntry *existing_entry = ck::registry::get(object);
         if (existing_entry != nullptr) {
-            return object->id;
+            return ck_object::id(object);
         }
 
         if (mod_id == nullptr) {
@@ -34,7 +36,7 @@ namespace ck::registry::created {
 
         g_object_registry[object] = std::move(entry);
 
-        return object->id;
+        return ck_object::id(object);
     }
 
     void clear_for_mod(const char *mod_id) {
@@ -44,7 +46,7 @@ namespace ck::registry::created {
         for (const auto &[object, entry] : g_object_registry) {
             if (entry.is_created() && entry.mod_id == mod_id && object != nullptr) {
                 logger.debug("destroying object [ID: {}, Tag: '{}']",
-                        entry.object->id, entry.tag.empty() ? "untagged" : entry.tag);
+                        ck_object::id(entry.object), entry.tag.empty() ? "untagged" : entry.tag);
 
                 to_destroy.push_back(object);
             }
@@ -53,7 +55,7 @@ namespace ck::registry::created {
         fallout::animationStop();
         for (fallout::Object *object : to_destroy) {
             // Removes script + active engine timers
-            fallout::scriptRemove(object->sid);
+            fallout::scriptRemove(ck_object::sid(object));
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
             fallout::objectDestroy(object, nullptr);
         }

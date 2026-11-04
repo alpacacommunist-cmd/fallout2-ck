@@ -1,10 +1,11 @@
 #include "ck_registry.h"
 #include "ck_mods/ck_mods.h"
-
-#include "fallout2-ce/obj_types.h"
+#include "utils/fallout/types/object.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_deleted.cc"};
+
+namespace ck_object = ck::utils::fallout::types::object;
 
 namespace ck::registry::deleted {
     void add(fallout::Object* object) {
@@ -16,7 +17,7 @@ namespace ck::registry::deleted {
 		const char* mod_id = ck::mods::current_mod_id();
 		if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
 
-		object->flags |= fallout::OBJECT_HIDDEN;
+        ck_object::set_hidden(object);
         RegistryEntry entry { .object = object, .mod_id = mod_id, .status = Status::Deleted };
 
         g_object_registry[object] = std::move(entry);
@@ -27,7 +28,7 @@ namespace ck::registry::deleted {
 
         const RegistryEntry* existing_entry = ck::registry::get(object);
         if (existing_entry != nullptr && existing_entry->status == Status::Deleted) {
-            object->flags &= ~fallout::OBJECT_HIDDEN;
+            ck_object::unset_hidden(object);
             g_object_registry.erase(object);
 
             logger.debug("Restored object visibility, erased from registry ({})", existing_entry->mod_id);
@@ -42,7 +43,7 @@ namespace ck::registry::deleted {
 
             if (entry.is_deleted() && entry.mod_id == mod_id) {
                 if (entry.object != nullptr) {
-                    entry.object->flags &= ~fallout::OBJECT_HIDDEN;
+                    ck_object::unset_hidden(entry.object);
                     restored_count++;
                 }
 
@@ -62,7 +63,7 @@ namespace ck::registry::deleted {
 
         for (const auto &[object, entry] : g_object_registry) {
             if (entry.is_deleted() && entry.object != nullptr) {
-                entry.object->flags &= ~fallout::OBJECT_HIDDEN;
+                ck_object::unset_hidden(entry.object);
                 logger.debug("restored hidden object for mod: {}", entry.mod_id);
                 restored_count++;
             }
@@ -76,7 +77,7 @@ namespace ck::registry::deleted {
 
         for (const auto &[object, entry] : g_object_registry) {
             if (entry.is_deleted() && entry.object != nullptr) {
-                entry.object->flags |= fallout::OBJECT_HIDDEN;
+                ck_object::set_hidden(entry.object);
                 hidden_count++;
             }
         }
