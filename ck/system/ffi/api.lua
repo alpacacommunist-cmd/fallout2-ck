@@ -13,7 +13,7 @@ local ffi = require('ffi')
 -- );
 
 -- fallout2-ce types
-local header = io.open("../src/ffi/types.h", "r"):read("*a")
+local header = io.open("../ck/system/ffi/types/object.h", "r"):read("*a")
 ffi.cdef(header)
 
 ffi.cdef[[
@@ -332,6 +332,9 @@ ffi.cdef[[
   void ck_knowledge_clear_cache();
   void ck_knowledge_push_cache(const CkKnowledgeFFI* data);
 ]]
+
+-- fallout2-ce meta
+local object_meta = require('ck.system.ffi.meta.object')
 
 ffi.metatype("CritterProtoFFI", {
   __tostring = function(p)

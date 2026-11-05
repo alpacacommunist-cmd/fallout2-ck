@@ -17,11 +17,11 @@ Critter.__index = Critter -- instances look for methods here
 
 setmetatable(Critter, { __index = Object })
 
-function Critter.new(ptr, config)
-  local self = Object.new(ptr)
+function Critter.new(fallout_Object, config)
+  local self = Object.new(fallout_Object)
   setmetatable(self, Critter)
 
-  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.c_ptr)
+  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.raw)
   if self.has_custom_prototype then
     self.proto = ck.registries.prototypes[self.mod_id].critters[self.pid]
   end
@@ -40,14 +40,14 @@ function Critter.new(ptr, config)
 
   -- stats/skills (critterGetStat, critterGetSkill proxies)
   self.stats = stats.create_proxy(function(stat_id)
-    local base  = ffi.C.ck_critter_get_base_stat(self.c_ptr, stat_id)
-    local bonus = ffi.C.ck_critter_get_bonus_stat(self.c_ptr, stat_id)
+    local base  = ffi.C.ck_critter_get_base_stat(self.raw, stat_id)
+    local bonus = ffi.C.ck_critter_get_bonus_stat(self.raw, stat_id)
 
     return base + bonus
   end)
 
   self.skills = skills.create_proxy(function(skill_id)
-    return ffi.C.ck_critter_get_skill(self.c_ptr, skill_id)
+    return ffi.C.ck_critter_get_skill(self.raw, skill_id)
   end)
 
   return self
@@ -57,21 +57,21 @@ end
 function Critter:set_stats(stats_table)
   if stats_table == nil or utils.table_is_empty(stats_table) then return nil end
 
-  stats.assign(self.c_ptr, stats_table)
+  stats.assign(self.raw, stats_table)
 end
 
 function Critter:set_skills(skills_table)
   if skills == nil or utils.table_is_empty(skills_table) then return nil end
 
   for skill_id, skill_value in pairs(skills_table) do
-    ffi.C.ck_critter_set_skill(self.c_ptr, skills.MAP[skill_id], skill_value)
+    ffi.C.ck_critter_set_skill(self.raw, skills.MAP[skill_id], skill_value)
   end
 end
 
-function Critter:gender() return ffi.C.ck_critter_get_gender(self.c_ptr) end
-function Critter:hp()     return ffi.C.ck_critter_get_hp(self.c_ptr) end
-function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.c_ptr) end
-function Critter:set_hp(hp) return ffi.C.ck_critter_set_current_hp(self.c_ptr, hp) end
+function Critter:gender() return ffi.C.ck_critter_get_gender(self.raw) end
+function Critter:hp()     return ffi.C.ck_critter_get_hp(self.raw) end
+function Critter:max_hp() return ffi.C.ck_critter_get_max_hp(self.raw) end
+function Critter:set_hp(hp) return ffi.C.ck_critter_set_current_hp(self.raw, hp) end
 
 function Critter:set_behavior(behavior_fn, ...)
   if type(behavior_fn) ~= "function" then
@@ -80,7 +80,7 @@ function Critter:set_behavior(behavior_fn, ...)
     -- disable default fallout2-ce map update procs
     -- and switch to lua map updates (doesn't require SID, dispatched directly)
     if not self:has_lua_script_index() then
-      ffi.C.ck_script_disable_map_updates_for_object(self.c_ptr)
+      ffi.C.ck_script_disable_map_updates_for_object(self.raw)
     end
 
     self.active_behavior = behavior_fn(...)
@@ -90,11 +90,11 @@ function Critter:set_behavior(behavior_fn, ...)
 end
 
 function Critter:is_busy()
-  return ffi.C.ck_critter_is_busy(self.c_ptr)
+  return ffi.C.ck_critter_is_busy(self.raw)
 end
 
 function Critter:clear_animations()
-  ffi.C.ck_anim_clear(self.c_ptr)
+  ffi.C.ck_anim_clear(self.raw)
 
   self._action_queue   = {}
   self._next_behavior_tick = 0
@@ -105,8 +105,8 @@ function Critter:clear_animations()
 end
 
 function Critter:take_out_weapon()
-  ffi.C.ck_anim_begin(self.c_ptr, 0)
-  ffi.C.ck_anim_take_out_weapon(self.c_ptr, 0)
+  ffi.C.ck_anim_begin(self.raw, 0)
+  ffi.C.ck_anim_take_out_weapon(self.raw, 0)
   ffi.C.ck_anim_end()
 end
 
@@ -149,7 +149,7 @@ local proc_handlers = {
     --
     -- if fixed_param == 4 then
     --   self.in_combat = true
-    --   ffi.C.ck_critter_process_turn(self.c_ptr, self.lua_id)
+    --   ffi.C.ck_critter_process_turn(self.raw, self.lua_id)
     -- end
 
     -- return true
@@ -200,7 +200,7 @@ function Critter:_handle_map_update(current_ticks)
   if #self._action_queue > 0 then
     -- FIFO
     local next_action = table.remove(self._action_queue, 1)
-    next_action(self.c_ptr)
+    next_action(self.raw)
 
     return
   end

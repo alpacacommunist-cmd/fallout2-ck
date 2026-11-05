@@ -118,6 +118,10 @@ namespace ck::object {
     int type(int pid) {
         return static_cast<int>(fallout::ProtoId(pid).objectType());
     }
+
+    int type(fallout::Object* object) {
+        return static_cast<int>(fallout::ProtoId(object->pid).objectType());
+    }
 }
 
 bool ck_object_blocking(int tile, int elevation) {

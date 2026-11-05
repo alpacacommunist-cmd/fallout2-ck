@@ -44,9 +44,13 @@ namespace ck::object {
 	void to_ffi(CkObjectFFI& destination, fallout::Object* source);
 	void remove_at(int tile);
 	void destroy_at(int tile);
+
 	int find_at(int tile, CkObjectFFI* buffer, int max_count);
 	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
     fallout::Object* find_id_at(int tile, int elevation, int id);
+
+    int type(int pid);
+    int type(fallout::Object* object);
 }
 
 bool ck_object_blocking(int tile, int elevation = fallout::gElevation);

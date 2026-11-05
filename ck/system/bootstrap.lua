@@ -8,7 +8,7 @@ package.path = package.path .. ";../?.lua;../?/init.lua"
 local ck  = require('ck')
 local log = ck.log.new('bootstrap.lua')
 
-local ffi = require('ck.system.ffi_api')
+local ffi = require('ck.system.ffi.api')
 local loader = require('ck.system.loader')
 
 for _, mod_type in ipairs(ck.registries.mod_types) do

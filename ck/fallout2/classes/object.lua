@@ -14,32 +14,31 @@ Object.__index = Object
 
 Object.PROC_NAMES = objects.PROC_NAMES
 
-function Object.new(ptr)-- tag, mod_id, config)
+function Object.new(fallout_Object)
   local self = setmetatable({}, Object)
-  self.c_ptr = ptr
 
-  self.fallout_Object = ffi.cast("struct fallout_Object*", self.c_ptr)
+  self.raw = ffi.cast("struct fallout_Object*", fallout_Object)
 
-  self.id = self.fallout_Object.id
-  self.sid = self.fallout_Object.sid
-  self.pid = self.fallout_Object.pid
-  self.elevation = self.fallout_Object.elevation
+  self.id        = self.raw.id
+  self.sid       = self.raw.sid
+  self.pid       = self.raw.pid
+  self.elevation = self.raw.elevation
 
   self.mod_id = ck.tools.current_mod_id()
 
-  local tag = ffi.C.ck_registry_object_get_lua_tag(self.c_ptr)
+  local tag = ffi.C.ck_registry_object_get_lua_tag(self.raw)
   self.tag = tag ~= nil and ffi.string(tag) or nil
 
   -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
-  self.modified = ffi.C.ck_registry_object_is_modified(self.c_ptr)
-  self.created  = ffi.C.ck_registry_object_is_created(self.c_ptr)
+  self.modified = ffi.C.ck_registry_object_is_modified(self.raw)
+  self.created  = ffi.C.ck_registry_object_is_created(self.raw)
 
   self.handlers = {}
 
   local object_state = self:state()
   if object_state and object_state.inventory then
     for pid, qty in pairs(object_state.inventory) do
-      self:give_item(pid, qty)
+      self.raw:give_item(pid, qty)
     end
   end
 
@@ -49,7 +48,7 @@ function Object.new(ptr)-- tag, mod_id, config)
 end
 
 function Object:has_lua_script_index()
-  return ffi.C.ck_is_ck_script_index(self.fallout_Object.scriptIndex)
+  return ffi.C.ck_is_ck_script_index(self.raw.scriptIndex)
 end
 
 function Object:bind()
@@ -63,7 +62,7 @@ function Object:bind()
     return false
   end
 
-  ffi.C.ck_registry_bind_to_object(self.c_ptr)
+  ffi.C.ck_registry_bind_to_object(self.raw)
 end
 
 function Object:on(event_name, callback)
@@ -140,37 +139,35 @@ function Object:_handle_proc(proc_id, fixed_param)
 end
 
 function Object:restore()
-  return ffi.C.ck_registry_restore_modified_object(self.c_ptr)
+  return ffi.C.ck_registry_restore_modified_object(self.raw)
 end
 
 function Object:float_message(text, type)
-  return ffi.C.ck_object_float_msg(self.c_ptr, text, type)
+  return ffi.C.ck_object_float_msg(self.raw, text, type)
 end
 
 function Object:tile()
-  return self.fallout_Object.tile --ffi.C.ck_object_get_tile(self.c_ptr)
+  return self.raw.tile
 end
 
 function Object:get_name()
-  return ffi.string(ffi.C.ck_object_get_name(self.c_ptr))
+  return ffi.string(ffi.C.ck_object_get_name(self.raw))
 end
 
 function Object:get_description()
-  return ffi.string(ffi.C.ck_object_get_description(self.c_ptr))
+  return ffi.string(ffi.C.ck_object_get_description(self.raw))
 end
 
 function Object:type()
-  return objects.TYPES[ffi.C.ck_object_get_type(self.c_ptr)]
+  return objects.TYPES[ffi.C.ck_object_get_type(self.raw)]
 end
 
 function Object:give_item(item_pid, count)
-  count = count or 1
-
-  return items.add(self.c_ptr, item_pid, count)
+  return self.raw:give_item(item_pid, count)
 end
 
 function Object:item_count(item_pid)
-  return items.count(self.c_ptr, item_pid)
+  return items.count(self.raw, item_pid)
 end
 
 function Object:has_item(item_pid)
@@ -180,7 +177,7 @@ end
 function Object:state()
   if (not self.tag or not self.mod_id or ck.map_id == -1) then return nil end
 
-  local state_mod_objects = state.db.maps[ck.map_id][self.mod_id]["objects"]
+  local state_mod_objects = state.db.maps[ck.map_id][self.mod_id].objects
   state_mod_objects[self.tag] = state_mod_objects[self.tag] or {}
 
   return state_mod_objects[self.tag]
@@ -195,13 +192,13 @@ end
 
 function Object:inventory_table()
   local inventory_table = {}
-  local items_count = ffi.C.ck_total_inventory_count(self.c_ptr)
+  local items_count = ffi.C.ck_total_inventory_count(self.raw)
 
   local pid_ptr = ffi.new("int[1]")
   local qty_ptr = ffi.new("int[1]")
 
   for index = 0, items_count - 1 do
-    if ffi.C.ck_get_inventory_item(self.c_ptr, index, pid_ptr, qty_ptr) then
+    if ffi.C.ck_get_inventory_item(self.raw, index, pid_ptr, qty_ptr) then
       local pid = pid_ptr[0]
       local qty = qty_ptr[0]
 
