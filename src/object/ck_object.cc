@@ -3,7 +3,6 @@
 #include "object/ck_object.h"
 #include "ck_registry/ck_registry.h"
 #include "ck_proto/registry/ck_proto_registry.h"
-#include "ck_mods/ck_mods.h"
 
 #include "fallout2-ce/object.h"
 
@@ -16,31 +15,6 @@ static fallout::Object* ck_object_blocker_at(int tile, int elevation) {
 }
 
 namespace ck::object {
-	void to_ffi(CkObjectFFI& destination, fallout::Object* source) {
-		if (!source) return;
-
-		destination.c_ptr     = static_cast<void*>(source);
-		destination.id        = source->id;
-		destination.pid       = source->pid;
-		destination.sid       = source->sid;
-		destination.tile      = source->tile;
-		destination.elevation = source->elevation;
-		destination.flags     = source->flags;
-		destination.rotation  = source->rotation;
-
-		destination.name      = fallout::objectGetName(source);
-        destination.mod_id    = ck::mods::system_mod_id();
-
-        const char* current_mod_id = ck::mods::current_mod_id();
-        if (current_mod_id != nullptr) destination.mod_id = current_mod_id;
-
-        // if (destination.lua_id != -1) {
-        //     const LuaMeta* object_meta = registry::get_meta(destination.lua_id);
-        //
-        //     if (object_meta) destination.mod_id = object_meta->mod_id;
-        // }
-	}
-
     // hides objects
 	void remove_at(int tile) {
 		std::vector<fallout::Object*> to_delete;
@@ -71,13 +45,14 @@ namespace ck::object {
 		for (fallout::Object* object : to_destroy) fallout::objectDestroy(object, nullptr);
 	}
 
-	int find_at(int tile, CkObjectFFI* buffer, int max_count) {
+	int find_at(int tile, fallout::Object** buffer, int max_count) {
 		int count = 0;
-        fallout::MapElevation elevation = ck::utils::types::map_elevation(fallout::gElevation);
 
+        fallout::MapElevation elevation = ck::utils::types::map_elevation(fallout::gElevation);
         fallout::Object* object = fallout::objectFindFirstAtLocation(elevation, tile);
+
         while (object != nullptr && count < max_count) {
-            to_ffi(buffer[count], object);
+            buffer[count] = object;
 
             count++;
             object = fallout::objectFindNextAtLocation();
@@ -86,14 +61,14 @@ namespace ck::object {
         return count;
 	}
 
-	int find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
+	int find_by_pid(int pid, fallout::Object** buffer, int max_count) {
 		int count = 0;
         fallout::MapElevation elevation = ck::utils::types::map_elevation(fallout::gElevation);
 
 		fallout::Object* object = fallout::objectFindFirstAtElevation(elevation);
 		while (object != nullptr && count < max_count) {
 			if (object->pid == pid) {
-				to_ffi(buffer[count], object);
+                buffer[count] = object;
 				count++;
 			}
 
@@ -186,11 +161,11 @@ int ck_object_get_type(void* ptr) {
 	return ck::object::type(object->pid);
 }
 
-int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count) {
+int ck_object_find_at_tile(int tile, fallout::Object** buffer, int max_count) {
 	return ck::object::find_at(tile, buffer, max_count);
 }
 
-int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count) {
+int ck_object_find_by_pid(int pid, fallout::Object** buffer, int max_count) {
     return ck::object::find_by_pid(pid, buffer, max_count);
 }
 

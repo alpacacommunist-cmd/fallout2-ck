@@ -81,21 +81,6 @@ ffi.cdef[[
   // --- Combat & Actions ---
   bool ck_in_combat();
 
-  // --- Object FFI ---
-  typedef struct {
-      void*     c_ptr;
-      int       id;
-      int       pid;
-      int       sid;
-      int       tile;
-      int       elevation;
-      int       flags;
-      int       rotation;
-
-      const char* name;
-      const char* mod_id;
-  } CkObjectFFI;
-
   // Registry
   void ck_registry_clear();
 
@@ -108,8 +93,8 @@ ffi.cdef[[
   bool ck_registry_bind_to_object(fallout_Object* object);
   bool ck_registry_object_is_created(fallout_Object* object);
 
-  int ck_object_find_at_tile(int tile, CkObjectFFI* buffer, int max_count);
-  int ck_object_find_by_pid(int pid, CkObjectFFI* buffer, int max_count);
+  int ck_object_find_at_tile(int tile, fallout_Object** buffer, int max_count);
+  int ck_object_find_by_pid(int pid, fallout_Object** buffer, int max_count);
 
   // --- Critter Animations ---
   int  ck_anim_begin(void* ptr, int weapon_ready);

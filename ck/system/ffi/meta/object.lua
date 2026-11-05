@@ -36,11 +36,6 @@ function FalloutObjectMethods:bind()
     return objects.registry[current_mod_id][self.id]
   end
 
-  if ffi.C.ck_is_ck_script_index(self.scriptIndex) then
-    log.error("bind: object %d already bound to lua script index", self.id)
-    return nil
-  end
-
   if not ffi.C.ck_registry_modify_object(self) then
     return nil 
   end

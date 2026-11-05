@@ -16,8 +16,8 @@ namespace ck::proxy::detail {
 }
 
 namespace ck::proxy {
-    static void push_arg(const CkObjectFFI* val) {
-        lua_pushlightuserdata(gLuaState, const_cast<CkObjectFFI*>(val));
+    static void push_arg(fallout::Object* value) {
+        lua_pushlightuserdata(gLuaState, value);
     }
 
     void on_map_update(int ticks) {
@@ -48,7 +48,7 @@ namespace ck::proxy {
         return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, fixed_param, object_mod_id);
     }
 
-    bool critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
+    bool critter_killed(fallout::Object* victim, fallout::Object* killer) {
         return execute_proxy_call<bool>(detail::critter_killed, victim, killer);
     }
 }

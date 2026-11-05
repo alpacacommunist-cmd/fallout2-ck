@@ -1,7 +1,9 @@
 #ifndef CK_DISPATCHER_H
 #define CK_DISPATCHER_H
 
-struct CkObjectFFI;
+namespace fallout {
+    struct Object;
+};
 
 namespace ck::dispatcher {
     bool set_context(const char* mod_id);
@@ -16,7 +18,7 @@ namespace ck::dispatcher {
     void on_day_passed();
     void on_time_advance(int hours, int minutes);
     void on_skill_used(int skill, int success_count, int bonus);
-    void on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer);
+    void on_critter_killed(fallout::Object* victim, fallout::Object* killer);
 
     void on_map_update(int ticks);
     bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);

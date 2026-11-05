@@ -9,7 +9,6 @@ local utils = require('ck.system.utils')
 local proto = require('ck.fallout2.proto')
 local state = require('ck.fallout2.state')
 local timers = require('ck.fallout2.timers')
-local object_ffi = require('ck.fallout2.classes.object_ffi')
 local rendering  = require('ck.fallout2.rendering')
 
 local log = ck.log.new('events.lua')
@@ -64,8 +63,8 @@ end
 -- global game events
 -- e.g critter_killed, object_destroyed, skill_used etc
 function events.critter_killed(victim, killer)
-  victim = object_ffi.from_ptr(victim)
-  killer = object_ffi.from_ptr(killer)
+  victim = ffi.cast("struct fallout_Object*", victim)
+  killer = ffi.cast("struct fallout_Object*", killer)
 
   for mod_name, mod_events in pairs(events.registry) do
     local callbacks = mod_events.critter_killed

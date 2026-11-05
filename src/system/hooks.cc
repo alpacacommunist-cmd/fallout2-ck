@@ -70,11 +70,7 @@ namespace detail {
             fallout::Object *killer_ptr = ck::script::source(script);
 
             if (victim_ptr && ck::ids::is_critter(victim_ptr)) {
-                CkObjectFFI victim{}, killer{};
-                ck::object::to_ffi(victim, victim_ptr);
-                if (killer_ptr) ck::object::to_ffi(killer, killer_ptr);
-
-                ck::dispatcher::on_critter_killed(&victim, &killer);
+                ck::dispatcher::on_critter_killed(victim_ptr, killer_ptr);
             }
             break;
         }

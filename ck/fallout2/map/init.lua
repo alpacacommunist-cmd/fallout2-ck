@@ -1,7 +1,7 @@
 -- ck/fallout2/map/init.lua
-local ffi        = require("ffi")
-local assets     = require('ck.fallout2.assets')
-local object_ffi = require('ck.fallout2.classes.object_ffi')
+local ffi = require('ffi')
+local ck = require('ck')
+local assets = require('ck.fallout2.assets')
 
 local map  = {
   geometry  = require('ck.fallout2.map.geometry'),
@@ -81,51 +81,47 @@ function map.register_borders(map_id, config)
   ffi.C.ck_map_set_camera_borders(map_id, data)
 end
 
--- Search
-function map.find_at_tile(tile, max_count)
-  local objects = require('ck.fallout2.objects')
+-- Search objects on a map
+local _collection = {
+  __index = {
+    first_by_pid = function(results, target_pid)
+      for _, obj in ipairs(results) do
+        if obj.pid == target_pid then return obj end
+      end
+      return nil
+    end
+  }
+}
 
+local _search = function(tile, max_count, callback)
   max_count = max_count or 32
-  local buffer = ffi.new("CkObjectFFI[?]", max_count)
+  local buffer = ffi.new("struct fallout_Object*[?]", max_count)
 
-  local count = ffi.C.ck_object_find_at_tile(tile, buffer, max_count)
+  local count = callback(tile, buffer, max_count)
   local results = {}
 
-  for index = 0, count - 1 do
-    local object = buffer[index]
+  local mod_id = ck.tools.current_mod_id()
 
-    local existing_entry = objects.registry[object.id]
+  for index = 0, count - 1 do
+    local raw_object = buffer[index]
+
+    local existing_entry = ck.registries.objects[mod_id][raw_object.id]
     if existing_entry then
       table.insert(results, existing_entry)
     else
-      table.insert(results, object)
+      table.insert(results, raw_object)
     end
   end
 
-  return setmetatable(results, object_ffi.collection)
+  return setmetatable(results, _collection)
 end
 
-function map.find_by_pid(pid, max_count)
-  local objects = require('ck.fallout2.objects')
+function map.find_at_tile(tile, max_count)
+  return _search(tile, max_count, ffi.C.ck_object_find_at_tile)
+end
 
-  max_count = max_count or 32
-  local buffer = ffi.new("CkObjectFFI[?]", max_count)
-
-  local count = ffi.C.ck_object_find_by_pid(pid, buffer, max_count)
-  local results = {}
-
-  for index = 0, count - 1 do
-    local object = buffer[index]
-
-    local existing_entry = objects.registry[object.id]
-    if existing_entry then
-      table.insert(results, existing_entry)
-    else
-      table.insert(results, object)
-    end
-  end
-
-  return setmetatable(results, object_ffi.collection)
+function map.find_by_pid(tile, max_count)
+  return _search(tile, max_count, ffi.C.ck_object_find_by_pid)
 end
 
 function map.elevation()

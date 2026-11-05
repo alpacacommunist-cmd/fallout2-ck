@@ -6,7 +6,9 @@
 #include <initializer_list>
 #include <variant>
 
-struct CkObjectFFI;
+namespace fallout {
+    struct Object;
+}
 
 namespace ck::proxy {
 	void on_map_update(int ticks);
@@ -14,7 +16,7 @@ namespace ck::proxy {
 	bool proxy_emit_start(const char* mod_id, const char* event_name);
 	void proxy_emit_end(const char* mod_id, const char* event_name, int total_args);
 
-    using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool, const CkObjectFFI*>;
+    using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool, fallout::Object*>;
     void  emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args);
 
 	template<typename... Args>
@@ -26,7 +28,7 @@ namespace ck::proxy {
 	bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
 	bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
 
-    bool critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer);
+    bool critter_killed(fallout::Object* victim, fallout::Object* killer);
 }
 
 #endif

@@ -111,7 +111,7 @@ local proc_handlers = {
     if self:type() == 'critter' then
       log.info('Critter destroyed: ' .. tostring(self.id))
 
-      ffi.C.ck_critter_kill(self.id)
+      ffi.C.ck_critter_kill(self.raw)
       objects.registry[self.id] = nil
     end
   end

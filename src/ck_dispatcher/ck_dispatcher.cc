@@ -127,7 +127,7 @@ namespace ck::dispatcher {
         emit("skill_used", skill, success_count, bonus);
     }
 
-    void on_critter_killed(const CkObjectFFI* victim, const CkObjectFFI* killer) {
+    void on_critter_killed(fallout::Object* victim, fallout::Object* killer) {
         ck::proxy::critter_killed(victim, killer);
     }
 
