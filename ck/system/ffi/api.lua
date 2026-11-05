@@ -100,7 +100,7 @@ ffi.cdef[[
   void ck_registry_clear();
 
   // modified
-  int ck_registry_modify_object(fallout_Object* object);
+  bool ck_registry_modify_object(fallout_Object* object);
   bool ck_registry_object_is_modified(fallout_Object* object);
   bool ck_registry_restore_modified_object(fallout_Object* object);
 

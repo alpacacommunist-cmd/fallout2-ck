@@ -41,9 +41,7 @@ function FalloutObjectMethods:bind()
     return nil
   end
 
-  local status = ffi.C.ck_registry_modify_object(self)
-  if status == -1 then 
-    log.error("bind: failed to modify object %d in C++ registry", self.id)
+  if not ffi.C.ck_registry_modify_object(self) then
     return nil 
   end
 

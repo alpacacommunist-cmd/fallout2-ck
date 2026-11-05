@@ -52,13 +52,13 @@ function Object:has_lua_script_index()
 end
 
 function Object:bind()
-  if self:has_lua_script_index() then
-    log.error("bind: already bound to lua script index")
+  if self.modified then
+    log.error("Can't bind to modified object")
     return false
   end
 
-  if self.modified then
-    log.error("Can't bind to modified object")
+  if self:has_lua_script_index() then
+    log.error("bind: already bound to lua script index")
     return false
   end
 

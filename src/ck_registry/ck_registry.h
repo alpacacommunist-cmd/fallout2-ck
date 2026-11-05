@@ -58,7 +58,7 @@ namespace ck::registry {
     }
 
 	namespace modified {
-        int add(fallout::Object *object, const char *mod_id);
+        bool add(fallout::Object *object, const char *mod_id);
 		bool restore(fallout::Object* object);
 		void clear_for_mod(const char* mod_id);
         void free_script_indexes();
@@ -67,7 +67,7 @@ namespace ck::registry {
 
 CK_API void ck_registry_clear();
 
-CK_API int ck_registry_modify_object(fallout::Object* object);
+CK_API bool ck_registry_modify_object(fallout::Object* object);
 CK_API bool ck_registry_object_is_modified(fallout::Object* object);
 CK_API bool ck_registry_object_is_created(fallout::Object* object);
 CK_API bool ck_registry_restore_modified_object(fallout::Object* object);

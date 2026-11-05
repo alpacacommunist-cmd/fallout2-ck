@@ -70,8 +70,9 @@ function object_ffi:bind()
   local existing_entry = objects.registry[mod_id][self.id]
   if (existing_entry) then return existing_entry end
 
-  local status = ffi.C.ck_registry_modify_object(self.c_ptr)
-  if (status == -1) then return nil end
+  if not ffi.C.ck_registry_modify_object(self.c_ptr) then
+    return nil
+  end
 
   local object
   if self:is_critter() then

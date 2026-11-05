@@ -14,12 +14,13 @@ namespace ck::registry::modified {
         ck::ids::free_script_index(ck_object::script_index(object));
     }
 
-    int add(fallout::Object *object, const char *mod_id) {
-        if (object == nullptr) return -1;
+    bool add(fallout::Object *object, const char *mod_id) {
+        if (object == nullptr) return false;
 
         const RegistryEntry *existing_entry = ck::registry::get(object);
         if (existing_entry != nullptr) {
-            return ck_object::id(object);
+            logger.error("Can't bind to object: {}, entry already exists", ck_object::id(object));
+            return false;
         }
 
         if (mod_id == nullptr) {
@@ -38,7 +39,7 @@ namespace ck::registry::modified {
         logger.debug("Registered modified object. object_id: {}, script_index: {}",
                 ck_object::id(object), ck_object::script_index(object));
 
-        return ck_object::id(object);
+        return true;
     }
 
     bool restore(fallout::Object *object) {
@@ -84,7 +85,7 @@ namespace ck::registry::modified {
     }
 }
 
-int ck_registry_modify_object(fallout::Object* object) {
+bool ck_registry_modify_object(fallout::Object* object) {
     return ck::registry::modified::add(object, nullptr);
 }
 
