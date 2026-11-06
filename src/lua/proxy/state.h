@@ -5,7 +5,7 @@
 #include <functional>
 #include <string>
 
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 
 namespace picojson { class value; }
 

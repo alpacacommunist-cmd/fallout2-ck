@@ -1,7 +1,7 @@
 #include <vector>
 #include <unordered_set>
 
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "ck_ids.h"

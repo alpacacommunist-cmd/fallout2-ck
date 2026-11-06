@@ -1,7 +1,7 @@
 #include "utils.h"
 
 #include "ck_ids.h"
-#include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "lua/proxy/state.h"
 #include "engine/messages.h"
 #include "ck_proto_registry.h"
 

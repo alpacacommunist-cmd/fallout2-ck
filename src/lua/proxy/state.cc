@@ -1,5 +1,5 @@
-#include "ck_lua_proxy/ck_lua_proxy.h"
-#include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "lua/proxy/proxy.h"
+#include "lua/proxy/state.h"
 #include "ck_mods/ck_mods.h"
 
 #include <lua.hpp>

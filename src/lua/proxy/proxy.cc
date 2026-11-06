@@ -1,10 +1,10 @@
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 
 #include <lua.hpp>
 #include <array>
 
 #include "log.h"
-static constexpr logging::Context logger{"ck_lua_proxy.cc"};
+static constexpr logging::Context logger{"lua/proxy/proxy.cc"};
 
 lua_State* gLuaState = nullptr;
 

@@ -3,14 +3,13 @@
 #include "system/init.h"
 #include "system/rendering.h"
 #include "debug/overlay.h"
+#include "lua/proxy/proxy.h"
 #include "utils/fallout/types/object.h"
 
 #include "ck_proto/cache/ck_proto_cache.h"
-#include "ck_lua_proxy/ck_lua_proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 #include "ck_registry/ck_registry.h"
 #include "script/ck_script.h"
-#include "object/ck_object.h"
 
 #include "fallout2-ce/settings.h"
 

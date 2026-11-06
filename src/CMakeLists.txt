@@ -36,13 +36,14 @@ add_library(fallout2-ck STATIC
     ffi/gameplay.cc
     ffi/manifest.cc
 
+    lua/proxy/proxy.cc
+    lua/proxy/dispatcher.cc
+    lua/proxy/state.cc
+
     ck_mods/ck_mods.cc
     ck_state/ck_state.cc
     ck_dispatcher/ck_dispatcher.cc
 
-    ck_lua_proxy/ck_lua_proxy.cc
-    ck_lua_proxy/ck_lua_proxy_dispatcher.cc
-    ck_lua_proxy/ck_lua_proxy_state.cc
 
     ck_registry/ck_registry.cc
     ck_registry/ck_registry_created.cc

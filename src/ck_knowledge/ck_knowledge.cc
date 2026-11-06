@@ -1,6 +1,6 @@
 #include <cstring>
 #include "ck_knowledge.h"
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 #include "fallout2-ce/memory.h"
 
 namespace ck::proxy::detail {

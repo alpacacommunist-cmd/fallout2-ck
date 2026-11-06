@@ -2,7 +2,7 @@
 #include "ck_ids.h"
 #include "utils.h"
 
-#include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "lua/proxy/state.h"
 #include "ck_registry/ck_registry.h"
 #include "object/ck_object.h"
 #include "object/critter/ck_critter.h"

@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "picojson.h"
 #include "ck_state/ck_state.h"
-#include "ck_lua_proxy/ck_lua_proxy_state.h"
+#include "lua/proxy/state.h"
 
 #include <fstream>
 

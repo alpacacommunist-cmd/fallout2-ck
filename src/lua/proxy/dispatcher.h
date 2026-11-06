@@ -1,7 +1,7 @@
 #ifndef CK_LUA_PROXY_DISPATCHER_H
 #define CK_LUA_PROXY_DISPATCHER_H
 
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 #include <string>
 #include <initializer_list>
 #include <variant>

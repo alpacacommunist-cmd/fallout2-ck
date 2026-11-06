@@ -4,7 +4,7 @@
 #include "engine/config/maps.h"
 #include "engine/config/city.h"
 
-#include "ck_lua_proxy/ck_lua_proxy.h"
+#include "lua/proxy/proxy.h"
 
 #include "fallout2-ce/settings.h"
 

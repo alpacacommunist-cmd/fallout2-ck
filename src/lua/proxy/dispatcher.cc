@@ -1,5 +1,5 @@
-#include "ck_lua_proxy/ck_lua_proxy.h"
-#include "ck_lua_proxy/ck_lua_proxy_dispatcher.h"
+#include "lua/proxy/proxy.h"
+#include "lua/proxy/dispatcher.h"
 #include <lua.hpp>
 
 extern lua_State* gLuaState;
