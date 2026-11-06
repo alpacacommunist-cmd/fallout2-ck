@@ -1,6 +1,7 @@
 #include "ck_ids.h"
 #include "system/_hooks.h"
 #include "system/init.h"
+#include "system/ui.h"
 #include "system/rendering.h"
 #include "debug/overlay.h"
 #include "lua/proxy/proxy.h"
@@ -189,11 +190,13 @@ namespace ck::hooks::system {
         logger.debug("engine_ready");
 
         ck::init::set_language();
+
         if (ck::init::test_mode_enabled()) {
             fallout::settings.ui.skip_opening_movies = 1;
-        } else {
-            gProtoCache.initialize("build/proto_cache.db");
         }
+
+        ck::ui::initialize(fallout::gSdlWindow, fallout::gSdlRenderer);
+        gProtoCache.initialize("build/proto_cache.db");
 
         ck::config::apply_worldmap_patches();
         ck::dispatcher::on_engine_ready();
