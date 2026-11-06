@@ -16,9 +16,6 @@ add_library(fallout2-ck STATIC
     engine/config/city.cc
     engine/messages.cc
 
-    geometry/geometry.cc
-    geometry/landscape.cc
-
     # Utils
     utils/fallout/types.cc
     utils/fallout/types/proto.cc
@@ -28,17 +25,21 @@ add_library(fallout2-ck STATIC
     utils/log.cc
     utils/ck_ids.cc
 
-    ck_gameplay_common.cc
-    # FFI
-    ffi/validator.cc
-    ffi/tests.cc
-    ffi/system.cc
-    ffi/gameplay.cc
-    ffi/manifest.cc
+    # LUA
+    lua/ffi/validator.cc
+    lua/ffi/tests.cc
+    lua/ffi/system.cc
+    lua/ffi/gameplay.cc
+    lua/ffi/manifest.cc
 
     lua/proxy/proxy.cc
     lua/proxy/dispatcher.cc
     lua/proxy/state.cc
+
+    ck_gameplay_common.cc
+
+    geometry/geometry.cc
+    geometry/landscape.cc
 
     ck_mods/ck_mods.cc
     ck_state/ck_state.cc

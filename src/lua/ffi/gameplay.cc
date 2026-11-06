@@ -1,4 +1,4 @@
-#include "ffi/gameplay.h"
+#include "lua/ffi/gameplay.h"
 #include "ck_gameplay_common.h"
 
 bool ck_object_float_msg(void *ptr, const char *text, int msg_type) {

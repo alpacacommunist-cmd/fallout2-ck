@@ -1,4 +1,4 @@
-#include "ffi/system.h"
+#include "lua/ffi/system.h"
 #include "ck_mods/ck_mods.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 

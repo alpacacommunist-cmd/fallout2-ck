@@ -1,6 +1,6 @@
-#include "ffi/system.h"
-#include "ffi/tests.h"
-#include "ffi/gameplay.h"
+#include "lua/ffi/system.h"
+#include "lua/ffi/tests.h"
+#include "lua/ffi/gameplay.h"
 #include "ck_proto/registry/ck_proto_registry.h"
 #include "game_time/ck_game_time.h"
 

@@ -1,4 +1,4 @@
-#include "ffi/tests.h"
+#include "lua/ffi/tests.h"
 #include "system/init.h"
 
 const char* ck_testing_get_current_suite() {
