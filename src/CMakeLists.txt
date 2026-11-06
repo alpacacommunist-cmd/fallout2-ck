@@ -93,12 +93,14 @@ target_include_directories(fallout2-ck PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/picojson/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/"
     $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(fallout2-ck PUBLIC
     sqlite3_vendor
     libluajit
+    imgui_vendor
     pthread
     dl
 )
