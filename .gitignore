@@ -31,11 +31,14 @@ tests_env/SAVEGAME/**
 /src/vendor/luajit/**
 /src/vendor/sqlite3/**
 /src/vendor/picojson/**
+/src/vendor/imgui/**
 !/src/vendor/luajit/README
 !/src/vendor/luajit/CMakeLists.txt
 !/src/vendor/sqlite3/README
 !/src/vendor/sqlite3/CMakeLists.txt
 !/src/vendor/picojson/README
+!/src/vendor/imgui/version
+!/src/vendor/imgui/CMakeLists.txt
 
 /.clang-format
 /.cache
