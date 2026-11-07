@@ -373,7 +373,7 @@ void toggle() {
         fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
         ck::debug::ui::initialize();
 
-        fallout::tileWindowRefresh();
+        gNeedsRefresh = true;
     } else {
         fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
         ck::debug::ui::shutdown();

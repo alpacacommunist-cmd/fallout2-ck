@@ -85,7 +85,8 @@ namespace ck::debug::ui {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        // keyboard
+        // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
         ImGui_ImplSDL2_InitForSDLRenderer(fallout::gSdlWindow, fallout::gSdlRenderer);
         ImGui_ImplSDLRenderer2_Init(fallout::gSdlRenderer);
@@ -106,13 +107,10 @@ namespace ck::debug::ui {
         g_initialized = false;
     }
 
-    void process_event(SDL_Event *event) {
-        if (!g_initialized) return;
-        SDL_Event* sdl_event = static_cast<SDL_Event*>(event);
+    void process_event(void *event) {
+        if (!g_initialized || !(ck::debug::enabled())) return;
 
-        if (ck::debug::enabled()) { 
-            ImGui_ImplSDL2_ProcessEvent(event); 
-        }
+        ImGui_ImplSDL2_ProcessEvent(static_cast<SDL_Event*>(event));
     }
 
     void render(void *renderer) {
@@ -132,7 +130,7 @@ namespace ck::debug::ui {
             if (g_brush_texture) { SDL_DestroyTexture(g_brush_texture); }
 
             g_brush_fid = 33555377;
-            g_brush_texture = create_sdl_texture_from_fid(renderer, g_brush_fid);
+            g_brush_texture = create_sdl_texture_from_fid(sdl_renderer, g_brush_fid);
         }
 
         if (g_brush_fid != -1) {
@@ -181,7 +179,7 @@ namespace ck::debug::ui {
         ImGui::End();
 
         ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
     }
 
     bool want_capture_mouse() {
