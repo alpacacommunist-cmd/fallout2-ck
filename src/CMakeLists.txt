@@ -45,9 +45,6 @@ set(CORE_SOURCES
     ck_registry/ck_registry_deleted.cc
     ck_registry/ck_registry_modified.cc
 
-    ck_proto/cache/ck_proto_cache.cc
-    ck_proto/cache/ck_proto_ffi.cc
-
     ck_proto/registry/ck_proto_registry.cc
     ck_proto/registry/ck_item_proto.cc
     ck_proto/registry/ck_critter_proto.cc
@@ -77,6 +74,9 @@ if(CK_ENABLE_EDITOR)
         debug/hexes.cc
         debug/render.cc
         debug/object_format.cc
+
+        ck_proto/cache/ck_proto_cache.cc
+        ck_proto/cache/ck_proto_ffi.cc
     )
 
     set(EDITOR_LIBS 

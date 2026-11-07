@@ -1,17 +1,26 @@
 cmake_minimum_required(VERSION 3.17)
 project(fallout2-ck C CXX)
 
-option(CK_ENABLE_EDITOR "Build with Modder UI (Dear ImGui) enabled" ON)
-
-if(CK_ENABLE_EDITOR)
-    add_compile_definitions(CK_EDITOR_BUILD)
-    message(STATUS "=== MODDER SDK BUILD: Editor UI Enabled ===")
-else()
-    message(STATUS "=== PLAYER RUNTIME BUILD: Editor UI Disabled ===")
-endif()
+option(CK_ENABLE_EDITOR "Build with modder ui/db enabled" ON)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Dev" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev" "Debug" "Release" "MinSizeRel")
+
+if(CK_ENABLE_EDITOR)
+    add_compile_definitions(CK_EDITOR_BUILD)
+    message(STATUS "==================================================")
+    message(STATUS "  [SDK BUILD] Configuration: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "  -> Editor UI (Dear ImGui): ENABLED")
+    message(STATUS "  -> Asset Cache (SQLite3): ENABLED")
+    message(STATUS "==================================================")
+else()
+    message(STATUS "==================================================")
+    message(STATUS "  [RUNTIME BUILD] Configuration: ${CMAKE_BUILD_TYPE}")
+    message(STATUS "  -> Editor UI & Cache: DISABLED (Stripped Release)")
+    message(STATUS "==================================================")
 endif()
 
 # cmake -B build-dev -DCMAKE_BUILD_TYPE=Dev

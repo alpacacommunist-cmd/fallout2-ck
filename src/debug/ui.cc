@@ -108,13 +108,16 @@ namespace ck::debug::ui {
 
     void process_event(SDL_Event *event) {
         if (!g_initialized) return;
+        SDL_Event* sdl_event = static_cast<SDL_Event*>(event);
+
         if (ck::debug::enabled()) { 
             ImGui_ImplSDL2_ProcessEvent(event); 
         }
     }
 
-    void render(SDL_Renderer *renderer) {
+    void render(void *renderer) {
         if (!g_initialized || !ck::debug::enabled()) return;
+        SDL_Renderer* sdl_renderer = static_cast<SDL_Renderer*>(renderer);
 
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();

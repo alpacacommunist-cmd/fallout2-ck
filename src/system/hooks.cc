@@ -194,7 +194,9 @@ namespace ck::hooks::system {
             fallout::settings.ui.skip_opening_movies = 1;
         }
 
-        gProtoCache.initialize("build/proto_cache.db");
+        if constexpr (ck::debug::tools_enabled) {
+            gProtoCache.initialize("build/proto_cache.db");
+        }
 
         ck::config::apply_worldmap_patches();
         ck::dispatcher::on_engine_ready();

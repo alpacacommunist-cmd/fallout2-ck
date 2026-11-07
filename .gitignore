@@ -1,6 +1,7 @@
 /build-debug/
 /build-release/
 /build-dev/
+/build-player/
 /backups/
 
 /ck_registry.json

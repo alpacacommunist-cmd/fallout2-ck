@@ -14,9 +14,14 @@ struct CkProtoInfoFFI {
     const char* description;
 };
 
+#ifdef CK_EDITOR_BUILD
 CK_API bool ck_proto_get_by_pid(int pid, CkProtoInfoFFI* out_info);
 CK_API bool ck_proto_get_by_name(const char* name, int type, CkProtoInfoFFI* out_info);
-
 CK_API int ck_proto_get_by_type(int type, CkProtoInfoFFI* out_array, int max_count);
+#else
+inline bool ck_proto_get_by_pid(int pid, CkProtoInfoFFI* out_info) { return false; };
+inline bool ck_proto_get_by_name(const char* name, int type, CkProtoInfoFFI* out_info) { return false; };
+inline int ck_proto_get_by_type(int type, CkProtoInfoFFI* out_array, int max_count) { return -1; };
+#endif
 
 #endif
