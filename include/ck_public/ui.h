@@ -1,10 +1,7 @@
 #ifndef CK_PUBLIC_UI_H
 #define CK_PUBLIC_UI_H
 
-namespace ck::ui {
-    void initialize(SDL_Window *window, SDL_Renderer *renderer);
-    void shutdown();
-
+namespace ck::debug::ui {
     void process_event(SDL_Event *event);
     void render(SDL_Renderer *renderer);
 

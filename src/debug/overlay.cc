@@ -371,18 +371,19 @@ void toggle() {
 
     if (gDebugOverlayEnabled) {
         fallout::displayMonitorAddMessage("[CK] Debug Overlay: ON");
+        ck::debug::ui::initialize();
 
         fallout::tileWindowRefresh();
     } else {
         fallout::displayMonitorAddMessage("[CK] Debug Overlay: OFF");
+        ck::debug::ui::shutdown();
 
         ck_debug_overlay_render_clear();
     }
 }
 
 void render(fallout::Rect *rect) {
-    if (!gDebugOverlayEnabled)
-        return;
+    if (!gDebugOverlayEnabled) return;
 
     ck_debug_overlay_persistent_hexes(rect);
     mode_main();

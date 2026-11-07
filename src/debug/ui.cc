@@ -1,15 +1,19 @@
-#include "ui.h"
+#include "debug/overlay.h"
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/backends/imgui_impl_sdl2.h"
 #include "vendor/imgui/backends/imgui_impl_sdlrenderer2.h"
 
 #include "fallout2-ce/art.h"
+#include "fallout2-ce/svga.h"
 
 #include "log.h"
-static logging::Context logger{"ck_ui.cc", logging::Source::Native};
+static logging::Context logger{"debug/ck_ui.cc", logging::Source::Native};
 
 namespace fallout {
     extern int gElevation;
+
+    extern SDL_Window* gSdlWindow;
+    extern SDL_Renderer* gSdlRenderer;
 
     unsigned char* directDrawGetPalette();
 
@@ -72,11 +76,10 @@ SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, int fid) {
     return texture;
 }
 
-namespace ck::ui {
+namespace ck::debug::ui {
     static bool g_initialized = false;
-    static bool g_show_overlay = false;
 
-    void initialize(SDL_Window *window, SDL_Renderer *renderer) {
+    void initialize() {
         if (g_initialized) return;
 
         IMGUI_CHECKVERSION();
@@ -84,8 +87,8 @@ namespace ck::ui {
         ImGuiIO &io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-        ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-        ImGui_ImplSDLRenderer2_Init(renderer);
+        ImGui_ImplSDL2_InitForSDLRenderer(fallout::gSdlWindow, fallout::gSdlRenderer);
+        ImGui_ImplSDLRenderer2_Init(fallout::gSdlRenderer);
 
         g_initialized = true;
     }
@@ -100,23 +103,25 @@ namespace ck::ui {
 
     void process_event(SDL_Event *event) {
         if (!g_initialized) return;
-
-        if (event->type == SDL_KEYDOWN && event->key.keysym.scancode == SDL_SCANCODE_GRAVE && !event->key.repeat) {
-            g_show_overlay = !g_show_overlay;
+        if (ck::debug::enabled()) { 
+            ImGui_ImplSDL2_ProcessEvent(event); 
         }
-
-        if (g_show_overlay) { ImGui_ImplSDL2_ProcessEvent(event); }
     }
 
     void render(SDL_Renderer *renderer) {
-        if (!g_initialized || !g_show_overlay) return;
+        if (!g_initialized || !ck::debug::enabled()) return;
 
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Fallout 2 CK - Asset Manager", &g_show_overlay);
+        bool show_window = true;
+        ImGui::Begin("Fallout 2 CK - Asset Manager", &show_window);
         ImGui::Text("Hello from LuaJIT runtime workspace!");
+
+        if (!show_window) {
+            ck::debug::toggle();
+        }
 
         if (ImGui::Button("Spawn Scenery (Tree)")) {
             logger.info.banner("BRUSH ACTIVATED!");

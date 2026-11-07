@@ -4,10 +4,10 @@ add_library(fallout2-ck STATIC
     system/rendering.cc
     system/i18n.cc
     system/encoding.cc
-    system/ui.cc
     system/input/input.cc
 
     debug/overlay.cc
+    debug/ui.cc
     debug/hexes.cc
     debug/render.cc
     debug/object_format.cc

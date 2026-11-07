@@ -11,6 +11,11 @@ namespace ck::debug {
     void toggle();
 
     void render(fallout::Rect* rect);
+
+    namespace ui {
+        void initialize();
+        void shutdown();
+    }
 }
 
 #endif
