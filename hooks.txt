@@ -1,0 +1,5 @@
+input.cc:
+  void _GNW95_process_message()
+
+mouse.cc:
+  MouseButtonEvent mouseGetEvent()
