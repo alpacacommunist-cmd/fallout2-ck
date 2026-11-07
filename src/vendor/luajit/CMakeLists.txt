@@ -14,7 +14,7 @@ else()
     set(LUAJIT_BUILD_CMD make -C "${LUAJIT_SRC_DIR}/src" -j${nproc})
 endif()
 
-ExternalProject_Add(luajit_project
+ExternalProject_Add(luajit
     SOURCE_DIR "${LUAJIT_SRC_DIR}"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${LUAJIT_BUILD_CMD}
@@ -25,4 +25,4 @@ ExternalProject_Add(luajit_project
 add_library(libluajit INTERFACE)
 target_include_directories(libluajit INTERFACE "${LUAJIT_SRC_DIR}/src")
 target_link_libraries(libluajit INTERFACE "${LUAJIT_BYPRODUCT}")
-add_dependencies(libluajit luajit_project)
+add_dependencies(libluajit luajit)

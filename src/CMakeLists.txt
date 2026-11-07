@@ -80,8 +80,8 @@ if(CK_ENABLE_EDITOR)
     )
 
     set(EDITOR_LIBS 
-        sqlite3_vendor
-        imgui_vendor
+        sqlite3
+        imgui
     )
 
     set(EDITOR_INCLUDES

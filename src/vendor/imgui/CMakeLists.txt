@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(imgui_vendor CXX)
+project(imgui CXX)
 
 set(IMGUI_SOURCES
     imgui.cpp
@@ -14,17 +14,17 @@ set(IMGUI_BACKEND_SOURCES
     backends/imgui_impl_sdlrenderer2.cpp
 )
 
-add_library(imgui_vendor STATIC ${IMGUI_SOURCES} ${IMGUI_BACKEND_SOURCES})
+add_library(imgui STATIC ${IMGUI_SOURCES} ${IMGUI_BACKEND_SOURCES})
 
-target_include_directories(imgui_vendor PUBLIC
+target_include_directories(imgui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/backends"
 )
 
-target_link_libraries(imgui_vendor PRIVATE SDL2-static)
+target_link_libraries(imgui PRIVATE SDL2-static)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(imgui_vendor PRIVATE "-w" "-Os")
+    target_compile_options(imgui PRIVATE "-w" "-Os")
 elseif(MSVC)
-    target_compile_options(imgui_vendor PRIVATE "/W0")
+    target_compile_options(imgui PRIVATE "/W0")
 endif()
