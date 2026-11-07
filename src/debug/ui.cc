@@ -24,13 +24,14 @@ namespace fallout {
 
 static bool g_initialized = false;
 static bool g_show_overlay = false;
+static SDL_Texture* g_cursor_arrow_texture = nullptr;
 
 static int g_brush_fid = -1;
 static SDL_Texture* g_brush_texture = nullptr;
 
-SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, int fid) {
+SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, fallout::FrmId frm_id) {
     fallout::CacheEntry* entry = nullptr;
-    fallout::Art* art = fallout::artLock(fallout::FrmId(fid), &entry);
+    fallout::Art* art = fallout::artLock(frm_id, &entry);
 
     if (!entry) return nullptr;
     int art_height = fallout::artGetHeight(art, 0, static_cast<fallout::Rotation>(0));
@@ -85,8 +86,12 @@ namespace ck::debug::ui {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
+
         // keyboard
         // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+        fallout::FrmId cursor_frm = fallout::InterfaceFrameId::MouseCursorStandardArrow;
+        g_cursor_arrow_texture = create_sdl_texture_from_fid(fallout::gSdlRenderer, cursor_frm);
 
         ImGui_ImplSDL2_InitForSDLRenderer(fallout::gSdlWindow, fallout::gSdlRenderer);
         ImGui_ImplSDLRenderer2_Init(fallout::gSdlRenderer);
@@ -96,6 +101,11 @@ namespace ck::debug::ui {
 
     void shutdown() {
         if (!g_initialized) return;
+
+        if (g_cursor_arrow_texture) {
+            SDL_DestroyTexture(g_cursor_arrow_texture);
+            g_cursor_arrow_texture = nullptr;
+        }
 
         ImGui_ImplSDLRenderer2_Shutdown();
         ImGui_ImplSDL2_Shutdown();
@@ -119,7 +129,15 @@ namespace ck::debug::ui {
 
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
+
+        SDL_ShowCursor(SDL_DISABLE);
+
         ImGui::NewFrame();
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (io.WantCaptureMouse) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+        }
 
         ImGui::Begin("Fallout 2 CK - Asset Manager");
         ImGui::Text("Hello from LuaJIT runtime workspace!");
@@ -127,10 +145,13 @@ namespace ck::debug::ui {
         if (ImGui::Button("Spawn Scenery (Tree)")) {
             logger.info.banner("BRUSH ACTIVATED!");
 
-            if (g_brush_texture) { SDL_DestroyTexture(g_brush_texture); }
+            if (g_brush_texture) {
+                SDL_DestroyTexture(g_brush_texture);
+                g_brush_fid = -1;
+            }
 
             g_brush_fid = 33555377;
-            g_brush_texture = create_sdl_texture_from_fid(sdl_renderer, g_brush_fid);
+            g_brush_texture = create_sdl_texture_from_fid(sdl_renderer, fallout::FrmId(g_brush_fid));
         }
 
         if (g_brush_fid != -1) {
@@ -177,6 +198,19 @@ namespace ck::debug::ui {
         }
 
         ImGui::End();
+
+        if (io.WantCaptureMouse && g_cursor_arrow_texture) {
+            int w = 0, h = 0;
+            SDL_QueryTexture(g_cursor_arrow_texture, nullptr, nullptr, &w, &h);
+
+            ImVec2 mouse_pos = io.MousePos;
+
+            ImVec2 p_min = mouse_pos;
+            ImVec2 p_max = ImVec2(mouse_pos.x + w, mouse_pos.y + h);
+
+            ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_cursor_arrow_texture, p_min, p_max, ImVec2(0, 0),
+                                                     ImVec2(1, 1), IM_COL32(255, 255, 255, 255));
+        }
 
         ImGui::Render();
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
