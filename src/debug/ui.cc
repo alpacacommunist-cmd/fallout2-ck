@@ -22,14 +22,7 @@ namespace fallout {
     int tileToScreenXY(int tile, int* screenX, int* screenY);
 }
 
-static bool g_initialized = false;
-static bool g_show_overlay = false;
-static SDL_Texture* g_cursor_arrow_texture = nullptr;
-
-static int g_brush_fid = -1;
-static SDL_Texture* g_brush_texture = nullptr;
-
-SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, fallout::FrmId frm_id) {
+SDL_Texture* create_sdl_texture_from_fid(fallout::FrmId frm_id) {
     fallout::CacheEntry* entry = nullptr;
     fallout::Art* art = fallout::artLock(frm_id, &entry);
 
@@ -69,7 +62,7 @@ SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, fallout::FrmId 
 
     SDL_SetColorKey(surface, SDL_TRUE, 0);
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(fallout::gSdlRenderer, surface);
 
     SDL_FreeSurface(surface);
     SDL_FreePalette(pool_palette);
@@ -78,7 +71,75 @@ SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, fallout::FrmId 
 }
 
 namespace ck::debug::ui {
+    struct CachedTexture {
+        SDL_Texture* texture = nullptr;
+        int width = 0;
+        int height = 0;
+        int offset_x = 0;
+        int offset_y = 0;
+    };
+    static std::unordered_map<int, CachedTexture> g_asset_texture_cache;
+
     static bool g_initialized = false;
+    static SDL_Texture* g_cursor_arrow_texture = nullptr;
+
+    static CachedTexture* g_brush = nullptr;
+    static int g_brush_fid = -1;
+
+    CachedTexture* get_or_create_texture(fallout::FrmId frm_id) {
+        int fid = frm_id.fid();
+
+        auto it = g_asset_texture_cache.find(fid);
+        if (it != g_asset_texture_cache.end()) return &it->second;
+
+        CachedTexture entry;
+        entry.texture = create_sdl_texture_from_fid(frm_id);
+        if (entry.texture) {
+            SDL_QueryTexture(entry.texture, nullptr, nullptr, &entry.width, &entry.height);
+            g_asset_texture_cache[fid] = entry;
+
+            return &g_asset_texture_cache[fid];
+        }
+
+        return nullptr;
+    }
+
+    static void render_brush() {
+        if (g_brush_fid == -1 || !g_brush) return;
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        int mouse_x = static_cast<int>(io.MousePos.x);
+        int mouse_y = static_cast<int>(io.MousePos.y);
+
+        int current_tile = fallout::tileFromScreenXY(mouse_x, mouse_y, fallout::gElevation);
+
+        if (current_tile != -1) {
+            int tile_screen_x = 0;
+            int tile_screen_y = 0;
+            fallout::tileToScreenXY(current_tile, &tile_screen_x, &tile_screen_y);
+
+            int screen_center_x = tile_screen_x + 16;
+            int screen_center_y = tile_screen_y + 12;
+            int offset_x = screen_center_x - (g_brush->width / 2);
+            int offset_y = screen_center_y - g_brush->height;
+
+            SDL_Rect dst_rect = {offset_x, offset_y, g_brush->width, g_brush->height};
+
+            SDL_SetTextureBlendMode(g_brush->texture, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(g_brush->texture, 128);
+
+            SDL_RenderCopy(fallout::gSdlRenderer, g_brush->texture, nullptr, &dst_rect);
+
+            // ImVec2 p_min = ImVec2(static_cast<float>(offset_x), static_cast<float>(offset_y));
+            // ImVec2 p_max = ImVec2(p_min.x + g_brush->width, p_min.y + g_brush->height);
+            //
+            // ImU32 alpha_color = IM_COL32(255, 255, 255, 128);
+            //
+            // ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_brush->texture, p_min, p_max, ImVec2(0, 0),
+            //                                          ImVec2(1, 1), alpha_color);
+        }
+    }
 
     void initialize() {
         if (g_initialized) return;
@@ -91,7 +152,7 @@ namespace ck::debug::ui {
         // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
         fallout::FrmId cursor_frm = fallout::InterfaceFrameId::MouseCursorStandardArrow;
-        g_cursor_arrow_texture = create_sdl_texture_from_fid(fallout::gSdlRenderer, cursor_frm);
+        g_cursor_arrow_texture = create_sdl_texture_from_fid(cursor_frm);
 
         ImGui_ImplSDL2_InitForSDLRenderer(fallout::gSdlWindow, fallout::gSdlRenderer);
         ImGui_ImplSDLRenderer2_Init(fallout::gSdlRenderer);
@@ -111,8 +172,13 @@ namespace ck::debug::ui {
         ImGui_ImplSDL2_Shutdown();
         ImGui::DestroyContext();
 
+        for (auto& [fid, cached] : g_asset_texture_cache) {
+            if (cached.texture) SDL_DestroyTexture(cached.texture);
+        }
+        g_asset_texture_cache.clear();
+
         g_brush_fid = -1;
-        g_brush_texture = nullptr;
+        g_brush = nullptr;
 
         g_initialized = false;
     }
@@ -123,9 +189,8 @@ namespace ck::debug::ui {
         ImGui_ImplSDL2_ProcessEvent(static_cast<SDL_Event*>(event));
     }
 
-    void render(void *renderer) {
+    void render() {
         if (!g_initialized || !ck::debug::enabled()) return;
-        SDL_Renderer* sdl_renderer = static_cast<SDL_Renderer*>(renderer);
 
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
@@ -145,57 +210,24 @@ namespace ck::debug::ui {
         if (ImGui::Button("Spawn Scenery (Tree)")) {
             logger.info.banner("BRUSH ACTIVATED!");
 
-            if (g_brush_texture) {
-                SDL_DestroyTexture(g_brush_texture);
+            if (g_brush) {
+                SDL_DestroyTexture(g_brush->texture);
                 g_brush_fid = -1;
             }
 
             g_brush_fid = 33555377;
-            g_brush_texture = create_sdl_texture_from_fid(sdl_renderer, fallout::FrmId(g_brush_fid));
+            g_brush = get_or_create_texture(fallout::FrmId(g_brush_fid));
         }
 
         if (g_brush_fid != -1) {
             ImGui::SameLine();
             if (ImGui::Button("Cancel")) {
                 g_brush_fid = -1;
-                if (g_brush_texture) {
-                    SDL_DestroyTexture(g_brush_texture);
-                    g_brush_texture = nullptr;
-                }
+                g_brush = nullptr;
             }
         }
 
-        if (g_brush_fid != -1 && g_brush_texture) {
-            ImGuiIO& io = ImGui::GetIO();
-
-            int mouse_x = static_cast<int>(io.MousePos.x);
-            int mouse_y = static_cast<int>(io.MousePos.y);
-
-            int current_tile = fallout::tileFromScreenXY(mouse_x, mouse_y, fallout::gElevation);
-
-            if (current_tile != -1) {
-                int tile_screen_x = 0;
-                int tile_screen_y = 0;
-                fallout::tileToScreenXY(current_tile, &tile_screen_x, &tile_screen_y);
-
-                int w = 0, h = 0;
-                SDL_QueryTexture(g_brush_texture, nullptr, nullptr, &w, &h);
-
-                int screenCenterX = tile_screen_x + 16;
-                int screenCenterY = tile_screen_y + 12;
-
-                int offsetX = screenCenterX - (w / 2);
-                int offsetY = screenCenterY - h;
-
-                ImVec2 p_min = ImVec2(static_cast<float>(offsetX), static_cast<float>(offsetY));
-                ImVec2 p_max = ImVec2(p_min.x + w, p_min.y + h);
-
-                ImU32 alpha_color = IM_COL32(255, 255, 255, 128);
-
-                ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_brush_texture, p_min, p_max, ImVec2(0, 0),
-                                                         ImVec2(1, 1), alpha_color);
-            }
-        }
+        render_brush();
 
         ImGui::End();
 
@@ -213,7 +245,7 @@ namespace ck::debug::ui {
         }
 
         ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), sdl_renderer);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), fallout::gSdlRenderer);
     }
 
     bool want_capture_mouse() {

@@ -16,7 +16,7 @@ namespace ck::debug {
 
     namespace ui {
         void process_event(void *event);
-        void render(void *renderer);
+        void render();
 
         bool want_capture_mouse();
         bool want_capture_keyboard();
@@ -30,7 +30,7 @@ namespace ck::debug {
 
     namespace ui {
         inline void process_event(void *event) {};
-        inline void render(void *renderer) {};
+        inline void render() {};
 
         inline bool want_capture_mouse() { return false; };
         inline bool want_capture_keyboard() { return false; };
