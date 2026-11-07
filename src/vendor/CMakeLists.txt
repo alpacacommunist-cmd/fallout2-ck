@@ -1,3 +1,6 @@
 add_subdirectory(luajit)
-add_subdirectory(sqlite3)
-add_subdirectory(imgui)
+
+if(CK_ENABLE_EDITOR)
+    add_subdirectory(sqlite3)
+    add_subdirectory(imgui)
+endif()

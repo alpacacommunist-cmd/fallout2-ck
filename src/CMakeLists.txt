@@ -1,16 +1,10 @@
-add_library(fallout2-ck STATIC
+set(CORE_SOURCES
     system/init.cc
     system/hooks.cc
     system/rendering.cc
     system/i18n.cc
     system/encoding.cc
     system/input/input.cc
-
-    debug/overlay.cc
-    debug/ui.cc
-    debug/hexes.cc
-    debug/render.cc
-    debug/object_format.cc
 
     engine/config/patch.cc
     engine/config/maps.cc
@@ -46,7 +40,6 @@ add_library(fallout2-ck STATIC
     ck_state/ck_state.cc
     ck_dispatcher/ck_dispatcher.cc
 
-
     ck_registry/ck_registry.cc
     ck_registry/ck_registry_created.cc
     ck_registry/ck_registry_deleted.cc
@@ -77,6 +70,32 @@ add_library(fallout2-ck STATIC
     object/ck_item.cc
 )
 
+if(CK_ENABLE_EDITOR)
+    set(EDITOR_SOURCES
+        debug/ui.cc
+        debug/overlay.cc
+        debug/hexes.cc
+        debug/render.cc
+        debug/object_format.cc
+    )
+
+    set(EDITOR_LIBS 
+        sqlite3_vendor
+        imgui_vendor
+    )
+
+    set(EDITOR_INCLUDES
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/sqlite3"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/"
+    )
+else()
+    set(EDITOR_SOURCES "")
+    set(EDITOR_LIBS "")
+    set(EDITOR_INCLUDES "")
+endif()
+
+add_library(fallout2-ck STATIC ${CORE_SOURCES} ${EDITOR_SOURCES})
+
 target_precompile_headers(fallout2-ck PRIVATE
     <algorithm>
 	<vector>
@@ -92,16 +111,15 @@ target_compile_features(fallout2-ck PRIVATE cxx_std_20)
 target_include_directories(fallout2-ck PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/../include/"
     "${CMAKE_CURRENT_SOURCE_DIR}/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/sqlite3"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/picojson/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui/"
+    ${EDITOR_INCLUDES}
     $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
+
 target_link_libraries(fallout2-ck PUBLIC
-    sqlite3_vendor
+    ${EDITOR_LIBS}
     libluajit
-    imgui_vendor
     pthread
     dl
 )
