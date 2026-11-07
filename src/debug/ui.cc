@@ -95,9 +95,14 @@ namespace ck::debug::ui {
 
     void shutdown() {
         if (!g_initialized) return;
+
         ImGui_ImplSDLRenderer2_Shutdown();
         ImGui_ImplSDL2_Shutdown();
         ImGui::DestroyContext();
+
+        g_brush_fid = -1;
+        g_brush_texture = nullptr;
+
         g_initialized = false;
     }
 
@@ -115,21 +120,15 @@ namespace ck::debug::ui {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        bool show_window = true;
-        ImGui::Begin("Fallout 2 CK - Asset Manager", &show_window);
+        ImGui::Begin("Fallout 2 CK - Asset Manager");
         ImGui::Text("Hello from LuaJIT runtime workspace!");
-
-        if (!show_window) {
-            ck::debug::toggle();
-        }
 
         if (ImGui::Button("Spawn Scenery (Tree)")) {
             logger.info.banner("BRUSH ACTIVATED!");
 
             if (g_brush_texture) { SDL_DestroyTexture(g_brush_texture); }
 
-            // g_brush_fid = 33555377;
-            g_brush_fid = 0x040005E4;
+            g_brush_fid = 33555377;
             g_brush_texture = create_sdl_texture_from_fid(renderer, g_brush_fid);
         }
 
@@ -183,10 +182,10 @@ namespace ck::debug::ui {
     }
 
     bool want_capture_mouse() {
-        return g_initialized && g_show_overlay && ImGui::GetIO().WantCaptureMouse;
+        return g_initialized && ck::debug::enabled() && ImGui::GetIO().WantCaptureMouse;
     }
 
     bool want_capture_keyboard() {
-        return g_initialized && g_show_overlay && ImGui::GetIO().WantCaptureKeyboard;
+        return g_initialized && ck::debug::enabled() && ImGui::GetIO().WantCaptureKeyboard;
     }
 }
