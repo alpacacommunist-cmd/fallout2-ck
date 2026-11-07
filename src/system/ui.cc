@@ -3,8 +3,74 @@
 #include "vendor/imgui/backends/imgui_impl_sdl2.h"
 #include "vendor/imgui/backends/imgui_impl_sdlrenderer2.h"
 
+#include "fallout2-ce/art.h"
+
 #include "log.h"
 static logging::Context logger{"ck_ui.cc", logging::Source::Native};
+
+namespace fallout {
+    extern int gElevation;
+
+    unsigned char* directDrawGetPalette();
+
+	void mouseGetPosition(int* out_x, int* out_y);
+	int tileFromScreenXY(int x, int y, bool ignoreBounds);
+    int tileToScreenXY(int tile, int* screenX, int* screenY);
+}
+
+static bool g_initialized = false;
+static bool g_show_overlay = false;
+
+static int g_brush_fid = -1;
+static SDL_Texture* g_brush_texture = nullptr;
+
+SDL_Texture* create_sdl_texture_from_fid(SDL_Renderer* renderer, int fid) {
+    fallout::CacheEntry* entry = nullptr;
+    fallout::Art* art = fallout::artLock(fallout::FrmId(fid), &entry);
+
+    if (!entry) return nullptr;
+    int art_height = fallout::artGetHeight(art, 0, static_cast<fallout::Rotation>(0));
+    int art_width = fallout::artGetWidth(art, 0, static_cast<fallout::Rotation>(0));
+
+    // frm to sdl surface
+    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
+        fallout::artGetFrameData(art, 0, static_cast<fallout::Rotation>(0)),
+        art_width,
+        art_height,
+        8, // 8 bit per pixel (index)
+        art_width,
+        SDL_PIXELFORMAT_INDEX8
+    );
+
+    if (!surface) return nullptr;
+
+    unsigned char* current_palette = fallout::directDrawGetPalette();
+
+    // sdl palette << 2 shift
+    SDL_Palette* pool_palette = SDL_AllocPalette(256);
+    SDL_Color colors[256];
+
+    for (int index = 0; index < 256; index++) {
+        colors[index].r = current_palette[index * 3] << 2;
+        colors[index].g = current_palette[index * 3 + 1] << 2;
+        colors[index].b = current_palette[index * 3 + 2] << 2;
+
+        // trans backround
+        colors[index].a = (index == 0) ? 0 : 255;
+    }
+
+    SDL_SetPaletteColors(pool_palette, colors, 0, 256);
+    SDL_SetSurfacePalette(surface, pool_palette);
+
+    SDL_SetColorKey(surface, SDL_TRUE, 0);
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_FreeSurface(surface);
+    SDL_FreePalette(pool_palette);
+
+    return texture;
+}
 
 namespace ck::ui {
     static bool g_initialized = false;
@@ -53,7 +119,56 @@ namespace ck::ui {
         ImGui::Text("Hello from LuaJIT runtime workspace!");
 
         if (ImGui::Button("Spawn Scenery (Tree)")) {
-            logger.info.banner("SPAWNING!");
+            logger.info.banner("BRUSH ACTIVATED!");
+
+            if (g_brush_texture) { SDL_DestroyTexture(g_brush_texture); }
+
+            // g_brush_fid = 33555377;
+            g_brush_fid = 0x040005E4;
+            g_brush_texture = create_sdl_texture_from_fid(renderer, g_brush_fid);
+        }
+
+        if (g_brush_fid != -1) {
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel")) {
+                g_brush_fid = -1;
+                if (g_brush_texture) {
+                    SDL_DestroyTexture(g_brush_texture);
+                    g_brush_texture = nullptr;
+                }
+            }
+        }
+
+        if (g_brush_fid != -1 && g_brush_texture) {
+            ImGuiIO& io = ImGui::GetIO();
+
+            int mouse_x = static_cast<int>(io.MousePos.x);
+            int mouse_y = static_cast<int>(io.MousePos.y);
+
+            int current_tile = fallout::tileFromScreenXY(mouse_x, mouse_y, fallout::gElevation);
+
+            if (current_tile != -1) {
+                int tile_screen_x = 0;
+                int tile_screen_y = 0;
+                fallout::tileToScreenXY(current_tile, &tile_screen_x, &tile_screen_y);
+
+                int w = 0, h = 0;
+                SDL_QueryTexture(g_brush_texture, nullptr, nullptr, &w, &h);
+
+                int screenCenterX = tile_screen_x + 16;
+                int screenCenterY = tile_screen_y + 12;
+
+                int offsetX = screenCenterX - (w / 2);
+                int offsetY = screenCenterY - h;
+
+                ImVec2 p_min = ImVec2(static_cast<float>(offsetX), static_cast<float>(offsetY));
+                ImVec2 p_max = ImVec2(p_min.x + w, p_min.y + h);
+
+                ImU32 alpha_color = IM_COL32(255, 255, 255, 128);
+
+                ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_brush_texture, p_min, p_max, ImVec2(0, 0),
+                                                         ImVec2(1, 1), alpha_color);
+            }
         }
 
         ImGui::End();
@@ -69,4 +184,4 @@ namespace ck::ui {
     bool want_capture_keyboard() {
         return g_initialized && g_show_overlay && ImGui::GetIO().WantCaptureKeyboard;
     }
-} // namespace ck::ui
+}
