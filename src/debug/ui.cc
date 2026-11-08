@@ -30,6 +30,9 @@ SDL_Texture* create_sdl_texture_from_fid(fallout::FrmId frm_id) {
     int art_height = fallout::artGetHeight(art, 0, static_cast<fallout::Rotation>(0));
     int art_width = fallout::artGetWidth(art, 0, static_cast<fallout::Rotation>(0));
 
+    // if (frm_id.objectType() == fallout::ObjectType::OBJ_TYPE_SCENERY) {
+    // }
+
     // frm to sdl surface
     SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
         fallout::artGetFrameData(art, 0, static_cast<fallout::Rotation>(0)),
@@ -81,12 +84,12 @@ namespace ck::debug::ui {
     static std::unordered_map<int, CachedTexture> g_asset_texture_cache;
 
     static bool g_initialized = false;
-    static SDL_Texture* g_cursor_arrow_texture = nullptr;
 
+    static CachedTexture* g_cursor = nullptr;
     static CachedTexture* g_brush = nullptr;
     static int g_brush_fid = -1;
 
-    CachedTexture* get_or_create_texture(fallout::FrmId frm_id) {
+    static CachedTexture* get_or_create_texture(fallout::FrmId frm_id) {
         int fid = frm_id.fid();
 
         auto it = g_asset_texture_cache.find(fid);
@@ -141,6 +144,31 @@ namespace ck::debug::ui {
         }
     }
 
+    static void render_cursor(ImGuiIO& io) {
+        if (!g_cursor || !g_cursor->texture) return;
+
+        int mouse_x = static_cast<int>(io.MousePos.x);
+        int mouse_y = static_cast<int>(io.MousePos.y);
+
+        SDL_Rect dst_rect = { mouse_x, mouse_y, g_cursor->width, g_cursor->height };
+
+        SDL_SetTextureBlendMode(g_cursor->texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(g_cursor->texture, 255);
+
+        SDL_RenderCopy(fallout::gSdlRenderer, g_cursor->texture, nullptr, &dst_rect);
+
+        // int w = 0, h = 0;
+        // SDL_QueryTexture(g_cursor->texture, nullptr, nullptr, &w, &h);
+        //
+        // ImVec2 mouse_pos = io.MousePos;
+        //
+        // ImVec2 p_min = mouse_pos;
+        // ImVec2 p_max = ImVec2(mouse_pos.x + w, mouse_pos.y + h);
+        //
+        // ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_cursor->texture, p_min, p_max, ImVec2(0, 0),
+        //         ImVec2(1, 1), IM_COL32(255, 255, 255, 255));
+    }
+
     void initialize() {
         if (g_initialized) return;
 
@@ -152,7 +180,7 @@ namespace ck::debug::ui {
         // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
         fallout::FrmId cursor_frm = fallout::InterfaceFrameId::MouseCursorStandardArrow;
-        g_cursor_arrow_texture = create_sdl_texture_from_fid(cursor_frm);
+        g_cursor = get_or_create_texture(cursor_frm);
 
         ImGui_ImplSDL2_InitForSDLRenderer(fallout::gSdlWindow, fallout::gSdlRenderer);
         ImGui_ImplSDLRenderer2_Init(fallout::gSdlRenderer);
@@ -163,9 +191,9 @@ namespace ck::debug::ui {
     void shutdown() {
         if (!g_initialized) return;
 
-        if (g_cursor_arrow_texture) {
-            SDL_DestroyTexture(g_cursor_arrow_texture);
-            g_cursor_arrow_texture = nullptr;
+        if (g_cursor) {
+            SDL_DestroyTexture(g_cursor->texture);
+            g_cursor = nullptr;
         }
 
         ImGui_ImplSDLRenderer2_Shutdown();
@@ -231,21 +259,12 @@ namespace ck::debug::ui {
 
         ImGui::End();
 
-        if (io.WantCaptureMouse && g_cursor_arrow_texture) {
-            int w = 0, h = 0;
-            SDL_QueryTexture(g_cursor_arrow_texture, nullptr, nullptr, &w, &h);
-
-            ImVec2 mouse_pos = io.MousePos;
-
-            ImVec2 p_min = mouse_pos;
-            ImVec2 p_max = ImVec2(mouse_pos.x + w, mouse_pos.y + h);
-
-            ImGui::GetForegroundDrawList()->AddImage((ImTextureID)g_cursor_arrow_texture, p_min, p_max, ImVec2(0, 0),
-                                                     ImVec2(1, 1), IM_COL32(255, 255, 255, 255));
-        }
-
         ImGui::Render();
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), fallout::gSdlRenderer);
+
+        if (io.WantCaptureMouse && g_cursor) {
+            render_cursor(io);
+        }
     }
 
     bool want_capture_mouse() {
