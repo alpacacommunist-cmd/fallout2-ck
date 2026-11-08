@@ -206,6 +206,8 @@ namespace ck::hooks::system {
     void scripts_reset() {
         logger.debug("scripts_reset");
 
+        if (ck::debug::enabled()) ck::debug::toggle();
+
         ck::registry::clear();
         ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::clear_registries);
     }
