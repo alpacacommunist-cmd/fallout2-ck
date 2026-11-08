@@ -69,7 +69,7 @@ set(CORE_SOURCES
 
 if(CK_ENABLE_EDITOR)
     set(EDITOR_SOURCES
-        debug/ui.cc
+        debug/ui/ui.cc
         debug/overlay.cc
         debug/hexes.cc
         debug/render.cc

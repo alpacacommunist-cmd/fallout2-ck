@@ -22,57 +22,6 @@ namespace fallout {
     int tileToScreenXY(int tile, int* screenX, int* screenY);
 }
 
-SDL_Texture* create_sdl_texture_from_fid(fallout::FrmId frm_id) {
-    fallout::CacheEntry* entry = nullptr;
-    fallout::Art* art = fallout::artLock(frm_id, &entry);
-
-    if (!entry) return nullptr;
-    int art_height = fallout::artGetHeight(art, 0, static_cast<fallout::Rotation>(0));
-    int art_width = fallout::artGetWidth(art, 0, static_cast<fallout::Rotation>(0));
-
-    // if (frm_id.objectType() == fallout::ObjectType::OBJ_TYPE_SCENERY) {
-    // }
-
-    // frm to sdl surface
-    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
-        fallout::artGetFrameData(art, 0, static_cast<fallout::Rotation>(0)),
-        art_width,
-        art_height,
-        8, // 8 bit per pixel (index)
-        art_width,
-        SDL_PIXELFORMAT_INDEX8
-    );
-
-    if (!surface) return nullptr;
-
-    unsigned char* current_palette = fallout::directDrawGetPalette();
-
-    // sdl palette << 2 shift
-    SDL_Palette* pool_palette = SDL_AllocPalette(256);
-    SDL_Color colors[256];
-
-    for (int index = 0; index < 256; index++) {
-        colors[index].r = current_palette[index * 3] << 2;
-        colors[index].g = current_palette[index * 3 + 1] << 2;
-        colors[index].b = current_palette[index * 3 + 2] << 2;
-
-        // trans backround
-        colors[index].a = (index == 0) ? 0 : 255;
-    }
-
-    SDL_SetPaletteColors(pool_palette, colors, 0, 256);
-    SDL_SetSurfacePalette(surface, pool_palette);
-
-    SDL_SetColorKey(surface, SDL_TRUE, 0);
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(fallout::gSdlRenderer, surface);
-
-    SDL_FreeSurface(surface);
-    SDL_FreePalette(pool_palette);
-
-    return texture;
-}
-
 namespace ck::debug::ui {
     struct CachedTexture {
         SDL_Texture* texture = nullptr;
@@ -83,29 +32,73 @@ namespace ck::debug::ui {
     };
     static std::unordered_map<int, CachedTexture> g_asset_texture_cache;
 
-    static bool g_initialized = false;
+    CachedTexture create_cached_texture(fallout::FrmId frm_id) {
+        CachedTexture result;
+        fallout::FrmImage frm;
 
-    static CachedTexture* g_cursor = nullptr;
-    static CachedTexture* g_brush = nullptr;
-    static int g_brush_fid = -1;
+        if (!frm.lock(frm_id)) { return result; }
 
-    static CachedTexture* get_or_create_texture(fallout::FrmId frm_id) {
+        int width = frm.getWidth();
+        int height = frm.getHeight();
+        int offset_x = frm.getXOffset();
+        int offset_y = frm.getYOffset();
+
+        SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(frm.getData(), width, height, 8, width, SDL_PIXELFORMAT_INDEX8);
+
+        if (!surface) return result;
+
+        unsigned char *current_palette = fallout::directDrawGetPalette();
+        SDL_Palette *pool_palette = SDL_AllocPalette(256);
+        SDL_Color colors[256];
+
+        for (int index = 0; index < 256; index++) {
+            colors[index].r = current_palette[index * 3] << 2;
+            colors[index].g = current_palette[index * 3 + 1] << 2;
+            colors[index].b = current_palette[index * 3 + 2] << 2;
+            colors[index].a = (index == 0) ? 0 : 255;
+        }
+
+        SDL_SetPaletteColors(pool_palette, colors, 0, 256);
+        SDL_SetSurfacePalette(surface, pool_palette);
+        SDL_SetColorKey(surface, SDL_TRUE, 0);
+
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(fallout::gSdlRenderer, surface);
+
+        SDL_FreeSurface(surface);
+        SDL_FreePalette(pool_palette);
+
+        if (texture) {
+            result.texture = texture;
+            result.width = width;
+            result.height = height;
+            result.offset_x = offset_x;
+            result.offset_y = offset_y;
+        }
+
+        return result;
+    }
+
+    static CachedTexture *get_or_create_texture(fallout::FrmId frm_id) {
         int fid = frm_id.fid();
 
         auto it = g_asset_texture_cache.find(fid);
         if (it != g_asset_texture_cache.end()) return &it->second;
 
-        CachedTexture entry;
-        entry.texture = create_sdl_texture_from_fid(frm_id);
-        if (entry.texture) {
-            SDL_QueryTexture(entry.texture, nullptr, nullptr, &entry.width, &entry.height);
-            g_asset_texture_cache[fid] = entry;
+        CachedTexture entry = create_cached_texture(frm_id);
 
+        if (entry.texture) {
+            g_asset_texture_cache[fid] = entry;
             return &g_asset_texture_cache[fid];
         }
 
         return nullptr;
     }
+
+    static bool g_initialized = false;
+
+    static CachedTexture* g_cursor = nullptr;
+    static CachedTexture* g_brush = nullptr;
+    static int g_brush_fid = -1;
 
     static void render_brush() {
         if (g_brush_fid == -1 || !g_brush) return;
@@ -122,8 +115,8 @@ namespace ck::debug::ui {
             int tile_screen_y = 0;
             fallout::tileToScreenXY(current_tile, &tile_screen_x, &tile_screen_y);
 
-            int screen_center_x = tile_screen_x + 16;
-            int screen_center_y = tile_screen_y + 12;
+            int screen_center_x = tile_screen_x; // + 16;
+            int screen_center_y = tile_screen_y; // + 12;
             int offset_x = screen_center_x - (g_brush->width / 2);
             int offset_y = screen_center_y - g_brush->height;
 
