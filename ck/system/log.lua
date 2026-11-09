@@ -1,4 +1,4 @@
-local ffi = require("ffi")
+local ffi = require('ffi')
 
 local Level = { Info = 0, Success = 1, Debug = 2, Warning = 3, Error = 4 }
 local Style = { Normal = 0, Raw = 1, Minimal = 2, Rule = 3, Banner = 4, Box = 5, List = 6, Highlight = 7 }
@@ -9,9 +9,11 @@ Logger.__index = Logger
 
 function Logger.new(level, context, style)
   local self = setmetatable({}, Logger)
+
   self.level = level
   self.context = context
   self.style = style or Style.Normal
+
   return self
 end
 
@@ -21,7 +23,13 @@ function Logger:__call(fmt, ...)
   local args_count = select('#', ...)
 
   if args_count > 0 then
-    message = string.format(tostring(fmt), ...)
+    local status, res = pcall(string.format, tostring(fmt), ...)
+    if status then
+      message = res
+    else
+      message = string.format("[Log Error - bad arguments passed to fmt: %s]", tostring(fmt))
+      self.level = Level.Error
+    end
   else
     message = tostring(fmt or "")
   end
