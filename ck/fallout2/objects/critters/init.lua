@@ -51,7 +51,7 @@ local _register_validated = function(tag, mod_id, params)
       ffi.C.ck_critter_handle_dead_critter_spawn(critter_state.id, params.pid, critter_state.tile)
     end
 
-    return nil
+    return ck.tools.null_object()
   end
 
   -- spawn params
@@ -67,7 +67,7 @@ local _register_validated = function(tag, mod_id, params)
 
   if critter == nil then
     log.error("Failed to register critter (FFI) (tag: %s)", tag)
-    return nil
+    return ck.tools.null_object()
   end
 
   -- update active tags list
@@ -86,7 +86,7 @@ local function _handle_registration(func_name, tag, params, autotag_fallback)
 
   if not validations.base_params(params) then
     log.error(string.format("(%s): Couldn't create critter (params validation failing)", func_name))
-    return nil
+    return ck.tools.null_object()
   end
 
   local mod_id = ck.tools.current_mod_id()
@@ -97,7 +97,7 @@ local function _handle_registration(func_name, tag, params, autotag_fallback)
 
   if not validations.tag_presence_and_uniqueness(mod_id, tag) then
     log.error(string.format("(%s): Couldn't create critter (tag validation failing)", func_name))
-    return nil
+    return ck.tools.null_object()
   end
 
   -- sets defaults

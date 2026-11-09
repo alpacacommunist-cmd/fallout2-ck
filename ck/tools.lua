@@ -2,6 +2,7 @@ local ffi = require('ffi')
 
 local tools = {}
 
+-- SECTION: object types
 tools.object_types = {
   [0] = "item",
   [1] = "critter",
@@ -23,6 +24,30 @@ function tools.object_type_string_by_pid(pid)
   local type_id = ffi.C.ck_ids_object_type_by_pid(pid)
 
   return tools.object_types[type_id] or "unknown"
+end
+
+-- SECTION: null object mt
+local null_object
+local null_object_mt = {
+  __index = function(self, key)
+    return null_object
+  end,
+
+  __call = function(tbl, ...)
+    return null_object
+  end,
+
+  __newindex = function(tbl, key, value)
+  end,
+
+  __tostring = function(self)
+    return "[Null Object: object creation failed]"
+  end
+}
+
+null_object = setmetatable({}, null_object_mt)
+function tools.null_object()
+  return null_object
 end
 
 -- current_mod_id (nullptr or string)
