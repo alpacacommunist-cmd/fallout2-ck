@@ -146,7 +146,7 @@ ffi.cdef[[
   // --- Object Base ---
   char* ck_object_get_name(fallout_Object* object);
   char* ck_object_get_description(fallout_Object* object);
-  int ck_object_get_type(void* ptr);
+  int ck_object_get_type(fallout_Object* object);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
   const char* ck_registry_object_get_mod_id(fallout_Object* object);

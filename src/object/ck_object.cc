@@ -156,8 +156,8 @@ char* ck_object_get_description(fallout::Object* object) {
 	return fallout::objectGetDescription(object);
 }
 
-int ck_object_get_type(void* ptr) {
-	if (!ptr) return -1; fallout::Object* object = static_cast<fallout::Object*>(ptr);
+int ck_object_get_type(fallout::Object* object) {
+    CK_ENSURE_VALID_OBJECT(object);
 	return ck::object::type(object->pid);
 }
 
