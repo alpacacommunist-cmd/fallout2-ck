@@ -28,8 +28,14 @@ critter_validations.base_params = function(params)
   end
 
   -- pid
-  if (type(params.pid) ~= "number" or params.pid <= 0) then
+  local pid_valid = type(params.pid) == "number" and params.pid > 0
+  if (not pid_valid) then
     log.error("pid(int) must be specified")
+    success = false
+  end
+
+  if (pid_valid and ck.tools.object_type_string_by_pid(params.pid) ~= 'critter') then
+    log.error('pid object type is not of type "critter"')
     success = false
   end
 
