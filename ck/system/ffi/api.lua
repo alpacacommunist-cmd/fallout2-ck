@@ -45,7 +45,8 @@ ffi.cdef[[
   int  ck_current_map_id();
   int  ck_current_elevation();
 
-  bool ck_is_ck_script_index(int script_index);
+  bool ck_ids_is_ck_script_index(int script_index);
+  int ck_ids_object_type_by_pid(int pid);
 
   // --- Encoding ---
   size_t ck_cp1251_to_utf8(const char* in_cp1251, char* out_utf8, size_t max_size); size_t strlen(const char* s);

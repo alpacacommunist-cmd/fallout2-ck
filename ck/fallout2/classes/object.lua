@@ -48,7 +48,7 @@ function Object.new(fallout_Object)
 end
 
 function Object:has_lua_script_index()
-  return ffi.C.ck_is_ck_script_index(self.raw.scriptIndex)
+  return ffi.C.ck_ids_is_ck_script_index(self.raw.scriptIndex)
 end
 
 function Object:bind()

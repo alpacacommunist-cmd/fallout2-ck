@@ -206,6 +206,10 @@ int ck_ids_art_id_from_fid(int fid) {
     return ck::ids::art_id_from_fid(fid);
 }
 
-bool ck_is_ck_script_index(int script_index) {
+bool ck_ids_is_ck_script_index(int script_index) {
     return ck::ids::is_ck_script_index(script_index);
+}
+
+int ck_ids_object_type_by_pid(int pid) {
+    return ck::ids::object_type(pid);
 }
