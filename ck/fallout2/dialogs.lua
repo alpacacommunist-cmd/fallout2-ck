@@ -12,9 +12,14 @@ local dialog = {
 }
 
 -- TODO: add mod_id
-function dialog.register(lua_id, fn_or_nodes)
-  dialog.registry[lua_id] = fn_or_nodes
-  log.info("Registered dialog for npc: " .. tostring(lua_id))
+function dialog.register(id, fn_or_nodes)
+  if not id or type(id) ~= "number" then
+    log.warning("(dialog.register): Skipped dialog registration (invalid or null ID)")
+    return false
+  end
+
+  dialog.registry[id] = fn_or_nodes
+  log.info("Registered dialog for id: " .. tostring(id))
 end
 
 function dialog.add_option(text, reaction)

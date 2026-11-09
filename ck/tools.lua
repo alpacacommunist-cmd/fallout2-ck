@@ -30,6 +30,10 @@ end
 local null_object
 local null_object_mt = {
   __index = function(self, key)
+    if key == "id" or key == "pid" then
+      return nil
+    end
+
     return null_object
   end,
 

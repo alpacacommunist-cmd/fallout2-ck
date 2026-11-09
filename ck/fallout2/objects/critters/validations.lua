@@ -34,7 +34,7 @@ critter_validations.base_params = function(params)
     success = false
   end
 
-  if (pid_valid and ck.tools.object_type_string_by_pid(params.pid) ~= 'item') then
+  if (pid_valid and ck.tools.object_type_string_by_pid(params.pid) ~= 'critter') then
     log.error('pid object type is not of type "critter"')
     success = false
   end
