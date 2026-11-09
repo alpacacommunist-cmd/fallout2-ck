@@ -76,8 +76,7 @@ local _register_validated = function(tag, mod_id, params)
   return CritterClass.new(critter, params)
 end
 
--- main register function
-function critters.register(tag, params)
+local function _handle_registration(func_name, tag, params, autotag_fallback)
   -- allows tag to be specified through params.tag or as first argument
   if type(tag) == "table" and params == nil then
     params = tag
@@ -86,14 +85,18 @@ function critters.register(tag, params)
   end
 
   if not validations.base_params(params) then
-    log.error("(register): Couldn't create critter (params validation failing)")
+    log.error(string.format("(%s): Couldn't create critter (params validation failing)", func_name))
     return nil
   end
 
   local mod_id = ck.tools.current_mod_id()
 
+  if tag == nil and autotag_fallback then
+    tag = autotag_fallback(params)
+  end
+
   if not validations.tag_presence_and_uniqueness(mod_id, tag) then
-    log.error("(register): Couldn't create critter (tag validation failing)")
+    log.error(string.format("(%s): Couldn't create critter (tag validation failing)", func_name))
     return nil
   end
 
@@ -106,36 +109,16 @@ function critters.register(tag, params)
   return _register_validated(tag, mod_id, params)
 end
 
+-- main register function
+function critters.register(tag, params)
+  return _handle_registration("register", tag, params)
+end
+
 -- allows optional tag (nil is replaced with autotag)
 function critters.create(tag, params)
-  -- allows tag to be specified through params.tag or as first argument
-  if type(tag) == "table" and params == nil then
-    params = tag
-    tag = params.tag
-    params.tag = nil
-  end
-
-  if not validations.base_params(params) then
-    log.error("(create): Couldn't create critter (params validation failing)")
-    return nil
-  end
-
-  -- generates autotag anchor_{tile}
-  local mod_id = ck.tools.current_mod_id()
-
-  if tag == nil then tag = string.format("anchor_%d", params.tile) end
-  if not validations.tag_presence_and_uniqueness(mod_id, tag) then
-    log.error("(create): Couldn't create critter (tag validation failing)")
-    return nil
-  end
-
-  -- sets defaults
-  params.elevation    = params.elevation or ffi.C.ck_current_elevation()
-  params.script_index = params.script_index or -1
-  params.team         = params.team or -1
-  params.respawn      = params.respawn or nil
-
-  return _register_validated(tag, mod_id, params)
+  return _handle_registration("create", tag, params, function(_params)
+    return string.format("anchor_%d", _params.tile)
+  end)
 end
 
 -- PUBLIC
