@@ -180,15 +180,15 @@ int ck_anim_move_to(void* ptr, int tile, int elevation) {
 	return fallout::animationRegisterMoveToTile(object, tile, ck::utils::types::map_elevation(elevation), -1, 0);
 }
 
-int ck_anim_play(void* ptr, int anim_id) {
-	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
+int ck_critter_anim_play(fallout::Object* critter, int anim_id) {
+    CK_ENSURE_VALID_OBJECT(critter);
 
-	return fallout::animationRegisterAnimate(object, static_cast<fallout::AnimationType>(anim_id), 0);
+	return fallout::animationRegisterAnimate(critter, static_cast<fallout::AnimationType>(anim_id), 0);
 }
 
-int ck_anim_clear(void* ptr) {
-	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
-	return fallout::reg_anim_clear(object);
+int ck_critter_anim_clear(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+	return fallout::reg_anim_clear(critter);
 }
 
 int ck_anim_end() {
