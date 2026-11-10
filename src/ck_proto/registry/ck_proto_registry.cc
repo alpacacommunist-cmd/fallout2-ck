@@ -1,6 +1,6 @@
 #include "ck_ids.h"
 #include "ck_proto_registry.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include <algorithm>
 #include <memory>

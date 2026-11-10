@@ -1,5 +1,5 @@
 #include "lua/ffi/system.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 #include "ck_dispatcher/ck_dispatcher.h"
 
 namespace fallout {

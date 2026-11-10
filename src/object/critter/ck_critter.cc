@@ -10,7 +10,7 @@
 #include "script/ck_script.h"
 
 #include "ck_gameplay_common.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include "fallout2-ce/animation.h"
 

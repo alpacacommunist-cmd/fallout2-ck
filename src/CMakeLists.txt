@@ -27,6 +27,9 @@ set(CORE_SOURCES
     lua/ffi/gameplay.cc
     lua/ffi/manifest.cc
 
+    # Runtime
+    runtime/mods.cc
+
     lua/proxy/proxy.cc
     lua/proxy/dispatcher.cc
     lua/proxy/state.cc
@@ -36,7 +39,6 @@ set(CORE_SOURCES
     geometry/geometry.cc
     geometry/landscape.cc
 
-    ck_mods/ck_mods.cc
     ck_state/ck_state.cc
     ck_dispatcher/ck_dispatcher.cc
 

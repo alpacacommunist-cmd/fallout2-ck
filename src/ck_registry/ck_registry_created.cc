@@ -1,6 +1,6 @@
 #include "ck_registry/ck_registry.h"
-#include "ck_mods/ck_mods.h"
 #include "utils/fallout/types/object.h"
+#include "runtime/mods.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry_created.cc"};

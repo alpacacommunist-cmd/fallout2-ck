@@ -1,6 +1,6 @@
 #include "ck_ids.h"
 #include "ck_registry/ck_registry.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 #include "utils/fallout/types/object.h"
 
 #include "log.h"

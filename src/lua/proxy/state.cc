@@ -1,6 +1,6 @@
 #include "lua/proxy/proxy.h"
 #include "lua/proxy/state.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include <lua.hpp>
 #include <algorithm>

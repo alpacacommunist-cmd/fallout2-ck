@@ -4,7 +4,7 @@
 #include "ck_registry/ck_registry.h"
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include "fallout2-ce/proto_types.h"
 

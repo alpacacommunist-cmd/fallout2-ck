@@ -2,7 +2,7 @@
 #include "lua/proxy/proxy.h"
 #include "lua/proxy/dispatcher.h"
 #include "object/ck_object.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"dispatcher.cc"};

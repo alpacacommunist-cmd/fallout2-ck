@@ -7,7 +7,7 @@
 #include "fallout2-ce/tile.h"
 
 #include "system/rendering.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_rendering.cc"};

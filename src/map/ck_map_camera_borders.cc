@@ -1,5 +1,5 @@
 #include "map/ck_map_camera_borders.h"
-#include "ck_mods/ck_mods.h"
+#include "runtime/mods.h"
 
 #include <unordered_map>
 #include <vector>
