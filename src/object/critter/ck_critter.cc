@@ -164,7 +164,7 @@ int ck_anim_begin(void* ptr, int request_options) {
 	return fallout::reg_anim_begin(static_cast<fallout::AnimationRequestOptions>(request_options));
 }
 
-int ck_anim_take_out_weapon(fallout::Object* critter, int delay) {
+int ck_anim_take_out_weapon(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
 
     fallout::Object* weapon = fallout::_ai_search_inven_weap(critter, false, nullptr);

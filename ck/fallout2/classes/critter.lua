@@ -13,7 +13,7 @@ local skills    = require('ck.fallout2.objects.critters.skills')
 local Object = require("ck.fallout2.classes.object")
 
 local Critter = {}
-Critter.__index = Critter -- instances look for methods here
+Critter.__index = Critter
 
 setmetatable(Critter, { __index = Object })
 
@@ -25,9 +25,6 @@ function Critter.new(fallout_Object, config)
   if self.has_custom_prototype then
     self.proto = ck.registries.prototypes[self.mod_id].critters[self.pid]
   end
-
-  -- save respawn tag (used on object_destroy)
-  self._respawn_queue = config and config._respawn_queue or nil
 
   self.in_combat       = false
   self.active_behavior = nil
@@ -106,7 +103,7 @@ end
 
 function Critter:take_out_weapon()
   ffi.C.ck_anim_begin(self.raw, 0)
-  ffi.C.ck_anim_take_out_weapon(self.raw, 0)
+  ffi.C.ck_anim_take_out_weapon(self.raw)
   ffi.C.ck_anim_end()
 end
 
@@ -143,16 +140,6 @@ local proc_handlers = {
     log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
     return false
-    -- if fixed_param == 5 then
-    --   return false
-    -- end
-    --
-    -- if fixed_param == 4 then
-    --   self.in_combat = true
-    --   ffi.C.ck_critter_process_turn(self.raw, self.lua_id)
-    -- end
-
-    -- return true
   end,
 
   talk = function(self, fixed_param)
