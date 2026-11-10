@@ -94,7 +94,7 @@ function Critter:is_busy()
 end
 
 function Critter:clear_animations()
-  ffi.C.ck_anim_clear(self.raw)
+  ffi.C.ck_critter_anim_clear(self.raw)
 
   self._action_queue   = {}
   self._next_behavior_tick = 0
@@ -126,7 +126,7 @@ function Critter:animate()
   function builder:play(anim_id)
     table.insert(queue, function(critter_ptr)
       ffi.C.ck_anim_begin(critter_ptr, 0)
-      ffi.C.ck_anim_play(critter_ptr, anim_id)
+      ffi.C.ck_critter_anim_play(critter_ptr, anim_id)
       ffi.C.ck_anim_end()
     end)
     return self
