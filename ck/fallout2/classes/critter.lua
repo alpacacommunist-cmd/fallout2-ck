@@ -1,6 +1,17 @@
 local ffi   = require('ffi')
 local ck    = require('ck')
 local utils = require('ck.system.utils')
+-- TODO: move to animations.lua
+local bit = require('bit')
+
+local ANIMATION_REQUEST = {
+  NONE          = 0x00,
+  UNRESERVED    = 0x01,
+  RESERVED      = 0x02,
+  NO_STAND      = 0x04,
+  PING          = 0x100,
+  INSIGNIFICANT = 0x200,
+}
 
 local log   = ck.log.new('classes/critter.lua')
 
@@ -100,12 +111,29 @@ function Critter:take_out_weapon()
   ffi.C.ck_anim_end()
 end
 
+-- TODO: move to animations.lua
 function Critter:animate(request_options)
   local steps = {}
   local critter = self
+  local default_opts = self.active_behavior and ANIMATION_REQUEST.INSIGNIFICANT or ANIMATION_REQUEST.NONE
   local opts = request_options or 0
 
   local builder = {}
+
+  function builder:insignificant()
+    opts = bit.bor(opts, ANIMATION_REQUEST.INSIGNIFICANT)
+    return self
+  end
+
+  function builder:no_stand()
+    opts = bit.bor(opts, ANIMATION_REQUEST.NO_STAND)
+    return self
+  end
+
+  function builder:reserved()
+    opts = bit.bor(opts, ANIMATION_REQUEST.RESERVED)
+    return self
+  end
 
   -- delay: nil / -1 = wait prev step, 0 = parallel, >0 = delay (ticks)
   function builder:walk_to(target_tile, elevation, delay)

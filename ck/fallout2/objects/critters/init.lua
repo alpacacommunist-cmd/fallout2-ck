@@ -43,7 +43,7 @@ local _register_validated = function(tag, mod_id, params)
   local mod_map_state_db = state.ensure_mod_map_namespace(mod_id)
   local critter_state = mod_map_state_db.objects[tag]
 
-  if critter_state and critter_state.hp <= 0 then
+  if critter_state and critter_state.hp and critter_state.hp <= 0 then
     log.info("[%s] critter %s is dead", mod_id, tag)
 
     if ck.registries.prototypes[mod_id].critters[params.pid] then

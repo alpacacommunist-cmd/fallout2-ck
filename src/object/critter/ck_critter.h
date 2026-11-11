@@ -23,7 +23,7 @@ namespace ck::critter {
 }
 
 CK_API fallout::Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
-CK_API int ck_anim_begin(void* ptr, int weapon_ready);
+CK_API int ck_anim_begin(void* ptr, int request_options);
 CK_API int ck_take_out_weapon(fallout::Object* critter);
 CK_API int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation, int delay);
 CK_API int ck_critter_anim_run_to(fallout::Object* critter, int tile, int elevation, int delay);
