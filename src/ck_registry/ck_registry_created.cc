@@ -11,7 +11,6 @@ namespace fallout {
     // scripts.cc
     int scriptRemove(int index);
     // animation.cc
-    void animationStop();
     int reg_anim_clear(Object* obj);
     // object.cc
     int objectDestroy(Object* object, Rect* rect);
@@ -52,8 +51,9 @@ namespace ck::registry::created {
             }
         }
 
-        fallout::animationStop();
         for (fallout::Object *object : to_destroy) {
+            // clears animation queue
+            fallout::reg_anim_clear(object);
             // Removes script + active engine timers
             fallout::scriptRemove(ck_object::sid(object));
             // objectDestroy calls on_object_destroyed hook which clears g_ptr_to_lua_id
@@ -79,7 +79,6 @@ namespace ck::registry::created {
 }
 
 // FFI
-
 bool ck_registry_object_is_created(fallout::Object* object) {
     const auto* existing_entry = ck::registry::get(object);
 
