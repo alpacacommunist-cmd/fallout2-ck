@@ -26,6 +26,8 @@ CK_API fallout::Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParam
 CK_API int ck_anim_begin(void* ptr, int weapon_ready);
 CK_API int ck_take_out_weapon(fallout::Object* critter);
 CK_API int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation, int delay);
+CK_API int ck_critter_anim_run_to(fallout::Object* critter, int tile, int elevation, int delay);
+CK_API int ck_critter_anim_face_to(fallout::Object* critter, int tile);
 CK_API int ck_critter_anim_play(fallout::Object* critter, int anim_id, int delay);
 CK_API int ck_critter_anim_clear(fallout::Object* critter);
 CK_API int ck_anim_end();

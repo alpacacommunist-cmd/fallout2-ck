@@ -178,6 +178,16 @@ int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation, i
 	return fallout::animationRegisterMoveToTile(critter, tile, ck::utils::types::map_elevation(elevation), -1, delay);
 }
 
+int ck_critter_anim_run_to(fallout::Object* critter, int tile, int elevation, int delay) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return fallout::animationRegisterRunToTile(critter, tile, ck::utils::types::map_elevation(elevation), -1, delay);
+}
+
+int ck_critter_anim_face_to(fallout::Object* critter, int tile) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return fallout::animationRegisterRotateToTile(critter, tile);
+}
+
 int ck_critter_anim_play(fallout::Object* critter, int anim_id, int delay) {
     CK_ENSURE_VALID_OBJECT(critter);
 	return fallout::animationRegisterAnimate(critter, static_cast<fallout::AnimationType>(anim_id), delay);

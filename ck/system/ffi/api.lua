@@ -100,6 +100,8 @@ ffi.cdef[[
   // --- Critter Animations ---
   int ck_anim_begin(void* ptr, int weapon_ready);
   int ck_critter_anim_move_to(fallout_Object* critter, int tile, int elevation, int delay);
+  int ck_critter_anim_run_to(fallout_Object* critter, int tile, int elevation, int delay);
+  int ck_critter_anim_face_to(fallout_Object* critter, int tile);
   int ck_critter_anim_play(fallout_Object* critter, int anim_id, int delay);
   int ck_critter_anim_clear(fallout_Object* critter);
   int ck_anim_end();

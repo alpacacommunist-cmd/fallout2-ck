@@ -118,6 +118,24 @@ function Critter:animate(request_options)
     return self
   end
 
+  function builder:run_to(target_tile, elevation, delay)
+    table.insert(steps, {
+      type = "run",
+      tile = target_tile,
+      elev = elevation or critter.elevation or 0,
+      delay = delay or -1
+    })
+    return self
+  end
+
+  function builder:face_to(target_tile)
+    table.insert(steps, {
+      type = "face",
+      tile = target_tile
+    })
+    return self
+  end
+
   function builder:play(anim_id, delay)
     table.insert(steps, { type = "anim", id = anim_id, delay = delay or -1 })
     return self
@@ -131,6 +149,10 @@ function Critter:animate(request_options)
       local rc = -1
       if step.type == "walk" then
         rc = ffi.C.ck_critter_anim_move_to(critter.raw, step.tile, step.elev, step.delay)
+      elseif step.type == "run" then
+        rc = ffi.C.ck_critter_anim_run_to(critter.raw, step.tile, step.elev, step.delay)
+      elseif step.type == "face" then
+        rc = ffi.C.ck_critter_anim_face_to(critter.raw, step.tile)
       elseif step.type == "anim" then
         rc = ffi.C.ck_critter_anim_play(critter.raw, step.id, step.delay)
       end
@@ -201,3 +223,4 @@ function Critter:_handle_map_update(current_ticks)
 end
 
 return Critter
+

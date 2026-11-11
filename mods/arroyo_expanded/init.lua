@@ -188,9 +188,10 @@ events.on('map_enter', function(map_id)
 
   alice:animate()
     :walk_to(20913)
-    :walk_to(21116)
+    :run_to(21116)
     :play(16)
   :submit()
+
 
   log.info("Alice endurance: %d", alice.stats.endurance)
   log.info("Alice proto endurance: %d", alice.proto.stats.endurance)
@@ -229,6 +230,7 @@ events.on('map_enter', function(map_id)
     :set_skills({ unarmed = 100, small_guns = 85 })
 
   local trapper1 = critters.create("ftrapper1", { pid = female_trapper_prototype.pid, tile = 20909, script_index = 8, team = 0 })
+  trapper1:animate():run_to(23914):submit()
   -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)
