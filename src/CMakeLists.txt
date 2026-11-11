@@ -27,12 +27,12 @@ set(CORE_SOURCES
     lua/ffi/gameplay.cc
     lua/ffi/manifest.cc
 
-    # Runtime
-    runtime/mods.cc
-
     lua/proxy/proxy.cc
     lua/proxy/dispatcher.cc
     lua/proxy/state.cc
+
+    # Runtime
+    runtime/mods.cc
 
     ck_gameplay_common.cc
 
@@ -117,7 +117,6 @@ target_include_directories(fallout2-ck PUBLIC
     ${EDITOR_INCLUDES}
     $<TARGET_PROPERTY:SDL2-static,INTERFACE_INCLUDE_DIRECTORIES>
 )
-
 
 target_link_libraries(fallout2-ck PUBLIC
     ${EDITOR_LIBS}

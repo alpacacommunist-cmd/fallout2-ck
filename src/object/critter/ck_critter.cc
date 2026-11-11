@@ -109,7 +109,6 @@ namespace ck::critter {
         const char* mod_id = mods::current_mod_id();
 
         // Check if state json exists for given tag
-        // TODO: separate create/setLocation
 		proxy::ObjectState state = proxy::get_object_state(map_id, lua_tag);
         if (state.elevation != -1) spawn_params->elevation = state.elevation;
         if (state.tile != -1) tile = state.tile;
@@ -164,7 +163,7 @@ int ck_anim_begin(void* ptr, int request_options) {
 	return fallout::reg_anim_begin(static_cast<fallout::AnimationRequestOptions>(request_options));
 }
 
-int ck_anim_take_out_weapon(fallout::Object* critter) {
+int ck_take_out_weapon(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
 
     fallout::Object* weapon = fallout::_ai_search_inven_weap(critter, false, nullptr);
@@ -174,14 +173,14 @@ int ck_anim_take_out_weapon(fallout::Object* critter) {
     return fallout::inventoryEquipFunc(critter, weapon, fallout::Hand::HAND_RIGHT, false);
 }
 
-int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation) {
+int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation, int delay) {
     CK_ENSURE_VALID_OBJECT(critter);
-	return fallout::animationRegisterMoveToTile(critter, tile, ck::utils::types::map_elevation(elevation), -1, 0);
+	return fallout::animationRegisterMoveToTile(critter, tile, ck::utils::types::map_elevation(elevation), -1, delay);
 }
 
-int ck_critter_anim_play(fallout::Object* critter, int anim_id) {
+int ck_critter_anim_play(fallout::Object* critter, int anim_id, int delay) {
     CK_ENSURE_VALID_OBJECT(critter);
-	return fallout::animationRegisterAnimate(critter, static_cast<fallout::AnimationType>(anim_id), 0);
+	return fallout::animationRegisterAnimate(critter, static_cast<fallout::AnimationType>(anim_id), delay);
 }
 
 int ck_critter_anim_clear(fallout::Object* critter) {
@@ -218,7 +217,6 @@ bool ck_critter_process_turn(fallout::Object* critter, int lua_id) {
 
 bool ck_critter_kill(fallout::Object* object) {
     if (object == nullptr) return false;
-
 	return ck::critter::kill(object);
 }
 

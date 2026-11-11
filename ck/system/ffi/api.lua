@@ -98,12 +98,13 @@ ffi.cdef[[
   int ck_object_find_by_pid(int pid, fallout_Object** buffer, int max_count);
 
   // --- Critter Animations ---
-  int  ck_anim_begin(void* ptr, int weapon_ready);
-  int  ck_critter_anim_move_to(fallout_Object* critter, int tile, int elevation);
-  int  ck_critter_anim_play(fallout_Object* critter, int anim_id);
-  int  ck_critter_anim_clear(fallout_Object* critter);
-  int  ck_anim_end();
-  int  ck_anim_take_out_weapon(fallout_Object* critter);
+  int ck_anim_begin(void* ptr, int weapon_ready);
+  int ck_critter_anim_move_to(fallout_Object* critter, int tile, int elevation, int delay);
+  int ck_critter_anim_play(fallout_Object* critter, int anim_id, int delay);
+  int ck_critter_anim_clear(fallout_Object* critter);
+  int ck_anim_end();
+
+  int  ck_take_out_weapon(fallout_Object* critter);
   bool ck_critter_is_busy(fallout_Object* critter);
 
   // --- Critter ---
@@ -139,10 +140,10 @@ ffi.cdef[[
   void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
   // --- Critter HP ---
-  int  ck_critter_get_hp(void* ptr);
-  int  ck_critter_get_max_hp(void* ptr);
-  int  ck_critter_set_current_hp(void* ptr, int target_hp);
-  int  ck_critter_set_full_hp(void* ptr);
+  int ck_critter_get_hp(void* ptr);
+  int ck_critter_get_max_hp(void* ptr);
+  int ck_critter_set_current_hp(void* ptr, int target_hp);
+  int ck_critter_set_full_hp(void* ptr);
 
   // --- Object Base ---
   char* ck_object_get_name(fallout_Object* object);

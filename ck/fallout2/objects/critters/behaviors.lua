@@ -20,9 +20,7 @@ function behaviors.wander(radius)
       local target_tile = available_tiles[math.random(1, #available_tiles)]
 
       if not ffi.C.ck_tile_is_blocked(target_tile, critter.elevation) then
-        critter._is_moving = true
         critter:animate():walk_to(target_tile):submit()
-        critter._is_moving = false
       end
     end
   end
@@ -42,7 +40,6 @@ function behaviors.patrol(waypoints_table, delay_seconds)
     local target_tile = waypoints_table[current_idx]
 
     if critter_tile == target_tile then
-      critter._is_moving = false
 
       current_idx = current_idx + 1
       if current_idx > #waypoints_table then
@@ -53,7 +50,6 @@ function behaviors.patrol(waypoints_table, delay_seconds)
       return
     end
 
-    critter._is_moving = true
     critter:animate():walk_to(target_tile):submit()
   end
 end

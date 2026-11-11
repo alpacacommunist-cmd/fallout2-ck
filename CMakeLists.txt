@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(fallout2-ck C CXX)
 
 option(CK_ENABLE_EDITOR "Build with modder ui/db enabled" ON)
@@ -23,7 +24,7 @@ else()
     message(STATUS "==================================================")
 endif()
 
-# cmake -B build-dev -DCMAKE_BUILD_TYPE=Dev
+# cmake -B build-dev -DCMAKE_BUILD_TYPE=Dev -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 if(CMAKE_BUILD_TYPE STREQUAL "Dev")
     set(CMAKE_C_FLAGS_DEV "${CMAKE_C_FLAGS_RELWITHDEBINFO}" CACHE STRING "" FORCE)
     set(CMAKE_CXX_FLAGS_DEV "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "" FORCE)
@@ -54,8 +55,6 @@ else()
     message(STATUS "(${CMAKE_BUILD_TYPE}). LTO disabled.")
 endif()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # includes alias
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FalloutCeAlias)
@@ -75,6 +74,8 @@ add_subdirectory(src)
 foreach(TARGET fallout2-ce mapper-ce)
     if(TARGET ${TARGET})
         target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+        target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
         target_link_libraries(${TARGET} fallout2-ck)
         set_target_properties(${TARGET} PROPERTIES ENABLE_EXPORTS TRUE)
 

@@ -30,8 +30,6 @@ function Critter.new(fallout_Object, config)
   self.active_behavior = nil
 
   -- behivours
-  self._is_moving = false
-  self._action_queue   = {}
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 
@@ -80,6 +78,7 @@ function Critter:set_behavior(behavior_fn, ...)
       ffi.C.ck_script_disable_map_updates_for_object(self.raw)
     end
 
+    self:clear_animations()
     self.active_behavior = behavior_fn(...)
   end
 
@@ -92,44 +91,54 @@ end
 
 function Critter:clear_animations()
   ffi.C.ck_critter_anim_clear(self.raw)
-
-  self._action_queue   = {}
-  self._next_behavior_tick = 0
-  self._behavior_interval  = 20
-  self._is_moving = false
-
   return self
 end
 
 function Critter:take_out_weapon()
   ffi.C.ck_anim_begin(self.raw, 0)
-  ffi.C.ck_anim_take_out_weapon(self.raw)
+  ffi.C.ck_take_out_weapon(self.raw)
   ffi.C.ck_anim_end()
 end
 
-function Critter:animate()
-  local builder = {}
-  local queue = self._action_queue
+function Critter:animate(request_options)
+  local steps = {}
+  local critter = self
+  local opts = request_options or 0
 
-  function builder:walk_to(target_tile, elevation)
-    table.insert(queue, function(critter_ptr)
-      ffi.C.ck_anim_begin(critter_ptr, 0)
-      ffi.C.ck_critter_anim_move_to(critter_ptr, target_tile, elevation or 0)
-      ffi.C.ck_anim_end()
-    end)
+  local builder = {}
+
+  -- delay: nil / -1 = wait prev step, 0 = parallel, >0 = delay (ticks)
+  function builder:walk_to(target_tile, elevation, delay)
+    table.insert(steps, {
+      type = "walk",
+      tile = target_tile,
+      elev = elevation or critter.elevation or 0,
+      delay = delay or -1
+    })
     return self
   end
 
-  function builder:play(anim_id)
-    table.insert(queue, function(critter_ptr)
-      ffi.C.ck_anim_begin(critter_ptr, 0)
-      ffi.C.ck_critter_anim_play(critter_ptr, anim_id)
-      ffi.C.ck_anim_end()
-    end)
+  function builder:play(anim_id, delay)
+    table.insert(steps, { type = "anim", id = anim_id, delay = delay or -1 })
     return self
   end
 
   function builder:submit()
+    if #steps == 0 then return true end
+    if ffi.C.ck_anim_begin(critter.raw, opts) ~= 0 then return false end
+
+    for _, step in ipairs(steps) do
+      local rc = -1
+      if step.type == "walk" then
+        rc = ffi.C.ck_critter_anim_move_to(critter.raw, step.tile, step.elev, step.delay)
+      elseif step.type == "anim" then
+        rc = ffi.C.ck_critter_anim_play(critter.raw, step.id, step.delay)
+      end
+
+      if rc ~= 0 then return false end
+    end
+
+    return ffi.C.ck_anim_end() == 0
   end
 
   return builder
@@ -182,15 +191,6 @@ function Critter:_handle_map_update(current_ticks)
 
   -- 2: if called but busy - return
   if self:is_busy() then return end
-
-  -- 3: fifo queue
-  if #self._action_queue > 0 then
-    -- FIFO
-    local next_action = table.remove(self._action_queue, 1)
-    next_action(self.raw)
-
-    return
-  end
 
   -- 4: exec behavior!
   if self.active_behavior and current_ticks >= self._next_behavior_tick then
