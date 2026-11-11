@@ -114,7 +114,7 @@ function Critter:animate()
   function builder:walk_to(target_tile, elevation)
     table.insert(queue, function(critter_ptr)
       ffi.C.ck_anim_begin(critter_ptr, 0)
-      ffi.C.ck_anim_move_to(critter_ptr, target_tile, elevation or 0)
+      ffi.C.ck_critter_anim_move_to(critter_ptr, target_tile, elevation or 0)
       ffi.C.ck_anim_end()
     end)
     return self

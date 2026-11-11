@@ -174,15 +174,13 @@ int ck_anim_take_out_weapon(fallout::Object* critter) {
     return fallout::inventoryEquipFunc(critter, weapon, fallout::Hand::HAND_RIGHT, false);
 }
 
-int ck_anim_move_to(void* ptr, int tile, int elevation) {
-	if (!ptr) return -1; auto* object = static_cast<fallout::Object*>(ptr);
-
-	return fallout::animationRegisterMoveToTile(object, tile, ck::utils::types::map_elevation(elevation), -1, 0);
+int ck_critter_anim_move_to(fallout::Object* critter, int tile, int elevation) {
+    CK_ENSURE_VALID_OBJECT(critter);
+	return fallout::animationRegisterMoveToTile(critter, tile, ck::utils::types::map_elevation(elevation), -1, 0);
 }
 
 int ck_critter_anim_play(fallout::Object* critter, int anim_id) {
     CK_ENSURE_VALID_OBJECT(critter);
-
 	return fallout::animationRegisterAnimate(critter, static_cast<fallout::AnimationType>(anim_id), 0);
 }
 
@@ -197,7 +195,6 @@ int ck_anim_end() {
 
 bool ck_critter_is_busy(fallout::Object* critter) {
     CK_ENSURE_VALID_OBJECT(critter);
-
 	return fallout::animationIsBusy(critter) == -1;
 }
 
