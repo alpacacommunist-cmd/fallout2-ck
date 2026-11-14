@@ -192,7 +192,6 @@ events.on('map_enter', function(map_id)
     :play(16)
   :submit()
 
-
   log.info("Alice endurance: %d", alice.stats.endurance)
   log.info("Alice proto endurance: %d", alice.proto.stats.endurance)
   log.info("Alice hp: %d", alice:hp())
