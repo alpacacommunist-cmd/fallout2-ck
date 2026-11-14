@@ -58,6 +58,7 @@ static bool gDebugOverlayEnabled = false;
 static bool gNeedsRefresh = false;
 static bool gCameraSquareDrawn = false;
 static bool gAreaVisibilitySwitch = true;
+static bool scan_enabled = false;
 
 // different modes, WIP
 
@@ -167,27 +168,29 @@ static void ck_teleport_to_tile() {
 }
 
 
+static int sLastDudeTile = -1;
+
 static void mode_main_dude_scan() {
-	static int sLastDudeTile = -1;
+    if (!scan_enabled) return;
 
-	fallout::Object* dude = fallout::gDude;
-	if (dude == nullptr) return;
-	if (dude->tile == sLastDudeTile) return;
+    fallout::Object *dude = fallout::gDude;
+    if (dude == nullptr) return;
+    if (dude->tile == sLastDudeTile) return;
 
-	sLastDudeTile = dude->tile;
+    sLastDudeTile = dude->tile;
 
-	const int radius = 3;
+    const int radius = 3;
 
-	for (int direction = 0; direction < 6; direction++) {
-		for (int distance = 1; distance <= radius; distance++) {
-			int tile = fallout::tileGetTileInDirection(dude->tile, static_cast<fallout::Rotation>(direction), distance);
+    for (int direction = 0; direction < 6; direction++) {
+        for (int distance = 1; distance <= radius; distance++) {
+            int tile = fallout::tileGetTileInDirection(dude->tile, static_cast<fallout::Rotation>(direction), distance);
 
-			if (!hexGridTileIsValid(tile)) continue;
-			if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
+            if (!hexGridTileIsValid(tile)) continue;
+            if (ck_debug_overlay_find_hex(tile) != nullptr) continue;
 
-			ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));
-		}
-	}
+            ck_debug_overlay_add_hex(tile, ck_hex_state_for_tile(tile));
+        }
+    }
 }
 
 static void mode_main_paint() {
@@ -326,8 +329,8 @@ static void mode_main_export() {
 }
 
 static void mode_main() {
-    mode_main_dude_scan();
     mode_main_paint(); // uses shift+w (select) shift+x(clear)
+    mode_main_dude_scan();
 
     int pressed_key = ck::input::just_pressed_key();
     switch (pressed_key) {
@@ -355,6 +358,10 @@ static void mode_main() {
     case CK_KEY_T: {
         if (ck::input::alt()) ck_teleport_to_tile();
         if (ck::input::ctrl()) mode_main_teleport_to_map();
+        break;
+    }
+    case CK_KEY_S: {
+        if (ck::input::alt()) scan_enabled = !scan_enabled;
         break;
     }
     }
