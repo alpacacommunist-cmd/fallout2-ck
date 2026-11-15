@@ -53,9 +53,9 @@ CK_API int player_set_base_stat(int stat, int value);
 CK_API int player_set_bonus_stat(int stat, int value);
 CK_API int player_give_experience(int xp);
 
-CK_API int ck_critter_get_hp(void* ptr);
-CK_API int ck_critter_get_max_hp(void* ptr);
-CK_API int ck_critter_set_current_hp(void* ptr, int target_hp);
-CK_API int ck_critter_set_full_hp(void* ptr);
+CK_API int ck_critter_get_hp(fallout::Object* critter);
+CK_API int ck_critter_get_max_hp(fallout::Object* critter);
+CK_API int ck_critter_set_current_hp(fallout::Object* critter, int target_hp);
+CK_API int ck_critter_set_full_hp(fallout::Object* critter);
 
 #endif

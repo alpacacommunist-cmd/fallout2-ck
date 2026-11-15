@@ -109,19 +109,23 @@ int player_set_base_stat(int stat, int value) { return ck_critter_set_base_stat(
 int player_set_bonus_stat(int stat, int value) { return ck_critter_set_bonus_stat(fallout::gDude, stat, value); }
 int player_give_experience(int xp) { return fallout::pcAddExperience(xp); }
 
-int ck_critter_get_hp(void* ptr) {
-    return with_critter(ptr, 0, [](auto* c) { return ck::critter_get_hp(c); });
+int ck_critter_get_hp(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_get_hp(critter);
 }
 
-int ck_critter_get_max_hp(void* ptr) {
-    return with_critter(ptr, 0, [](auto* c) { return fallout::critterGetStat(c, fallout::STAT_MAXIMUM_HIT_POINTS); });
+int ck_critter_get_max_hp(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return fallout::critterGetStat(critter, fallout::STAT_MAXIMUM_HIT_POINTS);
 }
 
-int ck_critter_set_current_hp(void* ptr, int target_hp) {
-    return with_critter(ptr, -1, [=](auto* c) { return ck::critter_adjust_hp(c, target_hp); });
+int ck_critter_set_current_hp(fallout::Object* critter, int target_hp) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_adjust_hp(critter, target_hp);
 }
 
-int ck_critter_set_full_hp(void* ptr) {
-    return with_critter(ptr, -1, [](auto* c) { return ck::critter_set_full_hp(c); });
+int ck_critter_set_full_hp(fallout::Object* critter) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_set_full_hp(critter);
 }
 

@@ -142,10 +142,10 @@ ffi.cdef[[
   void ck_critter_handle_dead_critter_spawn(int id, int pid, int tile);
 
   // --- Critter HP ---
-  int ck_critter_get_hp(void* ptr);
-  int ck_critter_get_max_hp(void* ptr);
-  int ck_critter_set_current_hp(void* ptr, int target_hp);
-  int ck_critter_set_full_hp(void* ptr);
+  int ck_critter_get_hp(fallout_Object* critter);
+  int ck_critter_get_max_hp(fallout_Object* critter);
+  int ck_critter_set_current_hp(fallout_Object* critter, int target_hp);
+  int ck_critter_set_full_hp(fallout_Object* critter);
 
   // --- Object Base ---
   char* ck_object_get_name(fallout_Object* object);
