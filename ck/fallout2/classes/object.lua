@@ -177,10 +177,7 @@ end
 function Object:state()
   if (not self.tag or not self.mod_id or ck.map_id == -1) then return nil end
 
-  local state_mod_objects = state.db.maps[ck.map_id][self.mod_id].objects
-  state_mod_objects[self.tag] = state_mod_objects[self.tag] or {}
-
-  return state_mod_objects[self.tag]
+  return state.db.maps[ck.map_id][self.mod_id].objects[self.tag]
 end
 
 function Object:state_readonly()
