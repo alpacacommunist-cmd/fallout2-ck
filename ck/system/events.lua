@@ -66,6 +66,9 @@ function events.critter_killed(victim, killer)
   victim = ffi.cast("struct fallout_Object*", victim)
   killer = ffi.cast("struct fallout_Object*", killer)
 
+  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.tools.null_object()
+  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.tools.null_object()
+
   for mod_name, mod_events in pairs(events.registry) do
     local callbacks = mod_events.critter_killed
     if not callbacks then goto continue end

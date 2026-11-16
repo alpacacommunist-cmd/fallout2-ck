@@ -102,6 +102,11 @@ function state.sync_save()
       end
 
       local object_state = mod_namespace_db.objects[object.tag]
+      if not object_state then
+        mod_namespace_db.objects[object.tag] = {}
+
+        object_state = mod_namespace_db.objects[object.tag]
+      end
 
       if object.tile then object_state.tile = object:tile() end
       if object.hp   then object_state.hp   = object:hp()   end
