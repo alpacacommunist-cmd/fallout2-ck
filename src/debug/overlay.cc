@@ -12,6 +12,7 @@
 #include "map/ck_map_camera_borders.h"
 
 #include "fallout2-ce/game_sound.h"
+#include "fallout2-ce/dbox.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_debug_overlay.cc"};
@@ -29,6 +30,8 @@ namespace fallout {
 	extern Object* gDude;
 
 	void mouseGetPosition(int* out_x, int* out_y);
+    void inputEventQueueReset();
+    void keyboardReset();
 
     int tileGetTileInDirection(int tile, Rotation rotation, int distance);
 
@@ -49,9 +52,6 @@ namespace fallout {
     // map.cc
     bool isoDisable();
     bool isoEnable();
-
-    // dbox.cc
-    const char* showInputDialog(const char* currentInput, int x, int y, const char* doneText);
 }
 
 static bool gDebugOverlayEnabled = false;
@@ -269,23 +269,39 @@ static void mode_main_teleport_to_map() {
     int windowY = (fallout::screenGetHeight() / 2);
 
     fallout::isoDisable();
-    const char* result = fallout::showInputDialog("MAP ID", windowX, windowY, "Done");
+
+    std::string doneText = "Done";
+    std::string cancelText = "Cancel";
+    std::string title = "Map ID";
+
+    const char* currentDescription = "tst";
+
+    fallout::keyboardReset();
+    const char* result = fallout::showDescriptionInputDialog(
+        title.data(),
+        currentDescription,
+        29,
+        windowX,
+        windowY,
+        doneText.data(),
+        cancelText.data());
 
     if (result != nullptr) {
         try {
             int map_id = std::stoi(result);
-            logger.info("MAP ID: {}", map_id);
-            // ck_teleport_to_map(map_id);
 
+            logger.info("MAP ID: {}", result);
             gNeedsRefresh = true;
         }
-        catch (const std::exception& e) {
+        catch (const std::exception& exc) {
             logger.error("Invalid map ID format or range");
         }
     }
 
-    fallout::isoEnable();
+    // small window
+    // const char* result = fallout::showInputDialog("MAP ID", windowX, windowY, "Done");
 
+    fallout::isoEnable();
     ck::input::reset();
 }
 
