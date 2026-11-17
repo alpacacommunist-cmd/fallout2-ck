@@ -40,10 +40,10 @@ namespace ck {
 CK_API void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
 CK_API void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
 
-CK_API int ck_critter_get_base_stat(void* ptr, int stat_id);
-CK_API bool ck_critter_set_base_stat(void* ptr, int stat, int value);
-CK_API int ck_critter_get_bonus_stat(void* ptr, int stat);
-CK_API bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+CK_API int ck_critter_get_base_stat(fallout::Object* critter, int stat_id);
+CK_API bool ck_critter_set_base_stat(fallout::Object* critter, int stat, int value);
+CK_API int ck_critter_get_bonus_stat(fallout::Object* critter, int stat);
+CK_API bool ck_critter_set_bonus_stat(fallout::Object* critter, int stat, int value);
 
 CK_API int ck_critter_get_gender(fallout::Object* critter);
 

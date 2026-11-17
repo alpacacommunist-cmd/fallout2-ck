@@ -74,26 +74,24 @@ void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value))
     for (int i = 0; i < fallout::PC_STAT_COUNT; ++i) callback(g_pc_stat_names[i], i);
 }
 
-template<typename R, typename F>
-static R with_critter(void* ptr, R default_val, F&& func) {
-    if (!ptr) return default_val;
-    return func(static_cast<fallout::Object*>(ptr));
+int ck_critter_get_base_stat(fallout::Object* critter, int stat_id) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_base_stat(critter, stat_id);
 }
 
-int ck_critter_get_base_stat(void* ptr, int stat_id) {
-    return with_critter(ptr, -1, [=](auto* c) { return ck::critter_base_stat(c, stat_id); });
+bool ck_critter_set_base_stat(fallout::Object* critter, int stat, int value) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_set_base_stat(critter, stat, value) == 0;
 }
 
-bool ck_critter_set_base_stat(void* ptr, int stat, int value) {
-    return with_critter(ptr, false, [=](auto* c) { return ck::critter_set_base_stat(c, stat, value) == 0; });
+int ck_critter_get_bonus_stat(fallout::Object* critter, int stat_id) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_bonus_stat(critter, stat_id);
 }
 
-int ck_critter_get_bonus_stat(void* ptr, int stat_id) {
-    return with_critter(ptr, -1, [=](auto* c) { return ck::critter_bonus_stat(c, stat_id); });
-}
-
-bool ck_critter_set_bonus_stat(void* ptr, int stat, int value) {
-    return with_critter(ptr, false, [=](auto* c) { return ck::critter_set_bonus_stat(c, stat, value) == 0; });
+bool ck_critter_set_bonus_stat(fallout::Object* critter, int stat, int value) {
+    CK_ENSURE_VALID_OBJECT(critter);
+    return ck::critter_set_bonus_stat(critter, stat, value) == 0;
 }
 
 int ck_critter_get_gender(fallout::Object* critter) {

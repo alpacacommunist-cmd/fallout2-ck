@@ -160,10 +160,10 @@ ffi.cdef[[
   void ck_get_stats_metadata(void (*callback)(const char* lua_name, int value));
   void ck_get_pc_stats_metadata(void (*callback)(const char* lua_name, int value));
 
-  int  ck_critter_get_base_stat(void* ptr, int stat_id);
-  bool ck_critter_set_base_stat(void* ptr, int stat, int value);
-  int  ck_critter_get_bonus_stat(void* ptr, int stat);
-  bool ck_critter_set_bonus_stat(void* ptr, int stat, int value);
+  int  ck_critter_get_base_stat(fallout_Object* critter, int stat_id);
+  bool ck_critter_set_base_stat(fallout_Object* critter, int stat, int value);
+  int  ck_critter_get_bonus_stat(fallout_Object* critter, int stat);
+  bool ck_critter_set_bonus_stat(fallout_Object* critter, int stat, int value);
   int  ck_critter_get_gender(fallout_Object* critter);
 
   int player_stat(int stat);
