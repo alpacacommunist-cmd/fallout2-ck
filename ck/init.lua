@@ -16,8 +16,6 @@ ck = {
   libs_preload_key = 'ck.libs.',
   -- list of loaded lib mods
   loaded_libs = {},
-  -- mod definitions table
-  mod_definitions = {},
 
   -- default language (is set to language from fallout2.cfg on init)
   language = 'english',
@@ -49,10 +47,6 @@ ck.registries = {
   state_mod_namespace_keys = { "objects", "timers" },
   -- quick ref table
   state_mod_namespace_keys_lookup = {},
-
-  -- mod definitions
-  mod_definition_keys = { "critters" },
-  mod_definition_keys_lookup = {},
 
   -- ck/system/events.lua 📞
   events = {},
@@ -86,10 +80,6 @@ ck.registries = {
 -- populate quick ref (lookup) tables
 for _, key in ipairs(ck.registries.state_mod_namespace_keys) do
   ck.registries.state_mod_namespace_keys_lookup[key] = true
-end
-
-for _, key in ipairs(ck.registries.mod_definition_keys) do
-  ck.registries.mod_definition_keys_lookup[key] = true
 end
 
 function ck.registries.init_mod(mod_id)
@@ -156,7 +146,7 @@ function ck.registries.reset_map_context()
     ck.registries.dialogs[mod_id] = {}
 
     -- ⏱️
-    ck.registries.timers[mod_id]  = {}
+    ck.registries.timers[mod_id] = {}
     ck.registries.timer_categories.live[mod_id] = {}
     ck.registries.timer_categories.evented[mod_id] = {}
 
