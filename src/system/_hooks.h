@@ -23,6 +23,11 @@ namespace ck::state {
     void save(const char* path);
 }
 
+namespace ck::rendering {
+    void refresh();
+    void clear();
+}
+
 namespace ck::common {
     bool game_is_loading();
     bool in_combat();

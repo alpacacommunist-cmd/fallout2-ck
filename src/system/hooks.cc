@@ -1,7 +1,6 @@
 #include "ck_ids.h"
 #include "system/_hooks.h"
 #include "system/init.h"
-#include "system/rendering.h"
 #include "debug/overlay.h"
 #include "lua/proxy/proxy.h"
 #include "utils/fallout/types/object.h"

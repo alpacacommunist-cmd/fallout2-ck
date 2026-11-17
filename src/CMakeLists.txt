@@ -31,6 +31,8 @@ set(CORE_SOURCES
     lua/proxy/dispatcher.cc
     lua/proxy/state.cc
 
+    lua/state/state.cc
+
     # Runtime
     runtime/mods.cc
 
@@ -39,7 +41,6 @@ set(CORE_SOURCES
     geometry/geometry.cc
     geometry/landscape.cc
 
-    ck_state/ck_state.cc
     ck_dispatcher/ck_dispatcher.cc
 
     ck_registry/ck_registry.cc
