@@ -1,11 +1,10 @@
 local ffi = require('ffi')
 
-local ck = {}
 --
 -- GOTO sections: TOOLS, REGISTRIES, PUBLIC
 --
-
-ck = {
+--
+local ck = {
   -- quick ref data table
   active_mods = {},
   -- flat list of loaded mods
@@ -85,25 +84,19 @@ end
 function ck.registries.init_mod(mod_id)
   -- 📞
   ck.registries.events[mod_id] = {}
-
   -- 🌲
   ck.registries.assets[mod_id] = {}
-
   ck.registries.objects[mod_id] = {}
-
   -- ck/fallout2/dialogs.lua 💬
   ck.registries.dialogs[mod_id] = {}
-
   -- ck/fallout2/proto/init.lua 🧬
   ck.registries.prototypes[mod_id] = { items = {}, critters = {} }
   ck.registries.prototype_tags[mod_id] = { items = {}, critters = {} }
   ck.registries.prototype_migrations[mod_id] = {}
-
   -- ck/fallout2/timers.lua ⏱️
   ck.registries.timers[mod_id]  = {}
   ck.registries.timer_categories.live[mod_id] = {}
   ck.registries.timer_categories.evented[mod_id] = {}
-
   -- ck/fallout2/critters.lua 🦂
   ck.registries.critter_spawn_counters[mod_id] = 0
   ck.registries.critter_respawns[mod_id] = {}
@@ -113,25 +106,19 @@ end
 function ck.registries.clear_mod(mod_id)
   -- 📞
   ck.registries.events[mod_id] = nil
-
   -- 🌲
   ck.registries.assets[mod_id] = nil
-
   ck.registries.objects[mod_id] = nil
-
   -- 💬
   ck.registries.dialogs[mod_id] = nil
-
   -- 🧬
   ck.registries.prototypes[mod_id] = nil
   ck.registries.prototype_tags[mod_id] = nil
   ck.registries.prototype_migrations[mod_id] = nil
-
   -- ⏱️
   ck.registries.timers[mod_id]  = nil
   ck.registries.timer_categories.live[mod_id] = nil
   ck.registries.timer_categories.evented[mod_id] = nil
-
   -- 🦂
   ck.registries.critter_spawn_counters[mod_id] = nil
   ck.registries.critter_respawns[mod_id] = nil
@@ -141,19 +128,15 @@ end
 function ck.registries.reset_map_context()
   for _, mod_id in ipairs(ck.active_mods_list) do
     ck.registries.objects[mod_id] = {}
-
     -- 💬
     ck.registries.dialogs[mod_id] = {}
-
     -- ⏱️
     ck.registries.timers[mod_id] = {}
     ck.registries.timer_categories.live[mod_id] = {}
     ck.registries.timer_categories.evented[mod_id] = {}
-
     -- 🧬
     ck.registries.prototypes[mod_id].critters = {}
     ck.registries.prototype_tags[mod_id].critters = {}
-
     -- 🦂
     ck.registries.critter_spawn_counters[mod_id] = 0
     ck.registries.critter_respawns[mod_id] = {}
