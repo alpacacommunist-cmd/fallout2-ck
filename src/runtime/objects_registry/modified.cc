@@ -1,5 +1,5 @@
 #include "ck_ids.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "runtime/mods.h"
 #include "utils/fallout/types/object.h"
 

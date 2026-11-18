@@ -7,7 +7,7 @@
 
 #include "ck_proto/cache/ck_proto_cache.h"
 #include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "script/ck_script.h"
 
 #include "fallout2-ce/settings.h"

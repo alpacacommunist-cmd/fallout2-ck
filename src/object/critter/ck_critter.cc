@@ -3,7 +3,7 @@
 #include "utils.h"
 
 #include "lua/proxy/state.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "object/ck_object.h"
 #include "object/critter/ck_critter.h"
 #include "ck_proto/registry/ck_proto_registry.h"

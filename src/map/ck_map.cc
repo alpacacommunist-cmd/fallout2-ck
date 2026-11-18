@@ -3,7 +3,7 @@
 #include "map/ck_map.h"
 #include "map/ck_map_camera_borders.h"
 #include "object/ck_object.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "runtime/mods.h"
 #include "ck_gameplay_common.h"
 

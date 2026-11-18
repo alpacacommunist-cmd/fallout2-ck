@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "utils/fallout/types.h"
 #include "object/ck_object.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "ck_proto/registry/ck_proto_registry.h"
 
 #include "fallout2-ce/object.h"

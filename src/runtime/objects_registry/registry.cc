@@ -1,6 +1,6 @@
 #include "ck_ids.h"
 #include "object/critter/ck_critter.h"
-#include "ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"ck_registry.cc"};

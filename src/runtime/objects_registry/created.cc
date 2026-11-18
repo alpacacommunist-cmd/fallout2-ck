@@ -1,4 +1,4 @@
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "utils/fallout/types/object.h"
 #include "runtime/mods.h"
 

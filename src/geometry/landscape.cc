@@ -1,7 +1,7 @@
 #include "utils/fallout/types.h"
 
 #include "object/ck_object.h"
-#include "ck_registry/ck_registry.h"
+#include "runtime/objects_registry/registry.h"
 #include "geometry/geometry.h"
 #include "geometry/landscape.h"
 #include "runtime/mods.h"
