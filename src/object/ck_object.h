@@ -51,7 +51,7 @@ CK_API void ck_object_remove_at(int tile);
 
 CK_API char* ck_object_get_name(fallout::Object* object);
 CK_API char* ck_object_get_description(fallout::Object* object);
-CK_API int ck_object_get_type(void* ptr);
+CK_API int ck_object_get_type(fallout::Object* object);
 
 CK_API int ck_object_find_at_tile(int tile, fallout::Object** buffer, int max_count);
 CK_API int ck_object_find_by_pid(int pid, fallout::Object** buffer, int max_count);
