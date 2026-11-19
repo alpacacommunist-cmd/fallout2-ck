@@ -1,5 +1,5 @@
-#include "ck_proto_cache.h"
-#include "ck_proto_schema.h"
+#include "src/lua/proto_cache/cache.h"
+#include "src/lua/proto_cache/schema.h"
 #include "sqlite3.h"
 
 #include "fallout2-ce/message.h"

@@ -79,8 +79,8 @@ if(CK_ENABLE_EDITOR)
         debug/render.cc
         debug/object_format.cc
 
-        ck_proto/cache/ck_proto_cache.cc
-        ck_proto/cache/ck_proto_ffi.cc
+        lua/proto_cache/cache.cc
+        lua/proto_cache/ffi.cc
     )
 
     set(EDITOR_LIBS 

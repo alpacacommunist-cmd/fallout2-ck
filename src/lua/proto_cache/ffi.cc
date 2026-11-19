@@ -1,5 +1,5 @@
-#include "ck_proto_ffi.h"
-#include "ck_proto_cache.h"
+#include "src/lua/proto_cache/cache.h"
+#include "src/lua/proto_cache/ffi.h"
 #include "sqlite3.h"
 #include <string>
 
