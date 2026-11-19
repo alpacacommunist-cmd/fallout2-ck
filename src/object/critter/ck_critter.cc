@@ -6,7 +6,7 @@
 #include "runtime/objects_registry/registry.h"
 #include "object/ck_object.h"
 #include "object/critter/ck_critter.h"
-#include "ck_proto/registry/ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 #include "script/ck_script.h"
 
 #include "ck_gameplay_common.h"

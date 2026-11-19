@@ -1,5 +1,5 @@
 #include "ck_ids.h"
-#include "ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 #include "runtime/mods.h"
 
 #include <algorithm>

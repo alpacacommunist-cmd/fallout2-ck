@@ -1,7 +1,7 @@
 #include "lua/ffi/system.h"
 #include "lua/ffi/tests.h"
 #include "lua/ffi/gameplay.h"
-#include "ck_proto/registry/ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 #include "game_time/ck_game_time.h"
 #include "ck_proto/cache/ck_proto_ffi.h"
 

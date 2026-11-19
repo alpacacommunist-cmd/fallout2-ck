@@ -2,7 +2,7 @@
 #include "ck_ids.h"
 
 #include "engine/messages.h"
-#include "ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 
 // TODO: utils/types wrapper
 #include "fallout2-ce/obj_types.h"

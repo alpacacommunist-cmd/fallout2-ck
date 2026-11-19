@@ -3,7 +3,7 @@
 
 #include "lua/proxy/proxy.h"
 #include "ck_dispatcher/ck_dispatcher.h"
-#include "ck_proto/registry/ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 #include "ck_ids.h"
 #include "ck_gameplay_common.h"
 

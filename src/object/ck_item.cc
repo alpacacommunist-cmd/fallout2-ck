@@ -2,7 +2,6 @@
 #include "utils/fallout/types.h"
 
 #include "object/ck_item.h"
-#include "ck_proto/registry/ck_proto_registry.h"
 
 #include "fallout2-ce/item.h"
 

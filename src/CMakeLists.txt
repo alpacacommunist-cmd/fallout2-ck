@@ -41,6 +41,10 @@ set(CORE_SOURCES
     runtime/objects_registry/deleted.cc
     runtime/objects_registry/modified.cc
 
+    runtime/proto_registry/registry.cc
+    runtime/proto_registry/item.cc
+    runtime/proto_registry/critter.cc
+
     ck_gameplay_common.cc
 
     geometry/geometry.cc
@@ -48,10 +52,6 @@ set(CORE_SOURCES
 
     ck_dispatcher/ck_dispatcher.cc
 
-
-    ck_proto/registry/ck_proto_registry.cc
-    ck_proto/registry/ck_item_proto.cc
-    ck_proto/registry/ck_critter_proto.cc
 
     ck_assets/ck_asset_registry.cc
 

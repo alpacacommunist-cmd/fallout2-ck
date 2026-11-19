@@ -3,7 +3,7 @@
 #include "ck_ids.h"
 #include "lua/proxy/state.h"
 #include "engine/messages.h"
-#include "ck_proto_registry.h"
+#include "runtime/proto_registry/registry.h"
 
 #include <unordered_map>
 #include <vector>
