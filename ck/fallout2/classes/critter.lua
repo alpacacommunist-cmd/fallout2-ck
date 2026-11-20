@@ -224,6 +224,10 @@ local proc_handlers = {
   end
 }
 
+function Critter:enable_proc(proc_id)
+  ffi.C.ck_script_enable_proc(self.raw, proc_id)
+end
+
 function Critter:_handle_proc(proc_id, fixed_param)
   local event_name = Object.PROC_NAMES[proc_id]
   if not event_name then return false end

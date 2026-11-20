@@ -1,4 +1,4 @@
-local ItemProto = require('ck.fallout2.proto/item')
+local ItemProto = require('ck.fallout2.proto.item')
 
 local ffi = require('ffi')
 local ck = require('ck')

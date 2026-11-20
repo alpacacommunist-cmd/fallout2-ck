@@ -98,6 +98,8 @@ function CritterProto:register()
     return nil
   end
 
+  self.script_index = ffi.C.ck_proto_get_sid_by_pid(self.pid)
+
   proto.registry[self.mod_id].critters[self.pid] = self
   proto.tags_registry[self.mod_id].critters[self.lua_tag] = true
 

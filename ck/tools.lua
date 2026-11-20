@@ -59,13 +59,9 @@ tools._previous_mod_context = nil
 tools._current_mod_context = nil
 
 -- current_mod_id (nullptr or string)
--- is set in dispatcher.cc
+-- is set in mods.cc
 function tools.current_mod_id()
   return tools._current_mod_context
-  -- local mod_id = ffi.C.ck_system_current_mod_id()
-  -- if mod_id == nil then return nil end
-  --
-  -- return ffi.string(mod_id)
 end
 
 function tools.set_mod_context(mod_id)

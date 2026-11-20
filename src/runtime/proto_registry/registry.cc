@@ -150,6 +150,11 @@ namespace ck::proto::registry {
         return -1;
     }
 
+    int get_sid_by_pid(int pid) {
+        Proto* proto = get(ck::ids::clean_pid(pid));
+        return proto ? proto->get_sid() : -1;
+    }
+
     const char* get_mod_id_by_pid(int pid) {
         Proto* proto = get(ck::ids::clean_pid(pid));
         return proto ? proto->mod_id : nullptr;
@@ -172,3 +177,6 @@ int ck_proto_get_pid_by_tag(const char* lua_tag) {
     return ck::proto::registry::get_pid_by_tag(std::string(lua_tag));
 }
 
+int ck_proto_get_sid_by_pid(int pid) {
+    return ck::proto::registry::get_sid_by_pid(pid);
+}

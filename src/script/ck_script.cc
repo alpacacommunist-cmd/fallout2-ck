@@ -53,6 +53,10 @@ namespace ck::script {
     }
 
     bool proc_enabled(fallout::Script* script, int proc) {
+        if (script->procs[proc] == fallout::SCRIPT_PROC_NO_PROC) {
+            // logger.debug("PROC DISABLED: {} for index: {}", proc, script->index);
+        }
+
         return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;
     }
 
@@ -61,7 +65,17 @@ namespace ck::script {
     }
 
     void enable_proc(fallout::Script* script, int proc) {
-        script->procs[proc] = 1;
+        script->procs[proc] = proc;
+    }
+
+    void enable_proc_for_object(fallout::Object* object, int proc) {
+        fallout::Script* script;
+        fallout::scriptGetScript(object->sid, &script);
+
+        if (script) enable_proc(script, proc);
+    }
+
+    void enable_proc_for_script_index(int script_index, int proc) {
     }
 
     void reset_vars(fallout::Script* script) {
@@ -180,6 +194,15 @@ void ck_dialog_add_option(const char* text, int reaction) { ck::script::dialog_a
 int ck_dialog_go() { return ck::script::dialog_go(); }
 void ck_dialog_exit() { ck::script::dialog_exit(); }
 void ck_dialog_close_ui() { ck::script::dialog_close_ui(); }
+
+void ck_script_enable_proc(fallout::Object* object, int proc) {
+    CK_ENSURE_VALID_OBJECT(object);
+    ck::script::enable_proc_for_object(object, proc);
+}
+
+void ck_script_enable_proc_for_script_index(int script_index, int proc) {
+    ck::script::enable_proc_for_script_index(script_index, proc);
+}
 
 void ck_script_disable_map_updates_for_object(fallout::Object* object) {
     CK_ENSURE_VALID_OBJECT(object);

@@ -161,6 +161,8 @@ events.on('map_enter', function(map_id)
   alice:set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 375, max_hp = 390 })
   alice:bind() -- removes script_index, assigns lua SID
 
+  alice:enable_proc(24)
+
   local alice_dialog = require('.dialogs').alice_nodes
   dialogs.register(alice.id, alice_dialog)
 

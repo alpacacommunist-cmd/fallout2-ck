@@ -47,6 +47,8 @@ function ItemProto:register()
     return nil
   end
 
+  self.script_index = ffi.C.ck_proto_get_sid_by_pid(self.pid)
+
   proto.registry[self.mod_id].items[self.pid] = self
   proto.tags_registry[self.mod_id].items[self.lua_tag] = true
 

@@ -144,7 +144,7 @@ namespace ck::hooks::gameplay {
 
         // TODO: properly set enabled procs
         // skip disabled procs
-        // if (!ck::script::proc_enabled(script, proc)) return false;
+        if (!ck::script::proc_enabled(script, proc)) return false;
 
         int script_index = ck::script::index(script), script_param = ck::script::param(script);
         // skip engine-controller scripts

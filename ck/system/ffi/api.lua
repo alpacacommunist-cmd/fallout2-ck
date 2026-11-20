@@ -20,6 +20,7 @@ ffi.cdef[[
   // pseudo types
   // proto.cc (utils/fallout/types/proto)
   typedef struct ck_CritterProto ck_CritterProto;
+  typedef struct fallout_Script fallout_Script;
 
   // --- System & Bootstrap ---
   bool ck_system_add_mod(const char* mod_id);
@@ -74,6 +75,8 @@ ffi.cdef[[
 
   // --- Script ---
   void ck_script_disable_map_updates_for_object(fallout_Object* object);
+  void ck_script_enable_proc(fallout_Object*, int proc);
+  void ck_script_enable_proc_for_script_index(int script_index, int proc);
 
   // --- State ---
   bool ck_state_load(const char* path);
@@ -308,6 +311,7 @@ ffi.cdef[[
 
   int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data);
   int ck_proto_get_pid_by_tag(const char* lua_tag);
+  int ck_proto_get_sid_by_pid(int pid);
   int ck_proto_bind(int pid);
 
   // --- Knowledge ---
