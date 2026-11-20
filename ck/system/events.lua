@@ -53,11 +53,19 @@ function events.emit_for_mod(mod_id, event_name, ...)
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]
 
+  -- set mod context
+  ck.tools.set_mod_context(mod_id)
+  log.info.banner("Executing %s events", mod_id)
+
+  -- exec events
   if events_handler then
     events_handler(mod_id, event_name, callbacks, ...)
   else
     exec_mod_callbacks(mod_id, event_name, callbacks, ...)
   end
+
+  -- reset mod context
+  ck.tools.set_previous_mod_context()
 end
 
 -- global game events
@@ -166,7 +174,6 @@ function events.after_time_advance(mod_id)
   timers.check_timers(mod_event_timers, timers.current_ticks(), mod_id)
 end
 
--- not used yet. could be useful for global (non-mod-specific) logic
 function events.emit(event_name, ...)
   for mod_id, _ in pairs(events.registry) do
     events.emit_for_mod(mod_id, event_name, ...)

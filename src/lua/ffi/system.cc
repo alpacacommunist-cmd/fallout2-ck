@@ -16,7 +16,7 @@ bool ck_system_drop_mod(const char* mod_id) {
 }
 
 bool ck_system_set_mod_context(const char* mod_id) {
-    return ck::dispatcher::set_context(mod_id);
+    return ck::mods::set_context(mod_id);
 }
 
 void ck_system_emit_for_mod(const char* mod_id, const char* event_name) {

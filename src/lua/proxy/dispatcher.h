@@ -17,13 +17,20 @@ namespace ck::proxy {
 	void proxy_emit_end(const char* mod_id, const char* event_name, int total_args);
 
     using ProxyArg = std::variant<int, unsigned int, double, const char*, std::string, bool, fallout::Object*>;
-    void  emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args);
+    void emit_event(const char* mod_id, const char* event_name, std::initializer_list<ProxyArg> args);
+    void emit_global(const char* event_name, std::initializer_list<ProxyArg> args);
 
 	template<typename... Args>
 	void emit_for_mod(const char* mod_id, const char* event_name, Args... args) {
 		LuaStackGuard stack_guard;
 		emit_event(mod_id, event_name, { ProxyArg(args)... });
 	}
+
+	template<typename... Args>
+    void emit(const char* event_name, Args... args) {
+		LuaStackGuard stack_guard;
+		emit_global(event_name, { ProxyArg(args)... });
+    }
 
 	bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
 	bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);

@@ -35,7 +35,7 @@ const std::array<LuaHookBinding, 17> hooks = {{
 	{ "ck.system.bootstrap",   "bootstrap",             &ck::proxy::detail::bootstrap },
 	{ "ck.system.bootstrap",   "set_language",          &ck::proxy::detail::set_language },
     { "ck.system.loader",      "reload_mods",           &ck::proxy::detail::reload_mods },
-	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit},
+	{ "ck.system.events",      "emit",                  &ck::proxy::detail::emit},
     // TODO: remove (dispatch through lua)
 	{ "ck.system.events",      "emit_for_mod",          &ck::proxy::detail::emit_for_mod },
 	{ "ck.system.events",      "on_proc",               &ck::proxy::detail::on_proc },

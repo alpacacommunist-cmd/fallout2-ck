@@ -1,6 +1,8 @@
 #pragma once
 
 namespace ck::mods {
+    bool set_context(const char* mod_id);
+
     const char* system_mod_id();
     const char* current_mod_id();
 

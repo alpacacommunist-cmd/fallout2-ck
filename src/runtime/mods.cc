@@ -1,9 +1,9 @@
 #include <vector>
 #include <unordered_set>
 
-#include "lua/proxy/proxy.h"
-#include "ck_dispatcher/ck_dispatcher.h"
+#include "runtime/mods.h"
 #include "runtime/proto_registry/registry.h"
+#include "lua/proxy/proxy.h"
 #include "ck_ids.h"
 #include "ck_gameplay_common.h"
 
@@ -33,25 +33,46 @@ namespace ck {
 
 namespace ck::mods {
     // Used for global proc/events
-    static const char* SYSTEM_MOD_ID = "__ck_system__";
+    static const char* _SYSTEM_MOD_ID = "__ck_system__";
+
+    // Current mod id
+    static const char* _current_mod_id = nullptr;
 
     // mod_id strings pool
     static std::unordered_set<std::string> g_immutable_string_pool;
     // mod_id pointers
-    static std::vector<const char*> g_active_mods;
+    static std::vector<const char*> _active_mods;
     // mod reload in progress
     static bool g_reloading_mods = false;
 
+    bool set_context(const char* mod_id) {
+        // Means no context
+        if (mod_id == nullptr) {
+            _current_mod_id = nullptr;
+            return true;
+        }
+
+        // MOD context
+        const char* mod_id_ptr = ck::mods::ptr(mod_id);
+        if (mod_id_ptr != nullptr) {
+            _current_mod_id = mod_id_ptr;
+            return true;
+        }
+
+        // Couldn't set context (context unknown)
+        return false;
+    }
+
     const char* system_mod_id() {
-        return SYSTEM_MOD_ID;
+        return _SYSTEM_MOD_ID;
     }
 
     const char* current_mod_id() {
-        return ck::dispatcher::current_context();
+        return _current_mod_id;
     }
 
     const std::vector<const char*>& all() {
-        return g_active_mods;
+        return _active_mods;
     }
 
     const char* ptr(const char* mod_id) {
@@ -89,13 +110,13 @@ namespace ck::mods {
         auto [it, inserted] = g_immutable_string_pool.insert(mod_id);
         const char* permanent_ptr = it->c_str();
 
-        for (const char* active_mod_ptr : g_active_mods) {
+        for (const char* active_mod_ptr : _active_mods) {
             if (active_mod_ptr == permanent_ptr) {
                 return false;
             }
         }
 
-        g_active_mods.push_back(permanent_ptr);
+        _active_mods.push_back(permanent_ptr);
         return true;
     }
 
@@ -103,7 +124,7 @@ namespace ck::mods {
         if (mod_id == nullptr) return false;
         const char* mod_id_ptr = ptr(mod_id);
 
-        bool removed = (std::erase(g_active_mods, mod_id_ptr) > 0);
+        bool removed = (std::erase(_active_mods, mod_id_ptr) > 0);
 
         removed ? logger.debug("Removed mod_id: {}", mod_id) : logger.error("Not found: {}", mod_id);
         return removed;

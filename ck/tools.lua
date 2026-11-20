@@ -54,6 +54,9 @@ function tools.null_object()
   return null_object
 end
 
+tools._previous_mod_context = nil
+tools._current_mod_context = nil
+
 -- current_mod_id (nullptr or string)
 -- is set in dispatcher.cc
 function tools.current_mod_id()
@@ -63,8 +66,22 @@ function tools.current_mod_id()
   return ffi.string(mod_id)
 end
 
+function tools.set_mod_context(mod_id)
+  tools._previous_mod_context = tools._current_mod_context
+  tools._current_mod_context = mod_id
+
+  ffi.C.ck_system_set_mod_context(mod_id)
+end
+
+function tools.set_previous_mod_context()
+  tools.set_mod_context(tools._previous_mod_context)
+end
+
 -- sets mod context and executes callbacks
 function tools.exec_with_mod_context(mod_id, callbacks)
+  -- save previous context
+  local previous_mod_context = tools.current_mod_id()
+
   ffi.C.ck_system_set_mod_context(mod_id)
 
   if callbacks == nil then
@@ -85,7 +102,7 @@ function tools.exec_with_mod_context(mod_id, callbacks)
     end
   end
 
-  ffi.C.ck_system_set_mod_context(nil)
+  ffi.C.ck_system_set_mod_context(previous_mod_context)
 
   return all_success
 end

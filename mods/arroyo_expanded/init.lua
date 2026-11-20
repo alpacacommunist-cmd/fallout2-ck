@@ -135,6 +135,8 @@ events.on('map_enter', function(map_id)
 
   if map_id ~= 4 then return end
 
+  allla {}
+
   local test_timer = timers.register(
     "test_timer", timers.timer_types.periodic, 50,
     function() monitor.print("__callback map_id: " .. tostring(map_id)) end,
