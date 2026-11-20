@@ -19,6 +19,7 @@ end
 
 function Logger:__call(fmt, ...)
   local message
+  local level = self.level
 
   local args_count = select('#', ...)
 
@@ -28,7 +29,7 @@ function Logger:__call(fmt, ...)
       message = res
     else
       message = string.format("[Log Error - bad arguments passed to fmt: %s]", tostring(fmt))
-      self.level = Level.Error
+      level = Level.Error
     end
   else
     message = tostring(fmt or "")

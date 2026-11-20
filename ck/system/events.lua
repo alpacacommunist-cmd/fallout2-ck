@@ -49,13 +49,14 @@ events.handlers = {
 
 function events.emit_for_mod(mod_id, event_name, ...)
   local callbacks = events.registry[mod_id][event_name]
+  if not callbacks or utils.table_is_empty(callbacks) then return end
 
   -- check if event has custom logic defined in `events.handlers`
   local events_handler = events.handlers[event_name]
 
   -- set mod context
   ck.tools.set_mod_context(mod_id)
-  log.info.banner("Executing %s events", mod_id)
+  log.info:rule("Executing %s: %s", mod_id, event_name)
 
   -- exec events
   if events_handler then
