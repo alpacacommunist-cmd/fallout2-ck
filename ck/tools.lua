@@ -1,4 +1,5 @@
 local ffi = require('ffi')
+local log = require('ck.system.log').new('ck/tools.lua')
 
 local tools = {}
 
@@ -60,10 +61,11 @@ tools._current_mod_context = nil
 -- current_mod_id (nullptr or string)
 -- is set in dispatcher.cc
 function tools.current_mod_id()
-  local mod_id = ffi.C.ck_system_current_mod_id()
-  if mod_id == nil then return nil end
-
-  return ffi.string(mod_id)
+  return tools._current_mod_context
+  -- local mod_id = ffi.C.ck_system_current_mod_id()
+  -- if mod_id == nil then return nil end
+  --
+  -- return ffi.string(mod_id)
 end
 
 function tools.set_mod_context(mod_id)
@@ -80,9 +82,7 @@ end
 -- sets mod context and executes callbacks
 function tools.exec_with_mod_context(mod_id, callbacks)
   -- save previous context
-  local previous_mod_context = tools.current_mod_id()
-
-  ffi.C.ck_system_set_mod_context(mod_id)
+  tools.set_mod_context(mod_id)
 
   if callbacks == nil then
     callbacks = {}
@@ -102,7 +102,7 @@ function tools.exec_with_mod_context(mod_id, callbacks)
     end
   end
 
-  ffi.C.ck_system_set_mod_context(previous_mod_context)
+  tools.set_previous_mod_context()
 
   return all_success
 end

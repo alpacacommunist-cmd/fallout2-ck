@@ -137,14 +137,14 @@ namespace ck::hooks::gameplay {
     // scripts.cc: int scriptExecProc(int sid, ScriptProc proc)
     bool proc(fallout::Script* script, int proc) {
         const auto* registry_entry = ck::registry::get(ck::script::owner(script));
-
         bool handled = detail::process_global_events(script, proc, registry_entry);
 
         // Object found in registry and handled proc in a global sequence
         if (handled) return true;
 
+        // TODO: properly set enabled procs
         // skip disabled procs
-        if (!ck::script::proc_enabled(script, proc)) return false;
+        // if (!ck::script::proc_enabled(script, proc)) return false;
 
         int script_index = ck::script::index(script), script_param = ck::script::param(script);
         // skip engine-controller scripts
@@ -160,6 +160,11 @@ namespace ck::hooks::gameplay {
             if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
 
             handled = ck::dispatcher::on_proto_proc(pid, proc, script_param, mod_id);
+        }
+
+        if (ck::ids::is_ck_custom_script_index(script_index)) {
+            // Fake script index (> 2000), engine will fail to load it, returning early
+            return true;
         }
 
         if (handled) {

@@ -205,8 +205,16 @@ local proc_handlers = {
   talk = function(self, fixed_param)
     if not dialogs.is_registered(self.id) then return end
 
+    -- blocks
     dialogs.start(self.id)
-    self:clear_animations():emit('dialog_finished')
+    -- release
+
+    self:clear_animations()
+    function mod_dialog_callback()
+      self:emit('dialog_finished')
+    end
+
+    ck.tools.exec_with_mod_context(self.mod_id, mod_dialog_callback)
 
     return true
   end,

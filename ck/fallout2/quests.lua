@@ -32,7 +32,6 @@ function quests.set(quest_id, status_value)
   if not state.db.global[mod_id].quests then state.db.global[mod_id].quests = {} end
 
   state.db.global[mod_id].quests[quest_id] = status_value
-  -- state.set_global(mod_id, "quests", quest_id, status_value)
 end
 
 function quests.get(quest_id)

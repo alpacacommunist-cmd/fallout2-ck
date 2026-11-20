@@ -31,6 +31,10 @@ namespace ck::ids {
         constexpr int limit = 16000;
     }
 
+    inline bool is_ck_custom_script_index(int script_index) {
+        return script_index >= script_index::base;
+    }
+
     // pid
     namespace proto_id {
         constexpr int base = 10000;

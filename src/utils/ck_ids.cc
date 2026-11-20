@@ -192,6 +192,7 @@ namespace ck::ids {
         return (clean >= script_index::base && clean <= script_index::limit);
     }
 
+    // checks if ck handles script index (either existing engine script or custom)
     bool is_ck_script_index(int script_index) {
         return script_index_occupied(script_index);
     }

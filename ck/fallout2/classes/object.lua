@@ -76,7 +76,7 @@ function Object:emit(event_name, ...)
     local ok, err = xpcall(self.handlers[event_name], debug.traceback, self, ...)
 
     if not ok then
-      log.error(string.format("in object '%s' on event '%s':\n%s", tostring(self.tag), event_name, err))
+      log.error("in object '%s' on event '%s':\n%s", self.tag, event_name, err)
     end
   end
 

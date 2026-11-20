@@ -233,7 +233,7 @@ events.on('map_enter', function(map_id)
   -- log.info("trapper1 unarmed: %d", trapper1.skills.unarmed)
 
   alice:on('dialog_finished', function(self)
-    -- log.debug("Dialogue finished with NPC ID: " .. tostring(self.id))
+    log.debug("Dialogue finished with NPC ID: %d", self.id)
 
     if quests.get("erlang_refactoring") == quests.status.NOT_STARTED then
       quests.set("erlang_refactoring", quests.status.ACTIVE)
