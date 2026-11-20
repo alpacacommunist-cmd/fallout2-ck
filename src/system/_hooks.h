@@ -49,4 +49,8 @@ namespace ck::proto::registry {
     }
 }
 
+namespace ck::critter {
+    bool kill(fallout::Object* object);
+}
+
 #endif

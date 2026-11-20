@@ -58,23 +58,31 @@ namespace detail {
     }
 
     // global events bus helper
-    static void process_global_events(fallout::Script *script, int proc) {
+    static bool process_global_events(fallout::Script *script, int proc, const ck::registry::RegistryEntry* registry_entry) {
         auto script_proc = static_cast<ck::script::Proc>(proc);
 
         switch (script_proc) {
         case ck::script::Proc::DESTROY: {
             // critter killed
-            fallout::Object *victim_ptr = ck::script::owner(script);
-            fallout::Object *killer_ptr = ck::script::source(script);
+            fallout::Object *victim = ck::script::owner(script);
+            fallout::Object *killer = ck::script::source(script);
 
-            if (victim_ptr && ck::ids::is_critter(victim_ptr)) {
-                ck::dispatcher::on_critter_killed(victim_ptr, killer_ptr);
+            if (victim && ck::ids::is_critter(victim)) {
+                ck::dispatcher::on_critter_killed(victim, killer);
             }
+
+            if (registry_entry) {
+                return ck::dispatcher::on_proc(ck::script::owner_id(script), proc,
+                        ck::script::param(script), registry_entry->mod_id);
+            }
+
             break;
         }
 
         default: break;
         }
+
+        return false;
     }
 }
 
@@ -128,25 +136,30 @@ namespace ck::hooks::gameplay {
     // proc handler
     // scripts.cc: int scriptExecProc(int sid, ScriptProc proc)
     bool proc(fallout::Script* script, int proc) {
-        detail::process_global_events(script, proc);
+        const auto* registry_entry = ck::registry::get(ck::script::owner(script));
+
+        bool handled = detail::process_global_events(script, proc, registry_entry);
+
+        // Object found in registry and handled proc in a global sequence
+        if (handled) return true;
 
         // skip disabled procs
         if (!ck::script::proc_enabled(script, proc)) return false;
 
-        bool handled = false;
+        int script_index = ck::script::index(script), script_param = ck::script::param(script);
+        // skip engine-controller scripts
+        if (!ck::ids::is_ck_script_index(script_index)) return false;
 
-        const auto* registry_entry = ck::registry::get(ck::script::owner(script));
         if (registry_entry) {
-            handled = ck::dispatcher::on_proc(ck::script::owner_id(script), proc,
-                    ck::script::param(script), registry_entry->mod_id);
+            handled = ck::dispatcher::on_proc(ck::script::owner_id(script), proc, script_param, registry_entry->mod_id);
         } else {
-            int pid = ck::proto::registry::get_pid_by_sid(ck::script::index(script));
+            int pid = ck::proto::registry::get_pid_by_sid(script_index);
             if (pid == -1) return false;
 
             const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
             if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
 
-            handled = ck::dispatcher::on_proto_proc(pid, proc, ck::script::param(script), mod_id);
+            handled = ck::dispatcher::on_proto_proc(pid, proc, script_param, mod_id);
         }
 
         if (handled) {

@@ -19,7 +19,7 @@ struct CritterLuaSpawnParams {
 namespace ck::critter {
     fallout::Object* spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
     void assign_script(fallout::Object* critter, int script_index);
-    bool kill(int lua_id);
+    bool kill(fallout::Object* object);
 }
 
 CK_API fallout::Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
