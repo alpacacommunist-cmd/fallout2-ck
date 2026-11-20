@@ -22,7 +22,7 @@ critters.active_tags = ck.registries.critter_active_tags
 -- Allocates critter prototype
 -- (lives in a map context)
 function critters.register_prototype(source_pid, lua_tag, config)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   local proto_instance = CritterProto:new(source_pid, lua_tag, mod_id, config)
 
   if ck.registries.prototype_tags[mod_id].critters[proto_instance.lua_tag] then
@@ -51,7 +51,7 @@ local _register_validated = function(tag, mod_id, params)
       ffi.C.ck_critter_handle_dead_critter_spawn(critter_state.id, params.pid, critter_state.tile)
     end
 
-    return ck.tools.null_object()
+    return ck.common.null_object()
   end
 
   -- spawn params
@@ -67,7 +67,7 @@ local _register_validated = function(tag, mod_id, params)
 
   if critter == nil then
     log.error("Failed to register critter (FFI) (tag: %s)", tag)
-    return ck.tools.null_object()
+    return ck.common.null_object()
   end
 
   -- update active tags list
@@ -86,10 +86,10 @@ local function _handle_registration(func_name, tag, params, autotag_fallback)
 
   if not validations.base_params(params) then
     log.error(string.format("(%s): Couldn't create critter (params validation failing)", func_name))
-    return ck.tools.null_object()
+    return ck.common.null_object()
   end
 
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   if tag == nil and autotag_fallback then
     tag = autotag_fallback(params)
@@ -97,7 +97,7 @@ local function _handle_registration(func_name, tag, params, autotag_fallback)
 
   if not validations.tag_presence_and_uniqueness(mod_id, tag) then
     log.error(string.format("(%s): Couldn't create critter (tag validation failing)", func_name))
-    return ck.tools.null_object()
+    return ck.common.null_object()
   end
 
   -- sets defaults

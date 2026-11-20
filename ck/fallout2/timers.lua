@@ -46,7 +46,7 @@ timers.generate_timer_id = function(mod_id)
 end
 
 local function exec_timer_callbacks(mod_id, callbacks)
-  return ck.tools.exec_with_mod_context(mod_id, callbacks)
+  return ck.common.exec_with_mod_context(mod_id, callbacks)
 end
 
 -- removes timer from categories (timers.categories) (flat list)
@@ -77,7 +77,7 @@ end
 
 -- removes timer from registry/categories
 timers.remove = function(tag)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   local timer  = timers.registry[mod_id][tag]
 
   if not timer then return false end
@@ -89,7 +89,7 @@ timers.remove = function(tag)
 end
 
 timers.add_callback = function(tag, callback)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   local timer  = timers.registry[mod_id][tag]
 
   if not timer or type(callback) ~= "function" then return false end
@@ -102,7 +102,7 @@ end
 -- Map context timers, on map exit timers.registry is cleared
 -- (last exec times are written to state db in state.sync_save)
 timers.register = function(tag, timer_type, ticks, callback, events_list)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   local current_time = game_time.get_time()
 
   ticks = ticks or 0

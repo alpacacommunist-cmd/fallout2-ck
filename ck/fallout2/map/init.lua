@@ -100,7 +100,7 @@ local _search = function(tile, max_count, callback)
   local count = callback(tile, buffer, max_count)
   local results = {}
 
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   for index = 0, count - 1 do
     local raw_object = buffer[index]

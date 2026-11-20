@@ -1,7 +1,7 @@
 local ffi = require('ffi')
 
 --
--- GOTO sections: TOOLS, REGISTRIES, PUBLIC
+-- GOTO sections: COMMON, REGISTRIES, PUBLIC
 --
 --
 local ck = {
@@ -21,15 +21,15 @@ local ck = {
 
   -- common
   log = require('ck.system.log'),
-  tools = {}
+  common = {}
 }
 
 local log = ck.log.new('ck/init.lua')
 
--- TOOLS
-ck.tools = require('ck/tools')
+-- COMMON
+ck.common = require('ck.common')
 
-function ck.tools.mod_preload_key(mod_id)
+function ck.common.mod_preload_key(mod_id)
   return ck.libs_preload_key .. mod_id
 end
 

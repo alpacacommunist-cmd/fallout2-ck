@@ -32,7 +32,7 @@ function respawns.register(tag, ticks, config)
   local timer_tag = tag .. "_respawn_timer"
 
   -- check if timer already exists
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   if (respawns.registry[mod_id][tag]) then
     log.debug("Mod respawn [%s] already exists", tag)

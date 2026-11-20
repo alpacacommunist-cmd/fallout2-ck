@@ -55,7 +55,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
   local events_handler = events.handlers[event_name]
 
   -- set mod context
-  ck.tools.set_mod_context(mod_id)
+  ck.common.set_mod_context(mod_id)
   log.info:rule("Executing %s: %s", mod_id, event_name)
 
   -- exec events
@@ -66,7 +66,7 @@ function events.emit_for_mod(mod_id, event_name, ...)
   end
 
   -- reset mod context
-  ck.tools.set_previous_mod_context()
+  ck.common.set_previous_mod_context()
 end
 
 -- global game events
@@ -75,8 +75,8 @@ function events.critter_killed(victim, killer)
   victim = ffi.cast("struct fallout_Object*", victim)
   killer = ffi.cast("struct fallout_Object*", killer)
 
-  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.tools.null_object()
-  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.tools.null_object()
+  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.common.null_object()
+  victim_object = victim and ffi.cast("struct fallout_Object*", victim) or ck.common.null_object()
 
   for mod_name, mod_events in pairs(events.registry) do
     local callbacks = mod_events.critter_killed
@@ -219,7 +219,7 @@ function events.register(mod_id, event_name, callback)
 end
 
 function events.on(event_name, callback)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   events.register(mod_id, event_name, callback)
 end

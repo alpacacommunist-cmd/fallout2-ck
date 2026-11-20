@@ -214,7 +214,7 @@ local proc_handlers = {
       self:emit('dialog_finished')
     end
 
-    ck.tools.exec_with_mod_context(self.mod_id, mod_dialog_callback)
+    ck.common.exec_with_mod_context(self.mod_id, mod_dialog_callback)
 
     return true
   end,

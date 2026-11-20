@@ -34,7 +34,7 @@ loader.handlers = {
     local function run_mod_init()
       return mod_env.require(mod_data.keys.init)
     end
-    local success = ck.tools.exec_with_mod_context(mod_id, run_mod_init)
+    local success = ck.common.exec_with_mod_context(mod_id, run_mod_init)
 
     if not success then
       ck.registries.clear_mod(mod_id)
@@ -58,7 +58,7 @@ loader.handlers = {
     end
 
     if type(mod_api) == "table" then
-      local preload_key = ck.tools.mod_preload_key(mod_id)
+      local preload_key = ck.common.mod_preload_key(mod_id)
 
       package.preload[preload_key] = function()
         return mod_api

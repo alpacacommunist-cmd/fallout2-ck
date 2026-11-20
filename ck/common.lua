@@ -1,10 +1,10 @@
 local ffi = require('ffi')
-local log = require('ck.system.log').new('ck/tools.lua')
+local log = require('ck.system.log').new('ck/common.lua')
 
-local tools = {}
+local common = {}
 
 -- SECTION: object types
-tools.object_types = {
+common.object_types = {
   [0] = "item",
   [1] = "critter",
   [2] = "scenery",
@@ -13,18 +13,18 @@ tools.object_types = {
   [5] = "misc"
 }
 
-function tools.object_type_by_pid(pid)
+function common.object_type_by_pid(pid)
   return ffi.C.ck_ids_object_type_by_pid(pid)
 end
 
-function tools.object_type_string(object_type)
-  return tools.object_types[object_type] or "unknown"
+function common.object_type_string(object_type)
+  return common.object_types[object_type] or "unknown"
 end
 
-function tools.object_type_string_by_pid(pid)
+function common.object_type_string_by_pid(pid)
   local type_id = ffi.C.ck_ids_object_type_by_pid(pid)
 
-  return tools.object_types[type_id] or "unknown"
+  return common.object_types[type_id] or "unknown"
 end
 
 -- SECTION: null object mt
@@ -51,34 +51,34 @@ local null_object_mt = {
 }
 
 null_object = setmetatable({}, null_object_mt)
-function tools.null_object()
+function common.null_object()
   return null_object
 end
 
-tools._previous_mod_context = nil
-tools._current_mod_context = nil
+common._previous_mod_context = nil
+common._current_mod_context = nil
 
 -- current_mod_id (nullptr or string)
 -- is set in mods.cc
-function tools.current_mod_id()
-  return tools._current_mod_context
+function common.current_mod_id()
+  return common._current_mod_context
 end
 
-function tools.set_mod_context(mod_id)
-  tools._previous_mod_context = tools._current_mod_context
-  tools._current_mod_context = mod_id
+function common.set_mod_context(mod_id)
+  common._previous_mod_context = common._current_mod_context
+  common._current_mod_context = mod_id
 
   ffi.C.ck_system_set_mod_context(mod_id)
 end
 
-function tools.set_previous_mod_context()
-  tools.set_mod_context(tools._previous_mod_context)
+function common.set_previous_mod_context()
+  common.set_mod_context(common._previous_mod_context)
 end
 
 -- sets mod context and executes callbacks
-function tools.exec_with_mod_context(mod_id, callbacks)
+function common.exec_with_mod_context(mod_id, callbacks)
   -- save previous context
-  tools.set_mod_context(mod_id)
+  common.set_mod_context(mod_id)
 
   if callbacks == nil then
     callbacks = {}
@@ -98,19 +98,19 @@ function tools.exec_with_mod_context(mod_id, callbacks)
     end
   end
 
-  tools.set_previous_mod_context()
+  common.set_previous_mod_context()
 
   return all_success
 end
 
 -- mods.game_time_extender.init -> ../mods/game_time_extender/init.lua
-function tools.key_to_path(key)
+function common.key_to_path(key)
   return "../" .. key:gsub("%.", "/") .. ".lua"
 end
 
-function tools.mod_directory(mod_id)
+function common.mod_directory(mod_id)
   return string.format("../mods/%s/", mod_id)
 end
 
 
-return tools
+return common

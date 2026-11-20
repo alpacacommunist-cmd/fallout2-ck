@@ -69,7 +69,7 @@ function proto.register_prototype(source_pid, lua_tag, config)
 end
 
 function proto.rename(previous_name, new_name)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   proto.migrations[mod_id][previous_name] = new_name
   log.info("[%s] Registered tag rename: %s -> %s", mod_id, previous_name, new_name)

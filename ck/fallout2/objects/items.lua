@@ -21,7 +21,7 @@ function items.add(ptr, pid, count)
 end
 
 function items.register_prototype(source_pid, lua_tag, config)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   local proto_instance = ItemProto:new(source_pid, lua_tag, mod_id, config)
 
   if ck.registries.prototype_tags[mod_id].items[proto_instance.lua_tag] then

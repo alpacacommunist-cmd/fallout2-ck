@@ -19,14 +19,14 @@ quests.status = {
 quests.definitions = {}
 
 function quests.register(quest_id, config)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   quests.definitions[mod_id] = quests.definitions[mod_id] or {}
   quests.definitions[mod_id][quest_id] = config
 end
 
 function quests.set(quest_id, status_value)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   if not state.db.global[mod_id] then state.db.global[mod_id] = {} end
   if not state.db.global[mod_id].quests then state.db.global[mod_id].quests = {} end
@@ -35,7 +35,7 @@ function quests.set(quest_id, status_value)
 end
 
 function quests.get(quest_id)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
 
   if not state.db.global[mod_id] then state.db.global[mod_id] = {} end
   if not state.db.global[mod_id].quests then state.db.global[mod_id].quests = {} end

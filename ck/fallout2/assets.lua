@@ -8,7 +8,7 @@ local log = ck.log.new('assets.lua')
 assets.registry = ck.registries.assets
 
 function assets.resolve(asset_string, art_type)
-  local mod_id = ck.tools.current_mod_id()
+  local mod_id = ck.common.current_mod_id()
   art_type = art_type or 6
 
   -- lowercase path

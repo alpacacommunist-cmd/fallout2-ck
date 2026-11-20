@@ -84,6 +84,7 @@ namespace ck::script {
     bool proc_enabled(fallout::Script* script, int proc);
     void disable_proc(fallout::Script* script, int proc);
     void enable_proc(fallout::Script* script, int proc);
+    void enable_proc_for_object(fallout::Object* object, int proc);
 
     void reset_vars(fallout::Script* script);
     void set_no_save(int sid);

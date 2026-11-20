@@ -28,7 +28,7 @@ sandbox.handlers = {
 
 function sandbox.create_env(mod_data)
   local manifest = mod_data.manifest
-  local mod_folder = ck.tools.mod_directory(manifest.id)
+  local mod_folder = ck.common.mod_directory(manifest.id)
 
   local mod_package = {
     loaded = {}, -- module cache

@@ -54,7 +54,7 @@ namespace ck::script {
 
     bool proc_enabled(fallout::Script* script, int proc) {
         if (script->procs[proc] == fallout::SCRIPT_PROC_NO_PROC) {
-            // logger.debug("PROC DISABLED: {} for index: {}", proc, script->index);
+            logger.debug("PROC DISABLED: {} for index: {}", proc, script->index);
         }
 
         return script->procs[proc] != fallout::SCRIPT_PROC_NO_PROC;

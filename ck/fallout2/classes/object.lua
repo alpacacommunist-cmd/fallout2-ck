@@ -24,7 +24,7 @@ function Object.new(fallout_Object)
   self.pid       = self.raw.pid
   self.elevation = self.raw.elevation
 
-  self.mod_id = ck.tools.current_mod_id()
+  self.mod_id = ck.common.current_mod_id()
 
   local tag = ffi.C.ck_registry_object_get_lua_tag(self.raw)
   self.tag = tag ~= nil and ffi.string(tag) or nil

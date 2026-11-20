@@ -29,7 +29,7 @@ function FalloutObjectMethods:restore()
 end
 
 function FalloutObjectMethods:bind()
-  local current_mod_id = ck.tools.current_mod_id()
+  local current_mod_id = ck.common.current_mod_id()
 
   if objects.registry[current_mod_id] and objects.registry[current_mod_id][self.id] then
     -- current mod owns registry entry
