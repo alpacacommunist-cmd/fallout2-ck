@@ -142,7 +142,7 @@ namespace ck::script {
         if (script != nullptr) {
             object->scriptIndex = script_index;
             script->ownerId = object->id;
-            script->owner   = object;
+            script->owner = object;
 
             script->index = script_index;
             script->flags |= fallout::SCRIPT_FLAG_NO_SAVE;

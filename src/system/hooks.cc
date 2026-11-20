@@ -130,8 +130,8 @@ namespace ck::hooks::gameplay {
     bool proc(fallout::Script* script, int proc) {
         detail::process_global_events(script, proc);
 
-        // skip map updates (if proc disabled)
-        if (proc == static_cast<int>(ck::script::Proc::CRITTER) && !ck::script::proc_enabled(script, proc)) return false;
+        // skip disabled procs
+        if (!ck::script::proc_enabled(script, proc)) return false;
 
         bool handled = false;
 

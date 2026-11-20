@@ -86,6 +86,7 @@ function Critter:set_behavior(behavior_fn, ...)
     -- disable default fallout2-ce map update procs
     -- and switch to lua map updates (doesn't require SID, dispatched directly)
     if not self:has_lua_script_index() then
+      log.warning("disabling engine MAP_UPDATE for critter: %s (%d) (switching to lua map_update)", self.tag, self.id)
       ffi.C.ck_script_disable_map_updates_for_object(self.raw)
     end
 

@@ -77,7 +77,7 @@ namespace ck::critter {
         // Script index explicitly passed from LUA
         if (script_index != -1) {
             ck::script::assign_script_index_to_object(script_index, critter);
-            ck::script::disable_map_updates_for_object(critter);
+            ck::script::kick_off_map_updates_for_sid(critter->sid);
 
             logger.info("PID {} uses script_index: {} (passed explicitly)", critter->pid, script_index);
             return;
@@ -86,7 +86,7 @@ namespace ck::critter {
         // Critter has PROTOTYPE script
         if (critter->scriptIndex != -1) {
             ck::script::assign_proto_script(critter);
-            ck::script::disable_map_updates_for_object(critter);
+            ck::script::kick_off_map_updates_for_sid(critter->sid);
 
             logger.info("PID {} uses script_index: {} (proto)", critter->pid, critter->scriptIndex);
             return;
