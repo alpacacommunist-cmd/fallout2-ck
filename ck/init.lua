@@ -26,14 +26,15 @@ local ck = {
 
 local log = ck.log.new('ck/init.lua')
 
--- COMMON
+-- #region COMMON {{{
 ck.common = require('ck.common')
 
 function ck.common.mod_preload_key(mod_id)
   return ck.libs_preload_key .. mod_id
 end
+-- #endregion }}}
 
--- REGISTRIES
+-- #region REGISTRIES {{{
 ck.registries = {
   --🎮📦
   -- Common
@@ -143,12 +144,14 @@ function ck.registries.reset_map_context()
     ck.registries.critter_active_tags[mod_id] = {}
   end
 end
+-- #endregion }}}
 
--- PUBLIC
+-- #region PUBLIC {{{
 -- Mod gets this when requiring('ck')
 ck.public = {
   language = ck.language,
   log = ck.log
 }
+-- #endregion }}}
 
 return ck
