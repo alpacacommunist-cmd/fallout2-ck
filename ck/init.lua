@@ -29,6 +29,33 @@ local log = ck.log.new('ck/init.lua')
 -- #region COMMON {{{
 local common = ck.common
 
+common.rotation_names = {
+  [-1] = "invalid",
+  [0]  = "ne",
+  [1]  = "e",
+  [2]  = "se",
+  [3]  = "sw",
+  [4]  = "w",
+  [5]  = "nw",
+}
+
+common.rotations = {
+  invalid = -1,
+  ne      = 0,
+  e       = 1,
+  se      = 2,
+  sw      = 3,
+  w       = 4,
+  nw      = 5,
+  count   = 6,
+  first   = 0,
+  last    = 5,
+}
+
+function common.rotation_is_valid(rotation)
+  return type(rotation) == "number" and rotation >= common.rotation_names.first and rotation < common.rotation_names.count
+end
+
 -- object_type id -> name table
 common.object_type_names = {
   [0] = 'item',

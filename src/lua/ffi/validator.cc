@@ -2,6 +2,22 @@
 #include "fallout2-ce/obj_types.h"
 #include "fallout2-ce/animation_defs.h"
 
+void validate_rotation_enum() {
+    using namespace fallout;
+
+    static_assert(sizeof(Rotation) == 4, "🚨 Rotation size mismatch!");
+    static_assert(offsetof(Object, rotation) == 28, "🚨 Object.rotation offset mismatch!");
+
+    static_assert(ROTATION_INVALID == -1, "🚨 ROTATION_INVALID mismatch!");
+    static_assert(ROTATION_NE == 0, "🚨 ROTATION_NE mismatch!");
+    static_assert(ROTATION_E == 1, "🚨 ROTATION_E mismatch!");
+    static_assert(ROTATION_SE == 2, "🚨 ROTATION_SE mismatch!");
+    static_assert(ROTATION_SW == 3, "🚨 ROTATION_SW mismatch!");
+    static_assert(ROTATION_W == 4, "🚨 ROTATION_W mismatch!");
+    static_assert(ROTATION_NW == 5, "🚨 ROTATION_NW mismatch!");
+    static_assert(ROTATION_COUNT == 6, "🚨 ROTATION_COUNT mismatch!");
+}
+
 void validate_object_structure() {
     using namespace fallout;
     static_assert(sizeof(Object) == 160, "🚨 fallout::Object size changed, refresh lua header!");

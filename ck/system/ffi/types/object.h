@@ -4,7 +4,19 @@ typedef struct fallout_Object fallout_Object;
 typedef struct fallout_CritterProto fallout_CritterProto;
 
 // basic 4-byte
-typedef int Rotation;
+typedef enum {
+    ROTATION_INVALID = -1,
+    ROTATION_NE = 0,
+    ROTATION_E = 1,
+    ROTATION_SE = 2,
+    ROTATION_SW = 3,
+    ROTATION_W = 4,
+    ROTATION_NW = 5,
+    ROTATION_COUNT = 6,
+    ROTATION_FIRST = ROTATION_NE,
+    ROTATION_LAST = ROTATION_NW,
+} Rotation;
+
 typedef int ObjectFlags;
 typedef int OutlineType;
 typedef struct { uint8_t bytes[72]; } __attribute__((aligned(8))) ObjectData;
