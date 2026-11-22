@@ -213,6 +213,7 @@ events.on('map_enter', function(map_id)
   villager1:set_behavior(behaviors.wander, 3)
   villager3:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
+  villager3:enable_proc(11)
 
   local game_time = require('ck.fallout2.game_time')
   -- critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))

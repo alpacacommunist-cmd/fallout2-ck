@@ -15,6 +15,9 @@ local log = ck.log.new('events.lua')
 
 local events = {}
 
+events.last_map_update_ticks = 0
+events.map_update_interval_ticks = 10
+
 -- Safe exec for mod callbacks (with traceback)
 local function safe_exec(callback, mod_id, event_name, index, ...)
   local ok, err = xpcall(callback, debug.traceback, ...)
@@ -35,6 +38,7 @@ end
 events.handlers = {
   map_enter = function(mod_id, event_name, callbacks, map_id)
     ck.map_id = map_id
+    events.last_map_update_ticks = 0
 
     events.before_map_enter(mod_id, ck.map_id)
     exec_mod_callbacks(mod_id, event_name, callbacks, map_id)
@@ -118,6 +122,13 @@ end
 -- Runs every second (10 ticks)
 -- interval is set in ck_dispatcher.cc
 function events.on_map_update(ticks)
+  local delta = ticks - events.last_map_update_ticks
+  if (delta < events.map_update_interval_ticks) then
+    return
+  end
+
+  events.last_map_update_ticks = ticks
+
   -- update live timers (timed events)
   for _, mod_id in ipairs (ck.active_mods_list) do
     local mod_event_timers = ck.registries.timer_categories.live[mod_id]
@@ -148,6 +159,7 @@ end
 -- aka on_before_map_load. Called before map_enter
 function events.map_exit()
   ck.map_enter_through_game_load = ffi.C.ck_game_is_loading()
+
   if not ck.map_enter_through_game_load then
     state.sync_save()
   end

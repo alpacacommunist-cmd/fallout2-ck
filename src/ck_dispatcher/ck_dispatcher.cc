@@ -11,10 +11,6 @@ namespace ck::common {
     int current_map_id();
 }
 
-// map update intervals
-static int g_last_update_ticks = 0;
-static const int MAP_UPDATE_INTERVAL_TICKS = 10;
-
 namespace ck::dispatcher {
     template<typename... Args>
     void emit(const char* event_name, Args... args) {
@@ -33,12 +29,6 @@ namespace ck::dispatcher {
     }
 
     void on_map_update(int ticks) {
-        int delta = ticks - g_last_update_ticks;
-        if (ticks >= g_last_update_ticks && delta < MAP_UPDATE_INTERVAL_TICKS) {
-            return;
-        }
-
-        g_last_update_ticks = ticks;
         ck::proxy::on_map_update(ticks);
     }
 
@@ -92,7 +82,6 @@ namespace ck::dispatcher {
 
     void on_map_enter() {
         logger.debug("ck_dispatcher_on_map_enter");
-        g_last_update_ticks = 0;
 
         emit("map_enter", ck::common::current_map_id());
     }
