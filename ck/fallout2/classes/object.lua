@@ -116,7 +116,7 @@ local proc_handlers = {
 }
 
 function Object:_handle_proc(proc_id, fixed_param)
-  local event_name = ck.script_proc_names[proc_id]
+  local event_name = ck.common.script_proc_names[proc_id]
   if not event_name then return false end
 
   -- check custom callbacks eg alice:on, door:on etc
@@ -157,7 +157,7 @@ function Object:get_description()
 end
 
 function Object:type()
-  return objects.TYPES[ffi.C.ck_object_get_type(self.raw)]
+  return ck.common.object_types[ffi.C.ck_object_get_type(self.raw)]
 end
 
 function Object:give_item(item_pid, count)
