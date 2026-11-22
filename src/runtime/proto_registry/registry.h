@@ -60,6 +60,8 @@ namespace ck::proto::registry {
     // Engine hook
     int get_custom_proto(int pid, void** protoPtr);
 
+
+    int bind_prototype_script(Proto* proto);
     Proto* build_generic_prototype(int source_pid, const char* lua_tag);
     Proto* get(int pid);
 

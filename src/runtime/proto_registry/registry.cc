@@ -75,8 +75,6 @@ namespace ck::proto::registry {
         Proto* proto_ptr = proto.get();
         protos.push_back(std::move(proto));
 
-        bind_prototype_script(proto_ptr);
-
         return proto_ptr;
     }
 

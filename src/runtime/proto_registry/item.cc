@@ -3,6 +3,7 @@
 #include "ck_ids.h"
 #include "lua/proxy/state.h"
 #include "engine/messages.h"
+#include "script/ck_script.h"
 #include "runtime/proto_registry/registry.h"
 
 #include <unordered_map>
@@ -150,8 +151,9 @@ namespace ck::proto::registry::item {
         Proto *proto = registry::build_generic_prototype(source_pid, ffi_data.lua_tag);
         if (!proto) return -1;
 
-        for (int index = 0; index < std::size(ffi_data.allowed_procs); index++) {
-            logger.info("{}: {}", index, ffi_data.allowed_procs[index]);
+        proto->set_allowed_procs(ffi_data.allowed_procs);
+        if (proto->has_custom_procs) {
+            registry::bind_prototype_script(proto);
         }
 
         auto item = proto->as_item();
@@ -167,7 +169,9 @@ namespace ck::proto::registry::item {
             proto->set_fid(ffi_data.ground_fid);
         }
 
-        // item.set_can_use(ffi_data.usable);
+        if (proto->is_proc_allowed(static_cast<int>(ck::script::Proc::USE))) {
+            item.set_can_use(proto->is_proc_allowed(static_cast<int>(ck::script::Proc::USE)));
+        }
 
         int msg_name_id = proto->get_msg_id();
         if (!utils::is_blank(ffi_data.name)) {

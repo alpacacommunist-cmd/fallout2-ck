@@ -1,6 +1,7 @@
 #ifndef CK_TYPES_PROTO_H
 #define CK_TYPES_PROTO_H
 
+#include <cstdint>
 namespace ck::utils::fallout::types {
     struct ItemView;
     struct CritterView;
@@ -23,6 +24,27 @@ namespace ck::utils::fallout::types {
 
         Proto() = default;
         ~Proto();
+
+        // Procs
+        std::array<uint8_t, 28> allowed_procs{};
+
+        void set_allowed_procs(const uint8_t* procs) {
+            bool any = false;
+            for (size_t index = 0; index < allowed_procs.size(); ++index) {
+                allowed_procs[index] = procs[index] ? 1 : 0;
+
+                if (allowed_procs[index]) any = true;
+            }
+
+            has_custom_procs = any;
+        }
+
+        bool is_proc_allowed(int proc) const {
+            if (proc < 0 || proc >= static_cast<int>(allowed_procs.size())) return false;
+            return allowed_procs[proc] != 0;
+        }
+
+        bool has_custom_procs = false;
 
         // Generic
         void set_fid(int fid);
