@@ -161,7 +161,8 @@ events.on('map_enter', function(map_id)
   alice:set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 375, max_hp = 390 })
   alice:bind() -- removes script_index, assigns lua SID
 
-  alice:enable_proc(24)
+  alice:enable_proc('push')
+  alice:enable_proc('talk')
 
   local alice_dialog = require('.dialogs').alice_nodes
   dialogs.register(alice.id, alice_dialog)
@@ -213,7 +214,7 @@ events.on('map_enter', function(map_id)
   villager1:set_behavior(behaviors.wander, 3)
   villager3:on('talk', function(self) self:float_message('Здарова, заебал', 4) end)
     :set_behavior(behaviors.wander, 12)
-  villager3:enable_proc(11)
+  villager3:enable_proc('talk')
 
   local game_time = require('ck.fallout2.game_time')
   -- critters.respawns.register("radscorpions", game_time.in_ticks.hours(1))

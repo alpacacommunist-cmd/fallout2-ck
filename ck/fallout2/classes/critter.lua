@@ -224,8 +224,27 @@ local proc_handlers = {
   end
 }
 
+-- allows both number/string
 function Critter:enable_proc(proc_id)
-  ffi.C.ck_script_enable_proc(self.raw, proc_id)
+  -- resolve proc
+  local proc = nil
+  if (type(proc_id) == "number") then
+    if (ck.common.script_proc_names[proc_id] ~= nil) then
+      proc = proc_id
+    end
+  end
+
+  if (not proc and type(proc_id) == "string") then
+    proc = ck.common.script_procs[proc_id]
+  end
+
+  if (not proc) then
+    log.warning("unknown proc_id: %d", proc_id)
+    return false
+  end
+
+  log.info("enabling proc: " .. tostring(proc_id) .. " for critter: " .. self.tag)
+  ffi.C.ck_script_enable_proc_for_object(self.raw, proc)
 end
 
 function Critter:_handle_proc(proc_id, fixed_param)

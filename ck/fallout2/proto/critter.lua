@@ -106,4 +106,17 @@ function CritterProto:register()
   return self:update_params()
 end
 
+function CritterProto:on(event_name, callback)
+  local event_id = ck.common.script_procs[event_name]
+  if not event_id then
+    log.error("Proc unknown: %s", event_name)
+    return nil
+  end
+
+  self.allowed_procs[event_id] = true
+
+  self.handlers[event_name] = callback
+  return self
+end
+
 return CritterProto

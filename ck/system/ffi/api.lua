@@ -75,7 +75,7 @@ ffi.cdef[[
 
   // --- Script ---
   void ck_script_disable_map_updates_for_object(fallout_Object* object);
-  void ck_script_enable_proc(fallout_Object*, int proc);
+  void ck_script_enable_proc_for_object(fallout_Object*, int proc);
   void ck_script_enable_proc_for_script_index(int script_index, int proc);
 
   // --- State ---

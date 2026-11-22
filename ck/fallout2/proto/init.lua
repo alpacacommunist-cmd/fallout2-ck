@@ -37,6 +37,9 @@ function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   instance.name = config.name
   instance.description = config.description
 
+  -- populated in proto/item, proto/critter etc
+  instance.allowed_procs = {}
+
   return instance
 end
 

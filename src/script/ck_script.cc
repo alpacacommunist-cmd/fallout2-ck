@@ -195,7 +195,7 @@ int ck_dialog_go() { return ck::script::dialog_go(); }
 void ck_dialog_exit() { ck::script::dialog_exit(); }
 void ck_dialog_close_ui() { ck::script::dialog_close_ui(); }
 
-void ck_script_enable_proc(fallout::Object* object, int proc) {
+void ck_script_enable_proc_for_object(fallout::Object* object, int proc) {
     CK_ENSURE_VALID_OBJECT(object);
     ck::script::enable_proc_for_object(object, proc);
 }

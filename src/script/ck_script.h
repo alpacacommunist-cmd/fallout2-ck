@@ -113,7 +113,7 @@ CK_API int  ck_dialog_go();
 CK_API void ck_dialog_exit();
 CK_API void ck_dialog_close_ui();
 
-CK_API void ck_script_enable_proc(fallout::Object* object, int proc);
+CK_API void ck_script_enable_proc_for_object(fallout::Object* object, int proc);
 CK_API void ck_script_enable_proc_for_script_index(int script_index, int proc);
 CK_API void ck_script_disable_map_updates_for_object(fallout::Object* object);
 
