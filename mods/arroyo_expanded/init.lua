@@ -32,9 +32,7 @@ local flare_test = items.register_prototype(79, "flare", {
 
   name = "flare-flare",
   description = "test flare",
-  price = 500,
-
-  usable = true
+  price = 500
 })
 if (flare_test) then
   flare_test:on('use', function()
@@ -54,7 +52,7 @@ local golden_tail = items.register_prototype(PID_RADSCORPION_TAIL, "golden_scorp
   inv_fid    = inv_fid,
   ground_fid = ground_fid,
 
-  usable = true
+  allowed_procs = { 'look_at', 'use' }
 })
 
 log.info("golden_tail PID: %s", tostring(golden_tail.pid))

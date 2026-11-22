@@ -93,8 +93,20 @@ for id, name in pairs(common.script_proc_names) do
   common.script_procs[name] = id
 end
 
-function common.script_proc_string(proc_id)
-  return common.script_procs[proc_id] or "unknown"
+-- checks whether int/string id is valid (returns int value)
+common.script_proc_id_normalized = function(proc_id)
+  if type(proc_id) == "number" then
+    if (ck.common.script_proc_names[proc_id] ~= nil) then
+      return proc_id
+    end
+  end
+
+  if (type(proc_id) == "string") then
+    local proc = ck.common.script_procs[proc_id]
+    if proc then return proc end
+  end
+
+  return nil
 end
 
 local null_object

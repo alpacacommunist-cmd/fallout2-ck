@@ -205,7 +205,7 @@ local proc_handlers = {
   talk = function(self, fixed_param)
     if not dialogs.is_registered(self.id) then return end
 
-    -- blocks
+    -- block
     dialogs.start(self.id)
     -- release
 
@@ -227,24 +227,17 @@ local proc_handlers = {
 -- allows both number/string
 function Critter:enable_proc(proc_id)
   -- resolve proc
-  local proc = nil
-  if (type(proc_id) == "number") then
-    if (ck.common.script_proc_names[proc_id] ~= nil) then
-      proc = proc_id
-    end
-  end
-
-  if (not proc and type(proc_id) == "string") then
-    proc = ck.common.script_procs[proc_id]
-  end
+  local proc = ck.common.script_proc_id_normalized(proc_id)
 
   if (not proc) then
-    log.warning("unknown proc_id: %d", proc_id)
+    log.warning("unknown proc_id: %s", tostring(proc_id))
     return false
   end
 
   log.info("enabling proc: " .. tostring(proc_id) .. " for critter: " .. self.tag)
   ffi.C.ck_script_enable_proc_for_object(self.raw, proc)
+
+  return self
 end
 
 function Critter:_handle_proc(proc_id, fixed_param)

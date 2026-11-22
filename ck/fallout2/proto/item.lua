@@ -34,7 +34,10 @@ function ItemProto:to_ffi()
   ffi_data.weight = self.weight
   ffi_data.inv_fid    = self.inv_fid
   ffi_data.ground_fid = self.ground_fid
-  ffi_data.usable = self.usable
+
+  for proc_id, _ in pairs(self.allowed_procs) do
+    ffi_data.allowed_procs[proc_id] = 1
+  end
 
   return ffi_data
 end
@@ -61,8 +64,6 @@ function ItemProto:on(event_name, callback)
     log.error("Proc unknown: %s", event_name)
     return nil
   end
-
-  self.allowed_procs[event_id] = true
 
   self.handlers[event_name] = callback
   return self

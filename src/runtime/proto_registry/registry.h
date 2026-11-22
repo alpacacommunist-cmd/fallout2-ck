@@ -1,6 +1,7 @@
 #ifndef CK_PROTO_REGISTRY_H
 #define CK_PROTO_REGISTRY_H
 
+#include <cstdint>
 #include "ck_api.h"
 #include "utils/fallout/types/proto.h"
 
@@ -22,7 +23,7 @@ struct ItemProtoFFI {
     int inv_fid = -1;
     int ground_fid = -1;
 
-    bool usable = false;
+    uint8_t allowed_procs[28];
 };
 
 // passed FROM lua
@@ -33,6 +34,8 @@ struct CritterProtoFFI {
 
     const char *ai_packet;
     int team;
+
+    uint8_t allowed_procs[28];
 };
 
 namespace ck::proto::registry {

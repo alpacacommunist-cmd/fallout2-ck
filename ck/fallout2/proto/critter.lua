@@ -63,6 +63,10 @@ function CritterProto:to_ffi()
 
   ffi_data.ai_packet = self.ai_packet
 
+  for proc_id, _ in pairs(self.allowed_procs) do
+    ffi_data.allowed_procs[proc_id] = 1
+  end
+
   return ffi_data
 end
 

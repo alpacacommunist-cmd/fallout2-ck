@@ -126,6 +126,8 @@ ffi.cdef[[
     const char* description;
     const char* ai_packet;
     int team;
+
+    uint8_t allowed_procs[28];
   } CritterProtoFFI;
 
   fallout_Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
@@ -304,9 +306,10 @@ ffi.cdef[[
     int inv_fid;
     int ground_fid;
 
-    bool usable;
+    uint8_t allowed_procs[28];
   } ItemProtoFFI;
 
+  // used in state.lua when sending/receiving active proto list
   typedef struct { int pid; const char* lua_tag; const char* mod_id; } ItemProtoLuaView;
 
   int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data);

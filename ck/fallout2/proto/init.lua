@@ -1,5 +1,7 @@
 local ffi = require('ffi')
 local ck = require('ck')
+local utils = require('ck.system.utils')
+
 local validations = require('ck.fallout2.proto.validations')
 
 local log = ck.log.new('proto.lua')
@@ -22,6 +24,28 @@ proto.tags_registry = ck.registries.prototype_tags
 local Proto = {}
 Proto.__index = Proto
 
+-- allows both string, int values
+local function normalize_allowed_procs(raw_procs)
+  -- normalized int flat list
+  local normalized_procs = {}
+
+  -- return unless raw_procs is a table and has entries
+  if not raw_procs or not type(raw_procs) == "table" or next(raw_procs) == nil then
+    return normalized_procs
+  end
+
+  for _index, proc_id in ipairs(raw_procs) do
+    local proc = ck.common.script_proc_id_normalized(proc_id)
+    if (not proc) then
+      log.warning("unknown proc_id: %d, ignoring", proc_id)
+    end
+
+    normalized_procs[proc] = true
+  end
+
+  return normalized_procs
+end
+
 function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   local instance = setmetatable({}, self)
 
@@ -30,6 +54,7 @@ function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   end
 
   instance.object_type = object_type
+  instance.allowed_procs = normalize_allowed_procs(config.allowed_procs)
 
   instance.mod_id = mod_id
   instance.source_pid = source_pid
@@ -37,22 +62,11 @@ function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   instance.name = config.name
   instance.description = config.description
 
-  -- populated in proto/item, proto/critter etc
-  instance.allowed_procs = {}
-
   return instance
 end
 
-function proto.register_prototype(source_pid, lua_tag, config)
-  local object_type = config.object_type or -1
-
-  if object_type == -1 then
-    logger.error("Unsupported object type: %d", config.object_type)
-  end
-
-  if object_type == proto.types.item then
-    return proto.register_item_prototype(source_pid, lua_tag, config)
-  end
+function Proto:has_allowed_procs()
+  return next(self.allowed_procs) ~= nil
 end
 
 function proto.rename(previous_name, new_name)
