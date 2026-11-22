@@ -33,22 +33,6 @@ namespace ck::common {
     bool in_combat();
 }
 
-namespace ck::proto::registry {
-    enum class SyncMode {
-        Prepare,
-        Restore
-    };
-
-    void clear();
-    void clear_for_object_type(int object_type);
-    int get_pid_by_sid(int sid);
-    const char* get_mod_id_by_pid(int pid);
-
-    namespace item {
-        void sync_custom_items_on_map(SyncMode mode);
-    }
-}
-
 namespace ck::critter {
     bool kill(fallout::Object* object);
 }

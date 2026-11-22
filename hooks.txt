@@ -3,3 +3,7 @@ input.cc:
 
 mouse.cc:
   MouseButtonEvent mouseGetEvent()
+
+proto_instance.cc
+  int objectSetScriptFromProto(Object* object, int* sidPtr)
+

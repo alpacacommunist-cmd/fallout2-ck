@@ -7,7 +7,9 @@
 
 #include "lua/proto_cache/cache.h"
 #include "ck_dispatcher/ck_dispatcher.h"
+
 #include "runtime/objects_registry/registry.h"
+#include "runtime/proto_registry/registry.h"
 #include "script/ck_script.h"
 
 #include "fallout2-ce/settings.h"
@@ -131,6 +133,20 @@ namespace ck::hooks::gameplay {
     // scripts.cc: int _scr_find_str_run_info
     void proto_script_requested(fallout::Script* script) {
         ck::script::reset_vars(script);
+    }
+
+    // sets allowed procs for script (to allow dispatching to lua)
+    // mod requests allowed procs on prototype creation
+    // proto_instance.cc: int objectSetScriptFromProto
+    void proto_script_added(fallout::Script* script) {
+        Proto* proto = ck::proto::registry::get_by_sid(ck::script::index(script));
+        if (!proto) return;
+
+        for (int proc_id = 0; proc_id < static_cast<int>(ck::script::Proc::COUNT); proc_id++) {
+            if (proto->allowed_procs[proc_id] > static_cast<int>(ck::script::Proc::NO_PROC)) {
+                ck::script::enable_proc(script, proc_id);
+            }
+        }
     }
 
     // proc handler

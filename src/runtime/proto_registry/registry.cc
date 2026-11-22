@@ -25,6 +25,11 @@ namespace ck::proto::registry {
         return it != protos.end() ? it->get() : nullptr;
     }
 
+    Proto* get_by_sid(int sid) {
+        auto it = std::ranges::find_if(protos, [sid](const auto &proto) { return proto->get_sid() == sid; });
+        return it != protos.end() ? it->get() : nullptr;
+    }
+
     void for_each_item(TypesCallback callback, void* user_data) {
         for (const auto &proto : protos) {
             if (proto->object_type == static_cast<int>(ck::ids::ObjectType::ITEM)) {

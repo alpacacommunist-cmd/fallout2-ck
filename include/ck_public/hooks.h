@@ -36,6 +36,8 @@ namespace ck::hooks::gameplay {
 	void map_update(unsigned int ticks);
     bool proc(fallout::Script* script, int proc);
     void proto_script_requested(fallout::Script* script);
+    // proto_instance.cc
+    void proto_script_added(fallout::Script* script);
     // game_dialog.cc
     void last_dialog_choice(int option_index);
     // object.cc
