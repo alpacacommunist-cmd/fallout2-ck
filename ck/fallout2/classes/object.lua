@@ -12,8 +12,6 @@ local state = require('ck.fallout2.state')
 local Object = {}
 Object.__index = Object
 
-Object.PROC_NAMES = objects.PROC_NAMES
-
 function Object.new(fallout_Object)
   local self = setmetatable({}, Object)
 
@@ -118,7 +116,7 @@ local proc_handlers = {
 }
 
 function Object:_handle_proc(proc_id, fixed_param)
-  local event_name = Object.PROC_NAMES[proc_id]
+  local event_name = ck.script_proc_names[proc_id]
   if not event_name then return false end
 
   -- check custom callbacks eg alice:on, door:on etc

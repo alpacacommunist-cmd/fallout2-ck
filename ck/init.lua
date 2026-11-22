@@ -35,7 +35,11 @@ common.object_types = {
   [2] = "scenery",
   [3] = "wall",
   [4] = "tile",
-  [5] = "misc"
+  [5] = "misc",
+  [6] = 'interface',
+  [7] = 'inventory',
+  [8] = 'head',
+  [9] = 'background'
 }
 
 function common.object_type_by_pid(pid)
@@ -50,6 +54,47 @@ function common.object_type_string_by_pid(pid)
   local type_id = ffi.C.ck_ids_object_type_by_pid(pid)
 
   return common.object_types[type_id] or "unknown"
+end
+
+-- script_procs id -> name table
+common.script_proc_names = {
+  [0] = "no_proc",
+  [1] = "start",
+  [2] = "spatial",
+  [3] = "description",
+  [4] = "pickup",
+  [5] = "drop",
+  [6] = "use",
+  [7] = "use_obj_on",
+  [8] = "use_skill_on",
+  [9] = "use_ad_on", [10] = "use_disad_on", -- ?
+  [11] = "talk",
+  [12] = "critter",
+  [13] = "combat",
+  [14] = "damage",
+  [15] = "map_enter",
+  [16] = "map_exit",
+  [17] = "create",
+  [18] = "destroy",
+  [19] = "barter_init",
+  [20] = "barter",
+  [21] = "look_at",
+  [22] = "timed",
+  [23] = "map_update",
+  [24] = "push",
+  [25] = "is_dropping",
+  [26] = "combat_is_starting",
+  [27] = "combat_is_over",
+}
+
+-- script_procs name -> id table
+common.script_procs = {}
+for id, name in pairs(common.script_proc_names) do
+  common.script_procs[name] = id
+end
+
+function common.script_proc_string(proc_id)
+  return common.script_procs[proc_id] or "unknown"
 end
 
 local null_object

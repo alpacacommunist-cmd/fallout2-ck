@@ -6,22 +6,6 @@ local log = ck.log.new('proto.lua')
 
 local proto = {}
 
-proto.PROC_NAMES = {
-  [3]  = "description",
-  [4]  = "pickup",
-  [5]  = "drop",
-  [6]  = "use",
-  [11] = "talk",
-  -- [12] = "critter", -- doesn't work bc gScriptsLists, using own on_map_update from ck_script.cc
-  [13] = "combat",
-  [14] = "damage",
-  [18] = "destroy",
-  [21] = "look_at",
-  [22] = "timed",
-  -- [23] = "map_update", -- doesn't work bc gScriptsLists, using own on_map_update from ck_script.cc
-  [24] = "push"
-}
-
 proto.types = {
   item = 0,
   critter = 1,

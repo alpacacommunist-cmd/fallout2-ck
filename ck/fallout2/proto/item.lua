@@ -61,7 +61,7 @@ function ItemProto:on(event_name, callback)
 end
 
 function ItemProto:_handle_proc(proc_id, fixed_param)
-  local event_name = proto.PROC_NAMES[proc_id]
+  local event_name = ck.script_proc_names[proc_id]
   if not event_name then return false end
 
   if self.handlers[event_name] then
