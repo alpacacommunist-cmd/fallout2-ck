@@ -21,6 +21,11 @@ namespace ck::proto::registry::critter {
         Proto* proto = registry::build_generic_prototype(source_pid, ffi_data.lua_tag);
         if (!proto) return -1;
 
+        proto->set_allowed_procs(ffi_data.allowed_procs);
+        if (proto->has_custom_procs) {
+            registry::bind_prototype_script(proto);
+        }
+
         auto critter = proto->as_critter();
 
         if (ffi_data.ai_packet) {

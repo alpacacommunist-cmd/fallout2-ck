@@ -151,7 +151,8 @@ events.on('map_enter', function(map_id)
   local alice_prototype = critters.register_prototype(16777255, "alice", {
     name = "Alice", description = "Geek-looking stranger", ai_packet = 'Merc Captain',
     stats = { strength = 8, endurance = 8, agility = 8, perception = 7, luck = 5, hp = 75, max_hp = 90 },
-    skills = { small_guns = 200 }
+    skills = { small_guns = 200 },
+    allowed_procs = { 'talk', 'push' }
   })
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
@@ -159,8 +160,8 @@ events.on('map_enter', function(map_id)
   alice:set_stats({ strength = 28, endurance = 18, agility = 8, perception = 7, luck = 25, hp = 375, max_hp = 390 })
   alice:bind() -- removes script_index, assigns lua SID
 
-  alice:enable_proc('push')
-  alice:enable_proc('talk')
+  -- alice:enable_proc('push')
+  -- alice:enable_proc('talk')
 
   local alice_dialog = require('.dialogs').alice_nodes
   dialogs.register(alice.id, alice_dialog)
