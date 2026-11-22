@@ -29,31 +29,38 @@ local log = ck.log.new('ck/init.lua')
 -- #region COMMON {{{
 local common = ck.common
 
-common.object_types = {
-  [0] = "item",
-  [1] = "critter",
-  [2] = "scenery",
-  [3] = "wall",
-  [4] = "tile",
-  [5] = "misc",
+-- object_type id -> name table
+common.object_type_names = {
+  [0] = 'item',
+  [1] = 'critter',
+  [2] = 'scenery',
+  [3] = 'wall',
+  [4] = 'tile',
+  [5] = 'misc',
   [6] = 'interface',
   [7] = 'inventory',
   [8] = 'head',
   [9] = 'background'
 }
 
+-- object_type name -> id table
+common.object_types = {}
+for id, name in pairs(common.object_type_names) do
+  common.object_types[name] = id
+end
+
 function common.object_type_by_pid(pid)
   return ffi.C.ck_ids_object_type_by_pid(pid)
 end
 
 function common.object_type_string(object_type)
-  return common.object_types[object_type] or "unknown"
+  return common.object_types_names[object_type] or "unknown"
 end
 
 function common.object_type_string_by_pid(pid)
   local type_id = ffi.C.ck_ids_object_type_by_pid(pid)
 
-  return common.object_types[type_id] or "unknown"
+  return common.object_type_names[type_id] or "unknown"
 end
 
 -- script_procs id -> name table
