@@ -19,7 +19,53 @@ typedef enum {
 
 typedef int ObjectFlags;
 typedef int OutlineType;
-typedef struct { uint8_t bytes[72]; } __attribute__((aligned(8))) ObjectData;
+
+// ObjectData
+typedef struct InventoryItem {
+    fallout_Object* item;
+    int quantity;
+} InventoryItem;
+
+typedef struct Inventory {
+    int length;
+    int capacity;
+    InventoryItem* items;
+} Inventory;
+
+typedef struct WeaponObjectData {
+    int ammoQuantity;
+    int ammoTypePid;
+} WeaponObjectData;
+
+typedef struct AmmoItemData {
+    int quantity;
+} AmmoItemData;
+
+typedef struct MiscItemData {
+    int charges;
+} MiscItemData;
+
+typedef struct KeyItemData {
+    int keyCode;
+} KeyItemData;
+
+typedef union ItemObjectData {
+    WeaponObjectData weapon;
+    AmmoItemData ammo;
+    MiscItemData misc;
+    KeyItemData key;
+} ItemObjectData;
+
+typedef struct ObjectData {
+    Inventory inventory;
+    union {
+        uint8_t critter_raw[56]; // TODO: unfold
+        struct {
+            int flags;
+            ItemObjectData item;
+        };
+    };
+} ObjectData;
 
 // fallout2-ce obj_types.h
 struct fallout_Object {

@@ -2,6 +2,20 @@
 #include "fallout2-ce/obj_types.h"
 #include "fallout2-ce/animation_defs.h"
 
+void validate_object_data_structure() {
+    using namespace fallout;
+
+    static_assert(sizeof(InventoryItem) == 16, "🚨 InventoryItem size mismatch!");
+    static_assert(sizeof(Inventory) == 16, "🚨 Inventory size mismatch!");
+    static_assert(sizeof(ItemObjectData) == 8, "🚨 ItemObjectData size mismatch!");
+    static_assert(sizeof(ObjectData) == 72, "🚨 ObjectData size mismatch!");
+
+    static_assert(offsetof(ObjectData, inventory) == 0, "🚨 ObjectData.inventory offset mismatch!");
+    static_assert(offsetof(ObjectData, critter) == 16, "🚨 ObjectData.critter offset mismatch!");
+    static_assert(offsetof(ObjectData, flags) == 16, "🚨 ObjectData.flags offset mismatch!");
+    static_assert(offsetof(ObjectData, item) == 20, "🚨 ObjectData.item offset mismatch!");
+}
+
 void validate_rotation_enum() {
     using namespace fallout;
 

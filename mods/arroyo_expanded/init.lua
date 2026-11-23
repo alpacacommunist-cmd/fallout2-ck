@@ -58,8 +58,29 @@ log.info("golden_tail PID: %s", tostring(golden_tail.pid))
 golden_tail:on('use', function()
   log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
 end)
+-- TODO: inventory.lua
 :on('look_at', function(item)
   sfx.play("geiger")
+
+  local owner = item.owner
+  if owner == nil then
+    log.info("Tail is lying on the ground (tile: %d)", item.tile)
+    return
+  end
+
+  local inv = owner.data.inventory
+  local target_pid = item.pid
+  local total_qty = 0
+
+  for i = 0, inv.length - 1 do
+    local slot = inv.items[i]
+    if slot.item ~= nil and slot.item.pid == target_pid then
+      total_qty = total_qty + slot.quantity
+    end
+  end
+
+  log.info("Owner (PID %d) has %d of item PID %d (inventory slots: %d)",
+    owner.pid, total_qty, target_pid, inv.length)
 end)
 
 events.on('onGameLoaded', function()
