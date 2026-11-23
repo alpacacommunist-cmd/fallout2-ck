@@ -166,6 +166,7 @@ namespace ck::proxy {
             object_state.elevation = read_table_int("elevation", -1);
             object_state.hp = read_table_int("hp", -1);
             object_state.id = read_table_int("id", -1);
+            object_state.rotation = read_table_int("rotation", -1);
 
             return object_state;
         };

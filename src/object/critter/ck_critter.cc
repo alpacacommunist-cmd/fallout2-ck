@@ -42,14 +42,17 @@ namespace fallout {
 }
 
 namespace ck::critter {
-	static fallout::Object* create(int pid, int tile, int elevation) {
-		fallout::Object* critter = ck_object_create(pid, tile, elevation, true);
+	static fallout::Object* create(int pid, int tile, int rotation) {
+		fallout::Object* critter = ck_object_create(pid, tile, fallout::gElevation, true);
 
 		if (critter != nullptr) {
             Proto* proto = ck::proto::registry::get(pid);
             if (proto) {
                 critter->scriptIndex = proto->get_sid();
             }
+
+            fallout::Rotation fallout_rotation = static_cast<fallout::Rotation>(rotation);
+            if (fallout_rotation != fallout::Rotation::ROTATION_INVALID) critter->rotation = fallout_rotation;
 
             return critter;
         }
@@ -113,7 +116,7 @@ namespace ck::critter {
         if (state.elevation != -1) spawn_params->elevation = state.elevation;
         if (state.tile != -1) tile = state.tile;
 
-        fallout::Object* critter = create(pid, tile, spawn_params->elevation);
+        fallout::Object* critter = create(pid, tile, state.rotation);
         if (critter == nullptr) return nullptr;
 
         if (state.hp > 0) ck::critter_adjust_hp(critter, state.hp);

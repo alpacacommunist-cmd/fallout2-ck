@@ -108,8 +108,9 @@ function state.sync_save()
         object_state = mod_namespace_db.objects[object.tag]
       end
 
-      if object.tile then object_state.tile = object:tile() end
-      if object.hp   then object_state.hp   = object:hp()   end
+      if object.tile then object_state.tile = object.raw.tile end
+      if object.hp then object_state.hp   = object:hp()   end
+      if object.rotation then object_state.rotation = object:rotation() end
 
       object_state.id = object.id
       object_state.inventory = object:inventory_table()

@@ -17,9 +17,9 @@ function Object.new(fallout_Object)
 
   self.raw = ffi.cast("struct fallout_Object*", fallout_Object)
 
-  self.id        = self.raw.id
-  self.sid       = self.raw.sid
-  self.pid       = self.raw.pid
+  self.id = self.raw.id
+  self.sid = self.raw.sid
+  self.pid = self.raw.pid
   self.elevation = self.raw.elevation
 
   self.mod_id = ck.common.current_mod_id()
@@ -146,6 +146,10 @@ end
 
 function Object:tile()
   return self.raw.tile
+end
+
+function Object:rotation()
+  return tonumber(self.raw.rotation)
 end
 
 function Object:get_name()
