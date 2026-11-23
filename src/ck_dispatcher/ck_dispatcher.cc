@@ -32,22 +32,18 @@ namespace ck::dispatcher {
         ck::proxy::on_map_update(ticks);
     }
 
-    bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
+    bool on_proc(int lua_id, int proc_id, int param, const char* object_mod_id) {
         if (!object_mod_id) {
             logger.warning("ck_dispatcher_on_proc called with null object_mod_id");
         }
 
-        bool result = ck::proxy::on_proc(lua_id, proc_id, fixed_param, object_mod_id);
+        bool result = ck::proxy::on_proc(lua_id, proc_id, param, object_mod_id);
 
         return result;
     }
 
-    bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
-        if (!object_mod_id) {
-            logger.warning("ck_dispatcher_on_proc called with null object_mod_id");
-        }
-
-        bool result = ck::proxy::on_proto_proc(pid, proc_id, fixed_param, object_mod_id);
+    bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object) {
+        bool result = ck::proxy::on_proto_proc(pid, proc_id, param, object);
 
         return result;
     }

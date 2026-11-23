@@ -1,5 +1,7 @@
 #include "lua/proxy/proxy.h"
 #include "lua/proxy/dispatcher.h"
+#include "runtime/proto_registry/registry.h"
+#include "runtime/mods.h"
 #include <lua.hpp>
 
 extern lua_State* gLuaState;
@@ -55,12 +57,15 @@ namespace ck::proxy {
 		}
 	}
 
-    bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id) {
-        return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, fixed_param, object_mod_id);
+    bool on_proc(int lua_id, int proc_id, int param, const char* object_mod_id) {
+        return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, param, object_mod_id);
     }
 
-    bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id) {
-        return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, fixed_param, object_mod_id);
+    bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object) {
+        const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
+        if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
+
+        return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, param, mod_id, object);
     }
 
     bool critter_killed(fallout::Object* victim, fallout::Object* killer) {

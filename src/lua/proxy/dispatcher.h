@@ -32,8 +32,8 @@ namespace ck::proxy {
 		emit_global(event_name, { ProxyArg(args)... });
     }
 
-	bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
-	bool on_proto_proc(int pid, int proc_id, int fixed_param, const char* object_mod_id);
+	bool on_proc(int lua_id, int proc_id, int param, const char* object_mod_id);
+	bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object);
 
     bool critter_killed(fallout::Object* victim, fallout::Object* killer);
 }

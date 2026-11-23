@@ -175,7 +175,7 @@ namespace ck::hooks::gameplay {
             const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
             if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
 
-            handled = ck::dispatcher::on_proto_proc(pid, proc, script_param, mod_id);
+            handled = ck::dispatcher::on_proto_proc(pid, proc, script_param, ck::script::owner(script));
         }
 
         if (ck::ids::is_ck_custom_script_index(script_index)) {

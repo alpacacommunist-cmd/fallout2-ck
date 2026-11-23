@@ -42,8 +42,6 @@ end
 
 proto.rename("arroyo_expanded:golden_scorpion_tail", "golden_scorpion_tail")
 local golden_tail = items.register_prototype(PID_RADSCORPION_TAIL, "golden_scorpion_tail", {
-  -- object_type = proto.types.item,
-  --
   name        = "Золотой хвост скорпиона",
   description = "Мутировавший хвост редкого золотого радскорпиона. Выглядит очень дорого.",
   price  = 600,
@@ -60,7 +58,7 @@ log.info("golden_tail PID: %s", tostring(golden_tail.pid))
 golden_tail:on('use', function()
   log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
 end)
-:on('look_at', function()
+:on('look_at', function(item)
   sfx.play("geiger")
 end)
 

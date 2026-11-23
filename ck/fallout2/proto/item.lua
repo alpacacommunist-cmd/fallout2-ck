@@ -69,14 +69,17 @@ function ItemProto:on(event_name, callback)
   return self
 end
 
-function ItemProto:_handle_proc(proc_id, fixed_param)
-  local event_name = ck.common.script_proc_names[proc_id]
-  if not event_name then return false end
+function ItemProto:_handle_proc(mod_id, pid, event_name, param, cdata_object)
+  local handler = self.handlers[event_name]
+  if not handler then return nil end
 
-  if self.handlers[event_name] then
-    local result = self.handlers[event_name](self, fixed_param)
-    if result ~= nil then return result end
+  local object = nil
+  if cdata_object ~= nil then
+    object = ffi.cast("struct fallout_Object*", cdata_object)
   end
+
+  local result = handler(object, param)
+  if result ~= nil then return result end
 end
 
 return ItemProto
