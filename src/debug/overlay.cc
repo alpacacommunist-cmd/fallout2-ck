@@ -52,6 +52,9 @@ namespace fallout {
     // map.cc
     bool isoDisable();
     bool isoEnable();
+
+    // worldmap.cc
+    int wmTeleportToArea(City areaIdx);
 }
 
 static bool gDebugOverlayEnabled = false;
@@ -291,6 +294,8 @@ static void mode_main_teleport_to_map() {
             int map_id = std::stoi(result);
 
             logger.info("MAP ID: {}", result);
+
+            fallout::wmTeleportToArea(static_cast<fallout::City>(map_id));
             gNeedsRefresh = true;
         }
         catch (const std::exception& exc) {
