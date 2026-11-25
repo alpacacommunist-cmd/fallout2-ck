@@ -8,12 +8,23 @@ void validate_object_data_structure() {
     static_assert(sizeof(InventoryItem) == 16, "🚨 InventoryItem size mismatch!");
     static_assert(sizeof(Inventory) == 16, "🚨 Inventory size mismatch!");
     static_assert(sizeof(ItemObjectData) == 8, "🚨 ItemObjectData size mismatch!");
+    static_assert(sizeof(SceneryObjectData) == 8, "🚨 SceneryObjectData size mismatch!");
+    static_assert(sizeof(MiscObjectData) == 16, "🚨 MiscObjectData size mismatch!");
+    static_assert(sizeof(CritterCombatData) == 32, "🚨 CritterCombatData size mismatch!");
+    static_assert(sizeof(CritterObjectData) == 56, "🚨 CritterObjectData size mismatch!");
     static_assert(sizeof(ObjectData) == 72, "🚨 ObjectData size mismatch!");
 
     static_assert(offsetof(ObjectData, inventory) == 0, "🚨 ObjectData.inventory offset mismatch!");
     static_assert(offsetof(ObjectData, critter) == 16, "🚨 ObjectData.critter offset mismatch!");
     static_assert(offsetof(ObjectData, flags) == 16, "🚨 ObjectData.flags offset mismatch!");
     static_assert(offsetof(ObjectData, item) == 20, "🚨 ObjectData.item offset mismatch!");
+    static_assert(offsetof(ObjectData, scenery) == 20, "🚨 ObjectData.scenery offset mismatch!");
+    static_assert(offsetof(ObjectData, misc) == 20, "🚨 ObjectData.misc offset mismatch!");
+
+    static_assert(offsetof(CritterObjectData, combat) == 8, "🚨 CritterObjectData.combat offset mismatch!");
+    static_assert(offsetof(CritterObjectData, hp) == 40, "🚨 CritterObjectData.hp offset mismatch!");
+    static_assert(offsetof(CritterObjectData, radiation) == 44, "🚨 CritterObjectData.radiation offset mismatch!");
+    static_assert(offsetof(CritterObjectData, poison) == 48, "🚨 CritterObjectData.poison offset mismatch!");
 }
 
 void validate_rotation_enum() {
