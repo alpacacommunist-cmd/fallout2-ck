@@ -25,6 +25,11 @@ void validate_object_data_structure() {
     static_assert(offsetof(CritterObjectData, hp) == 40, "🚨 CritterObjectData.hp offset mismatch!");
     static_assert(offsetof(CritterObjectData, radiation) == 44, "🚨 CritterObjectData.radiation offset mismatch!");
     static_assert(offsetof(CritterObjectData, poison) == 48, "🚨 CritterObjectData.poison offset mismatch!");
+
+    static_assert(sizeof(WeaponObjectData) == 8, "🚨 WeaponObjectData size mismatch!");
+    static_assert(sizeof(AmmoItemData) == 4, "🚨 AmmoItemData size mismatch!");
+    static_assert(sizeof(MiscItemData) == 4, "🚨 MiscItemData size mismatch!");
+    static_assert(sizeof(KeyItemData) == 4, "🚨 KeyItemData size mismatch!");
 }
 
 void validate_rotation_enum() {
