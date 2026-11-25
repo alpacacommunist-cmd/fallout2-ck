@@ -18,8 +18,6 @@ function ItemProto:new(source_pid, lua_tag, mod_id, config)
   instance.ground_fid = config.ground_fid or -1
   instance.usable = config.usable or false
 
-  instance.handlers = {}
-
   return instance
 end
 
@@ -52,34 +50,12 @@ function ItemProto:register()
 
   self.script_index = ffi.C.ck_proto_get_sid_by_pid(self.pid)
 
+  ck.registries.prototypes_by_pid[self.pid] = self
   proto.registry[self.mod_id].items[self.pid] = self
   proto.tags_registry[self.mod_id].items[self.lua_tag] = true
 
+
   return self
-end
-
-function ItemProto:on(event_name, callback)
-  local event_id = ck.common.script_procs[event_name]
-  if not event_id then
-    log.error("Proc unknown: %s", event_name)
-    return nil
-  end
-
-  self.handlers[event_name] = callback
-  return self
-end
-
-function ItemProto:_handle_proc(mod_id, pid, event_name, param, cdata_object)
-  local handler = self.handlers[event_name]
-  if not handler then return nil end
-
-  local object = nil
-  if cdata_object ~= nil then
-    object = ffi.cast("struct fallout_Object*", cdata_object)
-  end
-
-  local result = handler(object, param)
-  if result ~= nil then return result end
 end
 
 return ItemProto

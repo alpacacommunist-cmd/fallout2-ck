@@ -8,6 +8,7 @@ local log = ck.log.new('proto.lua')
 
 local proto = {}
 
+-- TODO: use ck.common.object_types
 proto.types = {
   item = 0,
   critter = 1,
@@ -62,6 +63,8 @@ function Proto:new(source_pid, lua_tag, mod_id, object_type, config)
   instance.name = config.name
   instance.description = config.description
 
+  instance.handlers = {}
+
   return instance
 end
 
@@ -74,6 +77,23 @@ function proto.rename(previous_name, new_name)
 
   proto.migrations[mod_id][previous_name] = new_name
   log.info("[%s] Registered tag rename: %s -> %s", mod_id, previous_name, new_name)
+end
+
+function Proto:on(event_name, callback)
+  local event_id = ck.common.script_procs[event_name]
+
+  if not event_id then
+    log.error("Proc unknown: %s", event_name)
+    return self
+  end
+
+  if not self.allowed_procs[event_id] then
+    log.error("Proc wasn't allowed on creation: %s", event_name)
+    return self
+  end
+
+  self.handlers[event_name] = callback
+  return self
 end
 
 proto.ProtoClass = Proto

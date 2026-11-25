@@ -28,8 +28,6 @@ local inv_fid    = assets.resolve("skilldex/scorpg.frm", 7)
 local ground_fid = assets.resolve("scorpg_ground.frm", 0)
 
 local flare_test = items.register_prototype(79, "flare", {
-  -- object_type = proto.types.item,
-
   name = "flare-flare",
   description = "test flare",
   price = 500
@@ -59,8 +57,9 @@ golden_tail:on('use', function()
   log.info("hello world [from golden scorpion tail PID: %s]", golden_tail.pid)
 end)
 -- TODO: inventory.lua
-:on('look_at', function(item)
+:on('look_at', function(item_wrapped)
   sfx.play("geiger")
+  local item = item_wrapped.raw
 
   local owner = item.owner
   if owner == nil then
@@ -81,6 +80,9 @@ end)
 
   log.info("Owner (PID %d) has %d of item PID %d (inventory slots: %d)",
     owner.pid, total_qty, target_pid, inv.length)
+end)
+:on('description', function(item)
+  log.print("hey")
 end)
 
 events.on('onGameLoaded', function()
@@ -173,6 +175,10 @@ events.on('map_enter', function(map_id)
     skills = { small_guns = 200 },
     allowed_procs = { 'talk', 'push' }
   })
+  :on('push', function(alice_instance)
+    alice_instance:float_message('denied', 1)
+    return true
+  end)
 
   -- 16777351, 16777391, 16777349, 16777347, 16777345, 16777343, 16777341
   local alice = critters.register("alice_arroyo", { pid = alice_prototype.pid, tile = 19908, script_index = 8, team = 0 })
@@ -202,10 +208,10 @@ events.on('map_enter', function(map_id)
   alice:on('map_update', function(self) self:float_message('Здарова', 2) end)
   alice:set_behavior(behaviors.patrol, { 16912, 17724, 18706, 20924, 21516 }, 5)
 
-  alice:on('push', function(self)
-    self:float_message('denied', 1)
-    return true
-  end)
+  -- alice:on('push', function(self)
+  --   self:float_message('denied', 1)
+  --   return true
+  -- end)
 
   alice:animate()
     :walk_to(20913)

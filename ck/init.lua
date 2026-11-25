@@ -263,11 +263,12 @@ ck.registries = {
   prototype_tags = {},
   prototype_migrations = {},
 
+  -- global table (no mod namespace)
+  prototypes_by_pid = {},
+
   -- ck/fallout2/timers.lua ⏱️
   timers = {},
   timer_categories = { live = {}, evented = {} },
-
-  -- 🧬protototypes (placeholder) (not used)
 
   -- ck/fallout2/critters.lua 🦂
   critter_spawn_counters = {},

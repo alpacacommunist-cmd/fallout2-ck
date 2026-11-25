@@ -107,19 +107,11 @@ function events.on_proc(object_id, proc_id, param, mod_id)
   return object:_handle_proc(proc_id, param)
 end
 
--- TODO: add to registries
 function events.on_proto_proc(pid, proc_id, param, mod_id, cdata_object)
   if cdata_object == nil then return false end
 
   local object = Object.wrap(cdata_object)
   return object:_handle_proc(proc_id, param)
-  -- local event_name = ck.common.script_proc_names[proc_id]
-  -- if not event_name then return false end
-  --
-  -- local proto = proto.registry[mod_id].items[pid]
-  -- if not proto then return false end
-  --
-  -- return proto:_handle_proc(mod_id, pid, event_name, param, cdata_object)
 end
 
 function events.clear_registries()

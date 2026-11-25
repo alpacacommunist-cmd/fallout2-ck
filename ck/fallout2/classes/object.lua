@@ -21,18 +21,14 @@ function Object.wrap(fallout_Object)
   self.pid = self.raw.pid
   self.elevation = self.raw.elevation
 
-  self.mod_id = ck.common.current_mod_id()
-
-  if ffi.C.ck_object_has_custom_prototype(self.raw) then
-    local mod_protos = ck.registries.prototypes[self.mod_id]
-    self.proto = mod_protos and (mod_protos.critters[self.pid] or mod_protos.items[self.pid])
-  end
+  self.proto = ck.registries.prototypes_by_pid[self.pid]
 
   return self
 end
 
 function Object.new(fallout_Object)
   local self = Object.wrap(fallout_Object)
+  self.mod_id = ck.common.current_mod_id()
 
   local tag = ffi.C.ck_registry_object_get_lua_tag(self.raw)
   self.tag = tag ~= nil and ffi.string(tag) or nil
@@ -158,27 +154,6 @@ function Object:_handle_proc(proc_id, fixed_param)
 
   return nil
 end
-
--- function Object:_handle_proc(proc_id, fixed_param)
---   local event_name = ck.common.script_proc_names[proc_id]
---   if not event_name then return false end
---
---   -- check custom callbacks eg alice:on, door:on etc
---   local object_handler = self.handlers[event_name]
---   if object_handler then
---     local result = object_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   -- defaults
---   local default_handler = proc_handlers[event_name]
---   if default_handler then
---     local result = default_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   return nil
--- end
 
 function Object:restore()
   return ffi.C.ck_registry_restore_modified_object(self.raw)
