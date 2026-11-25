@@ -190,7 +190,7 @@ function Critter:animate(request_options)
   return builder
 end
 
-local proc_handlers = {
+Critter.class_default_handlers = {
   combat = function(self, fixed_param)
     log.info(string.format("combat npc: %d, fixed_param: %d", self.id, fixed_param))
 
@@ -235,23 +235,23 @@ function Critter:enable_proc(proc_id)
   return self
 end
 
-function Critter:_handle_proc(proc_id, fixed_param)
-  local event_name = ck.common.script_proc_names[proc_id]
-  if not event_name then return false end
-
-  -- check if proc is handled in Object
-  local result = Object._handle_proc(self, proc_id, fixed_param)
-  if result ~= nil then return result end
-
-  -- defaults
-  local default_handler = proc_handlers[event_name]
-  if default_handler then
-    local result = default_handler(self, fixed_param)
-    if result ~= nil then return result end
-  end
-
-  return nil
-end
+-- function Critter:_handle_proc(proc_id, fixed_param)
+--   local event_name = ck.common.script_proc_names[proc_id]
+--   if not event_name then return false end
+--
+--   -- check if proc is handled in Object
+--   local result = Object._handle_proc(self, proc_id, fixed_param)
+--   if result ~= nil then return result end
+--
+--   -- defaults
+--   local default_handler = proc_handlers[event_name]
+--   if default_handler then
+--     local result = default_handler(self, fixed_param)
+--     if result ~= nil then return result end
+--   end
+--
+--   return nil
+-- end
 
 function Critter:_handle_map_update(current_ticks)
   if ffi.C.ck_in_combat() then return end

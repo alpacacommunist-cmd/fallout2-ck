@@ -12,11 +12,10 @@ local state = require('ck.fallout2.state')
 local Object = {}
 Object.__index = Object
 
-function Object.new(fallout_Object)
+function Object.wrap(fallout_Object)
   local self = setmetatable({}, Object)
 
   self.raw = ffi.cast("struct fallout_Object*", fallout_Object)
-
   self.id = self.raw.id
   self.sid = self.raw.sid
   self.pid = self.raw.pid
@@ -24,15 +23,20 @@ function Object.new(fallout_Object)
 
   self.mod_id = ck.common.current_mod_id()
 
+  if ffi.C.ck_object_has_custom_prototype(self.raw) then
+    local mod_protos = ck.registries.prototypes[self.mod_id]
+    self.proto = mod_protos and (mod_protos.critters[self.pid] or mod_protos.items[self.pid])
+  end
+
+  return self
+end
+
+function Object.new(fallout_Object)
+  local self = Object.wrap(fallout_Object)
+
   local tag = ffi.C.ck_registry_object_get_lua_tag(self.raw)
   self.tag = tag ~= nil and ffi.string(tag) or nil
 
-  self.has_custom_prototype = ffi.C.ck_object_has_custom_prototype(self.raw)
-  if self.has_custom_prototype then
-    self.proto = ck.registries.prototypes[self.mod_id].critters[self.pid]
-  end
-
-  -- All LUA objects are either DELETED (hidden), CREATED (spawned) or MODIFIED (existing object has lua script)
   self.modified = ffi.C.ck_registry_object_is_modified(self.raw)
   self.created  = ffi.C.ck_registry_object_is_created(self.raw)
 
@@ -86,7 +90,7 @@ function Object:emit(event_name, ...)
   return self
 end
 
-local proc_handlers = {
+Object.default_handlers = {
   look_at = function(self, fixed_param)
     if self.name then
       monitor.print(self.name)
@@ -120,61 +124,61 @@ local proc_handlers = {
   end
 }
 
--- function Object:_handle_proc(proc_id, fixed_param)
---   local event_name = ck.common.script_proc_names[proc_id]
---   if not event_name then return false end
---
---   -- Personal instance events
---   local instance_handler = self.handlers and self.handlers[event_name]
---   if instance_handler then
---     local result = instance_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   -- Prototype
---   local proto_handler = self.proto and self.proto.handlers and self.proto.handlers[event_name]
---   if proto_handler then
---     local result = proto_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   -- Subclass
---   local class_handler = self.class_default_handlers and self.class_default_handlers[event_name]
---   if class_handler then
---     local result = class_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   -- Object
---   local base_handler = Object.default_handlers[event_name]
---   if base_handler then
---     local result = base_handler(self, fixed_param)
---     if result ~= nil then return result end
---   end
---
---   return nil
--- end
-
 function Object:_handle_proc(proc_id, fixed_param)
   local event_name = ck.common.script_proc_names[proc_id]
   if not event_name then return false end
 
-  -- check custom callbacks eg alice:on, door:on etc
-  local object_handler = self.handlers[event_name]
-  if object_handler then
-    local result = object_handler(self, fixed_param)
+  -- Personal instance events
+  local instance_handler = self.handlers and self.handlers[event_name]
+  if instance_handler then
+    local result = instance_handler(self, fixed_param)
     if result ~= nil then return result end
   end
 
-  -- defaults
-  local default_handler = proc_handlers[event_name]
-  if default_handler then
-    local result = default_handler(self, fixed_param)
+  -- Prototype
+  local proto_handler = self.proto and self.proto.handlers and self.proto.handlers[event_name]
+  if proto_handler then
+    local result = proto_handler(self, fixed_param)
+    if result ~= nil then return result end
+  end
+
+  -- Subclass
+  local class_handler = self.class_default_handlers and self.class_default_handlers[event_name]
+  if class_handler then
+    local result = class_handler(self, fixed_param)
+    if result ~= nil then return result end
+  end
+
+  -- Object
+  local base_handler = Object.default_handlers[event_name]
+  if base_handler then
+    local result = base_handler(self, fixed_param)
     if result ~= nil then return result end
   end
 
   return nil
 end
+
+-- function Object:_handle_proc(proc_id, fixed_param)
+--   local event_name = ck.common.script_proc_names[proc_id]
+--   if not event_name then return false end
+--
+--   -- check custom callbacks eg alice:on, door:on etc
+--   local object_handler = self.handlers[event_name]
+--   if object_handler then
+--     local result = object_handler(self, fixed_param)
+--     if result ~= nil then return result end
+--   end
+--
+--   -- defaults
+--   local default_handler = proc_handlers[event_name]
+--   if default_handler then
+--     local result = default_handler(self, fixed_param)
+--     if result ~= nil then return result end
+--   end
+--
+--   return nil
+-- end
 
 function Object:restore()
   return ffi.C.ck_registry_restore_modified_object(self.raw)
