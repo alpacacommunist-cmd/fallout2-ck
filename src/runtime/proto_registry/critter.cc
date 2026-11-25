@@ -57,12 +57,6 @@ int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* params)
     return ck::proto::registry::critter::allocate(source_pid, *params);
 }
 
-bool ck_critter_has_custom_prototype(fallout::Object* critter) {
-    CK_ENSURE_VALID_OBJECT(critter);
-
-    return ck::proto::registry::get(ck::ids::clean_pid(critter->pid)) != nullptr;
-}
-
 Proto* ck_critter_get_proto_by_pid(int pid) {
     return ck::proto::registry::get(ck::ids::clean_pid(pid));
 }

@@ -32,15 +32,10 @@ function Critter.new(fallout_Object, config)
   local self = Object.new(fallout_Object)
   setmetatable(self, Critter)
 
-  self.has_custom_prototype = ffi.C.ck_critter_has_custom_prototype(self.raw)
-  if self.has_custom_prototype then
-    self.proto = ck.registries.prototypes[self.mod_id].critters[self.pid]
-  end
-
   self.in_combat       = false
   self.active_behavior = nil
 
-  -- behivours
+  -- behaviors
   self._next_behavior_tick = 0
   self._behavior_interval  = 20
 

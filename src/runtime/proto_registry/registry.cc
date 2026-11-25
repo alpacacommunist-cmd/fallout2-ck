@@ -183,3 +183,4 @@ int ck_proto_get_pid_by_tag(const char* lua_tag) {
 int ck_proto_get_sid_by_pid(int pid) {
     return ck::proto::registry::get_sid_by_pid(pid);
 }
+

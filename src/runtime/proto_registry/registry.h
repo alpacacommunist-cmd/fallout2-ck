@@ -84,7 +84,6 @@ CK_API int ck_proto_get_sid_by_pid(int pid);
 CK_API int ck_item_proto_register(int source_pid, const ItemProtoFFI* ffi_data);
 
 CK_API int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* ffi_data);
-CK_API bool ck_critter_has_custom_prototype(fallout::Object* critter);
 CK_API Proto* ck_critter_get_proto_by_pid(int pid);
 CK_API int ck_critter_proto_get_base_stat(Proto* proto, int stat_id);
 CK_API int ck_critter_proto_get_skill(Proto* proto, int skill_id);

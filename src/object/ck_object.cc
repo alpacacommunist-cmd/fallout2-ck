@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "ck_ids.h"
 #include "utils/fallout/types.h"
 #include "object/ck_object.h"
 #include "runtime/objects_registry/registry.h"
@@ -159,6 +160,12 @@ char* ck_object_get_description(fallout::Object* object) {
 int ck_object_get_type(fallout::Object* object) {
     CK_ENSURE_VALID_OBJECT(object);
 	return ck::object::type(object->pid);
+}
+
+bool ck_object_has_custom_prototype(fallout::Object* object) {
+    CK_ENSURE_VALID_OBJECT(object);
+
+    return ck::proto::registry::get(ck::ids::clean_pid(object->pid)) != nullptr;
 }
 
 int ck_object_find_at_tile(int tile, fallout::Object** buffer, int max_count) {

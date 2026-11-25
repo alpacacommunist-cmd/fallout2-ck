@@ -133,7 +133,6 @@ ffi.cdef[[
   fallout_Object* ck_critter_spawn(int pid, int tile, CritterLuaSpawnParams* spawn_params);
 
   int ck_critter_allocate_prototype(int source_pid, const CritterProtoFFI* params);
-  bool ck_critter_has_custom_prototype(fallout_Object* critter);
   ck_CritterProto* ck_critter_get_proto_by_pid(int pid);
 
   int  ck_critter_proto_get_base_stat(ck_CritterProto* proto, int stat_id);
@@ -156,6 +155,7 @@ ffi.cdef[[
   char* ck_object_get_name(fallout_Object* object);
   char* ck_object_get_description(fallout_Object* object);
   int ck_object_get_type(fallout_Object* object);
+  bool ck_object_has_custom_prototype(fallout_Object* object);
   bool ck_object_float_msg(void* ptr, const char* text, int msg_type);
 
   const char* ck_registry_object_get_mod_id(fallout_Object* object);
