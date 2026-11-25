@@ -19,6 +19,10 @@ typedef enum {
 
 typedef int ObjectFlags;
 typedef int OutlineType;
+typedef int CritterManeuver;
+typedef int Dam;
+typedef int Map;
+typedef int MapElevation;
 
 // ObjectData
 typedef struct InventoryItem {
@@ -56,13 +60,71 @@ typedef union ItemObjectData {
     KeyItemData key;
 } ItemObjectData;
 
+typedef struct CritterCombatData {
+    CritterManeuver maneuver;
+    int ap;
+    Dam results;
+    int damageLastTurn;
+    int aiPacket;
+    int team;
+    union {
+        fallout_Object* whoHitMe;
+        int whoHitMeCid;
+    };
+} CritterCombatData;
+
+typedef struct CritterObjectData {
+    int reaction;
+    CritterCombatData combat;
+    int hp;
+    int radiation;
+    int poison;
+} CritterObjectData;
+
+typedef struct DoorSceneryData {
+    int openFlags;
+} DoorSceneryData;
+
+typedef struct StairsSceneryData {
+    Map destinationMap;
+    int destinationBuiltTile;
+} StairsSceneryData;
+
+typedef struct ElevatorSceneryData {
+    int type;
+    int level;
+} ElevatorSceneryData;
+
+typedef struct LadderSceneryData {
+    Map destinationMap;
+    int destinationBuiltTile;
+} LadderSceneryData;
+
+typedef union SceneryObjectData {
+    DoorSceneryData door;
+    StairsSceneryData stairs;
+    ElevatorSceneryData elevator;
+    LadderSceneryData ladder;
+} SceneryObjectData;
+
+typedef struct MiscObjectData {
+    Map map;
+    int tile;
+    MapElevation elevation;
+    Rotation rotation;
+} MiscObjectData;
+
 typedef struct ObjectData {
     Inventory inventory;
     union {
-        uint8_t critter_raw[56]; // TODO: unfold
+        CritterObjectData critter;
         struct {
             int flags;
-            ItemObjectData item;
+            union {
+                ItemObjectData item;
+                SceneryObjectData scenery;
+                MiscObjectData misc;
+            };
         };
     };
 } ObjectData;
