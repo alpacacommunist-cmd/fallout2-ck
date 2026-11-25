@@ -33,7 +33,7 @@ namespace ck::proxy {
     }
 
 	bool on_proc(int lua_id, int proc_id, int param, const char* object_mod_id);
-	bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object);
+	bool on_proto_proc(int proc_id, int param, fallout::Object* object);
 
     bool critter_killed(fallout::Object* victim, fallout::Object* killer);
 }

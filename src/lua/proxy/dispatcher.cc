@@ -61,11 +61,8 @@ namespace ck::proxy {
         return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, param, object_mod_id);
     }
 
-    bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object) {
-        const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
-        if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
-
-        return execute_proxy_call<bool>(detail::on_proto_proc, pid, proc_id, param, mod_id, object);
+    bool on_proto_proc(int proc_id, int param, fallout::Object* object) {
+        return execute_proxy_call<bool>(detail::on_proto_proc, proc_id, param, object);
     }
 
     bool critter_killed(fallout::Object* victim, fallout::Object* killer) {

@@ -42,8 +42,8 @@ namespace ck::dispatcher {
         return result;
     }
 
-    bool on_proto_proc(int pid, int proc_id, int param, fallout::Object* object) {
-        bool result = ck::proxy::on_proto_proc(pid, proc_id, param, object);
+    bool on_proto_proc(int proc_id, int param, fallout::Object* object) {
+        bool result = ck::proxy::on_proto_proc(proc_id, param, object);
 
         return result;
     }

@@ -22,7 +22,7 @@ namespace ck::dispatcher {
 
     void on_map_update(int ticks);
     bool on_proc(int lua_id, int proc_id, int fixed_param, const char* object_mod_id);
-    bool on_proto_proc(int pid, int proc_id, int fixed_param, fallout::Object* object);
+    bool on_proto_proc(int proc_id, int fixed_param, fallout::Object* object);
     void on_map_enter();
 }
 

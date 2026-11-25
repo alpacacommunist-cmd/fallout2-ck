@@ -158,7 +158,6 @@ namespace ck::hooks::gameplay {
         // Object found in registry and handled proc in a global sequence
         if (handled) return true;
 
-        // TODO: properly set enabled procs
         // skip disabled procs
         if (!ck::script::proc_enabled(script, proc)) return false;
 
@@ -169,13 +168,7 @@ namespace ck::hooks::gameplay {
         if (registry_entry) {
             handled = ck::dispatcher::on_proc(ck::script::owner_id(script), proc, script_param, registry_entry->mod_id);
         } else {
-            int pid = ck::proto::registry::get_pid_by_sid(script_index);
-            if (pid == -1) return false;
-
-            const char* mod_id = ck::proto::registry::get_mod_id_by_pid(pid);
-            if (mod_id == nullptr) mod_id = ck::mods::system_mod_id();
-
-            handled = ck::dispatcher::on_proto_proc(pid, proc, script_param, ck::script::owner(script));
+            handled = ck::dispatcher::on_proto_proc(proc, script_param, ck::script::owner(script));
         }
 
         if (ck::ids::is_ck_custom_script_index(script_index)) {

@@ -108,6 +108,9 @@ events.on('map_enter', function(map_id)
     self:float_message('denied', 1)
     return true
   end)
+  klint:on('critter', function(self)
+    return true
+  end)
 
   -- klint:restore()
 

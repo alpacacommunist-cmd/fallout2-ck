@@ -107,7 +107,7 @@ function events.on_proc(object_id, proc_id, param, mod_id)
   return object:_handle_proc(proc_id, param)
 end
 
-function events.on_proto_proc(pid, proc_id, param, mod_id, cdata_object)
+function events.on_proto_proc(proc_id, param, cdata_object)
   if cdata_object == nil then return false end
 
   local object = Object.wrap(cdata_object)
