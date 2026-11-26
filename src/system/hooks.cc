@@ -23,6 +23,8 @@ namespace ck_object = ck::utils::fallout::types::object;
 namespace ck::proxy::detail {
     extern int clear_registries;
     extern int map_exit;
+    extern int on_proto_proc;
+    extern int on_proc;
 }
 
 namespace detail {
@@ -74,8 +76,8 @@ namespace detail {
             }
 
             if (registry_entry) {
-                return ck::dispatcher::on_proc(ck::script::owner_id(script), proc,
-                        ck::script::param(script), registry_entry->mod_id);
+                return ck::proxy::execute_proxy_call<bool>(ck::proxy::detail::on_proc,
+                    ck::script::owner_id(script), proc, script_proc, registry_entry->mod_id);
             }
 
             break;
@@ -166,9 +168,11 @@ namespace ck::hooks::gameplay {
         if (!ck::ids::is_ck_script_index(script_index)) return false;
 
         if (registry_entry) {
-            handled = ck::dispatcher::on_proc(ck::script::owner_id(script), proc, script_param, registry_entry->mod_id);
+            handled = proxy::execute_proxy_call<bool>(proxy::detail::on_proc,
+                    ck::script::owner_id(script), proc, script_param, registry_entry->mod_id);
         } else {
-            handled = ck::dispatcher::on_proto_proc(proc, script_param, ck::script::owner(script));
+            handled = proxy::execute_proxy_call<bool>(proxy::detail::on_proto_proc,
+                    proc, script_param, ck::script::owner(script));
         }
 
         if (ck::ids::is_ck_custom_script_index(script_index)) {
