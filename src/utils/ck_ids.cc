@@ -4,20 +4,10 @@
 #include "utils/fallout/types/proto.h"
 
 #include "fallout2-ce/obj_types.h"
+#include "fallout2-ce/scripts.h"
 
 #include "log.h"
 static constexpr logging::Context logger{"src/utils/ck_ids.cc"};
-
-namespace fallout {
-    typedef enum ScriptType {
-        SCRIPT_TYPE_SYSTEM, // s_system
-        SCRIPT_TYPE_SPATIAL, // s_spatial
-        SCRIPT_TYPE_TIMED, // s_time
-        SCRIPT_TYPE_ITEM, // s_item
-        SCRIPT_TYPE_CRITTER, // s_critter
-        SCRIPT_TYPE_COUNT,
-    } ScriptType;
-}
 
 namespace ck_proto = ck::utils::fallout::types::proto;
 

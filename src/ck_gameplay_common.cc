@@ -6,6 +6,7 @@
 #include "fallout2-ce/geometry.h"
 #include "fallout2-ce/map_defs.h"
 #include "fallout2-ce/obj_types.h"
+#include "fallout2-ce/color.h"
 
 namespace f_types = ck::utils::types;
 namespace fallout {
@@ -19,7 +20,6 @@ namespace fallout {
     // tile.cc
     void tileWindowRefreshRect(Rect* rect, MapElevation elevation);
 
-    enum Color : unsigned char;
     enum CombatState : unsigned int {
         COMBAT_STATE_OUT_COMBAT = 0x00, COMBAT_STATE_IN_COMBAT = 0x01,
         COMBAT_STATE_PLAYER_TURN = 0x02, COMBAT_STATE_EXIT_REQUESTED = 0x08,

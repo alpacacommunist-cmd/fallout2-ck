@@ -54,6 +54,7 @@ namespace fallout {
     bool isoEnable();
 
     // worldmap.cc
+    enum City : int;
     int wmTeleportToArea(City areaIdx);
 }
 

@@ -11,6 +11,14 @@ static constexpr logging::Context logger{"ck_item.cc"};
 namespace fallout {
     bool critterFlagCheck(const ProtoId& protoId, CritterFlags flag);
     int protoGetProto(const ProtoId &protoId, Proto **protoPtr);
+
+    // object.cc
+    int objectDestroy(Object* object, Rect* rect);
+    int objectCreateWithProtoId(Object** objectPtr, const ProtoId& protoId);
+    int objectSetLocation(Object* obj, int tile, MapElevation elevation, Rect* rect);
+    int _obj_disconnect(Object* obj, Rect* rect);
+    // inventory.cc
+    int objectGetCarriedQuantityByProtoId(Object* obj, const ProtoId& protoId);
 }
 
 namespace ck {
