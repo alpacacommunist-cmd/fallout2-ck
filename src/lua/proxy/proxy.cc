@@ -213,4 +213,13 @@ namespace ck::proxy {
             }
         }
     }
+
+    // explicit function calls
+    bool lua_proc(int lua_id, int proc_id, int param, const char* object_mod_id) {
+        return execute_proxy_call<bool>(detail::on_proc, lua_id, proc_id, param, object_mod_id);
+    }
+
+    bool lua_proto_proc(int proc_id, int param, fallout::Object* object) {
+        return execute_proxy_call<bool>(detail::on_proto_proc, proc_id, param, object);
+    }
 }

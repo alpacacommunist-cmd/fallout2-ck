@@ -6,6 +6,10 @@
 void ck_lua_proxy_init();
 void ck_lua_proxy_shutdown();
 
+namespace fallout {
+    struct Object;
+}
+
 namespace ck::proxy {
 	bool is_ready();
 
@@ -66,6 +70,9 @@ namespace ck::proxy {
     void init_lua_state(std::string_view package_path);
     void cache_functions();
     void shutdown();
+
+	bool lua_proc(int lua_id, int proc_id, int param, const char* object_mod_id);
+	bool lua_proto_proc(int proc_id, int param, fallout::Object* object);
 }
 
 #endif
