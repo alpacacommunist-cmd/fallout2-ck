@@ -70,7 +70,7 @@ namespace detail {
             fallout::Object *killer = ck::script::source(script);
 
             if (victim && ck::ids::is_critter(victim)) {
-                ck::dispatcher::on_critter_killed(victim, killer);
+                ck::proxy::lua_critter_killed(victim, killer);
             }
 
             if (registry_entry) {

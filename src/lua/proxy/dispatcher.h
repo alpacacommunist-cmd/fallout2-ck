@@ -31,8 +31,6 @@ namespace ck::proxy {
 		LuaStackGuard stack_guard;
 		emit_global(event_name, { ProxyArg(args)... });
     }
-
-    bool critter_killed(fallout::Object* victim, fallout::Object* killer);
 }
 
 #endif
