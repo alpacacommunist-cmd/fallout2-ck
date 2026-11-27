@@ -55,11 +55,4 @@ namespace ck::proxy {
 			lua_pop(gLuaState, 1);
 		}
 	}
-
-    bool critter_killed(fallout::Object* victim, fallout::Object* killer) {
-        // In some cases there's no killer
-        if (killer == nullptr) killer = victim;
-
-        return execute_proxy_call<bool>(detail::critter_killed, victim, killer);
-    }
 }
