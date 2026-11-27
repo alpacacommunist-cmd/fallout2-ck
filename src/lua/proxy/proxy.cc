@@ -223,11 +223,14 @@ namespace ck::proxy {
         return execute_proxy_call<bool>(detail::on_proto_proc, proc_id, param, object);
     }
 
-    bool critter_killed(fallout::Object* victim, fallout::Object* killer) {
+    bool lua_critter_killed(fallout::Object* victim, fallout::Object* killer) {
         // In some cases there's no killer
         if (killer == nullptr) killer = victim;
 
         return execute_proxy_call<bool>(detail::critter_killed, victim, killer);
     }
 
+    void lua_map_update(int ticks) {
+        execute_proxy_call<bool>(detail::on_map_update, ticks);
+    }
 }

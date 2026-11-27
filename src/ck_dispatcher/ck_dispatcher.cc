@@ -28,26 +28,6 @@ namespace ck::dispatcher {
         ck::proxy::emit_for_mod(mod_id_ptr, event_name, ck::common::current_map_id());
     }
 
-    void on_map_update(int ticks) {
-        ck::proxy::on_map_update(ticks);
-    }
-
-    // bool on_proc(int lua_id, int proc_id, int param, const char* object_mod_id) {
-    //     if (!object_mod_id) {
-    //         logger.warning("ck_dispatcher_on_proc called with null object_mod_id");
-    //     }
-    //
-    //     bool result = ck::proxy::on_proc(lua_id, proc_id, param, object_mod_id);
-    //
-    //     return result;
-    // }
-    //
-    // bool on_proto_proc(int proc_id, int param, fallout::Object* object) {
-    //     bool result = ck::proxy::on_proto_proc(proc_id, param, object);
-    //
-    //     return result;
-    // }
-
     void on_game_start() {
         emit("onGameStart");
     }
@@ -66,10 +46,6 @@ namespace ck::dispatcher {
 
     void on_skill_used(int skill, int success_count, int bonus) {
         emit("skill_used", skill, success_count, bonus);
-    }
-
-    void on_critter_killed(fallout::Object* victim, fallout::Object* killer) {
-        ck::proxy::critter_killed(victim, killer);
     }
 
     void on_day_passed() {

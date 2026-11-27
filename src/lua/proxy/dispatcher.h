@@ -11,8 +11,6 @@ namespace fallout {
 }
 
 namespace ck::proxy {
-	void on_map_update(int ticks);
-
 	bool proxy_emit_start(const char* mod_id, const char* event_name);
 	void proxy_emit_end(const char* mod_id, const char* event_name, int total_args);
 

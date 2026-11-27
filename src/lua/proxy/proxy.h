@@ -74,6 +74,7 @@ namespace ck::proxy {
 	bool lua_proc(int lua_id, int proc_id, int param, const char* object_mod_id);
 	bool lua_proto_proc(int proc_id, int param, fallout::Object* object);
     bool lua_critter_killed(fallout::Object* victim, fallout::Object* killer);
+    void lua_map_update(int ticks);
 }
 
 #endif

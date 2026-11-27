@@ -22,10 +22,6 @@ namespace ck::proxy {
         lua_pushlightuserdata(gLuaState, value);
     }
 
-    void on_map_update(int ticks) {
-		execute_proxy_call<bool>(detail::on_map_update, ticks);
-    }
-
     void emit_global(const char* event_name, std::initializer_list<ProxyArg> args) {
 		if (!internal_call_start(detail::emit)) return;
 

@@ -125,7 +125,7 @@ namespace ck::hooks::gameplay {
     // alternative map updater
     // scripts.cc: static void _doBkProcesses()
 	void map_update(unsigned int ticks) {
-        ck::dispatcher::on_map_update(ticks);
+        ck::proxy::lua_map_update(ticks);
 	}
 
     // set localVarsCount to 0 bc script is fake (isn't physically loaded in gScriptsListEntries)
